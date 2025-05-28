@@ -33,7 +33,7 @@
                 HorizontalOptions="Fill" />
 
             <buttons:SfButton x:Name="button"
-                Text="Testing (for the third time)"
+                Text="Testing (for the fourth time)"
                 CornerRadius="10"
                 Clicked="OnCounterClicked"
                 IsCheckable="True">
