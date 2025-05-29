@@ -19,6 +19,11 @@
                 Style="{StaticResource Headline}"
                 SemanticProperties.HeadingLevel="Level1" />
 
+            <Button Text="CHECKING - Go to the other super secret page"
+                    Clicked="OnGoToPageBClicked" />
+            
+
+
             <Label
                 Text="Welcome to &#10;.NET Multi-platform App UI"
                 Style="{StaticResource SubHeadline}"

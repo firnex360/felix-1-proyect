@@ -9,5 +9,7 @@ public partial class App : Application
 		InitializeComponent();
 
 		MainPage = new AppShell();
-	}
+        MainPage = new NavigationPage(new MainPage()); //CHECKING - adding... this, to new page
+
+    }
 }
