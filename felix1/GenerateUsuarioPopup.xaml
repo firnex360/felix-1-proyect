@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="felix1.GeneraeUsuarioPopup"
+    BackgroundColor="#43434F"
+    Padding="30">
+
+    <Grid RowDefinitions="Auto,*,Auto" ColumnDefinitions="*">
+        <!-- Titulo (Evil) -->
+        <Label Text="Agregar Usuario"
+               Grid.Row="0"
+               TextColor="White"
+               FontAttributes="Bold"
+               FontSize="20"
+               HorizontalOptions="Start"
+               VerticalOptions="Center"
+               Margin="0,0,0,20"/>
+
+        <!-- FORM -->
+        <Grid Grid.Row="1">
+            <VerticalStackLayout 
+                Spacing="10" 
+                VerticalOptions="Start"
+                HorizontalOptions="Center"
+                WidthRequest="450">
+                <Label Text="Nombre" TextColor="White" FontAttributes="Bold" FontSize="12" HorizontalOptions="Center"/>
+                <Frame CornerRadius="10" Padding="0" HasShadow="False" BackgroundColor="White" HeightRequest="40">
+                    <Entry Placeholder="Nombre" BackgroundColor="Transparent" TextColor="Black" x:Name="entryNombre" FontSize="14" />
+                </Frame>
+
+                <Label Text="Username" TextColor="White" FontAttributes="Bold" FontSize="12" HorizontalOptions="Center"/>
+                <Frame CornerRadius="10" Padding="0" HasShadow="False" BackgroundColor="White" HeightRequest="40">
+                    <Entry Placeholder="Username" BackgroundColor="Transparent" TextColor="Black" x:Name="entryUsername" FontSize="14" />
+                </Frame>
+
+                <Label Text="Password" TextColor="White" FontAttributes="Bold" FontSize="12" HorizontalOptions="Center"/>
+                <Frame CornerRadius="10" Padding="0" HasShadow="False" BackgroundColor="White" HeightRequest="40">
+                    <Entry Placeholder="Password" IsPassword="True" BackgroundColor="Transparent" TextColor="Black" x:Name="entryPassword" FontSize="14" />
+                </Frame>
+
+                <Label Text="Confirmar Password" TextColor="White" FontAttributes="Bold" FontSize="12" HorizontalOptions="Center"/>
+                <Frame CornerRadius="10" Padding="0" HasShadow="False" BackgroundColor="White" HeightRequest="40">
+                    <Entry Placeholder="Confirmar Password" IsPassword="True" BackgroundColor="Transparent" TextColor="Black" x:Name="entryCPassword" FontSize="14" />
+                </Frame>
+
+                <Label Text="Roles" TextColor="White" FontAttributes="Bold" FontSize="12" HorizontalOptions="Center"/>
+                <Frame CornerRadius="10" Padding="0" HasShadow="False" BackgroundColor="White" HeightRequest="40">
+                    <Picker BackgroundColor="Transparent" TextColor="Black" x:Name="pickerRol" FontSize="14">
+                        <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                <x:String>Mesero</x:String>
+                                <x:String>Cajero</x:String>
+                                <x:String>Admin</x:String>
+                            </x:Array>
+                        </Picker.ItemsSource>
+                    </Picker>
+                </Frame>
+            </VerticalStackLayout>
+        </Grid>
+
+        <!-- La sección para completar todo, no se me ocurre un nombre-->
+        <Grid Grid.Row="2" Padding="0,20,0,0">
+            <StackLayout Orientation="Horizontal"
+                         HorizontalOptions="End"
+                         Spacing="10">
+                <Button Text="Salir"
+                        BackgroundColor="#F9475D"
+                        TextColor="Black"
+                        HeightRequest="45"
+                        CornerRadius="10"
+                        Clicked="OnClosePopupClicked" />
+                
+                <Button Text="Agregar Usuario"
+                        BackgroundColor="#B8FF6B"
+                        TextColor="Black"
+                        HeightRequest="45"
+                        CornerRadius="10"
+                        x:Name="btnAgregarUsuario"/>
+            </StackLayout>
+        </Grid>
+    </Grid>
+</ContentPage>
