@@ -37,6 +37,12 @@
                 Clicked="OnCounterClicked"
                 HorizontalOptions="Fill" />
 
+            <Button
+                x:Name="createUserTemp"
+                Text="Create User (for testing)"
+                Clicked="OnSaveUserTest"
+                HorizontalOptions="Start" />
+
             <buttons:SfButton x:Name="button"
                 Text="Testing (for the fourth time)"
                 CornerRadius="10"
