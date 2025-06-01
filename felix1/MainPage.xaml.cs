@@ -1,37 +1,34 @@
-﻿namespace felix1;
+﻿using felix1.Data;
+using felix1.Logic;
+namespace felix1;
 
 public partial class MainPage : ContentPage
 {
-	int count = 0;
 
-	public MainPage()
-	{
-		InitializeComponent();
-	}
+    int count = 0;
 
-	private void OnCounterClicked(object sender, EventArgs e)
-	{
-		count++;
+    public MainPage()
+    {
+        InitializeComponent();
+    }
 
-		if (count == 1)
-			CounterBtn.Text = $"Clicked {count} time";
-		else
-			CounterBtn.Text = $"Clicked {count} times";
+    private void OnCounterClicked(object sender, EventArgs e)
+    {
+        count++;
 
-		SemanticScreenReader.Announce(CounterBtn.Text);
-	}
+        if (count == 1)
+            CounterBtn.Text = $"Clicked {count} time";
+        else
+            CounterBtn.Text = $"Clicked {count} times";
+
+        SemanticScreenReader.Announce(CounterBtn.Text);
+    }
 
 
     private async void OnGoToPageBClicked(object sender, EventArgs e)
     {
         await Navigation.PushAsync(new Example()); //CHECKING - navigate to example page
     }
-
-    private async void OnMostrarPopupClicked(object sender, EventArgs e)
-    {
-        await Navigation.PushModalAsync(new GeneraeUsuarioPopup());
-    }
-
 
 }
 

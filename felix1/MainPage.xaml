@@ -37,13 +37,6 @@
                 Clicked="OnCounterClicked"
                 HorizontalOptions="Fill" />
 
-            <Button Text="Agregar Usuario"
-                BackgroundColor="#B8FF6B"
-                TextColor="Black"
-                Clicked="OnMostrarPopupClicked"
-                CornerRadius="10" />
-
-
             <buttons:SfButton x:Name="button"
                 Text="Testing (for the fourth time)"
                 CornerRadius="10"
