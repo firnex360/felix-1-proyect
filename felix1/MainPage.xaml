@@ -37,6 +37,11 @@
                 Clicked="OnCounterClicked"
                 HorizontalOptions="Fill" />
 
+            <Button 
+                Text="Generar Usuario"
+                Clicked="OnGenerarUsuarioClicked"
+                HorizontalOptions="Fill" />
+
             <buttons:SfButton x:Name="button"
                 Text="Testing (for the fourth time)"
                 CornerRadius="10"

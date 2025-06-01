@@ -30,5 +30,11 @@ public partial class MainPage : ContentPage
         await Navigation.PushAsync(new Example()); //CHECKING - navigate to example page
     }
 
+    private async void OnGenerarUsuarioClicked(object sender, EventArgs e)
+    {
+        // Aquí abres el popup o la nueva página
+        await Navigation.PushModalAsync(new GeneraeUsuarioPopup());
+    }
+
 }
 
