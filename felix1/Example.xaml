@@ -5,7 +5,7 @@
              x:Class="felix1.Example"
              Title="Crear Artículo">
              <Grid ColumnDefinitions="Auto,*">
-    <!-- Left menu -->
+    <!-- LEFT MENU -->
     <VerticalStackLayout Grid.Column="0"
                          WidthRequest="200"
                          BackgroundColor="#7E949D">
@@ -14,7 +14,7 @@
         <Button Text="Mesas" CornerRadius="0" BackgroundColor="#A1BCC8" Clicked="OnShowTable"/>
     </VerticalStackLayout>
 
-    <!-- Right content area -->
+    <!-- RIGHT || CONTENT AREA -->
     <ContentView x:Name="RightPanel" Grid.Column="1" BackgroundColor="White"/>
 </Grid>
 
