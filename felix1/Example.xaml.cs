@@ -6,4 +6,11 @@ public partial class Example : ContentPage
 	{
 		InitializeComponent();
 	}
+
+private void OnShowArticle(object sender, EventArgs e)
+{
+    RightPanel.Content = new Article(); // Load the Article view into the placeholder
+}
+
+
 }
