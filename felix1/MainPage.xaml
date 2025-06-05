@@ -46,7 +46,7 @@
             <buttons:SfButton x:Name="button"
                 Text="Testing (for the fourth time)"
                 CornerRadius="10"
-                Clicked="OnCounterClicked"
+                Clicked="OnSaveArticleTest"
                 IsCheckable="True">
 
                 <VisualStateManager.VisualStateGroups>

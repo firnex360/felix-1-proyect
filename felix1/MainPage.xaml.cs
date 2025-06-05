@@ -33,7 +33,7 @@ public partial class MainPage : ContentPage
     private void OnSaveUserTest(object sender, EventArgs e)
     {
         using var db = new AppDbContext();
-        
+
         var newUser = new User
         {
             Name = "John Doe",
@@ -44,9 +44,25 @@ public partial class MainPage : ContentPage
 
         db.Users.Add(newUser);
         db.SaveChanges();
-
     }
-    
+
+    private void OnSaveArticleTest(object sender, EventArgs e)
+    {
+        using var db = new AppDbContext();
+
+        var newArticle = new Article
+        {
+            Name = "Sample Article",
+            PriPrice = 10.99f,
+            SecPrice = 8.99f,
+            Category = ArticleCategory.MainDish,
+            IsDeleted = false,
+            IsSideDish = false
+        };
+
+        db.Articles.Add(newArticle);
+        db.SaveChanges();
+    }
 
 }
 

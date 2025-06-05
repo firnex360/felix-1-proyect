@@ -6,6 +6,7 @@ namespace felix1.Data
     public class AppDbContext : DbContext
     {
         public DbSet<User> Users { get; set; }
+        public DbSet<Article> Articles { get; set; }
 
         private string _dbPath;
 
@@ -25,6 +26,24 @@ namespace felix1.Data
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlite($"Filename={_dbPath}");
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // Store enum as string
+            modelBuilder.Entity<Article>()
+                .Property(a => a.Category)
+                .HasConversion<string>();
+
+            // Self-referencing many-to-many for side dishes
+            modelBuilder.Entity<Article>()
+                .HasMany(a => a.SideDishes)
+                .WithMany()
+                .UsingEntity<Dictionary<string, object>>(
+                    "ArticleSideDish",
+                    j => j.HasOne<Article>().WithMany().HasForeignKey("SideDishId"),
+                    j => j.HasOne<Article>().WithMany().HasForeignKey("ArticleId")
+                );
         }
     }
 }
