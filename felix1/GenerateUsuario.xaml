@@ -2,18 +2,20 @@
 <ContentPage 
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    x:Class="felix1.GeneraeUsuarioPopup"
-    BackgroundColor="#43434F"
+    x:Class="felix1.GenerateUsuario"
+    BackgroundColor="#0D1425"
     Padding="30">
 
+    
+    
     <Grid RowDefinitions="Auto,*,Auto" ColumnDefinitions="*">
         <!-- Titulo (Evil) -->
         <Label Text="Agregar Usuario"
                Grid.Row="0"
                TextColor="White"
                FontAttributes="Bold"
-               FontSize="20"
-               HorizontalOptions="Start"
+               FontSize="25"
+               HorizontalOptions="Center"
                VerticalOptions="Center"
                Margin="0,0,0,20"/>
 

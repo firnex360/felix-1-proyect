@@ -75,8 +75,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Update="GenerateUsuarioPopup.xaml.cs">
-	    <DependentUpon>GenerateUsuarioPopup.xaml</DependentUpon>
+	  <Compile Update="GenerateUsuario.xaml.cs">
+	    <DependentUpon>GenerateUsuario.xaml</DependentUpon>
 	  </Compile>
 	</ItemGroup>
 
@@ -84,7 +84,7 @@
 	  <MauiXaml Update="Example.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="GenerateUsuarioPopup.xaml">
+	  <MauiXaml Update="GenerateUsuario.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>

@@ -33,7 +33,7 @@ public partial class MainPage : ContentPage
     private async void OnGenerarUsuarioClicked(object sender, EventArgs e)
     {
         // Aquí abres el popup o la nueva página
-        await Navigation.PushModalAsync(new GeneraeUsuarioPopup());
+        await Navigation.PushModalAsync(new GenerateUsuario());
     }
 
 }

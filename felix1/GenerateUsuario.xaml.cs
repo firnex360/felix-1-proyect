@@ -1,8 +1,9 @@
 ﻿namespace felix1
 {
-    public partial class GeneraeUsuarioPopup : ContentPage
+    public partial class GenerateUsuario : ContentPage
     {
-        public GeneraeUsuarioPopup()
+
+        public GenerateUsuario()
         {
             InitializeComponent();
 
@@ -34,9 +35,7 @@
             entryNombre.Completed += (s, e) => entryUsername.Focus();
             entryUsername.Completed += (s, e) => entryPassword.Focus();
             entryPassword.Completed += (s, e) => entryCPassword.Focus();
-            entryCPassword.Completed += (s, e) => pickerRol.Focus();
-
-            pickerRol.Unfocused += (s, e) => btnAgregarUsuario.Focus();
+            entryCPassword.Completed += (s, e) => btnAgregarUsuario.Focus();
         }
 
         private void OnAgregarUsuarioClicked(object sender, EventArgs e)
