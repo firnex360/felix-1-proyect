@@ -9,7 +9,7 @@ public partial class AdminSectionMainVisual : ContentPage
 
 	private void OnShowArticle(object sender, EventArgs e)
 	{
-		RightPanel.Content = new Article(); // Load the Article view into the placeholder
+		RightPanel.Content = new CreateArticleVisual(); // Load the Article view into the placeholder
 	}
 
 	private void OnShowUser(object sender, EventArgs e)

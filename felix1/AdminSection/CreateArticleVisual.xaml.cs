@@ -1,8 +1,8 @@
 namespace felix1;
 
-public partial class Article : ContentView
+public partial class CreateArticleVisual : ContentView
 {
-	public Article()
+	public CreateArticleVisual()
 	{
 		InitializeComponent();
 	}
