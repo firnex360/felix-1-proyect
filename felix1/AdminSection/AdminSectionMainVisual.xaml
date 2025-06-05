@@ -3,13 +3,15 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              BackgroundColor="#647C84"
              x:Class="felix1.AdminSectionMainVisual"
-             Title="Crear Artículo">
+             Title="Administración">
 
 <Grid ColumnDefinitions="Auto,*">
     <!-- LEFT MENU -->
     <VerticalStackLayout Grid.Column="0"
                          WidthRequest="200"
-                         BackgroundColor="#7E949D">
+                         BackgroundColor="#FF5E6A6E"
+                         Padding="5"
+                         Spacing="5">
         <Button Text="Artículo" CornerRadius="0" BackgroundColor="#A1BCC8" Clicked="OnShowArticle"/>
         <Button Text="Usuario" CornerRadius="0" BackgroundColor="#A1BCC8" Clicked="OnShowUser"/>
         <Button Text="Mesas" CornerRadius="0" BackgroundColor="#A1BCC8" Clicked="OnShowTable"/>
