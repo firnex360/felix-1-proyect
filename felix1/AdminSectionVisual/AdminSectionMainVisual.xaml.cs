@@ -1,8 +1,8 @@
 namespace felix1;
 
-public partial class Example : ContentPage
+public partial class AdminSectionMainVisual : ContentPage
 {
-	public Example()
+	public AdminSectionMainVisual()
 	{
 		InitializeComponent();
 	}

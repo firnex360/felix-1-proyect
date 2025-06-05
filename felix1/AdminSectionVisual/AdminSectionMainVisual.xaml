@@ -2,9 +2,10 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              BackgroundColor="#647C84"
-             x:Class="felix1.Example"
+             x:Class="felix1.AdminSectionMainVisual"
              Title="Crear Artículo">
-             <Grid ColumnDefinitions="Auto,*">
+
+<Grid ColumnDefinitions="Auto,*">
     <!-- LEFT MENU -->
     <VerticalStackLayout Grid.Column="0"
                          WidthRequest="200"

@@ -27,7 +27,7 @@ public partial class MainPage : ContentPage
 
     private async void OnGoToPageBClicked(object sender, EventArgs e)
     {
-        await Navigation.PushAsync(new Example()); //CHECKING - navigate to example page
+        await Navigation.PushAsync(new AdminSectionMainVisual()); //CHECKING - navigate to example page
     }
 
     private void OnSaveUserTest(object sender, EventArgs e)
@@ -52,12 +52,12 @@ public partial class MainPage : ContentPage
 
         var newArticle = new Article
         {
-            Name = "Sample Article",
-            PriPrice = 10.99f,
-            SecPrice = 8.99f,
-            Category = ArticleCategory.MainDish,
-            IsDeleted = false,
-            IsSideDish = false
+            // Name = "Sample Article",
+            // PriPrice = 10.99f,
+            // SecPrice = 8.99f,
+            // Category = ArticleCategory.MainDish,
+            // IsDeleted = false,
+            // IsSideDish = false
         };
 
         db.Articles.Add(newArticle);
