@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:inputLayout="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core" 
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              BackgroundColor="#647C84"
              x:Class="felix1.CreateArticleVisual">
@@ -37,6 +38,7 @@
                     WidthRequest="100" />
 
                 <Entry
+                    x:Name="txtName"
                     WidthRequest="200"
                     Placeholder="Write here" 
                     BackgroundColor="#FFFFFF"
@@ -51,7 +53,9 @@
                     VerticalOptions="Center" 
                     WidthRequest="100" />
 
+
                 <Entry
+                    x:Name="txtPrice"
                     WidthRequest="200"
                     Placeholder="Write here" 
                     BackgroundColor="#FFFFFF"
@@ -66,22 +70,30 @@
                     VerticalOptions="Center" 
                     WidthRequest="100" />
 
-                <Entry
+                <Picker
+                    x:Name="pckCategory"
                     WidthRequest="200"
-                    Placeholder="Write here" 
+                    Title="Select Category"
                     BackgroundColor="#FFFFFF"
                     TextColor="#000000"
-                    HorizontalOptions="Start"
-                    ClearButtonVisibility="WhileEditing"/>
+                    HorizontalOptions="Start"/>
+            
             </HorizontalStackLayout>
                 <!-- acompañamiento -->
             <HorizontalStackLayout Spacing="10" Padding="10">
                 <Label 
                     Text="Acompañamiento"
                     VerticalOptions="Center" />
-                <CheckBox IsChecked="true" />
+                <CheckBox 
+                    x:Name="txtSideDish"
+                    IsChecked="true" />
             </HorizontalStackLayout>
                 
+                <!-- CREAR -->
+            <HorizontalStackLayout Spacing="10" Padding="10">
+                <Button Text="Crear Artículo" Clicked="OnSaveArticle" WidthRequest="250" BackgroundColor="#7E949D" TextColor="#FFFFFF"/>
+            </HorizontalStackLayout>
+
                 <!-- botones -->
             <HorizontalStackLayout Spacing="10" Padding="10">
                 <Button Text="Acompañamiento" Clicked="OnShowA" WidthRequest="250" BackgroundColor="#7E949D" TextColor="#FFFFFF"/>
@@ -137,20 +149,13 @@
                         WidthRequest="150" />
 
                     <Entry
+                        x:Name="txtSecondaryPrice"
                         WidthRequest="200"
                         Placeholder="Write here" 
                         BackgroundColor="#FFFFFF"
                         TextColor="#000000"
                         HorizontalOptions="Start"
                         ClearButtonVisibility="WhileEditing"/>
-                </HorizontalStackLayout>
-
-                <HorizontalStackLayout Spacing="10" Padding="10">
-                    <Label 
-                        Text="Factura adicional"
-                        VerticalOptions="Center" 
-                        WidthRequest="150" />
-                    <CheckBox IsChecked="true" />
                 </HorizontalStackLayout>
 
                 <HorizontalStackLayout Spacing="10" Padding="10">
