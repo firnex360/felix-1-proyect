@@ -3,7 +3,7 @@ using felix1.Logic;
 
 namespace felix1;
 
-public partial class CreateArticleVisual : ContentView
+public partial class CreateArticleVisual : ContentPage
 {
 	public CreateArticleVisual()
 	{

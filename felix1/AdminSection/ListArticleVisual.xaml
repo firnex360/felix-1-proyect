@@ -13,7 +13,7 @@
 
             <Button Text="Create Article"
                     BackgroundColor="#A1BCC8"
-                    Clicked="OnCreateArticleClicked"
+                    Clicked="OnCreateArticleWindowClicked"
                     HorizontalOptions="Start"/>
 
             <Label x:Name="labeltest"

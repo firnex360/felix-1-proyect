@@ -29,11 +29,24 @@ public partial class ListArticleVisual : ContentView
             Articles.Add(article);
     }
 
-    private void OnCreateArticleClicked(object sender, EventArgs e)
+
+    private void OnCreateArticleWindowClicked(object sender, EventArgs e)
     {
-        // var window = new Window(new CreateArticleVisual()); // or MainPage()
-        // return window;
+        // Get display size
+        var displayInfo = DeviceDisplay.Current.MainDisplayInfo;
+
+        var window = new Window(new CreateArticleVisual());
+
+        window.Height = 700;
+        window.Width = 800;
+
+        // Center the window
+        window.X = (displayInfo.Width / displayInfo.Density - window.Width) / 2;
+        window.Y = (displayInfo.Height / displayInfo.Density - window.Height) / 2;
+        
+        Application.Current?.OpenWindow(window);
     }
+
 
     private void OnViewClicked(object sender, EventArgs e)
     {
