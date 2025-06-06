@@ -2,9 +2,10 @@ namespace felix1;
 
 public partial class AdminSectionMainVisual : ContentPage
 {
-	public AdminSectionMainVisual()
-	{
-		InitializeComponent();
+    public AdminSectionMainVisual()
+    {
+        InitializeComponent();
+        RightPanel.Content = new ListArticleVisual();
 	}
 
 	private void OnShowArticle(object sender, EventArgs e)

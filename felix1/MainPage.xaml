@@ -50,7 +50,7 @@
             <HorizontalStackLayout
                 Spacing="10"
                 >
-                
+            
 
                 <Button
                     x:Name="createUserTemp"
