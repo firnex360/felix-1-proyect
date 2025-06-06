@@ -27,13 +27,41 @@ public partial class MainPage : ContentPage
 
     private async void OnGoToPageBClicked(object sender, EventArgs e)
     {
-        await Navigation.PushAsync(new Example()); //CHECKING - navigate to example page
+        await Navigation.PushAsync(new AdminSectionMainVisual()); //CHECKING - navigate to example page
     }
 
-    private async void OnGenerarUsuarioClicked(object sender, EventArgs e)
+    private void OnSaveUserTest(object sender, EventArgs e)
     {
-        // Aquí abres el popup o la nueva página
-        await Navigation.PushModalAsync(new GenerateUsuario());
+        using var db = new AppDbContext();
+
+        var newUser = new User
+        {
+            Name = "John Doe",
+            Username = "johnd",
+            Password = "secret123",
+            Role = "Admin"
+        };
+
+        db.Users.Add(newUser);
+        db.SaveChanges();
+    }
+
+    private void OnSaveArticleTest(object sender, EventArgs e)
+    {
+        using var db = new AppDbContext();
+
+        var newArticle = new Article
+        {
+            // Name = "Sample Article",
+            // PriPrice = 10.99f,
+            // SecPrice = 8.99f,
+            // Category = ArticleCategory.MainDish,
+            // IsDeleted = false,
+            // IsSideDish = false
+        };
+
+        db.Articles.Add(newArticle);
+        db.SaveChanges();
     }
 
 }

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             BackgroundColor="#647C84"
+             x:Class="felix1.AdminSectionMainVisual"
+             Title="Administración">
+
+<Grid ColumnDefinitions="Auto,*">
+    <!-- LEFT MENU -->
+    <VerticalStackLayout Grid.Column="0"
+                         WidthRequest="200"
+                         BackgroundColor="#FF5E6A6E"
+                         Padding="5"
+                         Spacing="5">
+        <Button Text="Artículo" CornerRadius="0" BackgroundColor="#A1BCC8" Clicked="OnShowArticle"/>
+        <Button Text="Usuario" CornerRadius="0" BackgroundColor="#A1BCC8" Clicked="OnShowUser"/>
+        <Button Text="Mesas" CornerRadius="0" BackgroundColor="#A1BCC8" Clicked="OnShowTable"/>
+    </VerticalStackLayout>
+
+    <!-- RIGHT || CONTENT AREA -->
+    <ContentView x:Name="RightPanel" Grid.Column="1" BackgroundColor="White"/>
+</Grid>
+
+</ContentPage>

@@ -37,32 +37,39 @@
                 Clicked="OnCounterClicked"
                 HorizontalOptions="Fill" />
 
-            <Button 
-                Text="Generar Usuario"
-                Clicked="OnGenerarUsuarioClicked"
-                HorizontalOptions="Fill" />
+            <HorizontalStackLayout
+                Spacing="10"
+                >
+                
 
-            <buttons:SfButton x:Name="button"
-                Text="Testing (for the fourth time)"
-                CornerRadius="10"
-                Clicked="OnCounterClicked"
-                IsCheckable="True">
+                <Button
+                    x:Name="createUserTemp"
+                    Text="Create User (for testing)"
+                    Clicked="OnSaveUserTest"
+                    HorizontalOptions="Start" />
 
-                <VisualStateManager.VisualStateGroups>
-                    <VisualStateGroup x:Name="CommonStates">
-                        <VisualState x:Name="Normal">
-                            <VisualState.Setters>
-                                <Setter Property="Background" Value="Purple" />
-                            </VisualState.Setters>
-                        </VisualState>
-                        <VisualState x:Name="Hovered">
-                            <VisualState.Setters>
-                                <Setter Property="Background" Value="Gray" />
-                            </VisualState.Setters>
-                        </VisualState>
-                    </VisualStateGroup>
-                </VisualStateManager.VisualStateGroups>
-            </buttons:SfButton>
+                <buttons:SfButton x:Name="button"
+                    Text="Create Article (for testing)"
+                    CornerRadius="10"
+                    Clicked="OnSaveArticleTest"
+                    IsCheckable="True">
+
+                    <VisualStateManager.VisualStateGroups>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="Background" Value="Purple" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Hovered">
+                                <VisualState.Setters>
+                                    <Setter Property="Background" Value="Gray" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateManager.VisualStateGroups>
+                </buttons:SfButton>
+            </HorizontalStackLayout>
 
         </VerticalStackLayout>
     </ScrollView>
