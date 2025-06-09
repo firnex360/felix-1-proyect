@@ -11,13 +11,13 @@
                                Padding="5"
                                Spacing="1">
 
-            <Button Text="Create Article"
+            <Button Text="Crear Usuario"
                     BackgroundColor="#A1BCC8"
-                    Clicked="OnCreateArticleWindowClicked"
+                    Clicked="OnCreateUserWindowClicked"
                     HorizontalOptions="Start"/>
 
             <Label x:Name="labeltest"
-                   Text="List of Articles"
+                   Text="List of User"
                    FontSize="28"
                    TextColor="Black"
                    VerticalOptions="Center"/>
@@ -33,7 +33,7 @@
                Margin="20">
 
             <syncfusion:SfDataGrid x:Name="dataGrid"
-                                   ItemsSource="{Binding Articles}"
+                                   ItemsSource="{Binding Users}"
                                    VerticalOptions="Fill"
                                    HorizontalOptions="Fill"
                                    HeaderRowHeight="50"
@@ -46,31 +46,32 @@
                     <!-- ID Column -->
                     <syncfusion:DataGridNumericColumn
                         MappingName="Id"
-                        HeaderText="Id Articulo"
+                        HeaderText="Id Usuario"
                         Format="000"/>
 
                     <!-- Name Column -->
                     <syncfusion:DataGridTextColumn
                         MappingName="Name"
-                        HeaderText="Nombre del Articulo"/>
+                        HeaderText="Nombre"/>
 
-                    <!-- Primary Price -->
-                    <syncfusion:DataGridNumericColumn
-                        MappingName="PriPrice"
-                        HeaderText="Precio Primario"
-                        Format="C2"/>
-                    <!-- Currency formatting -->
-
-                    <!-- Secondary Price -->
-                    <syncfusion:DataGridNumericColumn
-                        MappingName="SecPrice"
-                        HeaderText="Precio Secundario"
-                        Format="C2"/>
-
-                    <!-- Category -->
+                    <!-- Username Column -->
                     <syncfusion:DataGridTextColumn
-                        MappingName="Category"
-                        HeaderText="Categoria"/>
+                        MappingName="Username"
+                        HeaderText="Usuario"/>
+
+                    <!-- Role Column -->
+                    <syncfusion:DataGridTextColumn
+                        MappingName="Role"
+                        HeaderText="Rol"/>
+
+                    <!-- Available Column as Checkbox -->
+                    <syncfusion:DataGridTemplateColumn HeaderText="Disponible" MappingName="Available">
+                        <syncfusion:DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding Available}" IsEnabled="True"/>
+                            </DataTemplate>
+                        </syncfusion:DataGridTemplateColumn.CellTemplate>
+                    </syncfusion:DataGridTemplateColumn>
 
                     <syncfusion:DataGridTemplateColumn HeaderText="Actions"
                                                        Width="300">
