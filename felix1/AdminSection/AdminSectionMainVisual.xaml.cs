@@ -15,7 +15,7 @@ public partial class AdminSectionMainVisual : ContentPage
 
 	private void OnShowUser(object sender, EventArgs e)
 	{
-		//RightPanel.Content = new User(); // Load the User view into the placeholder
+        RightPanel.Content = new ListUserVisual(); 
 	}
 
 	private void OnShowTable(object sender, EventArgs e)

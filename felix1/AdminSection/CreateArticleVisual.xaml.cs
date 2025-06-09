@@ -49,4 +49,9 @@ public partial class CreateArticleVisual : ContentPage
 		db.Articles.Add(newArticle);
 		db.SaveChanges();
 	}
+
+    public static implicit operator View(CreateArticleVisual v)
+    {
+        throw new NotImplementedException();
+    }
 }
