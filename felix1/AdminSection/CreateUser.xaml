@@ -2,7 +2,7 @@
 <ContentPage 
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    x:Class="felix1.GenerateUsuario"
+    x:Class="felix1.CreateUser"
     BackgroundColor="#0D1425"
     Padding="30">
 
@@ -66,19 +66,13 @@
             <StackLayout Orientation="Horizontal"
                          HorizontalOptions="End"
                          Spacing="10">
-                <Button Text="Salir"
-                        BackgroundColor="#F9475D"
-                        TextColor="Black"
-                        HeightRequest="45"
-                        CornerRadius="10"
-                        Clicked="OnClosePopupClicked" />
-                
-                <Button Text="Agregar Usuario"
-                        BackgroundColor="#B8FF6B"
-                        TextColor="Black"
-                        HeightRequest="45"
-                        CornerRadius="10"
-                        x:Name="btnAgregarUsuario"/>
+                        <Button Text="Guardar"
+                            BackgroundColor="#B8FF6B"
+                            TextColor="Black"
+                            HeightRequest="45"
+                            CornerRadius="10"
+                            x:Name="btnGuardarUsuario"/>
+
             </StackLayout>
         </Grid>
     </Grid>

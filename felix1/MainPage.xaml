@@ -21,8 +21,12 @@
 
             <Button Text="CHECKING - Go to the other super secret page"
                     Clicked="OnGoToPageBClicked" />
-            
 
+            <Button
+                x:Name="createUserBtn"
+                Text="Create New User"
+                Clicked="OnCreateUserClicked"
+                HorizontalOptions="Start" />
 
             <Label
                 Text="Welcome to &#10;.NET Multi-platform App UI"

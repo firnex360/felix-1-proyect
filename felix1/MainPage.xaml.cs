@@ -11,6 +11,26 @@ public partial class MainPage : ContentPage
     {
         InitializeComponent();
     }
+    private void OnCreateUserClicked(object sender, EventArgs e)
+    {
+        if (Application.Current != null)
+        {
+
+            var newUser = new User
+            {
+                Id = 1,
+                Name = "a",
+                Username = "a",
+                Password = "a",
+                Role = "Admin"
+            };
+
+            //newUser = null;
+
+            var createUserWindow = new Window(new CreateUser(newUser));
+            Application.Current.OpenWindow(createUserWindow);
+        }
+    }
 
     private void OnCounterClicked(object sender, EventArgs e)
     {

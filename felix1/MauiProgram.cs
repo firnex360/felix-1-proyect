@@ -24,6 +24,8 @@ public static class MauiProgram
         // Register the EF Core DbContext
         builder.Services.AddDbContext<AppDbContext>();
 
+
+
 #if DEBUG
         builder.Logging.AddDebug();
 #endif
