@@ -3,6 +3,7 @@
              xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
              xmlns:numericEntry ="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs"
              xmlns:inputLayout="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core" 
+             xmlns:syncfusion="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              BackgroundColor="White"
              x:Class="felix1.CreateArticleVisual">
@@ -113,7 +114,27 @@
             <VerticalStackLayout x:Name="RightPanelA" BackgroundColor="LightBlue" Padding="10">
                 <Label Text="Acompañamiento" FontSize="28" />
 
-
+                <!-- SfDataGrid for Side Dishes -->
+                <syncfusion:SfDataGrid x:Name="sideDishDataGrid"
+                                      ItemsSource="{Binding SideDishArticles}"
+                                      SelectionMode="None"
+                                      HeaderRowHeight="40"
+                                      RowHeight="40"
+                                      Margin="0,10,0,0"
+                                      HeightRequest="300">
+                    <syncfusion:SfDataGrid.Columns>
+                        <!-- Checkbox Column -->
+                        <syncfusion:DataGridTemplateColumn HeaderText="Seleccionar" Width="80">
+                            <syncfusion:DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"/>
+                                </DataTemplate>
+                            </syncfusion:DataGridTemplateColumn.CellTemplate>
+                        </syncfusion:DataGridTemplateColumn>
+                        <!-- Name Column -->
+                        <syncfusion:DataGridTextColumn MappingName="Name" HeaderText="Nombre" Width="200"/>
+                    </syncfusion:SfDataGrid.Columns>
+                </syncfusion:SfDataGrid>
             </VerticalStackLayout>
 
             <!-- View B -->

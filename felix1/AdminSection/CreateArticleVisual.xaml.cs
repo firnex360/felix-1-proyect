@@ -7,18 +7,17 @@ public partial class CreateArticleVisual : ContentPage
 {
     private Article? editingArticle = null;
 
-	public CreateArticleVisual(Article? articleToEdit = null)
-	{
-		InitializeComponent();
+    public CreateArticleVisual(Article? articleToEdit = null)
+    {
+        InitializeComponent();
 
+        // Populate Picker with enum values
+        pckCategory.ItemsSource = Enum.GetValues(typeof(ArticleCategory))
+                                         .Cast<ArticleCategory>()
+                                         .Select(c => c.ToString())
+                                         .ToList();
 
-		// Populate Picker with enum values
-		pckCategory.ItemsSource = Enum.GetValues(typeof(ArticleCategory))
-										 .Cast<ArticleCategory>()
-										 .Select(c => c.ToString())
-										 .ToList();
-
-		// Checking if an article is being edited
+        // Checking if an article is being edited
         if (articleToEdit != null)
         {
             editingArticle = articleToEdit;
@@ -32,45 +31,45 @@ public partial class CreateArticleVisual : ContentPage
             pckCategory.SelectedItem = editingArticle.Category.ToString();
         }
 
-	}
+    }
 
-	private void OnShowA(object sender, EventArgs e)
-	{
-		RightPanelA.IsVisible = true;
-		RightPanelB.IsVisible = false;
-	}
+    private void OnShowA(object sender, EventArgs e)
+    {
+        RightPanelA.IsVisible = true;
+        RightPanelB.IsVisible = false;
+    }
 
-	private void OnShowB(object sender, EventArgs e)
-	{
-		RightPanelA.IsVisible = false;
-		RightPanelB.IsVisible = true;
-	}
+    private void OnShowB(object sender, EventArgs e)
+    {
+        RightPanelA.IsVisible = false;
+        RightPanelB.IsVisible = true;
+    }
 
-	private void OnSaveArticle(object sender, EventArgs e)
-	{
-		using var db = new AppDbContext();
+    private void OnSaveArticle(object sender, EventArgs e)
+    {
+        using var db = new AppDbContext();
 
         var selectedCategory = pckCategory.SelectedItem?.ToString();
         var parsed = Enum.TryParse<ArticleCategory>(selectedCategory, out var categoryEnum);
 
-		if (editingArticle == null)
-		{
+        if (editingArticle == null)
+        {
 
-			var newArticle = new Article
-			{
-				Name = txtName.Text,
-				PriPrice = txtPrice.Text != null ? float.Parse(txtPrice.Text) : 0f,
-				SecPrice = txtSecondaryPrice.Text != null ? float.Parse(txtSecondaryPrice.Text) : 0f,
-				Category = parsed ? categoryEnum : ArticleCategory.Other,
-				IsDeleted = false,
-				IsSideDish = txtSideDish.IsChecked,
-			};
+            var newArticle = new Article
+            {
+                Name = txtName.Text,
+                PriPrice = txtPrice.Text != null ? float.Parse(txtPrice.Text) : 0f,
+                SecPrice = txtSecondaryPrice.Text != null ? float.Parse(txtSecondaryPrice.Text) : 0f,
+                Category = parsed ? categoryEnum : ArticleCategory.Other,
+                IsDeleted = false,
+                IsSideDish = txtSideDish.IsChecked,
+            };
 
-			db.Articles.Add(newArticle);
-		}
-		else
-		{
-			// UPDATE EXISTING
+            db.Articles.Add(newArticle);
+        }
+        else
+        {
+            // UPDATE EXISTING
             var article = db.Articles.FirstOrDefault(a => a.Id == editingArticle.Id);
             if (article != null)
             {
@@ -82,12 +81,9 @@ public partial class CreateArticleVisual : ContentPage
 
                 db.Articles.Update(article);
             }
-		}
-		db.SaveChanges();
-	}
-
-    public static implicit operator View(CreateArticleVisual v)
-    {
-        throw new NotImplementedException();
+        }
+        db.SaveChanges();
     }
+
 }
+
