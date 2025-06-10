@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Text.RegularExpressions;
 using felix1.Data;
 using felix1.Logic;
 using Microsoft.EntityFrameworkCore;
@@ -37,20 +38,21 @@ public partial class CreateArticleVisual : ContentPage
         protected void OnPropertyChanged(string propertyName) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
+    
+    //Code reference from: https://learn.microsoft.com/en-us/answers/questions/1479605/how-to-set-an-entry-in-net-maui-to-only-except-num
+    private void OnNumericEntryTextChanged(object sender, TextChangedEventArgs e)
+    {
+        string regex = e.NewTextValue;
+        if (String.IsNullOrEmpty(regex))
+            return;
 
-    //not needed
-    // private void LoadSideDishes()
-    // {
-    //     using var db = new AppDbContext();
-    //     var sideDishesFromDb = db.Articles != null
-    //         ? db.Articles.Where(a => a.IsSideDish && !a.IsDeleted)
-    //         .ToList()
-    //         : new List<Article>();
-
-    //     SideDishes.Clear();
-    //     foreach (var sd in sideDishesFromDb)
-    //         SideDishes.Add(sd);
-    // }
+        if (!Regex.Match(regex, "^[0-9]+$").Success)
+        {
+            var entry = sender as Entry;
+            entry.Text = (string.IsNullOrEmpty(e.OldTextValue)) ?
+                    string.Empty : e.OldTextValue;
+        }
+    }
 
     public CreateArticleVisual(Article? articleToEdit = null)
     {
@@ -89,7 +91,7 @@ public partial class CreateArticleVisual : ContentPage
             pckCategory.SelectedItem = editingArticle?.Category.ToString() ?? string.Empty;
 
             selectedIds = editingArticle?.SideDishes?.Select(sd => sd.Id).ToHashSet() ?? new HashSet<int>();
-            
+
         }
 
         // Build the observable collection for the grid
@@ -120,13 +122,23 @@ public partial class CreateArticleVisual : ContentPage
         RightPanelB.IsVisible = true;
     }
 
-    private void OnSaveArticle(object sender, EventArgs e)
+    private async void OnSaveArticle(object sender, EventArgs e)
     {
+        //POPUP CONFIRMATION
+        bool confirm = await DisplayAlert(
+            "Confirmación",
+            editingArticle == null ? "¿Crear este artículo?" : "¿Actualizar este artículo?",
+            "Sí",
+            "No");
+
+        if (!confirm)
+            return;
+
         using var db = new AppDbContext();
 
         var selectedCategory = pckCategory.SelectedItem?.ToString();
         var parsed = Enum.TryParse<ArticleCategory>(selectedCategory, out var categoryEnum);
-        
+
         // Collect selected side dishes
         var selectedSideDishes = SideDishArticles
             .Where(a => a.IsSelected)
@@ -184,7 +196,23 @@ public partial class CreateArticleVisual : ContentPage
         }
 
         db.SaveChanges();
+        ListArticleVisual.Instance?.ReloadArticles(); // REFRESH THE LIST
+        await DisplayAlert("Éxito", "Artículo guardado correctamente.", "OK");
+
+        CloseThisWindow();
+        
     }
 
+    private void CloseThisWindow()
+    {
+        foreach (var window in Application.Current.Windows)
+        {
+            if (window.Page == this)
+            {
+                Application.Current.CloseWindow(window);
+                break;
+            }
+        }
+    }
 }
 

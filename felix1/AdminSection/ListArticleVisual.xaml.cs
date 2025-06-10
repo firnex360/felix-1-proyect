@@ -8,12 +8,15 @@ namespace felix1;
 public partial class ListArticleVisual : ContentView
 {
 
+    public static ListArticleVisual? Instance { get; private set; }
+
     public ObservableCollection<Article> Articles { get; set; } = new();
 
     public ListArticleVisual()
     {
         InitializeComponent();
         BindingContext = this;
+        Instance = this; 
         LoadArticles();
     }
 
@@ -28,6 +31,11 @@ public partial class ListArticleVisual : ContentView
         Articles.Clear();
         foreach (var article in articlesFromDb)
             Articles.Add(article);
+    }
+    
+    public void ReloadArticles() // PUBLIC method to allow external refresh
+    {
+        LoadArticles();
     }
 
 
@@ -44,7 +52,7 @@ public partial class ListArticleVisual : ContentView
         // Center the window
         window.X = (displayInfo.Width / displayInfo.Density - window.Width) / 2;
         window.Y = (displayInfo.Height / displayInfo.Density - window.Height) / 2;
-        
+
         Application.Current?.OpenWindow(window);
     }
 

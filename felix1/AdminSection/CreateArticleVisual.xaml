@@ -21,6 +21,7 @@
             <HorizontalStackLayout Spacing="10" Padding="10">
                 <Label 
                     Text="Código"
+                    TextColor="#000000"
                     VerticalOptions="Center" 
                     WidthRequest="100"/>
 
@@ -38,6 +39,7 @@
             <HorizontalStackLayout Spacing="10" Padding="10">
                 <Label 
                     Text="Nombre"
+                    TextColor="#000000"
                     VerticalOptions="Center" 
                     WidthRequest="100" />
 
@@ -54,12 +56,14 @@
             <HorizontalStackLayout Spacing="10" Padding="10">
                 <Label 
                     Text="Precio"
+                    TextColor="#000000"
                     VerticalOptions="Center" 
                     WidthRequest="100" />
 
 
                 <Entry
                     x:Name="txtPrice"
+                    TextChanged="OnNumericEntryTextChanged"
                     WidthRequest="200"
                     Placeholder="Write here" 
                     BackgroundColor="#FFFFFF"
@@ -71,6 +75,7 @@
             <HorizontalStackLayout Spacing="10" Padding="10">
                 <Label 
                     Text="Categoría"
+                    TextColor="#000000"
                     VerticalOptions="Center" 
                     WidthRequest="100" />
 
@@ -87,6 +92,7 @@
             <HorizontalStackLayout Spacing="10" Padding="10">
                 <Label 
                     Text="Acompañamiento"
+                    TextColor="#000000"
                     VerticalOptions="Center" />
                 <CheckBox 
                     x:Name="txtSideDish"
