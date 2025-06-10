@@ -20,9 +20,10 @@ public partial class ListArticleVisual : ContentView
     private void LoadArticles()
     {
         using var db = new AppDbContext();
-        var articlesFromDb = db.Articles
-            .Where(a => !a.IsDeleted)
-            .ToList();
+        var articlesFromDb = db.Articles != null
+            ? db.Articles.Where(a => !a.IsDeleted)
+            .ToList()
+            : new List<Article>();
 
         Articles.Clear();
         foreach (var article in articlesFromDb)

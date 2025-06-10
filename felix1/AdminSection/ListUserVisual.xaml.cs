@@ -20,9 +20,10 @@ public partial class ListUserVisual : ContentView
     private void LoadUsers()
     {
         using var db = new AppDbContext();
-        var usersFromDb = db.Users
-            .Where(u => !u.Deleted)
-            .ToList();
+        var usersFromDb = db.Users != null
+            ? db.Users.Where(u => !u.Deleted)
+            .ToList()
+            : new List<User>();
 
         Users.Clear();
         foreach (var user in usersFromDb)
