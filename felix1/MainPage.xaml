@@ -1,6 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
+             xmlns:numericEntry ="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs"
+             xmlns:inputLayout="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="felix1.MainPage">
 
@@ -28,6 +30,15 @@
                 Clicked="OnCreateUserClicked"
                 HorizontalOptions="Start" />
 
+            <inputLayout:SfTextInputLayout Hint="Amount" 
+                               HelperText="Enter the amount"
+                                        ContainerType="Outlined">
+            <numericEntry:SfNumericEntry Value="100" 
+                                            ShowClearButton="True" 
+                                            UpDownPlacementMode="Inline"/>
+            </inputLayout:SfTextInputLayout>
+        
+
             <Label
                 Text="Welcome to &#10;.NET Multi-platform App UI"
                 Style="{StaticResource SubHeadline}"
@@ -44,7 +55,7 @@
             <HorizontalStackLayout
                 Spacing="10"
                 >
-                
+            
 
                 <Button
                     x:Name="createUserTemp"
