@@ -56,8 +56,19 @@ public partial class ListArticleVisual : ContentView
 
     private void OnEditClicked(object sender, EventArgs e)
     {
-        // Dummy function for Edit button
-        labeltest.Text = "Edit clicked";
+        var button = (Button)sender;
+        var article = (Article)button.BindingContext;
+
+        var displayInfo = DeviceDisplay.Current.MainDisplayInfo;
+        var window = new Window(new CreateArticleVisual(article))
+        {
+            Height = 700,
+            Width = 800,
+            X = (displayInfo.Width / displayInfo.Density - 800) / 2,
+            Y = (displayInfo.Height / displayInfo.Density - 700) / 2
+        };
+
+        Application.Current?.OpenWindow(window);
     }
 
     private void OnDeleteClicked(object sender, EventArgs e)

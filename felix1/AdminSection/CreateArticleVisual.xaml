@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
+             xmlns:numericEntry ="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs"
              xmlns:inputLayout="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core" 
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             BackgroundColor="#647C84"
+             BackgroundColor="White"
              x:Class="felix1.CreateArticleVisual">
              
     <Grid ColumnDefinitions="*,*"> <!-- Two equal columns -->
@@ -12,7 +14,6 @@
                             Spacing="10"
                             HorizontalOptions="Start">
 
-                <!-- CHECKING -->
             <Label Text="Agregar Artículo"
                 FontSize="28"/>
                 <!-- codigo -->
@@ -24,7 +25,8 @@
 
                 <Entry
                     WidthRequest="200"
-                    Placeholder="Write here" 
+                    Placeholder="#####" 
+                    IsEnabled="False"
                     BackgroundColor="#FFFFFF"
                     TextColor="#000000"
                     HorizontalOptions="Start"
@@ -105,30 +107,6 @@
 
                 <!-- ************** 2ND COLUMN START ************** -->
 
-            <!---
-            <VerticalStackLayout Grid.Column="1"    
-                            Padding="10, 10, 10, 10"
-                            Spacing="10"
-                            VerticalOptions="Center"
-                            HorizontalOptions="Start">
-
-            <Label Text="A SECOND COLUMN?!"
-                FontSize="28"
-                HorizontalOptions="Center"/>
-
-            <Label 
-                Text="Código"
-                VerticalOptions="Center" />
-
-            <Entry
-                WidthRequest="200"
-                Placeholder="Write here" 
-                BackgroundColor="#FFFFFF"
-                TextColor="#000000"
-                HorizontalOptions="Start"
-                ClearButtonVisibility="WhileEditing"/>
-        </VerticalStackLayout>
--->
 
         <Grid Grid.Column="1">
             <!-- AGREGAR TABLE / GRID -->
