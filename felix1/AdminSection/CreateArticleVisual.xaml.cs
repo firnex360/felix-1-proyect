@@ -1,15 +1,69 @@
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using felix1.Data;
 using felix1.Logic;
+using Microsoft.EntityFrameworkCore;
 
 namespace felix1;
 
 public partial class CreateArticleVisual : ContentPage
 {
     private Article? editingArticle = null;
+    public ObservableCollection<SideDishSelectable> SideDishArticles { get; set; } = new();
+    //public ObservableCollection<Article> SideDishes { get; set; } = new();
+
+    public class SideDishSelectable : INotifyPropertyChanged
+    {
+        public Article? Article { get; set; }
+
+        public int Id => Article?.Id ?? 0;
+        public string? Name => Article?.Name;
+
+        private bool isSelected;
+        public bool IsSelected
+        {
+            get => isSelected;
+            set
+            {
+                if (isSelected != value)
+                {
+                    isSelected = value;
+                    OnPropertyChanged(nameof(IsSelected));
+                }
+            }
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged(string propertyName) =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    //not needed
+    // private void LoadSideDishes()
+    // {
+    //     using var db = new AppDbContext();
+    //     var sideDishesFromDb = db.Articles != null
+    //         ? db.Articles.Where(a => a.IsSideDish && !a.IsDeleted)
+    //         .ToList()
+    //         : new List<Article>();
+
+    //     SideDishes.Clear();
+    //     foreach (var sd in sideDishesFromDb)
+    //         SideDishes.Add(sd);
+    // }
 
     public CreateArticleVisual(Article? articleToEdit = null)
     {
         InitializeComponent();
+        BindingContext = this;
+
+        // Initialize the ObservableCollection for side dishes
+        using var db = new AppDbContext();
+        var sideDishes = db.Articles
+                        .Where(a => a.IsSideDish && !a.IsDeleted)
+                        .ToList();
+
+        var selectedIds = new HashSet<int>();
 
         // Populate Picker with enum values
         pckCategory.ItemsSource = Enum.GetValues(typeof(ArticleCategory))
@@ -20,15 +74,36 @@ public partial class CreateArticleVisual : ContentPage
         // Checking if an article is being edited
         if (articleToEdit != null)
         {
-            editingArticle = articleToEdit;
+            editingArticle = db.Articles
+                .Where(a => a.Id == articleToEdit.Id)
+                .Include(a => a.SideDishes)
+                .FirstOrDefault();
 
             // Pre-fill the fields
-            txtName.Text = editingArticle.Name;
-            txtPrice.Text = editingArticle.PriPrice.ToString();
-            txtSecondaryPrice.Text = editingArticle.SecPrice.ToString();
-            txtSideDish.IsChecked = editingArticle.IsSideDish;
+            txtCode.Text = editingArticle?.Id.ToString() ?? string.Empty;
+            txtName.Text = editingArticle?.Name ?? string.Empty;
+            txtPrice.Text = editingArticle?.PriPrice.ToString() ?? string.Empty;
+            txtSecondaryPrice.Text = editingArticle?.SecPrice.ToString() ?? string.Empty;
+            txtSideDish.IsChecked = editingArticle?.IsSideDish ?? false;
 
-            pckCategory.SelectedItem = editingArticle.Category.ToString();
+            pckCategory.SelectedItem = editingArticle?.Category.ToString() ?? string.Empty;
+
+            selectedIds = editingArticle?.SideDishes?.Select(sd => sd.Id).ToHashSet() ?? new HashSet<int>();
+            
+        }
+
+        // Build the observable collection for the grid
+        SideDishArticles.Clear();
+        foreach (var dish in sideDishes)
+        {
+            var selectable = new SideDishSelectable
+            {
+                Article = dish
+            };
+
+            selectable.IsSelected = selectedIds.Contains(dish.Id); // triggers PropertyChanged
+
+            SideDishArticles.Add(selectable);
         }
 
     }
@@ -51,6 +126,13 @@ public partial class CreateArticleVisual : ContentPage
 
         var selectedCategory = pckCategory.SelectedItem?.ToString();
         var parsed = Enum.TryParse<ArticleCategory>(selectedCategory, out var categoryEnum);
+        
+        // Collect selected side dishes
+        var selectedSideDishes = SideDishArticles
+            .Where(a => a.IsSelected)
+            .Select(a => db.Articles.Find(a.Id)) // fetch tracked instances
+            .Where(a => a != null)
+            .ToList();
 
         if (editingArticle == null)
         {
@@ -63,14 +145,22 @@ public partial class CreateArticleVisual : ContentPage
                 Category = parsed ? categoryEnum : ArticleCategory.Other,
                 IsDeleted = false,
                 IsSideDish = txtSideDish.IsChecked,
+                SideDishes = selectedSideDishes
+                    .Where(a => a != null)
+                    .Cast<Article>()
+                    .ToList()
             };
 
             db.Articles.Add(newArticle);
+
         }
         else
         {
             // UPDATE EXISTING
-            var article = db.Articles.FirstOrDefault(a => a.Id == editingArticle.Id);
+            var article = db.Articles
+                .Include(a => a.SideDishes) // Include side dishes for update
+                .FirstOrDefault(a => a.Id == editingArticle.Id);
+
             if (article != null)
             {
                 article.Name = txtName.Text;
@@ -79,9 +169,20 @@ public partial class CreateArticleVisual : ContentPage
                 article.Category = parsed ? categoryEnum : ArticleCategory.Other;
                 article.IsSideDish = txtSideDish.IsChecked;
 
+                // Clear and update side dishes
+                if (article.SideDishes != null)
+                {
+                    article.SideDishes.Clear();
+
+                    foreach (var sd in selectedSideDishes)
+                        if (sd != null)
+                            article.SideDishes.Add(sd);
+                }
+
                 db.Articles.Update(article);
             }
         }
+
         db.SaveChanges();
     }
 

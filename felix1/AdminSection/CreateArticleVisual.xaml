@@ -25,6 +25,7 @@
                     WidthRequest="100"/>
 
                 <Entry
+                    x:Name="txtCode"
                     WidthRequest="200"
                     Placeholder="#####" 
                     IsEnabled="False"
@@ -121,7 +122,8 @@
                                       HeaderRowHeight="40"
                                       RowHeight="40"
                                       Margin="0,10,0,0"
-                                      HeightRequest="300">
+                                      HeightRequest="300"
+                                      AutoGenerateColumnsMode="None">
                     <syncfusion:SfDataGrid.Columns>
                         <!-- Checkbox Column -->
                         <syncfusion:DataGridTemplateColumn HeaderText="Seleccionar" Width="80">

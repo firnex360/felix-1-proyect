@@ -5,8 +5,8 @@ namespace felix1.Data
 {
     public class AppDbContext : DbContext
     {
-        public DbSet<User> Users { get; set; }
-        public DbSet<Article> Articles { get; set; }
+        public DbSet<User> Users { get; set; } = null!;
+        public DbSet<Article> Articles { get; set; } = null!;
 
         private string _dbPath;
 
