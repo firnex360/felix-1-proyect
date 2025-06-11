@@ -77,7 +77,16 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="AdminSection\CreateUserVisual.xaml.cs">
+	    <DependentUpon>CreateUserVisual.xaml</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
 	  <MauiXaml Update="Example.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="AdminSection\CreateUserVisual.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>
