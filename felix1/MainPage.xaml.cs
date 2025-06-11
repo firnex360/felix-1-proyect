@@ -27,7 +27,7 @@ public partial class MainPage : ContentPage
 
             //newUser = null;
 
-            var createUserWindow = new Window(new CreateUser(newUser));
+            var createUserWindow = new Window(new CreateUserVisual(newUser));
             Application.Current.OpenWindow(createUserWindow);
         }
     }

@@ -3,17 +3,18 @@ using felix1.Logic;
 
 namespace felix1
 {
-    public partial class CreateUser : ContentPage
+    public partial class CreateUserVisual : ContentPage
     {
         private readonly Logic.User? usuario;
 
-        public CreateUser(Logic.User? usuario = null)
+        public CreateUserVisual(Logic.User? usuario = null)
         {
             InitializeComponent();
 
             this.usuario = usuario;
 
             btnGuardarUsuario.Clicked += OnGuardarUsuarioClicked;
+
             SetupKeyboardNavigation();
         }
 
@@ -23,7 +24,6 @@ namespace felix1
 
             if (usuario != null)
             {
-                // Set form for editing
                 entryNombre.Text = usuario.Name;
                 entryUsername.Text = usuario.Username;
                 entryPassword.Text = usuario.Password;
@@ -101,6 +101,8 @@ namespace felix1
 
                     db.SaveChanges();
                     DisplayAlert("Éxito", "Usuario modificado correctamente", "OK");
+                    Application.Current.CloseWindow(Window);
+
                 }
                 else
                 {
@@ -109,7 +111,7 @@ namespace felix1
                 }
             }
 
-            Navigation.PopModalAsync();
+        Navigation.PopModalAsync();
         }
     }
 }
