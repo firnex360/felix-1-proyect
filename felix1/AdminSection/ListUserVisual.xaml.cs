@@ -34,20 +34,25 @@ public partial class ListUserVisual : ContentView
     private void OnCreateUserWindowClicked(object sender, EventArgs e)
     {
         // Get display size
-        // var displayInfo = DeviceDisplay.Current.MainDisplayInfo;
+        var displayInfo = DeviceDisplay.Current.MainDisplayInfo;
 
-        // var window = new Window(new CreateArticleVisual());
+        var window = new Window(new CreateUserVisual());
 
-        // window.Height = 700;
-        // window.Width = 800;
+        window.Height = 700;
+        window.Width = 800;
 
-        // // Center the window
-        // window.X = (displayInfo.Width / displayInfo.Density - window.Width) / 2;
-        // window.Y = (displayInfo.Height / displayInfo.Density - window.Height) / 2;
+        // Center the window
+        window.X = (displayInfo.Width / displayInfo.Density - window.Width) / 2;
+        window.Y = (displayInfo.Height / displayInfo.Density - window.Height) / 2;
 
-        // Application.Current?.OpenWindow(window);
-        
-        labeltest.Text = "hasnt been implemented yet";
+        // Revisa cuando se cierra la ventana, es como un Sniper Monkey
+        window.Destroying += (s, args) =>
+        {
+            LoadUsers();
+            // POP!
+        };
+
+        Application.Current?.OpenWindow(window);
     }
 
 
@@ -59,14 +64,68 @@ public partial class ListUserVisual : ContentView
 
     private void OnEditClicked(object sender, EventArgs e)
     {
-        // Dummy function for Edit button
-        labeltest.Text = "Edit clicked";
+        // Editar a Larry
+        if (sender is Button button && button.BindingContext is User user)
+        {
+            // Create a deep copy of the user to edit
+            var userToEdit = new User
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Username = user.Username,
+                Password = user.Password, // Note: Be careful with password handling
+                Role = user.Role,
+                Available = user.Available,
+                Deleted = user.Deleted
+            };
+
+            // Open edit window with the user object
+            var editWindow = new Window(new CreateUserVisual(userToEdit))
+            {
+                Height = 700,
+                Width = 800
+            };
+
+            // Center the window
+            var displayInfo = DeviceDisplay.Current.MainDisplayInfo;
+            editWindow.X = (displayInfo.Width / displayInfo.Density - editWindow.Width) / 2;
+            editWindow.Y = (displayInfo.Height / displayInfo.Density - editWindow.Height) / 2;
+
+            // Revisa cuando se cierra la ventana, es como un Sniper Monkey (Creo que ya dije eso)
+            editWindow.Destroying += (s, args) =>
+            {
+                LoadUsers();
+                // POP!
+            };
+
+            Application.Current?.OpenWindow(editWindow);
+        }
     }
 
-    private void OnDeleteClicked(object sender, EventArgs e)
+    private async void OnDeleteClicked(object sender, EventArgs e)
     {
-        // Dummy function for Delete button
-        labeltest.Text = "Delete clicked";
+        if (sender is Button button && button.BindingContext is User user)
+        {
+            bool answer = await Application.Current.MainPage.DisplayAlert(
+                $"¿Estas seguro de que desea eliminar {user.Name}?",
+                "Confirmación",
+                "Sí", "No");
+
+            if (answer)
+            {
+                using var db = new AppDbContext();
+                var userToDelete = await db.Users.FindAsync(user.Id);
+
+                if (userToDelete != null)
+                {
+                    userToDelete.Deleted = true;
+                    await db.SaveChangesAsync();
+
+                   //Ahora sin sniper, supongo que no está camuflado
+                    LoadUsers();
+                }
+            }
+        }
     }
 
 }

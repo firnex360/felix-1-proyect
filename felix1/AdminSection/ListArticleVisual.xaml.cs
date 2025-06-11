@@ -80,10 +80,28 @@ public partial class ListArticleVisual : ContentView
         Application.Current?.OpenWindow(window);
     }
 
-    private void OnDeleteClicked(object sender, EventArgs e)
+    private async void OnDeleteClicked(object sender, EventArgs e)
     {
-        // Dummy function for Delete button
-        labeltest.Text = "Delete clicked";
-    }
+        if (sender is Button button && button.BindingContext is Article article)
+        {
+            bool answer = await Application.Current.MainPage.DisplayAlert(
+                "Confirmación",
+                $"¿Estas seguro de que desea eliminar {article.Name}?",
+                "Sí", "No");
 
+            if (answer)
+            {
+                using var db = new AppDbContext();
+                var articleToDelete = await db.Articles.FindAsync(article.Id);
+
+                if (articleToDelete != null)
+                {
+                    articleToDelete.IsDeleted = true;
+                    await db.SaveChangesAsync();
+
+                    LoadArticles();
+                }
+            }
+        }
+    }
 }
