@@ -1,6 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
+             xmlns:numericEntry ="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs"
+             xmlns:inputLayout="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="felix1.MainPage">
 
@@ -14,6 +16,13 @@
                 Aspect="AspectFit"
                 SemanticProperties.Description="dot net bot in a race car number eight" />
 
+            <inputLayout:SfTextInputLayout Hint="Amount" 
+                               HelperText="Enter the amount"
+                                        ContainerType="Outlined">
+            <numericEntry:SfNumericEntry Value="100" 
+                                            ShowClearButton="True" 
+                                            UpDownPlacementMode="Inline"/>
+            </inputLayout:SfTextInputLayout>
             <Label
                 Text="Hello, World!"
                 Style="{StaticResource Headline}"
@@ -21,15 +30,9 @@
 
             <Button Text="CHECKING - Go to the other super secret page"
                     Clicked="OnGoToPageBClicked" />
-            
 
 
-            <Label
-                Text="Welcome to &#10;.NET Multi-platform App UI"
-                Style="{StaticResource SubHeadline}"
-                SemanticProperties.HeadingLevel="Level2"
-                SemanticProperties.Description="Welcome to dot net Multi platform App U I" />
-
+        
             <Button
                 x:Name="CounterBtn"
                 Text="Click me" 
@@ -37,27 +40,39 @@
                 Clicked="OnCounterClicked"
                 HorizontalOptions="Fill" />
 
-            <buttons:SfButton x:Name="button"
-                Text="Testing (for the fourth time)"
-                CornerRadius="10"
-                Clicked="OnCounterClicked"
-                IsCheckable="True">
+            <HorizontalStackLayout
+                Spacing="10"
+                >
+            
 
-                <VisualStateManager.VisualStateGroups>
-                    <VisualStateGroup x:Name="CommonStates">
-                        <VisualState x:Name="Normal">
-                            <VisualState.Setters>
-                                <Setter Property="Background" Value="Purple" />
-                            </VisualState.Setters>
-                        </VisualState>
-                        <VisualState x:Name="Hovered">
-                            <VisualState.Setters>
-                                <Setter Property="Background" Value="Gray" />
-                            </VisualState.Setters>
-                        </VisualState>
-                    </VisualStateGroup>
-                </VisualStateManager.VisualStateGroups>
-            </buttons:SfButton>
+                <Button
+                    x:Name="createUserTemp"
+                    Text="Create User (for testing)"
+                    Clicked="OnSaveUserTest"
+                    HorizontalOptions="Start" />
+
+                <buttons:SfButton x:Name="button"
+                    Text="Create Article (for testing)"
+                    CornerRadius="10"
+                    Clicked="OnSaveArticleTest"
+                    IsCheckable="True">
+
+                    <VisualStateManager.VisualStateGroups>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="Background" Value="Purple" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Hovered">
+                                <VisualState.Setters>
+                                    <Setter Property="Background" Value="Gray" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateManager.VisualStateGroups>
+                </buttons:SfButton>
+            </HorizontalStackLayout>
 
         </VerticalStackLayout>
     </ScrollView>

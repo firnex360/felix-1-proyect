@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:syncfusion="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
+             BackgroundColor="White"
+             x:Class="felix1.ListUserVisual">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <HorizontalStackLayout Grid.Row="0"
+                               Padding="5"
+                               Spacing="1">
+
+            <Button Text="Crear Usuario"
+                    BackgroundColor="#A1BCC8"
+                    Clicked="OnCreateUserWindowClicked"
+                    HorizontalOptions="Start"/>
+
+            <Label x:Name="labeltest"
+                   Text="List of User"
+                   FontSize="28"
+                   TextColor="Black"
+                   VerticalOptions="Center"/>
+
+        </HorizontalStackLayout>
+
+        <!-- Fullscreen DataGrid -->
+        <Frame Grid.Row="1"
+               CornerRadius="5"
+               Padding="0"
+               HasShadow="True"
+               BackgroundColor="#B9C1C1C1"
+               Margin="20">
+
+            <syncfusion:SfDataGrid x:Name="dataGrid"
+                                   ItemsSource="{Binding Users}"
+                                   VerticalOptions="Fill"
+                                   HorizontalOptions="Fill"
+                                   HeaderRowHeight="50"
+                                   ColumnWidthMode="FitByHeader"
+                                   AutoGenerateColumnsMode="None">
+
+                <!-- Custom Columns -->
+                <syncfusion:SfDataGrid.Columns>
+
+                    <!-- ID Column -->
+                    <syncfusion:DataGridNumericColumn
+                        MappingName="Id"
+                        HeaderText="Id Usuario"
+                        Format="000"/>
+
+                    <!-- Name Column -->
+                    <syncfusion:DataGridTextColumn
+                        MappingName="Name"
+                        HeaderText="Nombre"/>
+
+                    <!-- Username Column -->
+                    <syncfusion:DataGridTextColumn
+                        MappingName="Username"
+                        HeaderText="Usuario"/>
+
+                    <!-- Role Column -->
+                    <syncfusion:DataGridTextColumn
+                        MappingName="Role"
+                        HeaderText="Rol"/>
+
+                    <!-- Available Column as Checkbox -->
+                    <syncfusion:DataGridTemplateColumn HeaderText="Disponible" MappingName="Available">
+                        <syncfusion:DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding Available}" IsEnabled="True"/>
+                            </DataTemplate>
+                        </syncfusion:DataGridTemplateColumn.CellTemplate>
+                    </syncfusion:DataGridTemplateColumn>
+
+                    <syncfusion:DataGridTemplateColumn HeaderText="Actions"
+                                                       Width="300">
+                        <syncfusion:DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <HorizontalStackLayout Spacing="5"
+                                                       HorizontalOptions="Center">
+                                    <Button
+                                        Text="Ver"
+                                        FontSize="12"
+                                        Clicked="OnViewClicked"
+                                        VerticalOptions="Center"/>
+
+                                    <Button
+                                        Text="Editar"
+                                        FontSize="12"
+                                        Padding="4"
+                                        Clicked="OnEditClicked"/>
+
+                                    <Button
+                                        Text="Eliminar"
+                                        FontSize="12"
+                                        Padding="4"
+                                        BackgroundColor="Red"
+                                        TextColor="White"
+                                        Clicked="OnDeleteClicked"/>
+                                </HorizontalStackLayout>
+                            </DataTemplate>
+                        </syncfusion:DataGridTemplateColumn.CellTemplate>
+                    </syncfusion:DataGridTemplateColumn>
+                </syncfusion:SfDataGrid.Columns>
+            </syncfusion:SfDataGrid>
+        </Frame>
+
+    </Grid>
+</ContentView>
