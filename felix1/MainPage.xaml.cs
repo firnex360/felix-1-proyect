@@ -1,4 +1,5 @@
-﻿using felix1.Data;
+﻿using System.Data.Common;
+using felix1.Data;
 using felix1.Logic;
 namespace felix1;
 
@@ -6,6 +7,7 @@ public partial class MainPage : ContentPage
 {
 
     int count = 0;
+    
 
     public MainPage()
     {
@@ -46,7 +48,11 @@ public partial class MainPage : ContentPage
 
 
     private async void OnGoToPageBClicked(object sender, EventArgs e)
-    {
+    {   
+        using var db = new AppDbContext();
+        var table = new Table {LocalNumber = 1, IsTakeOut = true};
+        db.Tables.Add(table);
+        db.SaveChanges();
         await Navigation.PushAsync(new AdminSectionMainVisual()); //CHECKING - navigate to example page
     }
 
