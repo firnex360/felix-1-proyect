@@ -398,3 +398,5 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+felix1/tempDBStorage/appdata.db-shm
+felix1/tempDBStorage/appdata.db-wal
