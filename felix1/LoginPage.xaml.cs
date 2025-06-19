@@ -1,4 +1,5 @@
 using felix1.Data;
+using felix1.Logic;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
 using System.Windows.Input;
@@ -82,7 +83,8 @@ public partial class LoginPage : ContentPage, INotifyPropertyChanged
 
             if (usuario != null)
             {
-                await DisplayAlert("Success", $"Bienvenido {usuario.Name}!", "OK");
+                AppSession.CurrentUser = usuario;
+                await DisplayAlert("Éxito", $"Bienvenido {usuario.Name}!", "OK");
 
                 // Iba a usar un if else, se salvaron
                 var targetPage = usuario.Role switch
