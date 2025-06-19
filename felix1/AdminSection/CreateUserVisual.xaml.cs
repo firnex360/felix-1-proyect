@@ -48,35 +48,32 @@ namespace felix1
             entryCPassword.Completed += (s, e) => btnGuardarUsuario.Focus();
         }
 
-        private async void OnGuardarUsuarioClicked(object sender, EventArgs e)
+        private void OnGuardarUsuarioClicked(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(entryNombre.Text) ||
                 string.IsNullOrWhiteSpace(entryUsername.Text) ||
                 string.IsNullOrWhiteSpace(entryPassword.Text) ||
                 pickerRol.SelectedItem == null)
             {
-                await DisplayAlert("Error", "Completar todos los campos", "OK");
+                DisplayAlert("Error", "Completar todos los campos", "OK");
                 return;
             }
 
             if (entryPassword.Text != entryCPassword.Text)
             {
-                await DisplayAlert("Error", "Las contraseñas no coinciden", "OK");
+                DisplayAlert("Error", "Las contraseñas no coinciden", "OK");
                 return;
             }
 
             using var db = new AppDbContext();
 
-            var usernameExists = db.Users.Any(u =>
-                u.Username.ToLower() == entryUsername.Text.Trim().ToLower() &&
-                (usuario == null || u.Id != usuario.Id));
-
-            if (usernameExists)
+            var nuevoUsuario = new Logic.User
             {
-                await DisplayAlert("Error", "El nombre de usuario ya está en uso. Por favor elija otro.", "OK");
-                return;
-            }
-
+                Name = entryNombre.Text,
+                Username = entryUsername.Text,
+                Password = entryPassword.Text,
+                Role = pickerRol.SelectedItem.ToString()
+            };
             if (usuario == null)
             {
                 var newUsuario = new Logic.User
@@ -89,7 +86,7 @@ namespace felix1
 
                 db.Users.Add(newUsuario);
                 db.SaveChanges();
-                await DisplayAlert("Éxito", "Usuario agregado correctamente", "OK");
+                DisplayAlert("Éxito", "Usuario agregado correctamente", "OK");
             }
             else
             {
@@ -103,23 +100,18 @@ namespace felix1
                     UsuarioToUpdate.Role = pickerRol.SelectedItem.ToString();
 
                     db.SaveChanges();
-                    await DisplayAlert("Éxito", "Usuario modificado correctamente", "OK");
+                    DisplayAlert("Éxito", "Usuario modificado correctamente", "OK");
+                    Application.Current.CloseWindow(Window);
+
                 }
                 else
                 {
-                    await DisplayAlert("Error", "No se encontró el usuario", "OK");
+                    DisplayAlert("Error", "No se encontró el usuario", "OK");
                     return;
                 }
             }
 
-            if (Window != null)
-            {
-                Application.Current.CloseWindow(Window);
-            }
-            else
-            {
-                await Navigation.PopModalAsync();
-            }
+        Navigation.PopModalAsync();
         }
     }
 }

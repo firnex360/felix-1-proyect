@@ -28,8 +28,6 @@
                 SemanticProperties.HeadingLevel="Level2"
                 SemanticProperties.Description="Welcome to dot net Multi platform App U I" />
 
-            <Button Text="Login" Clicked="Login" />
-
             <Button
                 x:Name="CounterBtn"
                 Text="Click me" 
