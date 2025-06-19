@@ -40,7 +40,7 @@ public partial class CreateArticleVisual : ContentPage
         protected void OnPropertyChanged(string propertyName) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
-    
+
     //Code reference from: https://learn.microsoft.com/en-us/answers/questions/1479605/how-to-set-an-entry-in-net-maui-to-only-except-num
     private void OnNumericEntryTextChanged(object sender, TextChangedEventArgs e)
     {
@@ -242,5 +242,24 @@ public partial class CreateArticleVisual : ContentPage
             }
         }
     }
+
+    //have to implement this later
+    // private void OnSearchBarTextChanged(object sender, TextChangedEventArgs e)
+    // {
+    //     var searchText = e.NewTextValue?.ToLower() ?? "";
+
+    //     if (string.IsNullOrWhiteSpace(searchText))
+    //     {
+    //         // Reset the DataGrid to show all articles
+    //         dataGrid.ItemsSource = Articles; 
+    //     }
+    //     else
+    //     {
+    //         // Filter the collection
+    //         dataGrid.ItemsSource = Articles
+    //             .Where(a => a.Name != null && a.Name.ToLower().Contains(searchText))
+    //             .ToList();
+    //     }
+    // }
 }
 
