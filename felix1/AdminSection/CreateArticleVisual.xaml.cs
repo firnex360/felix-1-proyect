@@ -30,9 +30,11 @@ public partial class CreateArticleVisual : ContentPage
                 {
                     isSelected = value;
                     OnPropertyChanged(nameof(IsSelected));
+                    SelectionChangedCallback?.Invoke(); //FOR THE CHECKBOX IN SIDEDISH
                 }
             }
         }
+        public Action? SelectionChangedCallback { get; set; } //FOR THE CHECKBOX IN SIDEDISH
 
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged(string propertyName) =>
@@ -100,30 +102,56 @@ public partial class CreateArticleVisual : ContentPage
         {
             var selectable = new SideDishSelectable
             {
-                Article = dish
+                Article = dish,
+                SelectionChangedCallback = UpdateSideDishCheckbox //FOR THE CHECKBOX IN SIDEDISH
             };
 
             selectable.IsSelected = selectedIds.Contains(dish.Id); // triggers PropertyChanged
 
             SideDishArticles.Add(selectable);
         }
+        UpdateSideDishCheckbox();
+
 
     }
 
-    private void OnShowA(object sender, EventArgs e)
+    //FOR THE CHECKBOX IN SIDEDISH
+    private void UpdateSideDishCheckbox()
     {
-        RightPanelA.IsVisible = true;
-        RightPanelB.IsVisible = false;
+        // If ANY side dish is selected, check the checkbox
+        bool anySelected = SideDishArticles.Any(s => s.IsSelected);
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            txtSideDish.IsChecked = anySelected;
+        });
     }
 
-    private void OnShowB(object sender, EventArgs e)
-    {
-        RightPanelA.IsVisible = false;
-        RightPanelB.IsVisible = true;
-    }
+
 
     private async void OnSaveArticle(object sender, EventArgs e)
     {
+        // VALIDATION
+        if (string.IsNullOrWhiteSpace(txtName.Text))
+        {
+            await DisplayAlert("Error", "El campo 'Nombre' es obligatorio.", "OK");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(txtPrice.Text))
+        {
+            await DisplayAlert("Error", "El campo 'Precio' es obligatorio.", "OK");
+            return;
+        }
+
+        if (pckCategory.SelectedItem == null)
+        {
+            await DisplayAlert("Error", "Debe seleccionar una categoría.", "OK");
+            return;
+        }
+
+
+
+
         //POPUP CONFIRMATION
         bool confirm = await DisplayAlert(
             "Confirmación",
@@ -200,7 +228,7 @@ public partial class CreateArticleVisual : ContentPage
         await DisplayAlert("Éxito", "Artículo guardado correctamente.", "OK");
 
         CloseThisWindow();
-        
+
     }
 
     private void CloseThisWindow()
