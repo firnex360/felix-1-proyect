@@ -106,10 +106,14 @@ public partial class ListUserVisual : ContentView
     {
         if (sender is Button button && button.BindingContext is User user)
         {
-            bool answer = await Application.Current.MainPage.DisplayAlert(
-                $"¿Estas seguro de que desea eliminar {user.Name}?",
-                "Confirmación",
-                "Sí", "No");
+            bool answer = false;
+            if (Application.Current?.MainPage != null)
+            {
+                answer = await Application.Current.MainPage.DisplayAlert(
+                    $"ï¿½Estas seguro de que desea eliminar {user.Name}?",
+                    "Confirmaciï¿½n",
+                    "Sï¿½", "No");
+            }
 
             if (answer)
             {
@@ -121,10 +125,28 @@ public partial class ListUserVisual : ContentView
                     userToDelete.Deleted = true;
                     await db.SaveChangesAsync();
 
-                   //Ahora sin sniper, supongo que no está camuflado
+                    //Ahora sin sniper, supongo que no estï¿½ camuflado
                     LoadUsers();
                 }
             }
+        }
+    }
+    
+        private void OnSearchBarTextChanged(object sender, TextChangedEventArgs e)
+    {
+        var searchText = e.NewTextValue?.ToLower() ?? "";
+
+        if (string.IsNullOrWhiteSpace(searchText))
+        {
+            // Reset the DataGrid to show all users
+            dataGrid.ItemsSource = Users; 
+        }
+        else
+        {
+            // Filter the collection
+            dataGrid.ItemsSource = Users
+                .Where(a => a.Name != null && a.Name.ToLower().Contains(searchText))
+                .ToList();
         }
     }
 

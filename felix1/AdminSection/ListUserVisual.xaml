@@ -8,8 +8,31 @@
     <Grid RowDefinitions="Auto,*">
 
         <HorizontalStackLayout Grid.Row="0"
-                               Padding="5"
                                Spacing="1">
+
+            <Frame
+                BackgroundColor="#F5F7FA"
+                CornerRadius="10"
+                Padding="0"
+                HasShadow="False"
+                VerticalOptions="Center"
+                HeightRequest="44"
+                BorderColor="#FF74777A"
+                WidthRequest="340"
+                Margin="20,10,0,0">
+
+                <SearchBar x:Name="searchBar"
+                           Placeholder="Buscar usuario..."
+                           TextChanged="OnSearchBarTextChanged"
+                           TextColor="#22223B"
+                           PlaceholderColor="#A0AEC0"
+                           BackgroundColor="Transparent"
+                           CancelButtonColor="#4F8FCB"
+                           FontSize="16"
+                           Margin="8,0"
+                           HeightRequest="44"
+                           HorizontalOptions="Fill"/>
+            </Frame>
 
             <Button Text="Crear Usuario"
                     BackgroundColor="#A1BCC8"
@@ -26,10 +49,10 @@
 
         <!-- Fullscreen DataGrid -->
         <Frame Grid.Row="1"
-               CornerRadius="5"
+               CornerRadius="10"
                Padding="0"
                HasShadow="True"
-               BackgroundColor="#B9C1C1C1"
+               BackgroundColor="#F5F7FA"
                Margin="20">
 
             <syncfusion:SfDataGrid x:Name="dataGrid"
@@ -65,10 +88,12 @@
                         HeaderText="Rol"/>
 
                     <!-- Available Column as Checkbox -->
-                    <syncfusion:DataGridTemplateColumn HeaderText="Disponible" MappingName="Available">
+                    <syncfusion:DataGridTemplateColumn HeaderText="Disponible"
+                            MappingName="Available">
                         <syncfusion:DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <CheckBox IsChecked="{Binding Available}" IsEnabled="True"/>
+                                <CheckBox IsChecked="{Binding Available}"
+                                        IsEnabled="True"/>
                             </DataTemplate>
                         </syncfusion:DataGridTemplateColumn.CellTemplate>
                     </syncfusion:DataGridTemplateColumn>
