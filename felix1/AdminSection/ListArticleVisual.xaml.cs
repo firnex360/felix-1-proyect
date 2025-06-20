@@ -57,13 +57,6 @@ public partial class ListArticleVisual : ContentView
         Application.Current?.OpenWindow(window);
     }
 
-
-    private void OnViewClicked(object sender, EventArgs e)
-    {
-        // Dummy function for View button
-        labeltest.Text = "View clicked";
-    }
-
     private void OnEditClicked(object sender, EventArgs e)
     {
         var button = (Button)sender;

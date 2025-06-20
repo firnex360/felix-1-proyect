@@ -8,7 +8,7 @@
     <Grid RowDefinitions="Auto,*">
 
         <HorizontalStackLayout Grid.Row="0"
-                               Spacing="40">
+                               Spacing="20">
             <Frame
                 BackgroundColor="#F5F7FA"
                 CornerRadius="10"
@@ -34,16 +34,14 @@
                            />
             </Frame>
 
-            <Button Text="Create Article"
-                    BackgroundColor="#A1BCC8"
-                    Clicked="OnCreateArticleWindowClicked"
-                    HorizontalOptions="Start"/>
 
-            <Label x:Name="labeltest"
-                   Text="List of Articles"
-                   FontSize="28"
-                   TextColor="Black"
-                   VerticalOptions="Center"/>
+            <Button Margin="0,10,0,0"
+                    Text="Agregar Artículo"
+                    TextColor="Black"
+                    BackgroundColor="#33B7E3"
+                    Clicked="OnCreateArticleWindowClicked"
+                    HorizontalOptions="Start"
+                    VerticalOptions="Center"/>
 
         </HorizontalStackLayout>
 
@@ -103,11 +101,6 @@
                             <DataTemplate>
                                 <HorizontalStackLayout Spacing="5"
                                                        HorizontalOptions="Center">
-                                    <Button
-                                        Text="Ver"
-                                        FontSize="12"
-                                        Clicked="OnViewClicked"
-                                        VerticalOptions="Center"/>
 
                                     <Button
                                         Text="Editar"
