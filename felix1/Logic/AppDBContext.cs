@@ -5,13 +5,18 @@ namespace felix1.Data
 {
     public class AppDbContext : DbContext
     {
-        public DbSet<User> Users { get; set; }
-        public DbSet<Article> Articles { get; set; }
+        public DbSet<User> Users { get; set; } = null!;
+        public DbSet<Article> Articles { get; set; } = null!;
+        public DbSet<CashRegister> CashRegisters { get; set; } = null!;
+        public DbSet<Table> Tables { get; set; } = null!;
+
 
         private string _dbPath;
 
         //this is for storing de DB on a temporary location
-        private string TempDBPath = "C:\\Codes\\github\\felix-1-proyect\\felix1\\tempDBStorage";
+        private string TempDBPath = "C:\\Codes\\github\\felix-1-proyect\\felix1\\tempDBStorage"; //for maria
+        //private string TempDBPath = "C:\\Codes\\github\\felix-1-proyect\\felix1\\tempDBStorage";
+
 
         public AppDbContext()
         {
@@ -44,6 +49,10 @@ namespace felix1.Data
                     j => j.HasOne<Article>().WithMany().HasForeignKey("SideDishId"),
                     j => j.HasOne<Article>().WithMany().HasForeignKey("ArticleId")
                 );
+
+            // FK for Cashier
+            modelBuilder.Entity<CashRegister>()
+                .HasOne(c => c.Cashier);
         }
     }
 }

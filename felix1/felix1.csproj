@@ -62,7 +62,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.5">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.6">
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		  <PrivateAssets>all</PrivateAssets>
 		</PackageReference>
@@ -89,6 +89,12 @@
 	  <MauiXaml Update="AdminSection\CreateUserVisual.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Images\" />
+	  <Folder Include="OrderSection\" />
+	  <Folder Include="tempDBStorage\" />
 	</ItemGroup>
 
 </Project>

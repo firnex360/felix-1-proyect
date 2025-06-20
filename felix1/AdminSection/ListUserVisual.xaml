@@ -8,28 +8,48 @@
     <Grid RowDefinitions="Auto,*">
 
         <HorizontalStackLayout Grid.Row="0"
-                               Padding="5"
-                               Spacing="1">
+                               Spacing="20">
 
-            <Button Text="Crear Usuario"
-                    BackgroundColor="#A1BCC8"
+            <Frame
+                BackgroundColor="#F5F7FA"
+                CornerRadius="10"
+                Padding="0"
+                HasShadow="False"
+                VerticalOptions="Center"
+                HeightRequest="44"
+                BorderColor="#FF74777A"
+                WidthRequest="340"
+                Margin="20,10,0,0">
+
+                <SearchBar x:Name="searchBar"
+                           Placeholder="Buscar usuario..."
+                           TextChanged="OnSearchBarTextChanged"
+                           TextColor="#22223B"
+                           PlaceholderColor="#A0AEC0"
+                           BackgroundColor="Transparent"
+                           CancelButtonColor="#4F8FCB"
+                           FontSize="16"
+                           Margin="8,0"
+                           HeightRequest="44"
+                           HorizontalOptions="Fill"/>
+            </Frame>
+
+            <Button Margin="0,10,0,0"
+                    Text="Agregar Usuario"
+                    TextColor="Black"
+                    BackgroundColor="#33B7E3"
                     Clicked="OnCreateUserWindowClicked"
-                    HorizontalOptions="Start"/>
-
-            <Label x:Name="labeltest"
-                   Text="List of User"
-                   FontSize="28"
-                   TextColor="Black"
-                   VerticalOptions="Center"/>
+                    HorizontalOptions="Start"
+                    VerticalOptions="Center"/>
 
         </HorizontalStackLayout>
 
         <!-- Fullscreen DataGrid -->
         <Frame Grid.Row="1"
-               CornerRadius="5"
+               CornerRadius="10"
                Padding="0"
                HasShadow="True"
-               BackgroundColor="#B9C1C1C1"
+               BackgroundColor="#F5F7FA"
                Margin="20">
 
             <syncfusion:SfDataGrid x:Name="dataGrid"
@@ -65,10 +85,12 @@
                         HeaderText="Rol"/>
 
                     <!-- Available Column as Checkbox -->
-                    <syncfusion:DataGridTemplateColumn HeaderText="Disponible" MappingName="Available">
+                    <syncfusion:DataGridTemplateColumn HeaderText="Disponible"
+                            MappingName="Available">
                         <syncfusion:DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <CheckBox IsChecked="{Binding Available}" IsEnabled="True"/>
+                                <CheckBox IsChecked="{Binding Available}"
+                                        IsEnabled="True"/>
                             </DataTemplate>
                         </syncfusion:DataGridTemplateColumn.CellTemplate>
                     </syncfusion:DataGridTemplateColumn>
@@ -77,27 +99,29 @@
                                                        Width="300">
                         <syncfusion:DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <HorizontalStackLayout Spacing="5"
+                                <HorizontalStackLayout Spacing="10"
                                                        HorizontalOptions="Center">
-                                    <Button
-                                        Text="Ver"
-                                        FontSize="12"
-                                        Clicked="OnViewClicked"
+
+                                    <ImageButton
+                                        Source="editing.png"
+                                        CornerRadius="10"
+                                        Padding="10"
+                                        WidthRequest="10"
+                                        HeightRequest="10"
+                                        BackgroundColor="Transparent"
+                                        Clicked="OnEditClicked"
                                         VerticalOptions="Center"/>
 
-                                    <Button
-                                        Text="Editar"
-                                        FontSize="12"
-                                        Padding="4"
-                                        Clicked="OnEditClicked"/>
+                                    <ImageButton
+                                        Source="delete.png"
+                                        CornerRadius="10"
+                                        Padding="10"
+                                        WidthRequest="10"
+                                        HeightRequest="10"
+                                        BackgroundColor="#FFFF1D1D"
+                                        Clicked="OnDeleteClicked"
+                                        VerticalOptions="Center"/>
 
-                                    <Button
-                                        Text="Eliminar"
-                                        FontSize="12"
-                                        Padding="4"
-                                        BackgroundColor="Red"
-                                        TextColor="White"
-                                        Clicked="OnDeleteClicked"/>
                                 </HorizontalStackLayout>
                             </DataTemplate>
                         </syncfusion:DataGridTemplateColumn.CellTemplate>

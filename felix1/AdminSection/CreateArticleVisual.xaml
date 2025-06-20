@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
+             xmlns:numericEntry ="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs"
              xmlns:inputLayout="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core" 
+             xmlns:syncfusion="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             BackgroundColor="#647C84"
+             BackgroundColor="White"
              x:Class="felix1.CreateArticleVisual">
              
     <Grid ColumnDefinitions="*,*"> <!-- Two equal columns -->
@@ -12,20 +15,21 @@
                             Spacing="10"
                             HorizontalOptions="Start">
 
-                <!-- CHECKING -->
-            <Label Text="Agregar Artículo"
-                FontSize="28"/>
+            <Label Text="Agregar Artículo" FontSize="28" TextColor="#000000"/>
                 <!-- codigo -->
             <HorizontalStackLayout Spacing="10" Padding="10">
                 <Label 
                     Text="Código"
+                    TextColor="#000000"
                     VerticalOptions="Center" 
                     WidthRequest="100"/>
 
                 <Entry
+                    x:Name="txtCode"
                     WidthRequest="200"
-                    Placeholder="Write here" 
-                    BackgroundColor="#FFFFFF"
+                    Placeholder="#####" 
+                    IsEnabled="False"
+                    BackgroundColor="#FFECECEC"
                     TextColor="#000000"
                     HorizontalOptions="Start"
                     ClearButtonVisibility="WhileEditing"/>
@@ -34,6 +38,7 @@
             <HorizontalStackLayout Spacing="10" Padding="10">
                 <Label 
                     Text="Nombre"
+                    TextColor="#000000"
                     VerticalOptions="Center" 
                     WidthRequest="100" />
 
@@ -41,7 +46,7 @@
                     x:Name="txtName"
                     WidthRequest="200"
                     Placeholder="Write here" 
-                    BackgroundColor="#FFFFFF"
+                    BackgroundColor="#FFECECEC"
                     TextColor="#000000"
                     HorizontalOptions="Start"
                     ClearButtonVisibility="WhileEditing"/>
@@ -50,15 +55,17 @@
             <HorizontalStackLayout Spacing="10" Padding="10">
                 <Label 
                     Text="Precio"
+                    TextColor="#000000"
                     VerticalOptions="Center" 
                     WidthRequest="100" />
 
 
                 <Entry
                     x:Name="txtPrice"
+                    TextChanged="OnNumericEntryTextChanged"
                     WidthRequest="200"
-                    Placeholder="Write here" 
-                    BackgroundColor="#FFFFFF"
+                    Placeholder="$1000" 
+                    BackgroundColor="#FFECECEC"
                     TextColor="#000000"
                     HorizontalOptions="Start"
                     ClearButtonVisibility="WhileEditing"/>
@@ -67,6 +74,7 @@
             <HorizontalStackLayout Spacing="10" Padding="10">
                 <Label 
                     Text="Categoría"
+                    TextColor="#000000"
                     VerticalOptions="Center" 
                     WidthRequest="100" />
 
@@ -74,7 +82,7 @@
                     x:Name="pckCategory"
                     WidthRequest="200"
                     Title="Select Category"
-                    BackgroundColor="#FFFFFF"
+                    BackgroundColor="#FFECECEC"
                     TextColor="#000000"
                     HorizontalOptions="Start"/>
             
@@ -83,75 +91,71 @@
             <HorizontalStackLayout Spacing="10" Padding="10">
                 <Label 
                     Text="Acompañamiento"
+                    TextColor="#000000"
                     VerticalOptions="Center" />
                 <CheckBox 
                     x:Name="txtSideDish"
-                    IsChecked="true" />
+                    IsChecked="false" 
+                    IsEnabled="false"
+                    BackgroundColor="#FFECECEC"
+                    Color="LightBlue"/>
             </HorizontalStackLayout>
                 
                 <!-- CREAR -->
-            <HorizontalStackLayout Spacing="10" Padding="10">
+            <HorizontalStackLayout HorizontalOptions="End" VerticalOptions="End">
                 <Button Text="Crear Artículo" Clicked="OnSaveArticle" WidthRequest="250" BackgroundColor="#7E949D" TextColor="#FFFFFF"/>
             </HorizontalStackLayout>
-
-                <!-- botones -->
-            <HorizontalStackLayout Spacing="10" Padding="10">
-                <Button Text="Acompañamiento" Clicked="OnShowA" WidthRequest="250" BackgroundColor="#7E949D" TextColor="#FFFFFF"/>
-                <Button Text="Opciones Avanzadas" Clicked="OnShowB" WidthRequest="250" BackgroundColor="#7E949D" TextColor="#FFFFFF"/>
-            </HorizontalStackLayout>
-
         </VerticalStackLayout>
 
 
                 <!-- ************** 2ND COLUMN START ************** -->
 
-            <!---
-            <VerticalStackLayout Grid.Column="1"    
-                            Padding="10, 10, 10, 10"
-                            Spacing="10"
-                            VerticalOptions="Center"
-                            HorizontalOptions="Start">
 
-            <Label Text="A SECOND COLUMN?!"
-                FontSize="28"
-                HorizontalOptions="Center"/>
-
-            <Label 
-                Text="Código"
-                VerticalOptions="Center" />
-
-            <Entry
-                WidthRequest="200"
-                Placeholder="Write here" 
-                BackgroundColor="#FFFFFF"
-                TextColor="#000000"
-                HorizontalOptions="Start"
-                ClearButtonVisibility="WhileEditing"/>
-        </VerticalStackLayout>
--->
-
-        <Grid Grid.Column="1">
+        <Grid Grid.Column="1" RowDefinitions="*,*" BackgroundColor="LightBlue">
             <!-- AGREGAR TABLE / GRID -->
-            <VerticalStackLayout x:Name="RightPanelA" BackgroundColor="LightBlue" Padding="10">
-                <Label Text="Acompañamiento" FontSize="28" />
+            <VerticalStackLayout x:Name="RightPanelA" Padding="10">
+                <Label Text="Acompañamiento" FontSize="28" TextColor="#000000"/>
 
-
+                <!-- SfDataGrid for Side Dishes -->
+                <syncfusion:SfDataGrid x:Name="sideDishDataGrid"
+                                      ItemsSource="{Binding SideDishArticles}"
+                                      SelectionMode="None"
+                                      HeaderRowHeight="40"
+                                      RowHeight="40"
+                                      Margin="0,10,0,0"
+                                      HeightRequest="300"
+                                      AutoGenerateColumnsMode="None">
+                    <syncfusion:SfDataGrid.Columns>
+                        <!-- Checkbox Column -->
+                        <syncfusion:DataGridTemplateColumn HeaderText="Seleccionar" Width="110">
+                            <syncfusion:DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"/>
+                                </DataTemplate>
+                            </syncfusion:DataGridTemplateColumn.CellTemplate>
+                        </syncfusion:DataGridTemplateColumn>
+                        <!-- Name Column -->
+                        <syncfusion:DataGridTextColumn MappingName="Name" HeaderText="Nombre" Width="200"/>
+                    </syncfusion:SfDataGrid.Columns>
+                </syncfusion:SfDataGrid>
             </VerticalStackLayout>
 
             <!-- View B -->
-            <VerticalStackLayout x:Name="RightPanelB" BackgroundColor="LightGreen" Padding="10" IsVisible="False">
-                <Label Text="Opciones Avanzadas" FontSize="28" />
+            <VerticalStackLayout Grid.Row="1" x:Name="RightPanelB"  Padding="10">
+                <Label Text="Opciones Avanzadas" FontSize="28" TextColor="#000000"/>
 
                 <HorizontalStackLayout Spacing="10" Padding="10">
                     <Label 
                         Text="Precio Secundario"
                         VerticalOptions="Center" 
-                        WidthRequest="150" />
+                        WidthRequest="150" 
+                        TextColor="#000000"/>
 
                     <Entry
                         x:Name="txtSecondaryPrice"
+                        TextChanged="OnNumericEntryTextChanged"
                         WidthRequest="200"
-                        Placeholder="Write here" 
+                        Placeholder="$1000" 
                         BackgroundColor="#FFFFFF"
                         TextColor="#000000"
                         HorizontalOptions="Start"
@@ -162,7 +166,8 @@
                     <Label 
                         Text="Impuestos del mesero"
                         VerticalOptions="Center" 
-                        WidthRequest="150" />
+                        WidthRequest="150" 
+                        TextColor="#000000"/>
 
                     <Entry
                         WidthRequest="200"
