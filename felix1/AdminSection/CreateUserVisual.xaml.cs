@@ -48,6 +48,11 @@ namespace felix1
             entryCPassword.Completed += (s, e) => btnGuardarUsuario.Focus();
         }
 
+        private async void OnCancelButtonClicked(object sender, EventArgs e)
+        {
+            Application.Current.CloseWindow(Window);
+        }
+
         private async void OnGuardarUsuarioClicked(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(entryNombre.Text) ||
