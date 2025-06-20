@@ -99,22 +99,29 @@
                                                        Width="300">
                         <syncfusion:DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <HorizontalStackLayout Spacing="5"
+                                <HorizontalStackLayout Spacing="10"
                                                        HorizontalOptions="Center">
 
-                                    <Button
-                                        Text="Editar"
-                                        FontSize="12"
-                                        Padding="4"
-                                        Clicked="OnEditClicked"/>
+                                    <ImageButton
+                                        Source="editing.png"
+                                        CornerRadius="10"
+                                        Padding="10"
+                                        WidthRequest="10"
+                                        HeightRequest="10"
+                                        BackgroundColor="Transparent"
+                                        Clicked="OnEditClicked"
+                                        VerticalOptions="Center"/>
 
-                                    <Button
-                                        Text="Eliminar"
-                                        FontSize="12"
-                                        Padding="4"
-                                        BackgroundColor="Red"
-                                        TextColor="White"
-                                        Clicked="OnDeleteClicked"/>
+                                    <ImageButton
+                                        Source="delete.png"
+                                        CornerRadius="10"
+                                        Padding="10"
+                                        WidthRequest="10"
+                                        HeightRequest="10"
+                                        BackgroundColor="#FFFF1D1D"
+                                        Clicked="OnDeleteClicked"
+                                        VerticalOptions="Center"/>
+
                                 </HorizontalStackLayout>
                             </DataTemplate>
                         </syncfusion:DataGridTemplateColumn.CellTemplate>

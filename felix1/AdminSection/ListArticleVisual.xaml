@@ -60,7 +60,8 @@
                                    HorizontalOptions="Fill"
                                    HeaderRowHeight="50"
                                    ColumnWidthMode="FitByHeader"
-                                   AutoGenerateColumnsMode="None">
+                                   AutoGenerateColumnsMode="None"
+                                   RowHeight="50">
                                 
 
                 <!-- Custom Columns -->
@@ -70,12 +71,12 @@
                     <syncfusion:DataGridNumericColumn
                         MappingName="Id"
                         HeaderText="Id Articulo"
-                        Format="000"/>
+                        Format="0000"/>
 
                     <!-- Name Column -->
                     <syncfusion:DataGridTextColumn
                         MappingName="Name"
-                        HeaderText="Nombre del Articulo"/>
+                        HeaderText="Nombre"/>
 
                     <!-- Primary Price -->
                     <syncfusion:DataGridNumericColumn
@@ -95,26 +96,33 @@
                         MappingName="Category"
                         HeaderText="Categoria"/>
 
-                    <syncfusion:DataGridTemplateColumn HeaderText="Actions"
+                    <syncfusion:DataGridTemplateColumn HeaderText="Acciones"
                                                        Width="300">
                         <syncfusion:DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <HorizontalStackLayout Spacing="5"
+                                <HorizontalStackLayout Spacing="10"
                                                        HorizontalOptions="Center">
 
-                                    <Button
-                                        Text="Editar"
-                                        FontSize="12"
-                                        Padding="4"
-                                        Clicked="OnEditClicked"/>
+                                    <ImageButton
+                                        Source="editing.png"
+                                        CornerRadius="10"
+                                        Padding="10"
+                                        WidthRequest="10"
+                                        HeightRequest="10"
+                                        BackgroundColor="Transparent"
+                                        Clicked="OnEditClicked"
+                                        VerticalOptions="Center"/>
 
-                                    <Button
-                                        Text="Eliminar"
-                                        FontSize="12"
-                                        Padding="4"
-                                        BackgroundColor="Red"
-                                        TextColor="White"
-                                        Clicked="OnDeleteClicked"/>
+                                    <ImageButton
+                                        Source="delete.png"
+                                        CornerRadius="10"
+                                        Padding="10"
+                                        WidthRequest="10"
+                                        HeightRequest="10"
+                                        BackgroundColor="#FFFF1D1D"
+                                        Clicked="OnDeleteClicked"
+                                        VerticalOptions="Center"/>
+
                                 </HorizontalStackLayout>
                             </DataTemplate>
                         </syncfusion:DataGridTemplateColumn.CellTemplate>

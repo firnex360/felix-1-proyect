@@ -59,7 +59,7 @@ public partial class ListArticleVisual : ContentView
 
     private void OnEditClicked(object sender, EventArgs e)
     {
-        var button = (Button)sender;
+        var button = (ImageButton)sender;
         var article = (Article)button.BindingContext;
 
         var displayInfo = DeviceDisplay.Current.MainDisplayInfo;
