@@ -76,7 +76,7 @@ public partial class ListArticleVisual : ContentView
 
     private async void OnDeleteClicked(object sender, EventArgs e)
     {
-        if (sender is Button button && button.BindingContext is Article article)
+        if (sender is ImageButton button && button.BindingContext is Article article)
         {
             if (Application.Current?.MainPage != null)
             {

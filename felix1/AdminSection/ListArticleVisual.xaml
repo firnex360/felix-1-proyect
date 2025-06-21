@@ -2,6 +2,7 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:syncfusion="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
+             xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
              BackgroundColor="White"
              x:Class="felix1.ListArticleVisual">
 
@@ -30,8 +31,7 @@
                            FontSize="16"
                            Margin="8,0"
                            HeightRequest="44"
-                           HorizontalOptions="Fill"
-                           />
+                           HorizontalOptions="Fill"/>
             </Frame>
 
 
@@ -62,7 +62,7 @@
                                    ColumnWidthMode="FitByHeader"
                                    AutoGenerateColumnsMode="None"
                                    RowHeight="50">
-                                
+
 
                 <!-- Custom Columns -->
                 <syncfusion:SfDataGrid.Columns>
@@ -103,25 +103,64 @@
                                 <HorizontalStackLayout Spacing="10"
                                                        HorizontalOptions="Center">
 
+
                                     <ImageButton
                                         Source="editing.png"
                                         CornerRadius="10"
                                         Padding="10"
-                                        WidthRequest="10"
-                                        HeightRequest="10"
-                                        BackgroundColor="Transparent"
+                                        WidthRequest="28"
+                                        HeightRequest="28"
+                                        BackgroundColor="#FFD6D7DA"
                                         Clicked="OnEditClicked"
-                                        VerticalOptions="Center"/>
+                                        VerticalOptions="Center">
+                                        <VisualStateManager.VisualStateGroups>
+                                            <VisualStateGroupList>
+                                                <VisualStateGroup x:Name="CommonStates">
+                                                    <VisualState x:Name="Normal">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="BackgroundColor"
+                                                                    Value="#F5F7FA"/>
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                    <VisualState x:Name="PointerOver">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="BackgroundColor"
+                                                                    Value="#FFD6D7DA"/>
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                </VisualStateGroup>
+                                            </VisualStateGroupList>
+                                        </VisualStateManager.VisualStateGroups>
+                                    </ImageButton>
 
                                     <ImageButton
                                         Source="delete.png"
                                         CornerRadius="10"
                                         Padding="10"
-                                        WidthRequest="10"
-                                        HeightRequest="10"
-                                        BackgroundColor="#FFFF1D1D"
+                                        WidthRequest="0"
+                                        HeightRequest="0"
+                                        BackgroundColor="transparent"
                                         Clicked="OnDeleteClicked"
-                                        VerticalOptions="Center"/>
+                                        VerticalOptions="Center">
+                                        <VisualStateManager.VisualStateGroups>
+                                            <VisualStateGroupList>
+                                                <VisualStateGroup x:Name="CommonStates">
+                                                    <VisualState x:Name="Normal">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="BackgroundColor"
+                                                                    Value="transparent"/>
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                    <VisualState x:Name="PointerOver">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="BackgroundColor"
+                                                                    Value="#D0FF0000"/>
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                </VisualStateGroup>
+                                            </VisualStateGroupList>
+                                        </VisualStateManager.VisualStateGroups>
+                                    </ImageButton>
 
                                 </HorizontalStackLayout>
                             </DataTemplate>
