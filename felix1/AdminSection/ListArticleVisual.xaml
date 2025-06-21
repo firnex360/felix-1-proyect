@@ -51,18 +51,28 @@
                Padding="0"
                HasShadow="True"
                BackgroundColor="#F5F7FA"
-               BorderColor="#FF74777A"
-               Margin="20">
+               BorderColor="#F5F7FA"
+               Margin="20"
+               VerticalOptions="Fill"
+               HorizontalOptions="Fill">
 
             <syncfusion:SfDataGrid x:Name="dataGrid"
                                    ItemsSource="{Binding Articles}"
                                    VerticalOptions="Fill"
                                    HorizontalOptions="Fill"
-                                   HeaderRowHeight="50"
+                                   HeaderRowHeight="60"
                                    ColumnWidthMode="FitByHeader"
                                    AutoGenerateColumnsMode="None"
-                                   RowHeight="50">
+                                   RowHeight="50"
+                                   SortingMode="Single"
+                                   AllowTriStateSorting="True"
+                                   VerticalOverScrollMode="Bounce"
+                                   EmptyView="No hay registros">
 
+                <syncfusion:SfDataGrid.DefaultStyle>
+                    <syncfusion:DataGridStyle HeaderRowBackground="#FFDFE3E8"
+                                              HeaderRowTextColor="black"/>
+                </syncfusion:SfDataGrid.DefaultStyle>
 
                 <!-- Custom Columns -->
                 <syncfusion:SfDataGrid.Columns>
@@ -71,30 +81,39 @@
                     <syncfusion:DataGridNumericColumn
                         MappingName="Id"
                         HeaderText="Id Articulo"
-                        Format="0000"/>
+                        Format="0000"
+                        CellTextAlignment="Start"
+                        HeaderTextAlignment="Start"/>
 
                     <!-- Name Column -->
                     <syncfusion:DataGridTextColumn
                         MappingName="Name"
-                        HeaderText="Nombre"/>
+                        HeaderText="Nombre"
+                        CellTextAlignment="Start"
+                        HeaderTextAlignment="Start"/>
 
                     <!-- Primary Price -->
                     <syncfusion:DataGridNumericColumn
                         MappingName="PriPrice"
                         HeaderText="Precio Primario"
-                        Format="C2"/>
-                    <!-- Currency formatting -->
+                        Format="C2"
+                        CellTextAlignment="Start"
+                        HeaderTextAlignment="Start"/>
 
                     <!-- Secondary Price -->
                     <syncfusion:DataGridNumericColumn
                         MappingName="SecPrice"
                         HeaderText="Precio Secundario"
-                        Format="C2"/>
+                        Format="C2"
+                        CellTextAlignment="Start"
+                        HeaderTextAlignment="Start"/>
 
                     <!-- Category -->
                     <syncfusion:DataGridTextColumn
                         MappingName="Category"
-                        HeaderText="Categoria"/>
+                        HeaderText="Categoria"
+                        CellTextAlignment="Start"
+                        HeaderTextAlignment="Start"/>
 
                     <syncfusion:DataGridTemplateColumn HeaderText="Acciones"
                                                        Width="300">
