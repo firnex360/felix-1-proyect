@@ -40,10 +40,13 @@
                 Clicked="OnCounterClicked"
                 HorizontalOptions="Fill" />
 
-            <HorizontalStackLayout
-                Spacing="10"
-                >
+            <HorizontalStackLayout Spacing="10">
             
+                <Button
+                    x:Name="createOrderTemp"
+                    Text="Create Order (for testing)"
+                    Clicked="OnSaveOrderTest"
+                    HorizontalOptions="Start" />
 
                 <Button
                     x:Name="createUserTemp"

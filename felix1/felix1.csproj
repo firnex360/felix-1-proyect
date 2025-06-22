@@ -93,7 +93,6 @@
 
 	<ItemGroup>
 	  <Folder Include="Images\" />
-	  <Folder Include="OrderSection\" />
 	  <Folder Include="tempDBStorage\" />
 	</ItemGroup>
 

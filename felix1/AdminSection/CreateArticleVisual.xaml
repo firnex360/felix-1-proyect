@@ -45,7 +45,7 @@
                 <Entry
                     x:Name="txtName"
                     WidthRequest="200"
-                    Placeholder="Escribir nombre"
+                    Placeholder="Escribir nombre" 
                     BackgroundColor="#FFECECEC"
                     TextColor="#000000"
                     HorizontalOptions="Start"
