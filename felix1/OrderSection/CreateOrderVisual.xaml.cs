@@ -8,13 +8,80 @@ public partial class CreateOrderVisual : ContentPage
 {
 
 	private CashRegister? editingCashRegister = null;
-	public CreateOrderVisual()
-	{
-		InitializeComponent();
+    public CreateOrderVisual()
+    {
+        InitializeComponent();
+        
+        LoadCashRegisterStatus();
 
 		//timePicker.Time = now.TimeOfDay;
-	}
-	private void OnNumericEntryTextChanged(object sender, TextChangedEventArgs e)
+    }
+
+    //called when the page is loaded
+    private void LoadCashRegisterStatus()
+    {
+        using var db = new AppDbContext();
+        var openRegisters = db.CashRegisters
+                            .Where(c => c.IsOpen)
+                            .ToList();
+
+        if (openRegisters.Count > 0)
+        {
+            lblCashRegisterStatus.Text = $"Existen {openRegisters.Count} caja(s) abierta(s) en el sistema";
+            lblActionPrompt.Text = "Puede seleccionar una caja existente o crear una nueva";
+
+            pickerOpenRegisters.ItemsSource = openRegisters
+                .Select(r => $"Caja #{r.Number} - {r.TimeStarted:dd/MM/yyyy}")
+                .ToList();
+
+            pickerOpenRegisters.IsVisible = true;
+            ShowForm(false);
+
+            btnCrearCajaNueva.IsVisible = true;
+            btnCrearCaja.IsVisible = false;
+        }
+        else
+        {
+            lblCashRegisterStatus.Text = "No hay cajas abiertas";
+            lblActionPrompt.Text = "Por favor, abrir una caja antes de empezar";
+
+            pickerOpenRegisters.IsVisible = false;
+            ShowForm(true);
+            
+            btnCrearCajaNueva.IsVisible = false;
+            btnCrearCaja.IsVisible = true;
+
+        }
+    }
+
+    private void OnShowCreateForm(object sender, EventArgs e)
+    {
+        pickerOpenRegisters.IsVisible = false;
+        ShowForm(true);
+        lblCashRegisterStatus.Text = "Crear nueva caja";
+        lblActionPrompt.Text = string.Empty;
+
+
+        btnCrearCajaNueva.IsVisible = false;
+        btnCrearCaja.IsVisible = true;
+    }
+
+
+    private void ShowForm(bool show)
+    {
+        lblNumber.IsVisible = show;
+        txtNumber.IsVisible = show;
+        lblInitialMoney.IsVisible = show;
+        txtInitialMoney.IsVisible = show;
+        lbldatePicker.IsVisible = show;
+        datePicker.IsVisible = show;
+        lblSecondaryPrice.IsVisible = show;
+        cbxSecondaryPrice.IsVisible = show;
+    }
+
+
+
+    private void OnNumericEntryTextChanged(object sender, TextChangedEventArgs e)
     {
         string regex = e.NewTextValue;
         if (String.IsNullOrEmpty(regex))
@@ -58,14 +125,16 @@ public partial class CreateOrderVisual : ContentPage
         {
 			var now = DateTime.Now;
 			datePicker.Date = now.Date;//verify
+            var user = db.Users.Find(AppSession.CurrentUser.Id);
 
             var newCashRegister = new CashRegister
-			{
-				Number = (int)(txtNumber.Text != null ? float.Parse(txtNumber.Text) : 0f),
-				InitialMoney = txtInitialMoney.Text != null ? float.Parse(txtInitialMoney.Text) : 0f,
-				TimeStarted = datePicker.Date,
-				IsSecPrice = cbxSecondaryPrice.IsChecked,
-				IsOpen = true,
+            {
+                Number = (int)(txtNumber.Text != null ? float.Parse(txtNumber.Text) : 0f),
+                InitialMoney = txtInitialMoney.Text != null ? float.Parse(txtInitialMoney.Text) : 0f,
+                TimeStarted = datePicker.Date,
+                IsSecPrice = cbxSecondaryPrice.IsChecked,
+                IsOpen = true,
+                Cashier = user, 
 			};
 
             db.CashRegisters.Add(newCashRegister);

@@ -1,5 +1,6 @@
 using felix1.Data;
 using felix1.Logic;
+using felix1.OrderSection;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
 using System.Windows.Input;
@@ -84,21 +85,22 @@ public partial class LoginPage : ContentPage, INotifyPropertyChanged
             if (usuario != null)
             {
                 AppSession.CurrentUser = usuario;
-                await DisplayAlert("Éxito", $"Bienvenido {usuario.Name}!", "OK");
+                await DisplayAlert("ï¿½xito", $"Bienvenido {usuario.Name}!", "OK");
 
                 // Iba a usar un if else, se salvaron
-                var targetPage = usuario.Role switch
+                Page targetPage = usuario.Role switch
                 {
-                    "Cajero" => new MainPage(),
-                    "Admin" => new MainPage(), //cuando tengan la página me avisan
-                    "Mesero" => new MainPage() // Cuando tengan las tabletas me avisan
+                    "Cajero" => new CreateOrderVisual(),
+                    "Admin" => new AdminSectionMainVisual(), //cuando tengan la pï¿½gina me avisan
+                    "Mesero" => new MainPage(), // Cuando tengan las tabletas me avisan
+                    _ => new MainPage() // Default case, could be a generic page or error
                 };
 
                 await Navigation.PushAsync(targetPage);
             }
             else
             {
-                await DisplayAlert("Error", "Contraseña o username incorrecto", "OK");
+                await DisplayAlert("Error", "Contraseï¿½a o username incorrecto", "OK");
             }
         }
         catch (Exception ex)

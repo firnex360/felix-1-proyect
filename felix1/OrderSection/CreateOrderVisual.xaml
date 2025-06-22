@@ -3,12 +3,18 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="felix1.OrderSection.CreateOrderVisual">
     <VerticalStackLayout>
-        <Label Text="No hay cajas abiertas" FontSize="28" VerticalOptions="Center" HorizontalOptions="Center" />
-        <Label Text="Por favor, abrir una caja antes de empezar"  VerticalOptions="Center" HorizontalOptions="Center"/>
+        <Label x:Name="lblCashRegisterStatus" Text="No hay cajas abiertas" FontSize="28" VerticalOptions="Center" HorizontalOptions="Center" />
+        <Label x:Name="lblActionPrompt" Text="Por favor, abrir una caja antes de empezar"  VerticalOptions="Center" HorizontalOptions="Center"/>
+        
+        <Picker x:Name="pickerOpenRegisters"
+                Title="Seleccionar caja abierta"
+                HorizontalOptions="Center"
+                WidthRequest="200"
+                IsVisible="False" />
 
 
             <VerticalStackLayout Spacing="10" Padding="10">
-                <Label Text="Número de caja"  VerticalOptions="Center" HorizontalOptions="Center"/>
+                <Label x:Name="lblNumber" Text="Número de caja"  VerticalOptions="Center" HorizontalOptions="Center"/>
 
                 <Entry
                     x:Name="txtNumber"
@@ -20,7 +26,7 @@
                     HorizontalOptions="Center"
                     ClearButtonVisibility="WhileEditing"/>
 
-                <Label Text="Cantidad inicial en caja"  VerticalOptions="Center" HorizontalOptions="Center"/>
+                <Label x:Name="lblInitialMoney" Text="Cantidad inicial en caja"  VerticalOptions="Center" HorizontalOptions="Center"/>
 
                 <Entry
                     x:Name="txtInitialMoney"
@@ -36,7 +42,7 @@
 
                 <!--TimePicker x:Name="timePicker" HorizontalOptions="Center" Format="HH:mm" -->
                 
-                <Label Text="Fecha de inicio del turno"  VerticalOptions="Center" HorizontalOptions="Center"/>
+                <Label x:Name="lbldatePicker" Text="Fecha de inicio del turno"  VerticalOptions="Center" HorizontalOptions="Center"/>
 
                 <DatePicker 
                     x:Name="datePicker"
@@ -46,7 +52,7 @@
                     FontSize="18"/>
                     
                 
-                <Label Text="Precio secundario activado"  VerticalOptions="Center" HorizontalOptions="Center"/>
+                <Label x:Name="lblSecondaryPrice" Text="Precio secundario activado"  VerticalOptions="Center" HorizontalOptions="Center"/>
                 <CheckBox
                     x:Name="cbxSecondaryPrice"
                     VerticalOptions="Center" HorizontalOptions="Center"
@@ -56,7 +62,21 @@
 
 
                 <!-- CREAR -->
-                <Button Text="Crear Caja" Clicked="OnSaveCashRegister" WidthRequest="250" BackgroundColor="#7E949D" TextColor="#FFFFFF"/>
+                <Button x:Name="btnCrearCajaNueva"
+                    Text="Crear Caja Nueva"
+                    Clicked="OnShowCreateForm"
+                    WidthRequest="250"
+                    BackgroundColor="#7E949D"
+                    TextColor="#FFFFFF"
+                    IsVisible="False" />
+
+                <Button x:Name="btnCrearCaja"
+                    Text="Crear Caja"
+                    Clicked="OnSaveCashRegister"
+                    WidthRequest="250"
+                    BackgroundColor="#7E949D"
+                    TextColor="#FFFFFF"
+                    IsVisible="True" />
 
             </VerticalStackLayout>
 
