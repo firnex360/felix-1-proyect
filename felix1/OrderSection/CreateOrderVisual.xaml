@@ -5,80 +5,64 @@
     <VerticalStackLayout>
         <Label x:Name="lblCashRegisterStatus" Text="No hay cajas abiertas" FontSize="28" VerticalOptions="Center" HorizontalOptions="Center" />
         <Label x:Name="lblActionPrompt" Text="Por favor, abrir una caja antes de empezar"  VerticalOptions="Center" HorizontalOptions="Center"/>
-        
-        <Picker x:Name="pickerOpenRegisters"
-                Title="Seleccionar caja abierta"
-                HorizontalOptions="Center"
+
+        <VerticalStackLayout Spacing="10" Padding="10">
+            <Label x:Name="lblNumber" Text="Número de caja"  VerticalOptions="Center" HorizontalOptions="Center"/>
+
+            <Entry
+                x:Name="txtNumber"
                 WidthRequest="200"
+                Placeholder="Digitar número"
+                TextChanged="OnNumericEntryTextChanged"
+                BackgroundColor="#FFECECEC"
+                TextColor="#000000"
+                HorizontalOptions="Center"
+                ClearButtonVisibility="WhileEditing"/>
+
+            <Label x:Name="lblInitialMoney" Text="Cantidad inicial en caja"  VerticalOptions="Center" HorizontalOptions="Center"/>
+
+            <Entry
+                x:Name="txtInitialMoney"
+                WidthRequest="200"
+                Placeholder="Digitar monto" 
+                TextChanged="OnNumericEntryTextChanged"
+                BackgroundColor="#FFECECEC"
+                TextColor="#000000"
+                HorizontalOptions="Center"
+                ClearButtonVisibility="WhileEditing"/>
+
+            <Label x:Name="lbldatePicker" Text="Fecha de inicio del turno"  VerticalOptions="Center" HorizontalOptions="Center"/>
+
+            <DatePicker 
+                x:Name="datePicker"
+                HorizontalOptions="Center"
+                Format="dd/MM/yyyy"
+                Date="{Binding SelectedDate, Mode=TwoWay}"
+                FontSize="18"/>
+
+            <Label x:Name="lblSecondaryPrice" Text="Precio secundario activado"  VerticalOptions="Center" HorizontalOptions="Center"/>
+            <CheckBox
+                x:Name="cbxSecondaryPrice"
+                VerticalOptions="Center" HorizontalOptions="Center"
+                IsChecked="false" 
+                BackgroundColor="#FFECECEC"
+                Color="LightBlue"/>
+
+            <Button x:Name="btnCrearCajaNueva"
+                Text="Crear Caja Nueva"
+                Clicked="OnShowCreateForm"
+                WidthRequest="250"
+                BackgroundColor="#7E949D"
+                TextColor="#FFFFFF"
                 IsVisible="False" />
 
-
-            <VerticalStackLayout Spacing="10" Padding="10">
-                <Label x:Name="lblNumber" Text="Número de caja"  VerticalOptions="Center" HorizontalOptions="Center"/>
-
-                <Entry
-                    x:Name="txtNumber"
-                    WidthRequest="200"
-                    Placeholder="Digitar número"
-                    TextChanged="OnNumericEntryTextChanged"
-                    BackgroundColor="#FFECECEC"
-                    TextColor="#000000"
-                    HorizontalOptions="Center"
-                    ClearButtonVisibility="WhileEditing"/>
-
-                <Label x:Name="lblInitialMoney" Text="Cantidad inicial en caja"  VerticalOptions="Center" HorizontalOptions="Center"/>
-
-                <Entry
-                    x:Name="txtInitialMoney"
-                    WidthRequest="200"
-                    Placeholder="Digitar monto" 
-                    TextChanged="OnNumericEntryTextChanged"
-                    BackgroundColor="#FFECECEC"
-                    TextColor="#000000"
-                    HorizontalOptions="Center"
-                    ClearButtonVisibility="WhileEditing"/>
-                
-                <!--Label Text="Hora de inicio del turno"  VerticalOptions="Center" HorizontalOptions="Center"-->
-
-                <!--TimePicker x:Name="timePicker" HorizontalOptions="Center" Format="HH:mm" -->
-                
-                <Label x:Name="lbldatePicker" Text="Fecha de inicio del turno"  VerticalOptions="Center" HorizontalOptions="Center"/>
-
-                <DatePicker 
-                    x:Name="datePicker"
-                    HorizontalOptions="Center"
-                    Format="dd/MM/yyyy"
-                    Date="{Binding SelectedDate, Mode=TwoWay}"
-                    FontSize="18"/>
-                    
-                
-                <Label x:Name="lblSecondaryPrice" Text="Precio secundario activado"  VerticalOptions="Center" HorizontalOptions="Center"/>
-                <CheckBox
-                    x:Name="cbxSecondaryPrice"
-                    VerticalOptions="Center" HorizontalOptions="Center"
-                    IsChecked="false" 
-                    BackgroundColor="#FFECECEC"
-                    Color="LightBlue"/>
-
-
-                <!-- CREAR -->
-                <Button x:Name="btnCrearCajaNueva"
-                    Text="Crear Caja Nueva"
-                    Clicked="OnShowCreateForm"
-                    WidthRequest="250"
-                    BackgroundColor="#7E949D"
-                    TextColor="#FFFFFF"
-                    IsVisible="False" />
-
-                <Button x:Name="btnCrearCaja"
-                    Text="Crear Caja"
-                    Clicked="OnSaveCashRegister"
-                    WidthRequest="250"
-                    BackgroundColor="#7E949D"
-                    TextColor="#FFFFFF"
-                    IsVisible="True" />
-
-            </VerticalStackLayout>
-
+            <Button x:Name="btnCrearCaja"
+                Text="Crear Caja"
+                Clicked="OnSaveCashRegister"
+                WidthRequest="250"
+                BackgroundColor="#7E949D"
+                TextColor="#FFFFFF"
+                IsVisible="True" />
+        </VerticalStackLayout>
     </VerticalStackLayout>
 </ContentPage>

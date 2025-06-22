@@ -85,13 +85,13 @@ public partial class LoginPage : ContentPage, INotifyPropertyChanged
             if (usuario != null)
             {
                 AppSession.CurrentUser = usuario;
-                await DisplayAlert("�xito", $"Bienvenido {usuario.Name}!", "OK");
+                await DisplayAlert("Éxito", $"Bienvenido {usuario.Name}!", "OK");
 
                 // Iba a usar un if else, se salvaron
                 Page targetPage = usuario.Role switch
                 {
                     "Cajero" => new CreateOrderVisual(),
-                    "Admin" => new AdminSectionMainVisual(), //cuando tengan la p�gina me avisan
+                    "Admin" => new AdminSectionMainVisual(), //cuando tengan la pagina me avisan
                     "Mesero" => new MainPage(), // Cuando tengan las tabletas me avisan
                     _ => new MainPage() // Default case, could be a generic page or error
                 };
