@@ -31,8 +31,11 @@
             <Button Text="CHECKING - Go to the other super secret page"
                     Clicked="OnGoToPageBClicked" />
 
+            <Button Text="SUPER LOGIN!!!!11"
+                    Clicked="OnGoToLogin" />
 
-        
+
+
             <Button
                 x:Name="CounterBtn"
                 Text="Click me" 
