@@ -56,7 +56,7 @@ public partial class MainPage : ContentPage
         await Navigation.PushAsync(new AdminSectionMainVisual()); //CHECKING - navigate to example page
     }
 
-    private async void Login(object sender, EventArgs e)
+    private async void OnGoToLogin(object sender, EventArgs e)
     {
         await Navigation.PushAsync(new LoginPage()); //CHECKING - navigate to example page
     }
