@@ -11,7 +11,7 @@
         <VerticalStackLayout Grid.Column="0"
                              WidthRequest="200"
                              BackgroundColor="#F5F7FA"
-                             Padding="10"
+                             Padding="5"
                              Spacing="10">
 
             <buttons:SfButton x:Name="btnShowArticle"
