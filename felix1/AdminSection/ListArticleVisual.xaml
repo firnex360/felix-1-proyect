@@ -4,7 +4,8 @@
              xmlns:syncfusion="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
              xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
              BackgroundColor="White"
-             x:Class="felix1.ListArticleVisual">
+             x:Class="felix1.ListArticleVisual"
+             NavigationPage.HasNavigationBar="False">
 
     <Grid RowDefinitions="Auto,*">
 
