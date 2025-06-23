@@ -7,6 +7,7 @@ public partial class OrderSectionMainVisual : ContentPage
 {
     private CashRegister _cashRegister;
 
+    [Obsolete]
     public OrderSectionMainVisual(CashRegister cashRegister)
     {
         InitializeComponent();

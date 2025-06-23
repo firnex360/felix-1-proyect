@@ -11,8 +11,7 @@
         <HorizontalStackLayout Grid.Row="0"
                                BackgroundColor="#F5F7FA"
                                Padding="10"
-                               Spacing="10"
-                               HorizontalOptions="FillAndExpand">
+                               Spacing="10">
 
             <buttons:SfButton x:Name="btnShowArticle"
                               Text="Artículos"
@@ -39,7 +38,7 @@
                    FontSize="18"
                    VerticalOptions="Center"
                    HorizontalOptions="End"/>
-                   
+
         </HorizontalStackLayout>
 
         <!-- MAIN CONTENT -->
