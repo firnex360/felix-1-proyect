@@ -7,7 +7,8 @@
              x:Class="felix1.ListArticleVisual"
              NavigationPage.HasNavigationBar="False">
 
-    <Grid RowDefinitions="Auto,*">
+    <Grid RowDefinitions="Auto,*"
+          ColumnDefinitions="*">
 
         <HorizontalStackLayout Grid.Row="0"
                                Spacing="20">
@@ -17,7 +18,7 @@
                 Padding="0"
                 HasShadow="False"
                 VerticalOptions="Center"
-                HeightRequest="44"
+                HeightRequest="40"
                 BorderColor="#FF74777A"
                 WidthRequest="340"
                 Margin="20,10,0,0">
@@ -31,7 +32,7 @@
                            CancelButtonColor="#4F8FCB"
                            FontSize="16"
                            Margin="8,0"
-                           HeightRequest="44"
+                           HeightRequest="40"
                            HorizontalOptions="Fill"/>
             </Frame>
 
@@ -55,14 +56,13 @@
                BorderColor="#F5F7FA"
                Margin="20"
                VerticalOptions="Fill"
-               HorizontalOptions="Fill">
+               HorizontalOptions="Start">
 
             <syncfusion:SfDataGrid x:Name="dataGrid"
                                    ItemsSource="{Binding Articles}"
                                    VerticalOptions="Fill"
                                    HorizontalOptions="Fill"
                                    HeaderRowHeight="60"
-                                   ColumnWidthMode="FitByHeader"
                                    AutoGenerateColumnsMode="None"
                                    RowHeight="50"
                                    SortingMode="Single"
@@ -71,7 +71,7 @@
                                    EmptyView="No hay registros">
 
                 <syncfusion:SfDataGrid.DefaultStyle>
-                    <syncfusion:DataGridStyle HeaderRowBackground="#FFDFE3E8"
+                    <syncfusion:DataGridStyle HeaderRowBackground="#C2C7CD"
                                               HeaderRowTextColor="black"/>
                 </syncfusion:SfDataGrid.DefaultStyle>
 
@@ -81,17 +81,20 @@
                     <!-- ID Column -->
                     <syncfusion:DataGridNumericColumn
                         MappingName="Id"
-                        HeaderText="Id Articulo"
+                        HeaderText="Codigo"
                         Format="0000"
                         CellTextAlignment="Start"
-                        HeaderTextAlignment="Start"/>
+                        HeaderTextAlignment="Start"
+                        ColumnWidthMode="FitByHeader"/>
 
                     <!-- Name Column -->
                     <syncfusion:DataGridTextColumn
                         MappingName="Name"
                         HeaderText="Nombre"
                         CellTextAlignment="Start"
-                        HeaderTextAlignment="Start"/>
+                        HeaderTextAlignment="Start"
+                        ColumnWidthMode="FitByCell"
+                        MaximumWidth="300"/>
 
                     <!-- Primary Price -->
                     <syncfusion:DataGridNumericColumn
@@ -99,7 +102,8 @@
                         HeaderText="Precio Primario"
                         Format="C2"
                         CellTextAlignment="Start"
-                        HeaderTextAlignment="Start"/>
+                        HeaderTextAlignment="Start"
+                        ColumnWidthMode="FitByHeader"/>
 
                     <!-- Secondary Price -->
                     <syncfusion:DataGridNumericColumn
@@ -107,22 +111,23 @@
                         HeaderText="Precio Secundario"
                         Format="C2"
                         CellTextAlignment="Start"
-                        HeaderTextAlignment="Start"/>
+                        HeaderTextAlignment="Center"
+                        ColumnWidthMode="FitByHeader"/>
 
                     <!-- Category -->
                     <syncfusion:DataGridTextColumn
                         MappingName="Category"
                         HeaderText="Categoria"
                         CellTextAlignment="Start"
-                        HeaderTextAlignment="Start"/>
+                        HeaderTextAlignment="Start"
+                        ColumnWidthMode="FitByHeader"/>
 
                     <syncfusion:DataGridTemplateColumn HeaderText="Acciones"
-                                                       Width="300">
+                                                       ColumnWidthMode="LastColumnFill">
                         <syncfusion:DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <HorizontalStackLayout Spacing="10"
                                                        HorizontalOptions="Center">
-
 
                                     <ImageButton
                                         Source="editing.png"

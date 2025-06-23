@@ -6,12 +6,11 @@
              x:Class="felix1.AdminSectionMainVisual"
              NavigationPage.HasNavigationBar="False">
 
-    <Grid ColumnDefinitions="Auto,*">
+    <Grid ColumnDefinitions="200,*">
         <!-- LEFT MENU -->
         <VerticalStackLayout Grid.Column="0"
-                             WidthRequest="200"
                              BackgroundColor="#F5F7FA"
-                             Padding="10"
+                             Padding="5"
                              Spacing="10">
 
             <buttons:SfButton x:Name="btnShowArticle"
@@ -145,9 +144,19 @@
             </buttons:SfButton>
         </VerticalStackLayout>
 
+        <buttons:SfButton
+            Text="Salir"
+            TextColor="White"
+            BackgroundColor="#FF1D1D"
+            CornerRadius="5"
+            Margin="10,10,10,10"
+            HeightRequest="40"
+            VerticalOptions="End"/>
+
         <!-- RIGHT || CONTENT AREA -->
         <ContentView x:Name="RightPanel"
                      Grid.Column="1"
+                     Grid.RowSpan="3"
                      BackgroundColor="White"/>
     </Grid>
 
