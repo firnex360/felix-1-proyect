@@ -26,17 +26,20 @@
             <buttons:SfButton x:Name="btnShowTable"
                               Text="Mesas"
                               Style="{StaticResource SidebarButtonStyle}" />
+            
+
+            <buttons:SfButton x:Name="btnCloseRegister"
+                              Text="Cerrar Caja"
+                              Clicked="OnCloseRegister"
+                              HorizontalOptions="End"
+                              Style="{StaticResource SidebarButtonStyleDanger}" />
 
             <Label x:Name="lblCashRegisterInfo"
                    TextColor="Black"
                    FontSize="18"
                    VerticalOptions="Center"
-                   HorizontalOptions="EndAndExpand" />
-
-            <buttons:SfButton x:Name="btnCloseRegister"
-                              Text="Cerrar Caja"
-                              Clicked="OnCloseRegister"
-                              Style="{StaticResource SidebarButtonStyleDanger}" />
+                   HorizontalOptions="End"/>
+                   
         </HorizontalStackLayout>
 
         <!-- MAIN CONTENT -->

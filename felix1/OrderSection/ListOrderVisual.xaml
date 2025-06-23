@@ -1,19 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="felix1.OrderSection.ListOrderVisual"
-             Title="ListOrderVisual">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-            
-            <Button Margin="0,10,0,0"
-                    Text="Agregar Artículo"
-                    TextColor="Black"
-                    BackgroundColor="#33B7E3"
-                    HorizontalOptions="Start"
-                    VerticalOptions="Center"/>
-    </VerticalStackLayout>
-</ContentPage>
+             x:Class="felix1.OrderSection.ListOrderVisual">
+    
+    <ScrollView Orientation="Horizontal">
+        <HorizontalStackLayout x:Name="MeseroContainer"
+                               Spacing="10"
+                               Padding="10"
+                               BackgroundColor="#F5F7FA" />
+    </ScrollView>
+
+</ContentView>

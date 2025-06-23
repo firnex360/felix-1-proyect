@@ -12,7 +12,7 @@ public partial class OrderSectionMainVisual : ContentPage
         InitializeComponent();
         _cashRegister = cashRegister;
         DisplayCashRegisterInfo();
-        //RightPanel.Content = new ListOrderVisual();
+        RightPanel.Content = new ListOrderVisual();
         #if WINDOWS
             WindowUtils.MaximizeWindow(Application.Current.Windows.FirstOrDefault());
         #endif
@@ -28,9 +28,9 @@ public partial class OrderSectionMainVisual : ContentPage
     private async void OnCloseRegister(object sender, EventArgs e)
     {
         bool confirm = await DisplayAlert(
-            "Confirmaci�n",
-            $"�Cerrar la caja #{_cashRegister.Number}?",
-            "S�",
+            "Confirmación",
+            $"¿Cerrar la caja #{_cashRegister.Number}?",
+            "Sí",
             "No");
 
         if (!confirm)
