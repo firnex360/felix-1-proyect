@@ -6,10 +6,10 @@
              x:Class="felix1.AdminSectionMainVisual"
              Title="Administración">
 
-    <Grid ColumnDefinitions="Auto,*">
+    <Grid ColumnDefinitions="200,*"
+          RowDefinitions="Auto,*,200">
         <!-- LEFT MENU -->
         <VerticalStackLayout Grid.Column="0"
-                             WidthRequest="200"
                              BackgroundColor="#F5F7FA"
                              Padding="5"
                              Spacing="10">
@@ -143,11 +143,25 @@
                     </VisualStateGroup>
                 </VisualStateManager.VisualStateGroups>
             </buttons:SfButton>
+
+            <BoxView Grid.RowSpan="1"/>
+
+            <buttons:SfButton
+                Grid.Row="2"
+                Text="Salir"
+                TextColor="White"
+                BackgroundColor="#FF1D1D"
+                CornerRadius="5"
+                Margin="0,20,0,0"
+                HeightRequest="40"
+                VerticalOptions="End"/>
+
         </VerticalStackLayout>
 
         <!-- RIGHT || CONTENT AREA -->
         <ContentView x:Name="RightPanel"
                      Grid.Column="1"
+                     Grid.RowSpan="3"
                      BackgroundColor="White"/>
     </Grid>
 
