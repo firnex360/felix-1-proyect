@@ -12,21 +12,25 @@ public partial class OrderSectionMainVisual : ContentPage
         InitializeComponent();
         _cashRegister = cashRegister;
         DisplayCashRegisterInfo();
+        //RightPanel.Content = new ListOrderVisual();
+        #if WINDOWS
+            WindowUtils.MaximizeWindow(Application.Current.Windows.FirstOrDefault());
+        #endif
     }
 
     private void DisplayCashRegisterInfo()
     {
-        lblCashRegisterInfo.Text = $"Caja #{_cashRegister.Number}\n" +
+        lblCashRegisterInfo.Text = $"Caja #{_cashRegister.Number} " /*+
                                  $"Abierta por: {_cashRegister.Cashier?.Name}\n" +
-                                 $"Hora de apertura: {_cashRegister.TimeStarted:dd/MM/yyyy HH:mm}\n";
+                                 $"Hora de apertura: {_cashRegister.TimeStarted:dd/MM/yyyy HH:mm}\n"*/;
     }
 
     private async void OnCloseRegister(object sender, EventArgs e)
     {
         bool confirm = await DisplayAlert(
-            "Confirmación",
-            $"¿Cerrar la caja #{_cashRegister.Number}?",
-            "Sí",
+            "Confirmaciï¿½n",
+            $"ï¿½Cerrar la caja #{_cashRegister.Number}?",
+            "Sï¿½",
             "No");
 
         if (!confirm)

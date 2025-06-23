@@ -96,29 +96,16 @@ public partial class CreateOrderVisual : ContentPage
         cbxSecondaryPrice.IsVisible = show;
     }
 
-    private void OnNumericEntryTextChanged(object sender, TextChangedEventArgs e)
-    {
-        string regex = e.NewTextValue;
-        if (String.IsNullOrEmpty(regex))
-            return;
-
-        if (!Regex.Match(regex, "^[0-9]+$").Success)
-        {
-            var entry = sender as Entry;
-            entry.Text = (string.IsNullOrEmpty(e.OldTextValue)) ?
-                    string.Empty : e.OldTextValue;
-        }
-    }
 
     private async void OnSaveCashRegister(object sender, EventArgs e)
     {
-        if (string.IsNullOrWhiteSpace(txtNumber.Text))
+        if (string.IsNullOrWhiteSpace(txtNumber.Value?.ToString()))
         {
             await DisplayAlert("Error", "El campo 'Número de caja' es obligatorio.", "OK");
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(txtInitialMoney.Text))
+        if (string.IsNullOrWhiteSpace(txtInitialMoney.Value?.ToString()))
         {
             await DisplayAlert("Error", "El campo 'Dinero Inicial' es obligatorio.", "OK");
             return;
@@ -145,8 +132,8 @@ public partial class CreateOrderVisual : ContentPage
 
         var newCashRegister = new CashRegister
         {
-            Number = int.Parse(txtNumber.Text),
-            InitialMoney = float.Parse(txtInitialMoney.Text),
+            Number = int.Parse(txtNumber.Value.ToString() ?? "0"),
+            InitialMoney = float.Parse(txtInitialMoney.Value.ToString() ?? "0"),
             TimeStarted = DateTime.Now, 
             IsSecPrice = cbxSecondaryPrice.IsChecked,
             IsOpen = true,
@@ -169,8 +156,8 @@ public partial class CreateOrderVisual : ContentPage
 
     private void OnShowCreateForm(object sender, EventArgs e)
     {
-        txtNumber.Text = string.Empty;
-        txtInitialMoney.Text = string.Empty;
+        txtNumber.Value = null;
+        txtInitialMoney.Value = null;
         datePicker.Date = DateTime.Now;
         cbxSecondaryPrice.IsChecked = false;
 

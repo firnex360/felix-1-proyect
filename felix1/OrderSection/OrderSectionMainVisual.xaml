@@ -1,22 +1,119 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
              x:Class="felix1.OrderSection.OrderSectionMainVisual"
-             Title="OrderSectionMainVisual">
-    <VerticalStackLayout>
-        <Label x:Name="lblCashRegisterInfo"
-               FontSize="18"
-               VerticalOptions="Start" 
-               HorizontalOptions="Center"
-               Margin="0,10,0,0"/>
+             BackgroundColor="White">
 
-        <Button x:Name="btnCloseRegister"
-                Text="Cerrar Caja"
-                Clicked="OnCloseRegister"
-                WidthRequest="250"
-                BackgroundColor="#FF6B6B"
-                TextColor="#FFFFFF"
-                VerticalOptions="End"
-                Margin="0,20,0,0"/>
-    </VerticalStackLayout>
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- TOP MENU -->
+        <HorizontalStackLayout Grid.Row="0"
+                               BackgroundColor="#F5F7FA"
+                               Padding="10"
+                               Spacing="10"
+                               HorizontalOptions="FillAndExpand">
+
+            <buttons:SfButton x:Name="btnShowArticle"
+                              Text="Artículos"
+                              Style="{StaticResource SidebarButtonStyle}"
+                              IsChecked="True" />
+
+            <buttons:SfButton x:Name="btnShowUser"
+                              Text="Usuario"
+                              Style="{StaticResource SidebarButtonStyle}" />
+
+            <buttons:SfButton x:Name="btnShowTable"
+                              Text="Mesas"
+                              Style="{StaticResource SidebarButtonStyle}" />
+
+            <Label x:Name="lblCashRegisterInfo"
+                   TextColor="Black"
+                   FontSize="18"
+                   VerticalOptions="Center"
+                   HorizontalOptions="EndAndExpand" />
+
+            <buttons:SfButton x:Name="btnCloseRegister"
+                              Text="Cerrar Caja"
+                              Clicked="OnCloseRegister"
+                              Style="{StaticResource SidebarButtonStyleDanger}" />
+        </HorizontalStackLayout>
+
+        <!-- MAIN CONTENT -->
+        <ContentView x:Name="RightPanel"
+                     Grid.Row="1"
+                     BackgroundColor="White" />
+    </Grid>
+
+    <!-- Styles -->
+    <ContentPage.Resources>
+        <ResourceDictionary>
+
+            <Style x:Key="SidebarButtonStyle" TargetType="buttons:SfButton">
+                <Setter Property="TextColor" Value="Black"/>
+                <Setter Property="CornerRadius" Value="5"/>
+                <Setter Property="IsCheckable" Value="True"/>
+                <Setter Property="Margin" Value="0"/>
+                <Setter Property="BackgroundColor" Value="#F5F7FA"/>
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="Background" Value="#F5F7FA"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Hovered">
+                                <VisualState.Setters>
+                                    <Setter Property="Background" Value="#C2C7CD"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="Background" Value="LightBlue"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Checked">
+                                <VisualState.Setters>
+                                    <Setter Property="Background" Value="LightBlue"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+
+            <Style x:Key="SidebarButtonStyleDanger"
+                   TargetType="buttons:SfButton"
+                   BasedOn="{StaticResource SidebarButtonStyle}">
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="Background" Value="#FFF39F9F"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Hovered">
+                                <VisualState.Setters>
+                                    <Setter Property="Background" Value="#C2C7CD"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="Background" Value="LightBlue"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Checked">
+                                <VisualState.Setters>
+                                    <Setter Property="Background" Value="LightBlue"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+
+        </ResourceDictionary>
+    </ContentPage.Resources>
 </ContentPage>
