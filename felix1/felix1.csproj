@@ -80,6 +80,12 @@
 	  <Compile Update="AdminSection\CreateUserVisual.xaml.cs">
 	    <DependentUpon>CreateUserVisual.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="OrderSection\CreateCashRegisterVisual.xaml.cs">
+	    <DependentUpon>CreateCashRegisterVisual.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="OrderSection\ListTableVisual.xaml.cs">
+	    <DependentUpon>ListTableVisual.xaml</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
