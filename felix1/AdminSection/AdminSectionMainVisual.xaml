@@ -100,11 +100,11 @@
                 </VisualStateManager.VisualStateGroups>
             </buttons:SfButton>
 
-            <buttons:SfButton x:Name="btnShowTable"
-                              Text="Mesas"
+            <buttons:SfButton x:Name="btnShowConfiguration"
+                              Text="Configuraciones"
                               TextColor="Black"
                               CornerRadius="5"
-                              Clicked="OnShowTable"
+                              Clicked="OnShowConfiguration"
                               IsCheckable="True"
                               Margin="0,0,0,0"
                               BackgroundColor="#F5F7FA">

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
-             xmlns:numericEntry ="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs"
+             xmlns:numericEntry="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs"
              xmlns:inputLayout="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="felix1.MainPage">
@@ -14,65 +14,60 @@
                 Source="dotnet_bot.png"
                 HeightRequest="185"
                 Aspect="AspectFit"
-                SemanticProperties.Description="dot net bot in a race car number eight" />
+                SemanticProperties.Description="dot net bot in a race car number eight"/>
 
-            <inputLayout:SfTextInputLayout Hint="Amount" 
-                               HelperText="Enter the amount"
-                                        ContainerType="Outlined">
-            <numericEntry:SfNumericEntry Value="100" 
-                                            ShowClearButton="True" 
-                                            UpDownPlacementMode="Inline"/>
+            <inputLayout:SfTextInputLayout Hint="Amount"
+                                           HelperText="Enter the amount"
+                                           ContainerType="Outlined">
+                <numericEntry:SfNumericEntry Value="100"
+                                             ShowClearButton="True"
+                                             UpDownPlacementMode="Inline"/>
             </inputLayout:SfTextInputLayout>
+
             <Label
                 Text="Hello, World!"
                 Style="{StaticResource Headline}"
-                SemanticProperties.HeadingLevel="Level1" />
+                SemanticProperties.HeadingLevel="Level1"/>
 
-            <Button Text="CHECKING - Go to the other super secret page"
-                    Clicked="OnGoToPageBClicked" />
+            <Button Text="Admin Section"
+                    Clicked="OnGoToPageBClicked"/>
 
-            <Button Text="SUPER LOGIN!!!!11"
-                    Clicked="OnGoToLogin" />
+            <Button Text="LOGIN"
+                    Clicked="OnGoToLogin"/>
 
-
-
-            <Button
-                x:Name="CounterBtn"
-                Text="Click me" 
-                SemanticProperties.Hint="Counts the number of times you click"
-                Clicked="OnCounterClicked"
-                HorizontalOptions="Fill" />
 
             <HorizontalStackLayout Spacing="10">
-            
+
                 <Button
                     x:Name="createOrderTemp"
                     Text="Create Order (for testing)"
                     Clicked="OnSaveOrderTest"
-                    HorizontalOptions="Start" />
+                    HorizontalOptions="Start"/>
 
                 <Button
                     x:Name="createUserTemp"
                     Text="Create User (for testing)"
                     Clicked="OnSaveUserTest"
-                    HorizontalOptions="Start" />
+                    HorizontalOptions="Start"/>
 
                 <buttons:SfButton x:Name="button"
-                    Text="Create Article (for testing)"
-                    CornerRadius="10"
-                    Clicked="OnSaveArticleTest"
-                    IsCheckable="True">
+                                  Text="Create Article (for testing)"
+                                  CornerRadius="10"
+                                  Clicked="OnSaveArticleTest"
+                                  IsCheckable="True">
 
                     <VisualStateManager.VisualStateGroups>
                         <VisualStateGroup x:Name="CommonStates">
                             <VisualState x:Name="Normal">
                                 <VisualState.Setters>
-                                    <Setter Property="Background" Value="Purple" />
+                                    <Setter Property="Background"
+                                            Value="Purple"/>
                                 </VisualState.Setters>
                             </VisualState>
                             <VisualState x:Name="Hovered">
                                 <VisualState.Setters>
-                                    <Setter Property="Background" Value="Gray" />
+                                    <Setter Property="Background"
+                                            Value="Gray"/>
                                 </VisualState.Setters>
                             </VisualState>
                         </VisualStateGroup>
