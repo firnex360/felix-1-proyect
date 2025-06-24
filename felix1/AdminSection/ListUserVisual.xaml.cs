@@ -104,9 +104,9 @@ public partial class ListUserVisual : ContentView
             if (Application.Current?.MainPage != null)
             {
                 answer = await Application.Current.MainPage.DisplayAlert(
-                    $"Estas seguro de que desea eliminar '{user.Name}'?",
-                    "Confirmacion",
-                    "Si", "No");
+                    $"¿Estás seguro de que desea eliminar {user.Name}?",
+                    "Confirmación",
+                    "Sí", "No");
             }
 
             if (answer)

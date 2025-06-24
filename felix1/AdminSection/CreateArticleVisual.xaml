@@ -6,7 +6,8 @@
              xmlns:syncfusion="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              BackgroundColor="White"
-             x:Class="felix1.CreateArticleVisual">
+             x:Class="felix1.CreateArticleVisual"
+             NavigationPage.HasNavigationBar="False">
              
     <Grid ColumnDefinitions="*,*"> <!-- Two equal columns -->
 
@@ -45,7 +46,7 @@
                 <Entry
                     x:Name="txtName"
                     WidthRequest="200"
-                    Placeholder="Write here" 
+                    Placeholder="Escribir nombre" 
                     BackgroundColor="#FFECECEC"
                     TextColor="#000000"
                     HorizontalOptions="Start"
@@ -64,7 +65,7 @@
                     x:Name="txtPrice"
                     TextChanged="OnNumericEntryTextChanged"
                     WidthRequest="200"
-                    Placeholder="$1000" 
+                    Placeholder="Digitar monto" 
                     BackgroundColor="#FFECECEC"
                     TextColor="#000000"
                     HorizontalOptions="Start"
@@ -155,30 +156,14 @@
                         x:Name="txtSecondaryPrice"
                         TextChanged="OnNumericEntryTextChanged"
                         WidthRequest="200"
-                        Placeholder="$1000" 
+                        Placeholder="Digitar monto" 
                         BackgroundColor="#FFFFFF"
                         TextColor="#000000"
                         HorizontalOptions="Start"
                         ClearButtonVisibility="WhileEditing"/>
                 </HorizontalStackLayout>
 
-                <HorizontalStackLayout Spacing="10" Padding="10">
-                    <Label 
-                        Text="Impuestos del mesero"
-                        VerticalOptions="Center" 
-                        WidthRequest="150" 
-                        TextColor="#000000"/>
-
-                    <Entry
-                        WidthRequest="200"
-                        Placeholder="Write here" 
-                        BackgroundColor="#FFFFFF"
-                        TextColor="#000000"
-                        HorizontalOptions="Start"
-                        ClearButtonVisibility="WhileEditing"/>
-                </HorizontalStackLayout>
                 
-
             </VerticalStackLayout>
         </Grid>
 

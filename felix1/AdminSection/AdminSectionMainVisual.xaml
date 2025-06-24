@@ -4,7 +4,7 @@
              xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
              BackgroundColor="#647C84"
              x:Class="felix1.AdminSectionMainVisual"
-             Title="Administración">
+             NavigationPage.HasNavigationBar="False">
 
     <Grid ColumnDefinitions="200,*">
         <!-- LEFT MENU -->

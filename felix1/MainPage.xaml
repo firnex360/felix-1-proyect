@@ -31,8 +31,11 @@
             <Button Text="CHECKING - Go to the other super secret page"
                     Clicked="OnGoToPageBClicked" />
 
+            <Button Text="SUPER LOGIN!!!!11"
+                    Clicked="OnGoToLogin" />
 
-        
+
+
             <Button
                 x:Name="CounterBtn"
                 Text="Click me" 
@@ -40,10 +43,13 @@
                 Clicked="OnCounterClicked"
                 HorizontalOptions="Fill" />
 
-            <HorizontalStackLayout
-                Spacing="10"
-                >
+            <HorizontalStackLayout Spacing="10">
             
+                <Button
+                    x:Name="createOrderTemp"
+                    Text="Create Order (for testing)"
+                    Clicked="OnSaveOrderTest"
+                    HorizontalOptions="Start" />
 
                 <Button
                     x:Name="createUserTemp"
