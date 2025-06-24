@@ -9,6 +9,7 @@ namespace felix1.Data
         public DbSet<Article> Articles { get; set; } = null!;
         public DbSet<CashRegister> CashRegisters { get; set; } = null!;
         public DbSet<Table> Tables { get; set; } = null!;
+        public DbSet<Order> Orders { get; set; } = null!;
 
 
         private string _dbPath;
