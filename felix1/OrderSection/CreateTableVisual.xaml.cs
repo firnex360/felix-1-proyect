@@ -50,19 +50,19 @@ public partial class CreateTableVisual : ContentPage
 
 
 
-
-		var order = new Order
-		{
-			Number = int.Parse(txtOrderNumber.Value.ToString() ?? "0"),
-			Date = DateTime.Now,
-			Waiter = waiter,
-			Table = table,
-			Items = null, //temp
-			CashRegister = db.CashRegisters.FirstOrDefault(c => c.IsOpen), //WOULD BE THE ONE WE'RE WORKING WITH, CHECK
-			Charge = false
-		};
-		db.Orders.Add(order);
-		db.SaveChanges();
+        //need to be fix in the database first
+		// var order = new Order
+		// {
+		// 	Number = int.Parse(txtOrderNumber.Value.ToString() ?? "0"),
+		// 	Date = DateTime.Now,
+		// 	Waiter = waiter,
+		// 	Table = table,
+		// 	Items = null, //temp
+		// 	CashRegister = db.CashRegisters.FirstOrDefault(c => c.IsOpen), //WOULD BE THE ONE WE'RE WORKING WITH, CHECK
+		// 	Charge = false
+		// };
+		// db.Orders.Add(order);
+		// db.SaveChanges();
 
 		ListOrderVisual.Instance?.ReloadTables();
 
