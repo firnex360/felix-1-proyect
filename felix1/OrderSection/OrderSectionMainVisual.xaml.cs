@@ -38,9 +38,11 @@ public partial class OrderSectionMainVisual : ContentPage
             return;
 
         using var db = new AppDbContext();
+        var user = db.Users.Find(AppSession.CurrentUser.Id);
         var register = db.CashRegisters.Find(_cashRegister.Id);
         if (register != null)
         {
+            register.Cashier = user;
             register.IsOpen = false;
             register.TimeFinish = DateTime.Now;
             db.CashRegisters.Update(register);
