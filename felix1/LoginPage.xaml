@@ -70,10 +70,10 @@
         </Grid>
 
         <Grid Grid.Column="1">
-            <Image Source="BgLogin.jpg"
+            <Image Source="bglogin.png"
                    Aspect="AspectFill"
                    Opacity="0.3"/>
-            <BoxView Opacity="0.6">
+            <BoxView Opacity="0.8">
                 <BoxView.Background>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                         <GradientStop Color="#5AB9A8" Offset="0.0"/>
@@ -90,12 +90,12 @@
                        FontAttributes="Bold"
                        TextColor="White"
                        HorizontalTextAlignment="Center"/>
-                <Label Text="Lorem Ipsum Lorem Ipsum"
+                <Label Text=" Accede y comienza a registrar"
                        FontFamily="Inter"
                        FontSize="16"
                        TextColor="White"
                        HorizontalTextAlignment="Center"/>
-                <Label Text="Lorem Ipsum"
+                <Label Text="órdenes ahora."
                        FontFamily="Inter"
                        FontSize="16"
                        TextColor="White"
