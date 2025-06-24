@@ -82,7 +82,7 @@ public partial class ListArticleVisual : ContentView
             {
                 bool answer = await Application.Current.MainPage.DisplayAlert(
                     "Confirmacion",
-                    $"Estas seguro de que desea eliminar {article.Name}?",
+                    $"Estas seguro de que desea eliminar '{article.Name}'?",
                     "Si", "No");
 
                 if (answer)

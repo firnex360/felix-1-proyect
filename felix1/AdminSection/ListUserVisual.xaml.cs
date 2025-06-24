@@ -15,6 +15,7 @@ public partial class ListUserVisual : ContentView
         InitializeComponent();
         BindingContext = this;
         LoadUsers();
+
     }
 
     private void LoadUsers()
@@ -58,7 +59,7 @@ public partial class ListUserVisual : ContentView
     private void OnEditClicked(object sender, EventArgs e)
     {
         // Editar a Larry
-        if (sender is Button button && button.BindingContext is User user)
+        if (sender is ImageButton button && button.BindingContext is User user)
         {
             // Create a deep copy of the user to edit
             var userToEdit = new User
@@ -97,15 +98,15 @@ public partial class ListUserVisual : ContentView
 
     private async void OnDeleteClicked(object sender, EventArgs e)
     {
-        if (sender is Button button && button.BindingContext is User user)
+        if (sender is ImageButton button && button.BindingContext is User user)
         {
             bool answer = false;
             if (Application.Current?.MainPage != null)
             {
                 answer = await Application.Current.MainPage.DisplayAlert(
-                    $"¿Estás seguro de que desea eliminar {user.Name}?",
-                    "Confirmación",
-                    "Sí", "No");
+                    $"Estas seguro de que desea eliminar '{user.Name}'?",
+                    "Confirmacion",
+                    "Si", "No");
             }
 
             if (answer)
@@ -124,19 +125,20 @@ public partial class ListUserVisual : ContentView
             }
         }
     }
-    
-        private void OnSearchBarTextChanged(object sender, TextChangedEventArgs e)
+
+    //Handles the text change event of the search bar to filter users.
+    private void OnSearchBarTextChanged(object sender, TextChangedEventArgs e)
     {
         var searchText = e.NewTextValue?.ToLower() ?? "";
 
         if (string.IsNullOrWhiteSpace(searchText))
         {
-            // Reset the DataGrid to show all users
-            dataGrid.ItemsSource = Users; 
+            //Reset the DataGrid to show all users
+            dataGrid.ItemsSource = Users;
         }
         else
         {
-            // Filter the collection
+            //Filter the collection
             dataGrid.ItemsSource = Users
                 .Where(a => a.Name != null && a.Name.ToLower().Contains(searchText))
                 .ToList();
