@@ -30,7 +30,7 @@ public static class MauiProgram
 			})
 
 			// code reference: https://learn.microsoft.com/en-us/answers/questions/1470337/how-do-i-maximize-the-windows-screen-in-a-net-maui
-			.ConfigureLifecycleEvents(events =>
+			/*.ConfigureLifecycleEvents(events =>
 			{
 			#if WINDOWS
 				events.AddWindows(w =>
@@ -50,7 +50,7 @@ public static class MauiProgram
 					});
 				});
 			#endif
-			});
+			})*/;
 
         // Register the EF Core DbContext
         builder.Services.AddDbContext<AppDbContext>();

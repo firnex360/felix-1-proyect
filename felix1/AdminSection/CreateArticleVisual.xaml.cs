@@ -51,8 +51,11 @@ public partial class CreateArticleVisual : ContentPage
         if (!Regex.Match(regex, "^[0-9]+$").Success)
         {
             var entry = sender as Entry;
-            entry.Text = (string.IsNullOrEmpty(e.OldTextValue)) ?
-                    string.Empty : e.OldTextValue;
+            if (entry != null)
+            {
+                entry.Text = string.IsNullOrEmpty(e.OldTextValue) ?
+                        string.Empty : e.OldTextValue;
+            }
         }
     }
 
@@ -233,33 +236,40 @@ public partial class CreateArticleVisual : ContentPage
 
     private void CloseThisWindow()
     {
-        foreach (var window in Application.Current.Windows)
+        if (Application.Current != null)
         {
-            if (window.Page == this)
+            foreach (var window in Application.Current.Windows)
             {
-                Application.Current.CloseWindow(window);
-                break;
+                if (window.Page == this)
+                {
+                    Application.Current.CloseWindow(window);
+                    break;
+                }
             }
+        }
+        else
+        {
+            
         }
     }
 
-    //have to implement this later
-    // private void OnSearchBarTextChanged(object sender, TextChangedEventArgs e)
-    // {
-    //     var searchText = e.NewTextValue?.ToLower() ?? "";
+    //for the search bar logic
+    private void OnSearchBarTextChanged(object sender, TextChangedEventArgs e)
+    {
+        var searchText = e.NewTextValue?.ToLower() ?? "";
 
-    //     if (string.IsNullOrWhiteSpace(searchText))
-    //     {
-    //         // Reset the DataGrid to show all articles
-    //         dataGrid.ItemsSource = Articles; 
-    //     }
-    //     else
-    //     {
-    //         // Filter the collection
-    //         dataGrid.ItemsSource = Articles
-    //             .Where(a => a.Name != null && a.Name.ToLower().Contains(searchText))
-    //             .ToList();
-    //     }
-    // }
+        if (string.IsNullOrWhiteSpace(searchText))
+        {
+            // Reset the DataGrid to show all side dish articles
+            sideDishDataGrid.ItemsSource = SideDishArticles;
+        }
+        else
+        {
+            // Filter the SideDishArticles collection by Name
+            sideDishDataGrid.ItemsSource = SideDishArticles
+                .Where(s => s.Name != null && s.Name.ToLower().Contains(searchText))
+                .ToList();
+        }
+    }
 }
 

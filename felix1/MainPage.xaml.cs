@@ -1,6 +1,7 @@
 ﻿using System.Data.Common;
 using felix1.Data;
 using felix1.Logic;
+using felix1.OrderSection;
 namespace felix1;
 
 public partial class MainPage : ContentPage
@@ -34,18 +35,6 @@ public partial class MainPage : ContentPage
         }
     }
 
-    private void OnCounterClicked(object sender, EventArgs e)
-    {
-        count++;
-
-        if (count == 1)
-            CounterBtn.Text = $"Clicked {count} time";
-        else
-            CounterBtn.Text = $"Clicked {count} times";
-
-        SemanticScreenReader.Announce(CounterBtn.Text);
-    }
-
 
     private async void OnGoToPageBClicked(object sender, EventArgs e)
     {   
@@ -54,6 +43,20 @@ public partial class MainPage : ContentPage
         db.Tables.Add(table);
         db.SaveChanges();
         await Navigation.PushAsync(new AdminSectionMainVisual()); //CHECKING - navigate to example page
+    }
+
+    private async void OnGoToLogin(object sender, EventArgs e)
+    {
+        await Navigation.PushAsync(new LoginPage()); //CHECKING - navigate to example page
+    }
+
+    private async void OnSaveOrderTest(object sender, EventArgs e)
+    {   
+        using var db = new AppDbContext();
+        var table = new Table {LocalNumber = 1, IsTakeOut = true};
+        db.Tables.Add(table);
+        db.SaveChanges();
+        await Navigation.PushAsync(new CreateOrderVisual()); //CHECKING - navigate to order page
     }
 
     private void OnSaveUserTest(object sender, EventArgs e)

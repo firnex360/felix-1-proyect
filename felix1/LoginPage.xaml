@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="felix1.LoginPage"
+             BackgroundColor="White"
+             NavigationPage.HasNavigationBar="False">
+
+    <Grid ColumnDefinitions="*,*">
+        
+        <Grid Grid.Column="0">
+            <StackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="25">
+
+                <Label Text="Iniciar Sesión"
+                       FontFamily="Inter"
+                       FontSize="28"
+                       FontAttributes="Bold"
+                       TextColor="#005F8C"
+                       HorizontalTextAlignment="Center"/>
+
+                <StackLayout Spacing="5">
+                    <Label Text="Username"
+                           FontFamily="Inter"
+                           FontSize="12"
+                           FontAttributes="Bold"
+                           TextColor="#005F8C"/>
+                    <Entry Placeholder="Enter your username"
+                           Text="{Binding Username}"
+                           Visual="Material"
+                           FontFamily="Inter"
+                           FontSize="14"
+                           TextColor="#1A1C2C"
+                           BackgroundColor="White"
+                           WidthRequest="250"/>
+                </StackLayout>
+
+                <StackLayout Spacing="5">
+                    <Label Text="Password"
+                           FontFamily="Inter"
+                           FontSize="12"
+                           FontAttributes="Bold"
+                           TextColor="#005F8C"/>
+                    <Entry Placeholder="Enter your password"
+                           Text="{Binding Password}"
+                           IsPassword="True"
+                           Visual="Material"
+                           FontFamily="Inter"
+                           FontSize="14"
+                           TextColor="#1A1C2C"
+                           BackgroundColor="White"
+                           WidthRequest="250"/>
+                </StackLayout>
+
+                <Button Text="Iniciar Sesión"
+                        FontFamily="Inter"
+                        BackgroundColor="#005F8C"
+                        TextColor="White"
+                        CornerRadius="8"
+                        FontAttributes="Bold"
+                        Padding="10"
+                        WidthRequest="180"
+                        HorizontalOptions="Center"
+                        Command="{Binding LoginCommand}"
+                        IsEnabled="{Binding LoginCommand.CanExecute}"/>
+
+
+                <ActivityIndicator IsRunning="{Binding IsLoggingIn}" 
+                                   IsVisible="{Binding IsLoggingIn}"
+                                   HorizontalOptions="Center"/>
+            </StackLayout>
+        </Grid>
+
+        <Grid Grid.Column="1">
+            <Image Source="bglogin.png"
+                   Aspect="AspectFill"
+                   Opacity="0.3"/>
+            <BoxView Opacity="0.8">
+                <BoxView.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#5AB9A8" Offset="0.0"/>
+                        <GradientStop Color="#005F8C" Offset="1.0"/>
+                    </LinearGradientBrush>
+                </BoxView.Background>
+            </BoxView>
+            <StackLayout Padding="30"
+                         VerticalOptions="Center"
+                         HorizontalOptions="Center">
+                <Label Text="Bienvenido"
+                       FontFamily="Inter"
+                       FontSize="32"
+                       FontAttributes="Bold"
+                       TextColor="White"
+                       HorizontalTextAlignment="Center"/>
+                <Label Text=" Accede y comienza a registrar"
+                       FontFamily="Inter"
+                       FontSize="16"
+                       TextColor="White"
+                       HorizontalTextAlignment="Center"/>
+                <Label Text="órdenes ahora."
+                       FontFamily="Inter"
+                       FontSize="16"
+                       TextColor="White"
+                       HorizontalTextAlignment="Center"/>
+            </StackLayout>
+        </Grid>
+    </Grid>
+</ContentPage>

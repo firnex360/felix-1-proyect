@@ -1,3 +1,4 @@
+using felix1.AdminSection;
 using Syncfusion.Maui.Buttons;
 
 namespace felix1;
@@ -9,13 +10,16 @@ public partial class AdminSectionMainVisual : ContentPage
         InitializeComponent();
         SetButtonChecked(btnShowArticle);
         RightPanel.Content = new ListArticleVisual();
+        #if WINDOWS
+            WindowUtils.MaximizeWindow(Application.Current.Windows.FirstOrDefault());
+        #endif
     }
 
     private void SetButtonChecked(SfButton checkedButton)
     {
         btnShowArticle.IsChecked = checkedButton == btnShowArticle;
         btnShowUser.IsChecked = checkedButton == btnShowUser;
-        btnShowTable.IsChecked = checkedButton == btnShowTable;
+        btnShowConfiguration.IsChecked = checkedButton == btnShowConfiguration;
     }
 
     private void OnShowArticle(object sender, EventArgs e)
@@ -30,16 +34,16 @@ public partial class AdminSectionMainVisual : ContentPage
         RightPanel.Content = new ListUserVisual();
     }
 
-    private void OnShowTable(object sender, EventArgs e)
+    private void OnShowConfiguration(object sender, EventArgs e)
     {
-        SetButtonChecked(btnShowTable);
-        //RightPanel.Content = new Table(); // Load the Table view into the placeholder
+        SetButtonChecked(btnShowConfiguration);
+        RightPanel.Content = new Configuration();
     }
 
-    private void OnExitButtonClicked(object sender, EventArgs e)
+    private async void OnExitButtonClicked(object sender, EventArgs e)
     {
-        // Example: Close the current window or navigate to a login/main page
-        Application.Current?.MainPage?.DisplayAlert("Salir", "Has hecho clic en Salir.", "OK");
-        // You can add your actual exit/logout logic here
+
+        //Application.Current?.MainPage?.DisplayAlert("Salir", "Has hecho clic en Salir.", "OK");
+        await Navigation.PushAsync(new LoginPage()); //CHECKING - navigate to example page
     }
 }

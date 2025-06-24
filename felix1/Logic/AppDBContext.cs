@@ -9,13 +9,15 @@ namespace felix1.Data
         public DbSet<Article> Articles { get; set; } = null!;
         public DbSet<CashRegister> CashRegisters { get; set; } = null!;
         public DbSet<Table> Tables { get; set; } = null!;
+        public DbSet<Order> Orders { get; set; } = null!;
 
 
         private string _dbPath;
 
         //this is for storing de DB on a temporary location
-        private string TempDBPath = "C:\\Codes\\github\\felix-1-proyect\\felix1\\tempDBStorage"; //for maria
-        //private string TempDBPath = "C:\\Codes\\github\\felix-1-proyect\\felix1\\tempDBStorage";
+        //private string TempDBPath = "C:\\Users\\HP\\Desktop\\mita\\FELIX1PROY\\felix-1-proyect\\felix1\\tempDBStorage"; //for maria
+        //private string TempDBPath = "C:\\Users\\HP\\Desktop\\mita\\FELIX1PROY\\felix-1-proyect\\felix1\\tempDBStorage";
+        private string TempDBPath = "C:\\Codes\\github\\felix-1-proyect\\felix1\\tempDBStorage";
 
 
         public AppDbContext()
