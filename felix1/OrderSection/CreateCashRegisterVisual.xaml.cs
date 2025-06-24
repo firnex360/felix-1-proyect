@@ -26,14 +26,14 @@ public partial class CreateOrderVisual : ContentPage
         {
             if (existingOpenRegister.Cashier?.Id == AppSession.CurrentUser.Id)
             {
-                var response = await DisplayAlert("Caja Abierta",
-                    $"Ya hay una caja abierta (Caja #{existingOpenRegister.Number}) por ti. ¿Desea continuar usando esta caja?",
-                    "Sí",
-                    "No");
+                var response = await ShowNonClosableAlert("Caja Abierta",
+                    $"Ya hay una caja abierta por ti. ¿Desea continuar usando esta caja?",
+                    "Sí, deseo continuar",
+                    "No, cerrar y crear nueva");
 
                 if (response)
                 {
-                    // User wants to continue with existing register
+                    // User wants to continue with existing register 
                     await OpenOrderSectionMain(existingOpenRegister);
                     return;
                 }
@@ -43,28 +43,32 @@ public partial class CreateOrderVisual : ContentPage
                     existingOpenRegister.IsOpen = false;
                     existingOpenRegister.TimeFinish = DateTime.Now;
                     db.CashRegisters.Update(existingOpenRegister);
-                    db.SaveChanges();
-                    existingOpenRegister = null;
+                    await db.SaveChangesAsync();
+
+                    ShowCreateNewRegisterView();
+                    return;
                 }
             }
             else
             {
-                var close = await DisplayAlert("Caja Abierta",
-                    $"Hay una caja abierta (Caja #{existingOpenRegister.Number}) por {existingOpenRegister.Cashier?.Name}. Solo puede cerrarla.",
-                    "Cerrar caja",
-                    "Cancelar");
+                var response = await ShowNonClosableAlert("Caja Abierta",
+                    $"Hay una caja abierta por {existingOpenRegister.Cashier?.Name}. ¿Desea continuar usando esta caja?",
+                    "Sí, deseo continuar",
+                    "No, cerrar y crear nueva");
 
-                if (close)
+                if (response)
+                {
+                    await OpenOrderSectionMain(existingOpenRegister);
+                    return;
+                }
+                else
                 {
                     existingOpenRegister.IsOpen = false;
                     existingOpenRegister.TimeFinish = DateTime.Now;
                     db.CashRegisters.Update(existingOpenRegister);
-                    db.SaveChanges();
-                    existingOpenRegister = null;
-                }
-                else
-                {
-                    await Navigation.PopAsync();
+                    await db.SaveChangesAsync();
+
+                    ShowCreateNewRegisterView();
                     return;
                 }
             }
@@ -73,38 +77,28 @@ public partial class CreateOrderVisual : ContentPage
         ShowCreateNewRegisterView();
     }
 
+    private async Task<bool> ShowNonClosableAlert(string title, string message, string accept, string cancel)
+    {
+        bool? result = null;
+
+        while (result == null)
+        {
+            result = await DisplayAlert(title, message, accept, cancel);
+        }
+
+        return result.Value;
+    }
+
     private void ShowCreateNewRegisterView()
     {
         lblCashRegisterStatus.Text = "No hay cajas abiertas";
         lblActionPrompt.Text = "Por favor, abrir una caja antes de empezar";
-
-        ShowForm(true);
-
         btnCrearCajaNueva.IsVisible = false;
         btnCrearCaja.IsVisible = true;
     }
 
-    private void ShowForm(bool show)
-    {
-        lblNumber.IsVisible = show;
-        txtNumber.IsVisible = show;
-        lblInitialMoney.IsVisible = show;
-        txtInitialMoney.IsVisible = show;
-        lbldatePicker.IsVisible = show;
-        datePicker.IsVisible = show;
-        lblSecondaryPrice.IsVisible = show;
-        cbxSecondaryPrice.IsVisible = show;
-    }
-
-
     private async void OnSaveCashRegister(object sender, EventArgs e)
     {
-        if (string.IsNullOrWhiteSpace(txtNumber.Value?.ToString()))
-        {
-            await DisplayAlert("Error", "El campo 'Número de caja' es obligatorio.", "OK");
-            return;
-        }
-
         if (string.IsNullOrWhiteSpace(txtInitialMoney.Value?.ToString()))
         {
             await DisplayAlert("Error", "El campo 'Dinero Inicial' es obligatorio.", "OK");
@@ -118,32 +112,22 @@ public partial class CreateOrderVisual : ContentPage
             return;
         }
 
-        bool confirm = await DisplayAlert(
-            "Confirmación",
-            "¿Crear esta caja?",
-            "Sí",
-            "No");
-
-        if (!confirm)
-            return;
-
         using var db = new AppDbContext();
         var user = db.Users.Find(AppSession.CurrentUser.Id);
 
         var newCashRegister = new CashRegister
         {
-            Number = int.Parse(txtNumber.Value.ToString() ?? "0"),
+            Number = 1,
             InitialMoney = float.Parse(txtInitialMoney.Value.ToString() ?? "0"),
-            TimeStarted = DateTime.Now, 
+            TimeStarted = DateTime.Now,
             IsSecPrice = cbxSecondaryPrice.IsChecked,
             IsOpen = true,
             Cashier = user,
         };
 
         db.CashRegisters.Add(newCashRegister);
-        db.SaveChanges();
+        await db.SaveChangesAsync();
 
-        await DisplayAlert("Éxito", "Se ha creado una caja exitosamente.", "OK");
         await OpenOrderSectionMain(newCashRegister);
     }
 
@@ -156,11 +140,8 @@ public partial class CreateOrderVisual : ContentPage
 
     private void OnShowCreateForm(object sender, EventArgs e)
     {
-        txtNumber.Value = null;
         txtInitialMoney.Value = null;
-        datePicker.Date = DateTime.Now;
         cbxSecondaryPrice.IsChecked = false;
-
         ShowCreateNewRegisterView();
     }
 }

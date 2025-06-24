@@ -1,3 +1,4 @@
+using felix1.AdminSection;
 using Syncfusion.Maui.Buttons;
 
 namespace felix1;
@@ -18,7 +19,7 @@ public partial class AdminSectionMainVisual : ContentPage
     {
         btnShowArticle.IsChecked = checkedButton == btnShowArticle;
         btnShowUser.IsChecked = checkedButton == btnShowUser;
-        btnShowTable.IsChecked = checkedButton == btnShowTable;
+        btnShowConfiguration.IsChecked = checkedButton == btnShowConfiguration;
     }
 
     private void OnShowArticle(object sender, EventArgs e)
@@ -33,9 +34,16 @@ public partial class AdminSectionMainVisual : ContentPage
         RightPanel.Content = new ListUserVisual();
     }
 
-    private void OnShowTable(object sender, EventArgs e)
+    private void OnShowConfiguration(object sender, EventArgs e)
     {
-        SetButtonChecked(btnShowTable);
-        //RightPanel.Content = new Table(); // Load the Table view into the placeholder
+        SetButtonChecked(btnShowConfiguration);
+        RightPanel.Content = new Configuration();
+    }
+
+    private async void OnExitButtonClicked(object sender, EventArgs e)
+    {
+
+        //Application.Current?.MainPage?.DisplayAlert("Salir", "Has hecho clic en Salir.", "OK");
+        await Navigation.PushAsync(new LoginPage()); //CHECKING - navigate to example page
     }
 }

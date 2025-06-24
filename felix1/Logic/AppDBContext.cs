@@ -15,9 +15,9 @@ namespace felix1.Data
         private string _dbPath;
 
         //this is for storing de DB on a temporary location
-        private string TempDBPath = "C:\\Users\\HP\\Desktop\\mita\\FELIX1PROY\\felix-1-proyect\\felix1\\tempDBStorage"; //for maria
+        //private string TempDBPath = "C:\\Users\\HP\\Desktop\\mita\\FELIX1PROY\\felix-1-proyect\\felix1\\tempDBStorage"; //for maria
         //private string TempDBPath = "C:\\Users\\HP\\Desktop\\mita\\FELIX1PROY\\felix-1-proyect\\felix1\\tempDBStorage";
-        //private string TempDBPath = "C:\\Codes\\github\\felix-1-proyect\\felix1\\tempDBStorage";
+        private string TempDBPath = "C:\\Codes\\github\\felix-1-proyect\\felix1\\tempDBStorage";
 
 
         public AppDbContext()

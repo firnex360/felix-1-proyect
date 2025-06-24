@@ -9,52 +9,24 @@
              NavigationPage.HasNavigationBar="False">
     <VerticalStackLayout>
         <Frame BackgroundColor="LightBlue" Padding="15" Margin="0" HasShadow="True" BorderColor="Transparent">
-
             <VerticalStackLayout HorizontalOptions="Center">
                 <Label x:Name="lblCashRegisterStatus" Text="No hay cajas abiertas" FontSize="24" HorizontalOptions="Center" TextColor="#FF001E4B"/>
-                
                 <Label x:Name="lblActionPrompt" Text="Por favor, abrir una caja antes de empezar" FontSize="16" HorizontalOptions="Center" TextColor="#FF001F4D"/>
             </VerticalStackLayout>
         </Frame>
 
         <VerticalStackLayout Spacing="10" Padding="10">
-            <Label x:Name="lblNumber" Text="Número de caja" HorizontalOptions="Center" TextColor="#FF001F4D"/>
-
-
-            <inputLayout:SfTextInputLayout WidthRequest="200"
-                                            HorizontalOptions="Center"
-                                            ContainerType="None">
-            <numericEntry:SfNumericEntry x:Name="txtNumber"
-                                            AllowNull="False" 
-                                            ShowClearButton="True"
-                                            TextColor="#FF001F4D"
-                                            CustomFormat="0"/>
-            </inputLayout:SfTextInputLayout>
-
-
             <Label x:Name="lblInitialMoney" Text="Cantidad inicial en caja" HorizontalOptions="Center" TextColor="#FF001F4D"/>
-
 
             <inputLayout:SfTextInputLayout WidthRequest="200" 
                                             HorizontalOptions="Center" 
                                             ContainerType="None">
-            <numericEntry:SfNumericEntry x:Name="txtInitialMoney" 
+                <numericEntry:SfNumericEntry x:Name="txtInitialMoney" 
                                             AllowNull="False" 
                                             ShowClearButton="True" 
                                             TextColor="#FF001F4D"
                                             CustomFormat="C2"/>
             </inputLayout:SfTextInputLayout>
-
-
-            <Label x:Name="lbldatePicker" Text="Fecha de inicio del turno" HorizontalOptions="Center" TextColor="#FF001F4D"/>
-
-            <DatePicker 
-                x:Name="datePicker"
-                HorizontalOptions="Center"
-                Format="dd/MM/yyyy"
-                BackgroundColor="#FFECECEC"
-                TextColor="#FF001F4D"
-                Date="{Binding SelectedDate, Mode=TwoWay}"/>
 
             <HorizontalStackLayout HorizontalOptions="Center">
                 <Label x:Name="lblSecondaryPrice" Text="Precio secundario activado" VerticalOptions="Center" TextColor="#FF001F4D"/>
