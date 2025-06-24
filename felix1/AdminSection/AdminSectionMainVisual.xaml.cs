@@ -35,4 +35,11 @@ public partial class AdminSectionMainVisual : ContentPage
         SetButtonChecked(btnShowTable);
         //RightPanel.Content = new Table(); // Load the Table view into the placeholder
     }
+
+    private void OnExitButtonClicked(object sender, EventArgs e)
+    {
+        // Example: Close the current window or navigate to a login/main page
+        Application.Current?.MainPage?.DisplayAlert("Salir", "Has hecho clic en Salir.", "OK");
+        // You can add your actual exit/logout logic here
+    }
 }
