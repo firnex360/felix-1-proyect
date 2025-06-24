@@ -85,7 +85,6 @@ public partial class LoginPage : ContentPage, INotifyPropertyChanged
             if (usuario != null)
             {
                 AppSession.CurrentUser = usuario;
-                await DisplayAlert("Éxito", $"Bienvenido {usuario.Name}!", "OK");
 
                 // Iba a usar un if else, se salvaron
                 Page targetPage = usuario.Role switch
@@ -100,7 +99,7 @@ public partial class LoginPage : ContentPage, INotifyPropertyChanged
             }
             else
             {
-                await DisplayAlert("Error", "Contrase�a o username incorrecto", "OK");
+                await DisplayAlert("Error", "Contraseña o username incorrecto", "OK");
             }
         }
         catch (Exception ex)
