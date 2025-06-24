@@ -145,13 +145,48 @@
         </VerticalStackLayout>
 
         <buttons:SfButton
+            Clicked="OnExitButtonClicked"
             Text="Salir"
-            TextColor="White"
+            TextColor="Black"
             BackgroundColor="#FF1D1D"
             CornerRadius="5"
             Margin="10,10,10,10"
             HeightRequest="40"
-            VerticalOptions="End"/>
+            VerticalOptions="End">
+
+            <VisualStateManager.VisualStateGroups>
+                    <VisualStateGroup x:Name="CommonStates">
+
+                        <!-- Default State -->
+                        <VisualState x:Name="Normal">
+                            <VisualState.Setters>
+                                <Setter Property="Background" Value="#F5F7FA"/>
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <!-- Hovered State -->
+                        <VisualState x:Name="Hovered">
+                            <VisualState.Setters>
+                                <Setter Property="Background" Value="#7DFF0000"/>
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <!-- Pressed State -->
+                        <VisualState x:Name="Pressed">
+                            <VisualState.Setters>
+                                <Setter Property="Background" Value="red"/>
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <!-- Checked State -->
+                        <VisualState x:Name="Checked">
+                            <VisualState.Setters>
+                                <Setter Property="Background" Value="#33B7E3"/>
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateManager.VisualStateGroups>
+        </buttons:SfButton>
 
         <!-- RIGHT || CONTENT AREA -->
         <ContentView x:Name="RightPanel"
