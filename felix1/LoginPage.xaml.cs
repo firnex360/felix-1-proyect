@@ -4,6 +4,7 @@ using felix1.OrderSection;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
 using System.Windows.Input;
+using Syncfusion.Maui.Buttons;
 
 namespace felix1;
 
@@ -23,6 +24,23 @@ public partial class LoginPage : ContentPage, INotifyPropertyChanged
             }
         }
     }
+
+    private double _progressValue;
+    public double ProgressValue
+    {
+        get => _progressValue;
+        set
+        {
+            if (_progressValue != value)
+            {
+                _progressValue = value;
+                OnPropertyChanged(nameof(ProgressValue));
+                OnPropertyChanged(nameof(ProgressText));
+            }
+        }
+    }
+
+    public string ProgressText => $"{(int)(ProgressValue * 100)}%";
 
     private string _username;
     public string Username
@@ -67,14 +85,21 @@ public partial class LoginPage : ContentPage, INotifyPropertyChanged
         if (IsLoggingIn) return;
 
         IsLoggingIn = true;
+        ProgressValue = 0;
 
         try
         {
+            await Task.Delay(100);
+            ProgressValue = 0.3;
+
             if (string.IsNullOrWhiteSpace(Username) || string.IsNullOrWhiteSpace(Password))
             {
                 await DisplayAlert("Error", "Por favor introducir username o password", "OK");
                 return;
             }
+
+            await Task.Delay(100);
+            ProgressValue = 0.6;
 
             using var db = new AppDbContext();
             var usuario = await db.Users.FirstOrDefaultAsync(u =>
@@ -82,18 +107,27 @@ public partial class LoginPage : ContentPage, INotifyPropertyChanged
                 u.Password == Password &&
                 !u.Deleted);
 
+            await Task.Delay(100);
+            ProgressValue = 0.9;
+
             if (usuario != null)
             {
                 AppSession.CurrentUser = usuario;
 
-                // Iba a usar un if else, se salvaron
+                //Yo quería poner un if else, pero bueno...
                 Page targetPage = usuario.Role switch
                 {
                     "Cajero" => new CreateOrderVisual(),
-                    "Admin" => new AdminSectionMainVisual(), //cuando tengan la pagina me avisan
-                    "Mesero" => new MainPage(), // Cuando tengan las tabletas me avisan
-                    _ => new MainPage() // Default case, could be a generic page or error
+                    "Admin" => new AdminSectionMainVisual(),
+                    "Mesero" => new MainPage(), //Cuando tengamos algo se remplaza este MainPage
+                    _ => new MainPage()
                 };
+
+                Username = string.Empty;
+                Password = string.Empty;
+
+                ProgressValue = 1.0;
+                await Task.Delay(100);
 
                 await Navigation.PushAsync(targetPage);
             }
@@ -106,7 +140,11 @@ public partial class LoginPage : ContentPage, INotifyPropertyChanged
         {
             //Nuestro salvador.
         }
-        IsLoggingIn = false;
+        finally
+        {
+            IsLoggingIn = false;
+            ProgressValue = 0;
+        }
     }
 
     #region INotifyPropertyChanged
