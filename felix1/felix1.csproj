@@ -62,7 +62,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.5">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.6">
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		  <PrivateAssets>all</PrivateAssets>
 		</PackageReference>
@@ -80,6 +80,12 @@
 	  <Compile Update="AdminSection\CreateUserVisual.xaml.cs">
 	    <DependentUpon>CreateUserVisual.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="OrderSection\CreateCashRegisterVisual.xaml.cs">
+	    <DependentUpon>CreateCashRegisterVisual.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="OrderSection\ListTableVisual.xaml.cs">
+	    <DependentUpon>ListTableVisual.xaml</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -89,6 +95,11 @@
 	  <MauiXaml Update="AdminSection\CreateUserVisual.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Images\" />
+	  <Folder Include="tempDBStorage\" />
 	</ItemGroup>
 
 </Project>

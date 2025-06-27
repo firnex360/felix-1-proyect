@@ -2,43 +2,78 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:syncfusion="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
+             xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
              BackgroundColor="White"
-             x:Class="felix1.ListArticleVisual">
+             x:Class="felix1.ListArticleVisual"
+             NavigationPage.HasNavigationBar="False">
 
-    <Grid RowDefinitions="Auto,*">
+    <Grid RowDefinitions="Auto,*"
+          ColumnDefinitions="*">
 
         <HorizontalStackLayout Grid.Row="0"
-                               Padding="5"
-                               Spacing="1">
+                               Spacing="20">
+            <Frame
+                BackgroundColor="#F5F7FA"
+                CornerRadius="10"
+                Padding="0"
+                HasShadow="False"
+                VerticalOptions="Center"
+                HeightRequest="40"
+                BorderColor="#FF74777A"
+                WidthRequest="340"
+                Margin="20,10,0,0">
 
-            <Button Text="Create Article"
-                    BackgroundColor="#A1BCC8"
+                <SearchBar x:Name="searchBar"
+                           Placeholder="Buscar artículos..."
+                           TextChanged="OnSearchBarTextChanged"
+                           TextColor="#22223B"
+                           PlaceholderColor="#A0AEC0"
+                           BackgroundColor="Transparent"
+                           CancelButtonColor="#4F8FCB"
+                           FontSize="16"
+                           Margin="8,0"
+                           HeightRequest="40"
+                           HorizontalOptions="Fill"/>
+            </Frame>
+
+
+            <Button Margin="0,10,0,0"
+                    Text="Agregar Artículo"
+                    TextColor="Black"
+                    BackgroundColor="#33B7E3"
                     Clicked="OnCreateArticleWindowClicked"
-                    HorizontalOptions="Start"/>
-
-            <Label x:Name="labeltest"
-                   Text="List of Articles"
-                   FontSize="28"
-                   TextColor="Black"
-                   VerticalOptions="Center"/>
+                    HorizontalOptions="Start"
+                    VerticalOptions="Center"/>
 
         </HorizontalStackLayout>
 
         <!-- Fullscreen DataGrid -->
         <Frame Grid.Row="1"
-               CornerRadius="5"
+               CornerRadius="10"
                Padding="0"
                HasShadow="True"
-               BackgroundColor="#B9C1C1C1"
-               Margin="20">
+               BackgroundColor="#F5F7FA"
+               BorderColor="#F5F7FA"
+               Margin="20"
+               VerticalOptions="Fill"
+               HorizontalOptions="Start">
 
             <syncfusion:SfDataGrid x:Name="dataGrid"
                                    ItemsSource="{Binding Articles}"
                                    VerticalOptions="Fill"
                                    HorizontalOptions="Fill"
-                                   HeaderRowHeight="50"
-                                   ColumnWidthMode="FitByHeader"
-                                   AutoGenerateColumnsMode="None">
+                                   HeaderRowHeight="60"
+                                   AutoGenerateColumnsMode="None"
+                                   RowHeight="50"
+                                   SortingMode="Single"
+                                   AllowTriStateSorting="True"
+                                   VerticalOverScrollMode="Bounce"
+                                   EmptyView="No hay registros">
+
+                <syncfusion:SfDataGrid.DefaultStyle>
+                    <syncfusion:DataGridStyle HeaderRowBackground="#C2C7CD"
+                                              HeaderRowTextColor="black"/>
+                </syncfusion:SfDataGrid.DefaultStyle>
 
                 <!-- Custom Columns -->
                 <syncfusion:SfDataGrid.Columns>
@@ -46,57 +81,112 @@
                     <!-- ID Column -->
                     <syncfusion:DataGridNumericColumn
                         MappingName="Id"
-                        HeaderText="Id Articulo"
-                        Format="000"/>
+                        HeaderText="Codigo"
+                        Format="0000"
+                        CellTextAlignment="Start"
+                        HeaderTextAlignment="Start"
+                        ColumnWidthMode="FitByHeader"/>
 
                     <!-- Name Column -->
                     <syncfusion:DataGridTextColumn
                         MappingName="Name"
-                        HeaderText="Nombre del Articulo"/>
+                        HeaderText="Nombre"
+                        CellTextAlignment="Start"
+                        HeaderTextAlignment="Start"
+                        ColumnWidthMode="FitByCell"
+                        MaximumWidth="300"/>
 
                     <!-- Primary Price -->
                     <syncfusion:DataGridNumericColumn
                         MappingName="PriPrice"
                         HeaderText="Precio Primario"
-                        Format="C2"/>
-                    <!-- Currency formatting -->
+                        Format="C2"
+                        CellTextAlignment="Start"
+                        HeaderTextAlignment="Start"
+                        ColumnWidthMode="FitByHeader"/>
 
                     <!-- Secondary Price -->
                     <syncfusion:DataGridNumericColumn
                         MappingName="SecPrice"
                         HeaderText="Precio Secundario"
-                        Format="C2"/>
+                        Format="C2"
+                        CellTextAlignment="Start"
+                        HeaderTextAlignment="Center"
+                        ColumnWidthMode="FitByHeader"/>
 
                     <!-- Category -->
                     <syncfusion:DataGridTextColumn
                         MappingName="Category"
-                        HeaderText="Categoria"/>
+                        HeaderText="Categoria"
+                        CellTextAlignment="Start"
+                        HeaderTextAlignment="Start"
+                        ColumnWidthMode="FitByHeader"/>
 
-                    <syncfusion:DataGridTemplateColumn HeaderText="Actions"
-                                                       Width="300">
+                    <syncfusion:DataGridTemplateColumn HeaderText="Acciones"
+                                                       ColumnWidthMode="LastColumnFill">
                         <syncfusion:DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <HorizontalStackLayout Spacing="5"
+                                <HorizontalStackLayout Spacing="10"
                                                        HorizontalOptions="Center">
-                                    <Button
-                                        Text="Ver"
-                                        FontSize="12"
-                                        Clicked="OnViewClicked"
-                                        VerticalOptions="Center"/>
 
-                                    <Button
-                                        Text="Editar"
-                                        FontSize="12"
-                                        Padding="4"
-                                        Clicked="OnEditClicked"/>
+                                    <ImageButton
+                                        Source="editing.png"
+                                        CornerRadius="10"
+                                        Padding="10"
+                                        WidthRequest="28"
+                                        HeightRequest="28"
+                                        BackgroundColor="#FFD6D7DA"
+                                        Clicked="OnEditClicked"
+                                        VerticalOptions="Center">
+                                        <VisualStateManager.VisualStateGroups>
+                                            <VisualStateGroupList>
+                                                <VisualStateGroup x:Name="CommonStates">
+                                                    <VisualState x:Name="Normal">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="BackgroundColor"
+                                                                    Value="#F5F7FA"/>
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                    <VisualState x:Name="PointerOver">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="BackgroundColor"
+                                                                    Value="#FFD6D7DA"/>
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                </VisualStateGroup>
+                                            </VisualStateGroupList>
+                                        </VisualStateManager.VisualStateGroups>
+                                    </ImageButton>
 
-                                    <Button
-                                        Text="Eliminar"
-                                        FontSize="12"
-                                        Padding="4"
-                                        BackgroundColor="Red"
-                                        TextColor="White"
-                                        Clicked="OnDeleteClicked"/>
+                                    <ImageButton
+                                        Source="delete.png"
+                                        CornerRadius="10"
+                                        Padding="10"
+                                        WidthRequest="0"
+                                        HeightRequest="0"
+                                        BackgroundColor="transparent"
+                                        Clicked="OnDeleteClicked"
+                                        VerticalOptions="Center">
+                                        <VisualStateManager.VisualStateGroups>
+                                            <VisualStateGroupList>
+                                                <VisualStateGroup x:Name="CommonStates">
+                                                    <VisualState x:Name="Normal">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="BackgroundColor"
+                                                                    Value="transparent"/>
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                    <VisualState x:Name="PointerOver">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="BackgroundColor"
+                                                                    Value="#D0FF0000"/>
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                </VisualStateGroup>
+                                            </VisualStateGroupList>
+                                        </VisualStateManager.VisualStateGroups>
+                                    </ImageButton>
+
                                 </HorizontalStackLayout>
                             </DataTemplate>
                         </syncfusion:DataGridTemplateColumn.CellTemplate>
@@ -104,6 +194,5 @@
                 </syncfusion:SfDataGrid.Columns>
             </syncfusion:SfDataGrid>
         </Frame>
-
     </Grid>
 </ContentView>

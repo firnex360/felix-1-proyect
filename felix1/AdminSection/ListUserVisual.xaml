@@ -3,42 +3,75 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:syncfusion="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
              BackgroundColor="White"
-             x:Class="felix1.ListUserVisual">
+             x:Class="felix1.ListUserVisual"
+             NavigationPage.HasNavigationBar="False">
 
     <Grid RowDefinitions="Auto,*">
 
         <HorizontalStackLayout Grid.Row="0"
-                               Padding="5"
-                               Spacing="1">
+                               Spacing="20">
 
-            <Button Text="Crear Usuario"
-                    BackgroundColor="#A1BCC8"
+            <Frame
+                BackgroundColor="#F5F7FA"
+                CornerRadius="10"
+                Padding="0"
+                HasShadow="False"
+                VerticalOptions="Center"
+                HeightRequest="40"
+                BorderColor="#FF74777A"
+                WidthRequest="340"
+                Margin="20,10,0,0">
+
+                <SearchBar x:Name="searchBar"
+                           Placeholder="Buscar usuario..."
+                           TextChanged="OnSearchBarTextChanged"
+                           TextColor="#22223B"
+                           PlaceholderColor="#A0AEC0"
+                           BackgroundColor="Transparent"
+                           CancelButtonColor="#4F8FCB"
+                           FontSize="16"
+                           Margin="8,0"
+                           HeightRequest="40"
+                           HorizontalOptions="Fill"/>
+            </Frame>
+
+            <Button Margin="0,10,0,0"
+                    Text="Agregar Usuario"
+                    TextColor="Black"
+                    BackgroundColor="#33B7E3"
                     Clicked="OnCreateUserWindowClicked"
-                    HorizontalOptions="Start"/>
-
-            <Label x:Name="labeltest"
-                   Text="List of User"
-                   FontSize="28"
-                   TextColor="Black"
-                   VerticalOptions="Center"/>
+                    HorizontalOptions="Start"
+                    VerticalOptions="Center"/>
 
         </HorizontalStackLayout>
 
         <!-- Fullscreen DataGrid -->
         <Frame Grid.Row="1"
-               CornerRadius="5"
+               CornerRadius="10"
                Padding="0"
                HasShadow="True"
-               BackgroundColor="#B9C1C1C1"
-               Margin="20">
+               BackgroundColor="#F5F7FA"
+               BorderColor="#F5F7FA"
+               Margin="20"
+               VerticalOptions="Fill"
+               HorizontalOptions="Start">
 
             <syncfusion:SfDataGrid x:Name="dataGrid"
                                    ItemsSource="{Binding Users}"
                                    VerticalOptions="Fill"
                                    HorizontalOptions="Fill"
-                                   HeaderRowHeight="50"
-                                   ColumnWidthMode="FitByHeader"
-                                   AutoGenerateColumnsMode="None">
+                                   HeaderRowHeight="60"
+                                   AutoGenerateColumnsMode="None"
+                                   RowHeight="50"
+                                   SortingMode="Single"
+                                   AllowTriStateSorting="True"
+                                   VerticalOverScrollMode="Bounce"
+                                   EmptyView="No hay registros">
+
+                <syncfusion:SfDataGrid.DefaultStyle>
+                    <syncfusion:DataGridStyle HeaderRowBackground="#C2C7CD"
+                                              HeaderRowTextColor="black"/>
+                </syncfusion:SfDataGrid.DefaultStyle>
 
                 <!-- Custom Columns -->
                 <syncfusion:SfDataGrid.Columns>
@@ -46,58 +79,125 @@
                     <!-- ID Column -->
                     <syncfusion:DataGridNumericColumn
                         MappingName="Id"
-                        HeaderText="Id Usuario"
-                        Format="000"/>
+                        HeaderText="Codigo"
+                        Format="0000"
+                        CellTextAlignment="Start"
+                        HeaderTextAlignment="Start"
+                        ColumnWidthMode="FitByHeader"/>
 
                     <!-- Name Column -->
                     <syncfusion:DataGridTextColumn
                         MappingName="Name"
-                        HeaderText="Nombre"/>
+                        HeaderText="Nombre"
+                        CellTextAlignment="Start"
+                        HeaderTextAlignment="Start"
+                        ColumnWidthMode="FitByCell"
+                        MaximumWidth="300"
+                        MinimumWidth="150"/>
 
                     <!-- Username Column -->
                     <syncfusion:DataGridTextColumn
                         MappingName="Username"
-                        HeaderText="Usuario"/>
+                        HeaderText="Usuario"
+                        CellTextAlignment="Start"
+                        HeaderTextAlignment="Start"
+                        ColumnWidthMode="FitByCell"
+                        MaximumWidth="300"
+                        MinimumWidth="150"/>
 
                     <!-- Role Column -->
                     <syncfusion:DataGridTextColumn
                         MappingName="Role"
-                        HeaderText="Rol"/>
+                        HeaderText="Rol"
+                        CellTextAlignment="Start"
+                        HeaderTextAlignment="Start"
+                        ColumnWidthMode="FitByCell"
+                        MaximumWidth="300"
+                        MinimumWidth="150"/>
 
                     <!-- Available Column as Checkbox -->
-                    <syncfusion:DataGridTemplateColumn HeaderText="Disponible" MappingName="Available">
+                    <syncfusion:DataGridTemplateColumn HeaderText="Disponible"
+                                                       MappingName="Available"
+                                                       ColumnWidthMode="FitByHeader"
+                                                       CellTextAlignment="Center">
+
                         <syncfusion:DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <CheckBox IsChecked="{Binding Available}" IsEnabled="True"/>
+                                <Grid VerticalOptions="Center" HorizontalOptions="Center">
+                                    <CheckBox IsChecked="{Binding Available}"
+                                              IsEnabled="True"
+                                              HorizontalOptions="Center"
+                                              VerticalOptions="Center"/>
+                                </Grid>
                             </DataTemplate>
                         </syncfusion:DataGridTemplateColumn.CellTemplate>
                     </syncfusion:DataGridTemplateColumn>
 
                     <syncfusion:DataGridTemplateColumn HeaderText="Actions"
-                                                       Width="300">
+                                                       ColumnWidthMode="LastColumnFill">
                         <syncfusion:DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <HorizontalStackLayout Spacing="5"
+                                <HorizontalStackLayout Spacing="10"
                                                        HorizontalOptions="Center">
-                                    <Button
-                                        Text="Ver"
-                                        FontSize="12"
-                                        Clicked="OnViewClicked"
-                                        VerticalOptions="Center"/>
 
-                                    <Button
-                                        Text="Editar"
-                                        FontSize="12"
-                                        Padding="4"
-                                        Clicked="OnEditClicked"/>
+                                    <ImageButton
+                                        Source="editing.png"
+                                        CornerRadius="10"
+                                        Padding="10"
+                                        WidthRequest="28"
+                                        HeightRequest="28"
+                                        BackgroundColor="#FFD6D7DA"
+                                        Clicked="OnEditClicked"
+                                        VerticalOptions="Center">
+                                        <VisualStateManager.VisualStateGroups>
+                                            <VisualStateGroupList>
+                                                <VisualStateGroup x:Name="CommonStates">
+                                                    <VisualState x:Name="Normal">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="BackgroundColor"
+                                                                    Value="#F5F7FA"/>
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                    <VisualState x:Name="PointerOver">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="BackgroundColor"
+                                                                    Value="#FFD6D7DA"/>
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                </VisualStateGroup>
+                                            </VisualStateGroupList>
+                                        </VisualStateManager.VisualStateGroups>
+                                    </ImageButton>
 
-                                    <Button
-                                        Text="Eliminar"
-                                        FontSize="12"
-                                        Padding="4"
-                                        BackgroundColor="Red"
-                                        TextColor="White"
-                                        Clicked="OnDeleteClicked"/>
+                                    <ImageButton
+                                        Source="delete.png"
+                                        CornerRadius="10"
+                                        Padding="10"
+                                        WidthRequest="28"
+                                        HeightRequest="28"
+                                        BackgroundColor="Transparent"
+                                        Clicked="OnDeleteClicked"
+                                        VerticalOptions="Center">
+                                        <VisualStateManager.VisualStateGroups>
+                                            <VisualStateGroupList>
+                                                <VisualStateGroup x:Name="CommonStates">
+                                                    <VisualState x:Name="Normal">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="BackgroundColor"
+                                                                    Value="Transparent"/>
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                    <VisualState x:Name="PointerOver">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="BackgroundColor"
+                                                                    Value="#D0FF0000"/>
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                </VisualStateGroup>
+                                            </VisualStateGroupList>
+                                        </VisualStateManager.VisualStateGroups>
+                                    </ImageButton>
+
                                 </HorizontalStackLayout>
                             </DataTemplate>
                         </syncfusion:DataGridTemplateColumn.CellTemplate>

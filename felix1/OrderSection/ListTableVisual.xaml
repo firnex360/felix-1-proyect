@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="felix1.OrderSection.ListOrderVisual"
+             NavigationPage.HasNavigationBar="False">
+             
+    <Grid ColumnDefinitions="*, Auto" BackgroundColor="White">
+        
+        <!--    SCROLLABLE MESERO   -->
+        <ScrollView Grid.Column="0" Orientation="Horizontal" VerticalOptions="FillAndExpand">
+            <HorizontalStackLayout x:Name="MeseroContainer"
+                                Spacing="10"
+                                Padding="10"
+                                BackgroundColor="#F5F7FA"
+                                VerticalOptions="FillAndExpand" />
+        </ScrollView>
+        
+        <!--    STATIC TAKEOUT   -->
+        <Grid Grid.Column="1"
+            WidthRequest="{Binding Source={x:Reference MainGrid}, Path=Width, Converter={StaticResource WidthTo30PercentConverter}}"
+            x:Name="TakeoutPanel" 
+            Padding="10" 
+            VerticalOptions="FillAndExpand"
+            BackgroundColor="#F5F7FA">
+                
+                <Frame
+                CornerRadius="10"
+                Padding = "10"
+                BackgroundColor="White"
+                BorderColor="White"
+                VerticalOptions="FillAndExpand"
+                WidthRequest="300">
+                    <VerticalStackLayout Spacing="12"
+                                        VerticalOptions="FillAndExpand">
+                        <Label
+                            Text="Takeout"
+                            FontSize="18"
+                            FontAttributes="Bold"
+                            TextColor="Black"
+                            HorizontalOptions="Center" />
+                        <Button
+                            Text="Crear Pedido"
+                            BackgroundColor="LightBlue"
+                            TextColor="White"
+                            CornerRadius="8"
+                            HeightRequest="40"
+                            WidthRequest="120"
+                            HorizontalOptions="Center" VerticalOptions="Center" />
+                    </VerticalStackLayout>
+                </Frame>
+
+            </Grid>
+
+    </Grid>
+</ContentView>

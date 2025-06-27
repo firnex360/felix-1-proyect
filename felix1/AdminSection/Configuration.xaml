@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="felix1.AdminSection.Configuration">
+    <VerticalStackLayout Padding="32,48" Spacing="24" BackgroundColor="#F5F6FA">
+        <Frame CornerRadius="18" Padding="32" BackgroundColor="White">
+            <VerticalStackLayout Spacing="20">
+                <Label Text="Configuración General" FontSize="28" FontAttributes="Bold" TextColor="#222" HorizontalOptions="Center"/>
+                <Grid RowSpacing="18" ColumnSpacing="16">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label Text="Teléfono:" Grid.Row="0" Grid.Column="0" VerticalOptions="Center" TextColor="#444"/>
+                    <Entry x:Name="txtPhone" Placeholder="Ingrese el teléfono" Grid.Row="0" Grid.Column="1" Keyboard="Telephone" BackgroundColor="#F0F1F6" Margin="0,0,0,4"/>
+
+                    <Label Text="Dirección:" Grid.Row="1" Grid.Column="0" VerticalOptions="Center" TextColor="#444"/>
+                    <Entry x:Name="txtAddress" Placeholder="Ingrese la dirección" Grid.Row="1" Grid.Column="1" BackgroundColor="#F0F1F6" Margin="0,0,0,4"/>
+
+                    <Label Text="Email:" Grid.Row="2" Grid.Column="0" VerticalOptions="Center" TextColor="#444"/>
+                    <Entry x:Name="txtEmail" Placeholder="Ingrese el email" Grid.Row="2" Grid.Column="1" Keyboard="Email" BackgroundColor="#F0F1F6" Margin="0,0,0,4"/>
+
+                    <Label Text="Nombre Empresa:" Grid.Row="3" Grid.Column="0" VerticalOptions="Center" TextColor="#444"/>
+                    <Entry x:Name="txtCompany" Placeholder="Ingrese el nombre de la empresa" Grid.Row="3" Grid.Column="1" BackgroundColor="#F0F1F6" Margin="0,0,0,4"/>
+                </Grid>
+                <Button Text="Guardar Cambios"
+                        x:Name="btnSave"
+                        Margin="0,16,0,0"
+                        HeightRequest="48"
+                        BackgroundColor="#4F8EF7"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        CornerRadius="12"
+                        FontSize="18"
+                        HorizontalOptions="Fill"/>
+            </VerticalStackLayout>
+        </Frame>
+    </VerticalStackLayout>
+</ContentView>

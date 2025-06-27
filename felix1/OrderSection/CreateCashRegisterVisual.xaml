@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
+             xmlns:numericEntry ="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs"
+             xmlns:inputLayout="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="felix1.OrderSection.CreateOrderVisual"
+             BackgroundColor="White"
+             NavigationPage.HasNavigationBar="False">
+    <VerticalStackLayout>
+        <Frame BackgroundColor="LightBlue" Padding="15" Margin="0" HasShadow="True" BorderColor="Transparent">
+            <VerticalStackLayout HorizontalOptions="Center">
+                <Label x:Name="lblCashRegisterStatus" Text="No hay cajas abiertas" FontSize="24" HorizontalOptions="Center" TextColor="#FF001E4B"/>
+                <Label x:Name="lblActionPrompt" Text="Por favor, abrir una caja antes de empezar" FontSize="16" HorizontalOptions="Center" TextColor="#FF001F4D"/>
+            </VerticalStackLayout>
+        </Frame>
+
+        <VerticalStackLayout Spacing="10" Padding="10">
+            <Label x:Name="lblInitialMoney" Text="Cantidad inicial en caja" HorizontalOptions="Center" TextColor="#FF001F4D"/>
+
+            <inputLayout:SfTextInputLayout WidthRequest="200" 
+                                            HorizontalOptions="Center" 
+                                            ContainerType="None">
+                <numericEntry:SfNumericEntry x:Name="txtInitialMoney" 
+                                            AllowNull="False" 
+                                            ShowClearButton="True" 
+                                            TextColor="#FF001F4D"
+                                            CustomFormat="C2"/>
+            </inputLayout:SfTextInputLayout>
+
+            <HorizontalStackLayout HorizontalOptions="Center">
+                <Label x:Name="lblSecondaryPrice" Text="Precio secundario activado" VerticalOptions="Center" TextColor="#FF001F4D"/>
+                <CheckBox
+                    x:Name="cbxSecondaryPrice"
+                    IsChecked="false" 
+                    BackgroundColor="#FFECECEC"
+                    Color="LightBlue"/>
+            </HorizontalStackLayout>
+
+            <Button x:Name="btnCrearCajaNueva"
+                Text="Crear Caja Nueva"
+                Clicked="OnShowCreateForm"
+                WidthRequest="250"
+                BackgroundColor="LightBlue"
+                TextColor="#FF001F4D"
+                IsVisible="False" />
+
+            <Button x:Name="btnCrearCaja"
+                Text="Crear Caja"
+                Clicked="OnSaveCashRegister"
+                WidthRequest="250"
+                BackgroundColor="LightBlue"
+                TextColor="#FF001F4D"
+                IsVisible="True" />
+        </VerticalStackLayout>
+    </VerticalStackLayout>
+</ContentPage>
