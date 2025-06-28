@@ -30,11 +30,9 @@ public partial class CreateArticleVisual : ContentPage
                 {
                     isSelected = value;
                     OnPropertyChanged(nameof(IsSelected));
-                    SelectionChangedCallback?.Invoke(); //FOR THE CHECKBOX IN SIDEDISH
                 }
             }
         }
-        public Action? SelectionChangedCallback { get; set; } //FOR THE CHECKBOX IN SIDEDISH
 
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged(string propertyName) =>
@@ -105,28 +103,15 @@ public partial class CreateArticleVisual : ContentPage
         {
             var selectable = new SideDishSelectable
             {
-                Article = dish,
-                SelectionChangedCallback = UpdateSideDishCheckbox //FOR THE CHECKBOX IN SIDEDISH
+                Article = dish
             };
 
             selectable.IsSelected = selectedIds.Contains(dish.Id); // triggers PropertyChanged
 
             SideDishArticles.Add(selectable);
         }
-        UpdateSideDishCheckbox();
 
 
-    }
-
-    //FOR THE CHECKBOX IN SIDEDISH
-    private void UpdateSideDishCheckbox()
-    {
-        // If ANY side dish is selected, check the checkbox
-        bool anySelected = SideDishArticles.Any(s => s.IsSelected);
-        MainThread.BeginInvokeOnMainThread(() =>
-        {
-            txtSideDish.IsChecked = anySelected;
-        });
     }
 
 
