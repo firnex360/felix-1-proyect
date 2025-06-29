@@ -24,7 +24,7 @@ public partial class ListOrderVisual : ContentView
     {
         using var db = new AppDbContext();
         var meseros = db.Users
-            .Where(u => u.Role == "Mesero" && !u.Deleted && u.Available)
+            .Where(u => u.Role == "Mesero" && !u.Deleted && u.Available == true)
             .ToList();
 /*
         var tableOrders = db.Orders
