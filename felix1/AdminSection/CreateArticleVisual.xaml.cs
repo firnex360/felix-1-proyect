@@ -170,7 +170,7 @@ public partial class CreateArticleVisual : ContentPage
                 Name = txtName.Text,
                 PriPrice = txtPrice.Text != null ? float.Parse(txtPrice.Text) : 0f,
                 SecPrice = txtSecondaryPrice.Text != null ? float.Parse(txtSecondaryPrice.Text) : 0f,
-                Category = parsed ? categoryEnum : ArticleCategory.Other,
+                Category = parsed ? categoryEnum : ArticleCategory.Otros,
                 IsDeleted = false,
                 IsSideDish = txtSideDish.IsChecked,
                 SideDishes = selectedSideDishes
@@ -194,7 +194,7 @@ public partial class CreateArticleVisual : ContentPage
                 article.Name = txtName.Text;
                 article.PriPrice = float.TryParse(txtPrice.Text, out var pri) ? pri : 0f;
                 article.SecPrice = float.TryParse(txtSecondaryPrice.Text, out var sec) ? sec : 0f;
-                article.Category = parsed ? categoryEnum : ArticleCategory.Other;
+                article.Category = parsed ? categoryEnum : ArticleCategory.Otros;
                 article.IsSideDish = txtSideDish.IsChecked;
 
                 // Clear and update side dishes

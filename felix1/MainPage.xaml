@@ -3,6 +3,7 @@
              xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
              xmlns:numericEntry="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs"
              xmlns:inputLayout="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
+             xmlns:syncfusion="clr-namespace:Syncfusion.Maui.Popup;assembly=Syncfusion.Maui.Popup"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="felix1.MainPage">
 
@@ -28,6 +29,13 @@
                 Text="Hello, World!"
                 Style="{StaticResource Headline}"
                 SemanticProperties.HeadingLevel="Level1"/>
+
+            <Button x:Name="clickToShowPopup"
+                    Text="ClickToShowPopup"
+                    VerticalOptions="Start"
+                    HorizontalOptions="Center"
+                    Clicked="ClickToShowPopup_Clicked"/>
+            <syncfusion:SfPopup x:Name="popup"/>
 
             <Button Text="Admin Section"
                     Clicked="OnGoToPageBClicked"/>
