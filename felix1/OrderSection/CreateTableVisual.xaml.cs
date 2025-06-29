@@ -16,7 +16,7 @@ public partial class CreateTableVisual : ContentPage
 	{
 		using var db = new AppDbContext();
 		lblMesero.Text = $"Mesero: {_mesero.Name}";
-		lblCajero.Text = $"ID: { db.CashRegisters.FirstOrDefault(c => c.IsOpen)}";
+		lblCajero.Text = $"ID: { db.CashRegisters.FirstOrDefault(c => c.IsOpen)?.Number}";
 		lblFecha.Text = $"Fecha: {DateTime.Now:dd/MM/yyyy HH:mm}";
 	}
 
@@ -50,19 +50,19 @@ public partial class CreateTableVisual : ContentPage
 
 
 
-        //need to be fix in the database first
-		// var order = new Order
-		// {
-		// 	Number = int.Parse(txtOrderNumber.Value.ToString() ?? "0"),
-		// 	Date = DateTime.Now,
-		// 	Waiter = waiter,
-		// 	Table = table,
-		// 	Items = null, //temp
-		// 	CashRegister = db.CashRegisters.FirstOrDefault(c => c.IsOpen), //WOULD BE THE ONE WE'RE WORKING WITH, CHECK
-		// 	Charge = false
-		// };
-		// db.Orders.Add(order);
-		// db.SaveChanges();
+        var order = new Order
+		{
+			OrderNumber = int.Parse(txtOrderNumber.Value.ToString() ?? "0"),
+			Date = DateTime.Now,
+			Waiter = waiter, //comes as a parameter from the list, depending where we clicked
+			Table = table, //automatically created before a new order
+			Items = null, //temp
+			CashRegister = db.CashRegisters.FirstOrDefault(c => c.IsOpen), //we can only work with the open cash register
+			IsDuePaid = false,
+			IsBillRequested = false
+		};
+		db.Orders.Add(order);
+		db.SaveChanges();
 
 		ListOrderVisual.Instance?.ReloadTables();
 
