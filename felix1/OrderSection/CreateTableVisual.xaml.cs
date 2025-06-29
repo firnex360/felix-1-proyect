@@ -64,7 +64,7 @@ public partial class CreateTableVisual : ContentPage
 		db.Orders.Add(order);
 		db.SaveChanges();
 
-		ListOrderVisual.Instance?.ReloadTables();
+		ListOrderVisual.Instance?.ReloadTM();
 
 		CloseThisWindow();
 	}

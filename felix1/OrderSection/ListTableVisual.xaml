@@ -40,7 +40,7 @@
                             HorizontalOptions="Center" />
                         <Button
                             Text="Crear Pedido"
-                            BackgroundColor="LightBlue"
+                            BackgroundColor="#005F8C"
                             TextColor="White"
                             CornerRadius="8"
                             HeightRequest="40"
