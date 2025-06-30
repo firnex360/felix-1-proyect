@@ -11,6 +11,8 @@ namespace felix1.Data
         public DbSet<Table> Tables { get; set; } = null!;
         public DbSet<Order> Orders { get; set; } = null!;
         public DbSet<OrderItem> OrderItems { get; set; } = null!;
+        public DbSet<Transaction> Transactions { get; set; } = null!;
+        public DbSet<Refund> Refunds { get; set; } = null!;
 
 
         private string _dbPath;
@@ -63,7 +65,7 @@ namespace felix1.Data
                 .HasOne(oi => oi.Article)
                 .WithMany()
                 .OnDelete(DeleteBehavior.Restrict);
-                
+
             // Define relationship between Order and OrderItem
             modelBuilder.Entity<Order>()
                 .HasMany(o => o.Items)
@@ -87,6 +89,36 @@ namespace felix1.Data
                 .HasOne(o => o.CashRegister)
                 .WithMany()
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // Define relationship between Transaction and Order
+            modelBuilder.Entity<Transaction>()
+                .HasOne(t => t.Order)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Define relationship between Transaction and Refund
+            modelBuilder.Entity<Transaction>()
+                .HasOne(t => t.Refund)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Define relationship between Refund and Order
+            modelBuilder.Entity<Refund>()
+                .HasOne(r => r.Order)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Define relationship between Refund and User
+            modelBuilder.Entity<Refund>()
+                .HasOne(r => r.User)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict);
+                
+            // Define relationship between Refund and OrderItem
+            modelBuilder.Entity<Refund>()
+                .HasMany(r => r.RefundedItems)
+                .WithOne()
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

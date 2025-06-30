@@ -18,7 +18,7 @@ public partial class MainPage : ContentPage
     {
         if (Application.Current != null)
         {
-
+            //is this important? or just for testing
             var newUser = new User
             {
                 Id = 1,
