@@ -3,24 +3,18 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="felix1.CreateUserVisual"
-    NavigationPage.HasNavigationBar="False">
-
-    <!-- Degradado de fondo -->
-    <ContentPage.Background>
-        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Color="#F3F3F3" Offset="0.0"/>
-            <GradientStop Color="#C7CFDD" Offset="1.0"/>
-        </LinearGradientBrush>
-    </ContentPage.Background>
+    NavigationPage.HasNavigationBar="False"
+    BackgroundColor="#C7CFDD">
 
     <Grid RowDefinitions="Auto,*,Auto" ColumnDefinitions="*"
           Padding="30">
 
-        <!-- Titulo (Evil) -->
+        <!-- Titulo -->
         <Label Text="Registrar Usuario"
-               FontSize="35"
+               FontFamily="Inter"
+               FontSize="30"
                FontAttributes="Bold"
-               TextColor="#1A1C2C"
+               TextColor="#005F8C"
                HorizontalOptions="Center"
                Margin="0,0,0,20"/>
 
@@ -35,67 +29,66 @@
                     <Label Text="Nombre"
                            FontSize="12"
                            FontAttributes="Bold"
-                           TextColor="#1A1C2C"/>
+                           TextColor="#005F8C"/>
                     <Entry Placeholder="Enter your name"
                            x:Name="entryNombre"
                            FontSize="14"
-                           TextColor="#1A1C2C"
-                           BackgroundColor="#C7CFDD"/>
+                           TextColor="Black"
+                           BackgroundColor="#F3F3F3"/>
                 </StackLayout>
 
                 <StackLayout Spacing="2">
                     <Label Text="Username"
                            FontSize="12"
                            FontAttributes="Bold"
-                           TextColor="#1A1C2C"/>
+                           TextColor="#005F8C"/>
                     <Entry Placeholder="Enter your username"
                            x:Name="entryUsername"
                            FontSize="14"
-                           TextColor="#1A1C2C"
-                           BackgroundColor="#C7CFDD"/>
+                           TextColor="Black"
+                           BackgroundColor="#F3F3F3"/>
                 </StackLayout>
 
                 <StackLayout Spacing="2">
                     <Label Text="Password"
                            FontSize="12"
                            FontAttributes="Bold"
-                           TextColor="#1A1C2C"/>
+                           TextColor="#005F8C"/>
                     <Entry Placeholder="Enter your password"
                            x:Name="entryPassword"
                            IsPassword="True"
                            FontSize="14"
-                           TextColor="#1A1C2C"
-                           BackgroundColor="#C7CFDD"/>
+                           TextColor="Black"
+                           BackgroundColor="#F3F3F3"/>
                 </StackLayout>
 
                 <StackLayout Spacing="2">
                     <Label Text="Confirmar Password"
                            FontSize="12"
                            FontAttributes="Bold"
-                           TextColor="#1A1C2C"/>
+                           TextColor="#005F8C"/>
                     <Entry Placeholder="Confirm your password"
                            x:Name="entryCPassword"
                            IsPassword="True"
                            FontSize="14"
-                           TextColor="#1A1C2C"
-                           BackgroundColor="#C7CFDD"/>
+                           TextColor="Black"
+                           BackgroundColor="#F3F3F3"/>
                 </StackLayout>
-
 
                 <StackLayout Spacing="2">
                     <Label Text="Rol"
                            FontSize="12"
                            FontAttributes="Bold"
-                           TextColor="#1A1C2C"/>
-                           <Frame CornerRadius="10"
+                           TextColor="#005F8C"/>
+                    <Frame CornerRadius="10"
                                    Padding="0"
                                    HasShadow="False"
                                    BorderColor="Transparent"
-                                   BackgroundColor="#C7CFDD"
+                                   BackgroundColor="#F3F3F3"
                                    HeightRequest="40">
-                                    <Picker x:Name="pickerRol"
+                        <Picker x:Name="pickerRol"
                                 BackgroundColor="Transparent"
-                                TextColor="#1A1C2C"
+                                TextColor="Black"
                                 FontSize="14">
                             <Picker.ItemsSource>
                                 <x:Array Type="{x:Type x:String}">
@@ -110,11 +103,11 @@
             </VerticalStackLayout>
         </ScrollView>
 
-        <!-- La sección para completar todo, no se me ocurre un nombre-->
+        <!-- Botones -->
         <Grid Grid.Row="2" Padding="0,30,0,0">
             <HorizontalStackLayout HorizontalOptions="End" Spacing="10">
                 <Button Text="Cancelar"
-                        BackgroundColor="#1A1C2C"
+                        BackgroundColor="#7DFF0000"
                         TextColor="#F3F3F3"
                         HeightRequest="45"
                         WidthRequest="120"
@@ -123,8 +116,8 @@
                         Clicked="OnCancelButtonClicked"/>
 
                 <Button Text="Agregar Usuario"
-                        BackgroundColor="#EDE19E"
-                        TextColor="#1A1C2C"
+                        BackgroundColor="#005F8C"
+                        TextColor="#F3F3F3"
                         HeightRequest="45"
                         WidthRequest="160"
                         CornerRadius="10"

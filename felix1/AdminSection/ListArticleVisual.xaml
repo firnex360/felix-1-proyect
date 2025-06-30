@@ -19,7 +19,7 @@
                 HasShadow="False"
                 VerticalOptions="Center"
                 HeightRequest="40"
-                BorderColor="#FF74777A"
+                BorderColor="#F5F7FA"
                 WidthRequest="340"
                 Margin="20,10,0,0">
 
@@ -72,9 +72,9 @@
                                    >
 
                 <syncfusion:SfDataGrid.DefaultStyle>
-                    <syncfusion:DataGridStyle HeaderRowBackground="#FF003148"
-                                              HeaderRowTextColor="#FF003148"
-                                              RowTextColor="#FF003148"
+                    <syncfusion:DataGridStyle HeaderRowBackground="#005F8C"
+                                              HeaderRowTextColor="#F3F3F3"
+                                              RowTextColor="#005F8C"
                                               HeaderRowFontAttributes="Bold"/>
                 </syncfusion:SfDataGrid.DefaultStyle>
 

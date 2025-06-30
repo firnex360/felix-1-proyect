@@ -18,7 +18,7 @@
                 HasShadow="False"
                 VerticalOptions="Center"
                 HeightRequest="40"
-                BorderColor="#FF74777A"
+                BorderColor="#F5F7FA"
                 WidthRequest="340"
                 Margin="20,10,0,0">
 
@@ -28,7 +28,7 @@
                            TextColor="#22223B"
                            PlaceholderColor="#A0AEC0"
                            BackgroundColor="Transparent"
-                           CancelButtonColor="#4F8FCB"
+                           CancelButtonColor="#005F8C"
                            FontSize="16"
                            Margin="8,0"
                            HeightRequest="40"
@@ -37,8 +37,8 @@
 
             <Button Margin="0,10,0,0"
                     Text="Agregar Usuario"
-                    TextColor="Black"
-                    BackgroundColor="#33B7E3"
+                    TextColor="#F3F3F3"
+                    BackgroundColor="#005F8C"
                     Clicked="OnCreateUserWindowClicked"
                     HorizontalOptions="Start"
                     VerticalOptions="Center"/>
@@ -50,7 +50,7 @@
                CornerRadius="10"
                Padding="0"
                HasShadow="True"
-               BackgroundColor="#F5F7FA"
+               BackgroundColor="#F3F3F3"
                BorderColor="#F5F7FA"
                Margin="20"
                VerticalOptions="Fill"
@@ -69,8 +69,10 @@
                                    EmptyView="No hay registros">
 
                 <syncfusion:SfDataGrid.DefaultStyle>
-                    <syncfusion:DataGridStyle HeaderRowBackground="#C2C7CD"
-                                              HeaderRowTextColor="black"/>
+                    <syncfusion:DataGridStyle HeaderRowBackground="#005F8C"
+                                              HeaderRowTextColor="#F3F3F3"
+                                              RowTextColor="#005F8C"
+                                              HeaderRowFontAttributes="Bold"/>
                 </syncfusion:SfDataGrid.DefaultStyle>
 
                 <!-- Custom Columns -->
