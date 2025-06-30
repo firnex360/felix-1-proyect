@@ -10,6 +10,7 @@ public class Order
     public DateTime? Date { get; set; } = DateTime.Now; // Default date
     public bool IsBillRequested { get; set; } = false; // Default bill request status
     public bool IsDuePaid { get; set; } = false; // Default due payment status
+    public decimal Discount { get; set; } = 0; // Default discount
     public User? Waiter { get; set; } = null; // Reference to waiter
     public Table? Table { get; set; } = null; // Reference to table
     public CashRegister? CashRegister { get; set; } = null; // Reference to cash register
