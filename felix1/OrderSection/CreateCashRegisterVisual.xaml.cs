@@ -5,11 +5,11 @@ using felix1.Logic;
 
 namespace felix1.OrderSection;
 
-public partial class CreateOrderVisual : ContentPage
+public partial class CreateCashRegisterVisual : ContentPage
 {
     private CashRegister? existingOpenRegister = null;
 
-    public CreateOrderVisual()
+    public CreateCashRegisterVisual()
     {
         InitializeComponent();
         LoadCashRegisterStatus();
