@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:syncfusion="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
              BackgroundColor="White"
-             x:Class="felix1.ListUserVisual">
+             x:Class="felix1.ListUserVisual"
+             NavigationPage.HasNavigationBar="False">
 
     <Grid RowDefinitions="Auto,*">
 
@@ -126,7 +127,8 @@
                                     <CheckBox IsChecked="{Binding Available}"
                                               IsEnabled="True"
                                               HorizontalOptions="Center"
-                                              VerticalOptions="Center"/>
+                                              VerticalOptions="Center"
+                                              CheckedChanged="OnAvailableCheckedChanged"/>
                                 </Grid>
                             </DataTemplate>
                         </syncfusion:DataGridTemplateColumn.CellTemplate>

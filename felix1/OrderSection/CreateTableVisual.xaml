@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
+             xmlns:numericEntry ="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs"
+             xmlns:inputLayout="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="felix1.OrderSection.CreateTableVisual"
-             Title="CreateTableVisual">
+             NavigationPage.HasNavigationBar="False">
     
     <VerticalStackLayout
         Padding="20"
@@ -11,13 +14,43 @@
 
         <Label Text="Crear Nueva Mesa" FontSize="20" HorizontalOptions="Center" />
 
-        <Entry x:Name="entryLocalNumber" Placeholder="Número local" Keyboard="Numeric" />
-        <Entry x:Name="entryGlobalNumber" Placeholder="Número global" Keyboard="Numeric" />
+            <Label x:Name="lblMesero" Text="Mesero: " TextColor="#FF001F4D"/>
+            <Label x:Name="lblCajero" Text="Cajero: " TextColor="#FF001F4D"/>
+            <Label x:Name="lblFecha" Text="Fecha: " TextColor="#FF001F4D"/>
+        
+            <inputLayout:SfTextInputLayout WidthRequest="200"
+                                            HorizontalOptions="Center"
+                                            ContainerType="None">
+            <numericEntry:SfNumericEntry x:Name="txtLocalNumber"
+                                            AllowNull="False" 
+                                            ShowClearButton="True"
+                                            TextColor="#FF001F4D"
+                                            CustomFormat="0"/>
+            </inputLayout:SfTextInputLayout>
+        
+        
+            <inputLayout:SfTextInputLayout WidthRequest="200"
+                                            HorizontalOptions="Center"
+                                            ContainerType="None">
+            <numericEntry:SfNumericEntry x:Name="txtGlobalNumber"
+                                            AllowNull="False" 
+                                            ShowClearButton="True"
+                                            TextColor="#FF001F4D"
+                                            CustomFormat="0"/>
+            </inputLayout:SfTextInputLayout>
 
-        <Button Text="Crear"
-                Clicked="OnCreateClicked"
-                BackgroundColor="LightBlue"
-                TextColor="White" />
+            
+            <inputLayout:SfTextInputLayout WidthRequest="200"
+                                            HorizontalOptions="Center"
+                                            ContainerType="None">
+            <numericEntry:SfNumericEntry x:Name="txtOrderNumber"
+                                            AllowNull="False" 
+                                            ShowClearButton="True"
+                                            TextColor="#FF001F4D"
+                                            CustomFormat="0"/>
+            </inputLayout:SfTextInputLayout>
+
+        <Button Text="Crear" Clicked="OnCreateClicked" BackgroundColor="LightBlue" TextColor="White" />
 
     </VerticalStackLayout>
 </ContentPage>

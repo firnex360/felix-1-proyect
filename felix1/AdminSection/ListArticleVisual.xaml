@@ -4,7 +4,8 @@
              xmlns:syncfusion="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
              xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
              BackgroundColor="White"
-             x:Class="felix1.ListArticleVisual">
+             x:Class="felix1.ListArticleVisual"
+             NavigationPage.HasNavigationBar="False">
 
     <Grid RowDefinitions="Auto,*"
           ColumnDefinitions="*">
@@ -38,8 +39,8 @@
 
             <Button Margin="0,10,0,0"
                     Text="Agregar Artículo"
-                    TextColor="Black"
-                    BackgroundColor="#33B7E3"
+                    TextColor="White"
+                    BackgroundColor="#005F8C"
                     Clicked="OnCreateArticleWindowClicked"
                     HorizontalOptions="Start"
                     VerticalOptions="Center"/>
@@ -51,7 +52,7 @@
                CornerRadius="10"
                Padding="0"
                HasShadow="True"
-               BackgroundColor="#F5F7FA"
+               BackgroundColor="#F3F3F3"
                BorderColor="#F5F7FA"
                Margin="20"
                VerticalOptions="Fill"
@@ -67,11 +68,14 @@
                                    SortingMode="Single"
                                    AllowTriStateSorting="True"
                                    VerticalOverScrollMode="Bounce"
-                                   EmptyView="No hay registros">
+                                   EmptyView="No hay registros"
+                                   >
 
                 <syncfusion:SfDataGrid.DefaultStyle>
-                    <syncfusion:DataGridStyle HeaderRowBackground="#C2C7CD"
-                                              HeaderRowTextColor="black"/>
+                    <syncfusion:DataGridStyle HeaderRowBackground="#FF003148"
+                                              HeaderRowTextColor="#FF003148"
+                                              RowTextColor="#FF003148"
+                                              HeaderRowFontAttributes="Bold"/>
                 </syncfusion:SfDataGrid.DefaultStyle>
 
                 <!-- Custom Columns -->

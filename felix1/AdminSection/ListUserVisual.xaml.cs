@@ -104,9 +104,9 @@ public partial class ListUserVisual : ContentView
             if (Application.Current?.MainPage != null)
             {
                 answer = await Application.Current.MainPage.DisplayAlert(
-                    $"Estas seguro de que desea eliminar '{user.Name}'?",
-                    "Confirmacion",
-                    "Si", "No");
+                    $"¿Estás seguro de que desea eliminar {user.Name}?",
+                    "Confirmación",
+                    "Sí", "No");
             }
 
             if (answer)
@@ -125,6 +125,21 @@ public partial class ListUserVisual : ContentView
             }
         }
     }
+
+    private void OnAvailableCheckedChanged(object sender, CheckedChangedEventArgs e)
+    {
+        if (sender is CheckBox checkBox && checkBox.BindingContext is User user)
+        {
+            using var db = new AppDbContext();
+            var dbUser = db.Users.Find(user.Id);
+            if (dbUser != null)
+            {
+                dbUser.Available = e.Value;
+                db.SaveChanges();
+            }
+        }
+    }
+
 
     //Handles the text change event of the search bar to filter users.
     private void OnSearchBarTextChanged(object sender, TextChangedEventArgs e)

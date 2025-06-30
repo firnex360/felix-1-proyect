@@ -30,11 +30,9 @@ public partial class CreateArticleVisual : ContentPage
                 {
                     isSelected = value;
                     OnPropertyChanged(nameof(IsSelected));
-                    SelectionChangedCallback?.Invoke(); //FOR THE CHECKBOX IN SIDEDISH
                 }
             }
         }
-        public Action? SelectionChangedCallback { get; set; } //FOR THE CHECKBOX IN SIDEDISH
 
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged(string propertyName) =>
@@ -51,8 +49,11 @@ public partial class CreateArticleVisual : ContentPage
         if (!Regex.Match(regex, "^[0-9]+$").Success)
         {
             var entry = sender as Entry;
-            entry.Text = (string.IsNullOrEmpty(e.OldTextValue)) ?
-                    string.Empty : e.OldTextValue;
+            if (entry != null)
+            {
+                entry.Text = string.IsNullOrEmpty(e.OldTextValue) ?
+                        string.Empty : e.OldTextValue;
+            }
         }
     }
 
@@ -102,28 +103,15 @@ public partial class CreateArticleVisual : ContentPage
         {
             var selectable = new SideDishSelectable
             {
-                Article = dish,
-                SelectionChangedCallback = UpdateSideDishCheckbox //FOR THE CHECKBOX IN SIDEDISH
+                Article = dish
             };
 
             selectable.IsSelected = selectedIds.Contains(dish.Id); // triggers PropertyChanged
 
             SideDishArticles.Add(selectable);
         }
-        UpdateSideDishCheckbox();
 
 
-    }
-
-    //FOR THE CHECKBOX IN SIDEDISH
-    private void UpdateSideDishCheckbox()
-    {
-        // If ANY side dish is selected, check the checkbox
-        bool anySelected = SideDishArticles.Any(s => s.IsSelected);
-        MainThread.BeginInvokeOnMainThread(() =>
-        {
-            txtSideDish.IsChecked = anySelected;
-        });
     }
 
 
@@ -182,7 +170,7 @@ public partial class CreateArticleVisual : ContentPage
                 Name = txtName.Text,
                 PriPrice = txtPrice.Text != null ? float.Parse(txtPrice.Text) : 0f,
                 SecPrice = txtSecondaryPrice.Text != null ? float.Parse(txtSecondaryPrice.Text) : 0f,
-                Category = parsed ? categoryEnum : ArticleCategory.Other,
+                Category = parsed ? categoryEnum : ArticleCategory.Otros,
                 IsDeleted = false,
                 IsSideDish = txtSideDish.IsChecked,
                 SideDishes = selectedSideDishes
@@ -206,7 +194,7 @@ public partial class CreateArticleVisual : ContentPage
                 article.Name = txtName.Text;
                 article.PriPrice = float.TryParse(txtPrice.Text, out var pri) ? pri : 0f;
                 article.SecPrice = float.TryParse(txtSecondaryPrice.Text, out var sec) ? sec : 0f;
-                article.Category = parsed ? categoryEnum : ArticleCategory.Other;
+                article.Category = parsed ? categoryEnum : ArticleCategory.Otros;
                 article.IsSideDish = txtSideDish.IsChecked;
 
                 // Clear and update side dishes
@@ -233,33 +221,40 @@ public partial class CreateArticleVisual : ContentPage
 
     private void CloseThisWindow()
     {
-        foreach (var window in Application.Current.Windows)
+        if (Application.Current != null)
         {
-            if (window.Page == this)
+            foreach (var window in Application.Current.Windows)
             {
-                Application.Current.CloseWindow(window);
-                break;
+                if (window.Page == this)
+                {
+                    Application.Current.CloseWindow(window);
+                    break;
+                }
             }
+        }
+        else
+        {
+            
         }
     }
 
-    //have to implement this later
-    // private void OnSearchBarTextChanged(object sender, TextChangedEventArgs e)
-    // {
-    //     var searchText = e.NewTextValue?.ToLower() ?? "";
+    //for the search bar logic
+    private void OnSearchBarTextChanged(object sender, TextChangedEventArgs e)
+    {
+        var searchText = e.NewTextValue?.ToLower() ?? "";
 
-    //     if (string.IsNullOrWhiteSpace(searchText))
-    //     {
-    //         // Reset the DataGrid to show all articles
-    //         dataGrid.ItemsSource = Articles; 
-    //     }
-    //     else
-    //     {
-    //         // Filter the collection
-    //         dataGrid.ItemsSource = Articles
-    //             .Where(a => a.Name != null && a.Name.ToLower().Contains(searchText))
-    //             .ToList();
-    //     }
-    // }
+        if (string.IsNullOrWhiteSpace(searchText))
+        {
+            // Reset the DataGrid to show all side dish articles
+            sideDishDataGrid.ItemsSource = SideDishArticles;
+        }
+        else
+        {
+            // Filter the SideDishArticles collection by Name
+            sideDishDataGrid.ItemsSource = SideDishArticles
+                .Where(s => s.Name != null && s.Name.ToLower().Contains(searchText))
+                .ToList();
+        }
+    }
 }
 

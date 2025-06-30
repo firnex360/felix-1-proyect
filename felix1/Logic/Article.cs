@@ -6,12 +6,12 @@ namespace felix1.Logic
 
     public enum ArticleCategory
     {
-        MainDish,
-        SideDish,
-        Drink,
-        Dessert,
-        NonFood,
-        Other
+        Principal,
+        Secundario,
+        Bebidas,
+        Postres,
+        NoComida,
+        Otros
     }
     public class Article
     {

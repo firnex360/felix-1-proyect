@@ -4,18 +4,17 @@
              xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
              BackgroundColor="#647C84"
              x:Class="felix1.AdminSectionMainVisual"
-             Title="Administración">
+             NavigationPage.HasNavigationBar="False">
 
     <Grid ColumnDefinitions="200,*">
         <!-- LEFT MENU -->
         <VerticalStackLayout Grid.Column="0"
-                             BackgroundColor="#F5F7FA"
+                             BackgroundColor="#F3F3F3"
                              Padding="5"
                              Spacing="10">
 
             <buttons:SfButton x:Name="btnShowArticle"
                               Text="Artículos"
-                              TextColor="Black"
                               CornerRadius="5"
                               Clicked="OnShowArticle"
                               IsCheckable="True"
@@ -29,28 +28,32 @@
                         <!-- Default State -->
                         <VisualState x:Name="Normal">
                             <VisualState.Setters>
-                                <Setter Property="Background" Value="#F5F7FA"/>
+                                <Setter Property="Background" Value="#F5F7FA" />
+                                <Setter Property="TextColor" Value="Black"/>
                             </VisualState.Setters>
                         </VisualState>
 
                         <!-- Hovered State -->
                         <VisualState x:Name="Hovered">
                             <VisualState.Setters>
-                                <Setter Property="Background" Value="#C2C7CD"/>
+                                <Setter Property="Background" Value="#C7CFDD"/>
+                                <Setter Property="TextColor" Value="Black"/>
                             </VisualState.Setters>
                         </VisualState>
 
                         <!-- Pressed State -->
                         <VisualState x:Name="Pressed">
                             <VisualState.Setters>
-                                <Setter Property="Background" Value="#33B7E3"/>
+                                <Setter Property="Background" Value="#005F8C"/>
+                                <Setter Property="TextColor" Value="White"/>
                             </VisualState.Setters>
                         </VisualState>
 
                         <!-- Checked State -->
                         <VisualState x:Name="Checked">
                             <VisualState.Setters>
-                                <Setter Property="Background" Value="#33B7E3"/>
+                                <Setter Property="Background" Value="#005F8C"/>
+                                <Setter Property="TextColor" Value="White"/>
                             </VisualState.Setters>
                         </VisualState>
                     </VisualStateGroup>
@@ -59,7 +62,7 @@
 
             <buttons:SfButton x:Name="btnShowUser"
                               Text="Usuario"
-                              TextColor="Black"
+                              TextColor="White"
                               CornerRadius="5"
                               Clicked="OnShowUser"
                               IsCheckable="True"
@@ -86,25 +89,25 @@
                         <!-- Pressed State -->
                         <VisualState x:Name="Pressed">
                             <VisualState.Setters>
-                                <Setter Property="Background" Value="#33B7E3"/>
+                                <Setter Property="Background" Value="#005F8C"/>
                             </VisualState.Setters>
                         </VisualState>
 
                         <!-- Checked State -->
                         <VisualState x:Name="Checked">
                             <VisualState.Setters>
-                                <Setter Property="Background" Value="#33B7E3"/>
+                                <Setter Property="Background" Value="#005F8C"/>
                             </VisualState.Setters>
                         </VisualState>
                     </VisualStateGroup>
                 </VisualStateManager.VisualStateGroups>
             </buttons:SfButton>
 
-            <buttons:SfButton x:Name="btnShowTable"
-                              Text="Mesas"
+            <buttons:SfButton x:Name="btnShowConfiguration"
+                              Text="Configuraciones"
                               TextColor="Black"
                               CornerRadius="5"
-                              Clicked="OnShowTable"
+                              Clicked="OnShowConfiguration"
                               IsCheckable="True"
                               Margin="0,0,0,0"
                               BackgroundColor="#F5F7FA">
@@ -129,7 +132,52 @@
                         <!-- Pressed State -->
                         <VisualState x:Name="Pressed">
                             <VisualState.Setters>
-                                <Setter Property="Background" Value="#33B7E3"/>
+                                <Setter Property="Background" Value="#005F8C"/>
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <!-- Checked State -->
+                        <VisualState x:Name="Checked">
+                            <VisualState.Setters>
+                                <Setter Property="Background" Value="#005F8C"/>
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateManager.VisualStateGroups>
+            </buttons:SfButton>
+        </VerticalStackLayout>
+
+        <buttons:SfButton
+            Clicked="OnExitButtonClicked"
+            Text="Salir"
+            TextColor="Black"
+            BackgroundColor="#FF1D1D"
+            CornerRadius="5"
+            Margin="10,10,10,10"
+            HeightRequest="40"
+            VerticalOptions="End">
+
+            <VisualStateManager.VisualStateGroups>
+                    <VisualStateGroup x:Name="CommonStates">
+
+                        <!-- Default State -->
+                        <VisualState x:Name="Normal">
+                            <VisualState.Setters>
+                                <Setter Property="Background" Value="#F5F7FA"/>
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <!-- Hovered State -->
+                        <VisualState x:Name="Hovered">
+                            <VisualState.Setters>
+                                <Setter Property="Background" Value="#7DFF0000"/>
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <!-- Pressed State -->
+                        <VisualState x:Name="Pressed">
+                            <VisualState.Setters>
+                                <Setter Property="Background" Value="red"/>
                             </VisualState.Setters>
                         </VisualState>
 
@@ -141,17 +189,7 @@
                         </VisualState>
                     </VisualStateGroup>
                 </VisualStateManager.VisualStateGroups>
-            </buttons:SfButton>
-        </VerticalStackLayout>
-
-        <buttons:SfButton
-            Text="Salir"
-            TextColor="White"
-            BackgroundColor="#FF1D1D"
-            CornerRadius="5"
-            Margin="10,10,10,10"
-            HeightRequest="40"
-            VerticalOptions="End"/>
+        </buttons:SfButton>
 
         <!-- RIGHT || CONTENT AREA -->
         <ContentView x:Name="RightPanel"
