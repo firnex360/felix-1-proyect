@@ -105,7 +105,6 @@
                 <CheckBox
                     x:Name="txtSideDish"
                     IsChecked="false"
-                    IsEnabled="false"
                     BackgroundColor="#FFECECEC"
                     Color="LightBlue"/>
             </HorizontalStackLayout>

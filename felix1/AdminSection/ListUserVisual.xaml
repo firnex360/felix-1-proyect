@@ -127,7 +127,8 @@
                                     <CheckBox IsChecked="{Binding Available}"
                                               IsEnabled="True"
                                               HorizontalOptions="Center"
-                                              VerticalOptions="Center"/>
+                                              VerticalOptions="Center"
+                                              CheckedChanged="OnAvailableCheckedChanged"/>
                                 </Grid>
                             </DataTemplate>
                         </syncfusion:DataGridTemplateColumn.CellTemplate>
