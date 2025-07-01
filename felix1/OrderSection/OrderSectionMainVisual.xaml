@@ -26,6 +26,12 @@
                               HorizontalOptions="End"
                               Style="{StaticResource SidebarButtonStyle}" />
 
+            <buttons:SfButton x:Name="btnCloseSesion"
+                              Text="Cerrar Sesión"
+                              Clicked="OnCloseSesion"
+                              HorizontalOptions="End"
+                              Style="{StaticResource SidebarButtonStyle}" />
+
 
         </HorizontalStackLayout>
 
@@ -60,12 +66,12 @@
                             </VisualState>
                             <VisualState x:Name="Pressed">
                                 <VisualState.Setters>
-                                    <Setter Property="Background" Value="LightBlue"/>
+                                    <Setter Property="Background" Value="#FF1D1D"/>
                                 </VisualState.Setters>
                             </VisualState>
                             <VisualState x:Name="Checked">
                                 <VisualState.Setters>
-                                    <Setter Property="Background" Value="LightBlue"/>
+                                    <Setter Property="Background" Value="#FFF39F9F"/>
                                 </VisualState.Setters>
                             </VisualState>
                         </VisualStateGroup>

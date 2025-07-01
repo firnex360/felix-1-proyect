@@ -30,7 +30,7 @@ public partial class OrderSectionMainVisual : ContentPage
     {
         bool confirm = await DisplayAlert(
             "Confirmación",
-            $"¿Cerrar la caja #{_cashRegister.Number}?",
+            $"¿Cerrar la caja?",
             "Sí",
             "No");
 
@@ -50,5 +50,24 @@ public partial class OrderSectionMainVisual : ContentPage
         }
 
         await Navigation.PopAsync();
+        var loginPage = new LoginPage();
+        Application.Current.MainPage = new NavigationPage(loginPage);
+    }
+
+    private async void OnCloseSesion(object sender, EventArgs e)
+    {
+        bool confirm = await DisplayAlert(
+            "Confirmación",
+            "¿Estás seguro que deseas cerrar sesión?",
+            "Sí",
+            "No");
+
+        if (!confirm)
+            return;
+
+        AppSession.CurrentUser = null;
+
+        var loginPage = new LoginPage();
+        Application.Current.MainPage = new NavigationPage(loginPage);
     }
 }
