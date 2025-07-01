@@ -8,15 +8,15 @@
              BackgroundColor="White"
              NavigationPage.HasNavigationBar="False">
     <VerticalStackLayout>
-        <Frame BackgroundColor="LightBlue" Padding="15" Margin="0" HasShadow="True" BorderColor="Transparent">
+        <Frame BackgroundColor="#005F8C" Padding="20" Margin="0" HasShadow="True" BorderColor="#005F8C">
             <VerticalStackLayout HorizontalOptions="Center">
-                <Label x:Name="lblCashRegisterStatus" Text="No hay cajas abiertas" FontSize="24" HorizontalOptions="Center" TextColor="#FF001E4B"/>
-                <Label x:Name="lblActionPrompt" Text="Por favor, abrir una caja antes de empezar" FontSize="16" HorizontalOptions="Center" TextColor="#FF001F4D"/>
+                <Label x:Name="lblCashRegisterStatus" Text="No hay cajas abiertas" FontSize="24" HorizontalOptions="Center" TextColor="#F3F3F3"/>
+                <Label x:Name="lblActionPrompt" Text="Por favor, abrir una caja antes de empezar" FontSize="16" HorizontalOptions="Center" TextColor="#F3F3F3"/>
             </VerticalStackLayout>
         </Frame>
 
         <VerticalStackLayout Spacing="10" Padding="10">
-            <Label x:Name="lblInitialMoney" Text="Cantidad inicial en caja" HorizontalOptions="Center" TextColor="#FF001F4D"/>
+            <Label x:Name="lblInitialMoney" Text="Cantidad inicial en caja" HorizontalOptions="Center" TextColor="#005F8C"/>
 
             <inputLayout:SfTextInputLayout WidthRequest="200" 
                                             HorizontalOptions="Center" 
@@ -24,33 +24,39 @@
                 <numericEntry:SfNumericEntry x:Name="txtInitialMoney" 
                                             AllowNull="False" 
                                             ShowClearButton="True" 
-                                            TextColor="#FF001F4D"
+                                            TextColor="Black"
                                             CustomFormat="C2"/>
             </inputLayout:SfTextInputLayout>
 
             <HorizontalStackLayout HorizontalOptions="Center">
-                <Label x:Name="lblSecondaryPrice" Text="Precio secundario activado" VerticalOptions="Center" TextColor="#FF001F4D"/>
+                <Label x:Name="lblSecondaryPrice" Text="Precio secundario activado" VerticalOptions="Center" TextColor="#005F8C"/>
                 <CheckBox
                     x:Name="cbxSecondaryPrice"
                     IsChecked="false" 
                     BackgroundColor="#FFECECEC"
-                    Color="LightBlue"/>
+                    Color="#005F8C"/>
             </HorizontalStackLayout>
 
             <Button x:Name="btnCrearCajaNueva"
                 Text="Crear Caja Nueva"
                 Clicked="OnShowCreateForm"
                 WidthRequest="250"
-                BackgroundColor="LightBlue"
-                TextColor="#FF001F4D"
+                BackgroundColor="#005F8C"
+                FontFamily="Inter"
+                FontSize="16"
+                TextColor="#F3F3F3"
+                FontAttributes="Bold"
                 IsVisible="False" />
 
             <Button x:Name="btnCrearCaja"
                 Text="Crear Caja"
                 Clicked="OnSaveCashRegister"
                 WidthRequest="250"
-                BackgroundColor="LightBlue"
-                TextColor="#FF001F4D"
+                BackgroundColor="#005F8C"
+                TextColor="#F3F3F3"
+                FontFamily="Inter"
+                FontSize="16"
+                FontAttributes="Bold"
                 IsVisible="True" />
         </VerticalStackLayout>
     </VerticalStackLayout>

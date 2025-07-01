@@ -5,7 +5,7 @@
              xmlns:inputLayout="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
              xmlns:syncfusion="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             BackgroundColor="#F3F3F3"
+             BackgroundColor="White"
              x:Class="felix1.CreateArticleVisual"
              NavigationPage.HasNavigationBar="False">
 
@@ -128,7 +128,7 @@
 
         <Grid Grid.Column="1"
                 RowDefinitions="*,*"
-                BackgroundColor="#C7CFDD">
+                BackgroundColor="#F3F3F3">
             <!-- AGREGAR TABLE / GRID -->
             <VerticalStackLayout x:Name="RightPanelA"
                     Padding="10">

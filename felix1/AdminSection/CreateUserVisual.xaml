@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="felix1.CreateUserVisual"
     NavigationPage.HasNavigationBar="False"
-    BackgroundColor="#C7CFDD">
+    BackgroundColor="#F3F3F3">
 
     <Grid RowDefinitions="Auto,*,Auto" ColumnDefinitions="*"
           Padding="30">
@@ -34,7 +34,7 @@
                            x:Name="entryNombre"
                            FontSize="14"
                            TextColor="Black"
-                           BackgroundColor="#F3F3F3"/>
+                           BackgroundColor="#C7CFDD"/>
                 </StackLayout>
 
                 <StackLayout Spacing="2">
@@ -46,7 +46,7 @@
                            x:Name="entryUsername"
                            FontSize="14"
                            TextColor="Black"
-                           BackgroundColor="#F3F3F3"/>
+                           BackgroundColor="#C7CFDD"/>
                 </StackLayout>
 
                 <StackLayout Spacing="2">
@@ -59,7 +59,7 @@
                            IsPassword="True"
                            FontSize="14"
                            TextColor="Black"
-                           BackgroundColor="#F3F3F3"/>
+                           BackgroundColor="#C7CFDD"/>
                 </StackLayout>
 
                 <StackLayout Spacing="2">
@@ -72,7 +72,7 @@
                            IsPassword="True"
                            FontSize="14"
                            TextColor="Black"
-                           BackgroundColor="#F3F3F3"/>
+                           BackgroundColor="#C7CFDD"/>
                 </StackLayout>
 
                 <StackLayout Spacing="2">
@@ -83,11 +83,11 @@
                     <Frame CornerRadius="10"
                                    Padding="0"
                                    HasShadow="False"
-                                   BorderColor="Transparent"
-                                   BackgroundColor="#F3F3F3"
+                                   BorderColor="#C7CFDD"
+                                   BackgroundColor="#C7CFDD"
                                    HeightRequest="40">
                         <Picker x:Name="pickerRol"
-                                BackgroundColor="Transparent"
+                                BackgroundColor="#C7CFDD"
                                 TextColor="Black"
                                 FontSize="14">
                             <Picker.ItemsSource>

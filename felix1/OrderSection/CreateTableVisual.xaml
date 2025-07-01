@@ -14,9 +14,9 @@
 
         <Label Text="Crear Nueva Mesa" FontSize="20" HorizontalOptions="Center" />
 
-            <Label x:Name="lblMesero" Text="Mesero: " TextColor="#FF001F4D"/>
-            <Label x:Name="lblCajero" Text="Cajero: " TextColor="#FF001F4D"/>
-            <Label x:Name="lblFecha" Text="Fecha: " TextColor="#FF001F4D"/>
+        <Label x:Name="lblMesero" Text="Mesero: " TextColor="#005F8C"/>
+        <Label x:Name="lblCajero" Text="Cajero: " TextColor="#005F8C"/>
+        <Label x:Name="lblFecha" Text="Fecha: " TextColor="#005F8C"/>
         
             <inputLayout:SfTextInputLayout WidthRequest="200"
                                             HorizontalOptions="Center"
@@ -24,7 +24,7 @@
             <numericEntry:SfNumericEntry x:Name="txtLocalNumber"
                                             AllowNull="False" 
                                             ShowClearButton="True"
-                                            TextColor="#FF001F4D"
+                                            TextColor="#005F8C"
                                             CustomFormat="0"/>
             </inputLayout:SfTextInputLayout>
         
@@ -46,11 +46,11 @@
             <numericEntry:SfNumericEntry x:Name="txtOrderNumber"
                                             AllowNull="False" 
                                             ShowClearButton="True"
-                                            TextColor="#FF001F4D"
+                                            TextColor="#005F8C"
                                             CustomFormat="0"/>
             </inputLayout:SfTextInputLayout>
 
-        <Button Text="Crear" Clicked="OnCreateClicked" BackgroundColor="LightBlue" TextColor="White" />
+        <Button Text="Crear" Clicked="OnCreateClicked" BackgroundColor="#005F8C" TextColor="White" />
 
     </VerticalStackLayout>
 </ContentPage>

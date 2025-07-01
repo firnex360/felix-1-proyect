@@ -42,8 +42,6 @@ public partial class AdminSectionMainVisual : ContentPage
 
     private async void OnExitButtonClicked(object sender, EventArgs e)
     {
-
-        //Application.Current?.MainPage?.DisplayAlert("Salir", "Has hecho clic en Salir.", "OK");
-        await Navigation.PushAsync(new LoginPage()); //CHECKING - navigate to example page
+        Application.Current.MainPage = new NavigationPage(new LoginPage());
     }
 }

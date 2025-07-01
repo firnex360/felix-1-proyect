@@ -2,8 +2,8 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="felix1.AdminSection.Configuration">
-    <VerticalStackLayout Padding="32,48" Spacing="24" BackgroundColor="#F3F3F3">
-        <Frame CornerRadius="18" Padding="32" BackgroundColor="#F3F3F3">
+    <VerticalStackLayout Padding="32,48" Spacing="24" BackgroundColor="White">
+        <Frame CornerRadius="18" Padding="32" BackgroundColor="#F3F3F3" BorderColor="#F3F3F3">
             <VerticalStackLayout Spacing="20">
                 <Label Text="Configuración General" FontSize="28" FontAttributes="Bold" TextColor="#005F8C" HorizontalOptions="Center"/>
                 <Grid RowSpacing="18" ColumnSpacing="16">
