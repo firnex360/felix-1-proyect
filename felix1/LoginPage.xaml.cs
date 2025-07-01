@@ -129,7 +129,8 @@ public partial class LoginPage : ContentPage, INotifyPropertyChanged
                 ProgressValue = 1.0;
                 await Task.Delay(100);
 
-                await Navigation.PushAsync(targetPage);
+                //await Navigation.PushAsync(targetPage);
+                Application.Current.MainPage = new NavigationPage(targetPage);
             }
             else
             {

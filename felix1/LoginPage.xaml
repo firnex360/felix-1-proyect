@@ -29,7 +29,7 @@
                            FontFamily="Inter"
                            FontSize="16"
                            TextColor="#1A1C2C"
-                           BackgroundColor="White"
+                           BackgroundColor="#F5F7FA"
                            WidthRequest="250"/>
                 </StackLayout>
 
@@ -46,7 +46,7 @@
                            FontFamily="Inter"
                            FontSize="16"
                            TextColor="#1A1C2C"
-                           BackgroundColor="White"
+                           BackgroundColor="#F5F7FA"
                            WidthRequest="250"/>
                 </StackLayout>
 
