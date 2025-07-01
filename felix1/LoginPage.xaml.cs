@@ -117,7 +117,7 @@ public partial class LoginPage : ContentPage, INotifyPropertyChanged
                 // Iba a usar un if else, se salvaron
                 Page targetPage = usuario.Role switch
                 {
-                    "Cajero" => new CreateOrderVisual(),
+                    "Cajero" => new CreateCashRegisterVisual(),
                     "Admin" => new AdminSectionMainVisual(),
                     "Mesero" => new MainPage(), //Cuando tengamos algo se remplaza este MainPage
                     _ => new MainPage()

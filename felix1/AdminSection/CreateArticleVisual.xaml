@@ -213,7 +213,7 @@
                         TextChanged="OnNumericEntryTextChanged"
                         WidthRequest="200"
                         Placeholder="Digitar monto"
-                        BackgroundColor="#F3F3F3"
+                        BackgroundColor="White"
                         TextColor="Black"
                         HorizontalOptions="Start"
                         ClearButtonVisibility="WhileEditing"/>
