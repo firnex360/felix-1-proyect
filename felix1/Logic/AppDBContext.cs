@@ -16,7 +16,7 @@ namespace felix1.Data
         private string _dbPath;
 
         //this is for storing de DB on a temporary location
-        private string TempDBPath = "C:\\Users\\dell\\Source\\Repos\\felix-1-proyect\\felix1\\tempDBStorage\\";
+        private string TempDBPath = "C:\\Users\\HP\\Desktop\\mita\\FELIX1PROY\\felix-1-proyect\\felix1\\tempDBStorage"; //for maria
         //private string TempDBPath = "C:\\Codes\\github\\felix-1-proyect\\felix1\\tempDBStorage";
 
 
@@ -54,38 +54,4 @@ namespace felix1.Data
 
             // FK for Cashier
             modelBuilder.Entity<CashRegister>()
-                .HasOne(c => c.Cashier);
-
-
-            // Define relationship between OrderItem and Article
-            modelBuilder.Entity<OrderItem>()
-                .HasOne(oi => oi.Article)
-                .WithMany()
-                .OnDelete(DeleteBehavior.Restrict);
-                
-            // Define relationship between Order and OrderItem
-            modelBuilder.Entity<Order>()
-                .HasMany(o => o.Items)
-                .WithOne()
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Define relationship between Order and User
-            modelBuilder.Entity<Order>()
-                .HasOne(o => o.Waiter)
-                .WithMany()
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // Define relationship between Order and Table
-            modelBuilder.Entity<Order>()
-                .HasOne(o => o.Table)
-                .WithMany()
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // Define relationship between Order and CashRegister
-            modelBuilder.Entity<Order>()
-                .HasOne(o => o.CashRegister)
-                .WithMany()
-                .OnDelete(DeleteBehavior.Restrict);
-        }
-    }
-}
+                .HasO
