@@ -114,7 +114,7 @@ public partial class LoginPage : ContentPage, INotifyPropertyChanged
             {
                 AppSession.CurrentUser = usuario;
 
-                //Yo quería poner un if else, pero bueno...
+                // Iba a usar un if else, se salvaron
                 Page targetPage = usuario.Role switch
                 {
                     "Cajero" => new CreateOrderVisual(),

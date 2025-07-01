@@ -4,7 +4,7 @@
              xmlns:numericEntry ="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs"
              xmlns:inputLayout="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="felix1.OrderSection.CreateOrderVisual"
+             x:Class="felix1.OrderSection.CreateCashRegisterVisual"
              BackgroundColor="White"
              NavigationPage.HasNavigationBar="False">
     <VerticalStackLayout>

@@ -18,7 +18,7 @@ public partial class MainPage : ContentPage
     {
         if (Application.Current != null)
         {
-
+            //is this important? or just for testing
             var newUser = new User
             {
                 Id = 1,
@@ -56,7 +56,7 @@ public partial class MainPage : ContentPage
         var table = new Table { LocalNumber = 1, IsTakeOut = true };
         db.Tables.Add(table);
         db.SaveChanges();
-        await Navigation.PushAsync(new CreateOrderVisual()); //CHECKING - navigate to order page
+        await Navigation.PushAsync(new CreateCashRegisterVisual()); //CHECKING - navigate to order page
     }
 
     private void OnSaveUserTest(object sender, EventArgs e)
