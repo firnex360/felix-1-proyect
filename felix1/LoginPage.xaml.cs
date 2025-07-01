@@ -89,7 +89,7 @@ public partial class LoginPage : ContentPage, INotifyPropertyChanged
 
         try
         {
-            await Task.Delay(100);
+            await Task.Delay(30);
             ProgressValue = 0.3;
 
             if (string.IsNullOrWhiteSpace(Username) || string.IsNullOrWhiteSpace(Password))
@@ -98,14 +98,15 @@ public partial class LoginPage : ContentPage, INotifyPropertyChanged
                 return;
             }
 
-            await Task.Delay(100);
+            await Task.Delay(30);
             ProgressValue = 0.6;
-
-            using var db = new AppDbContext();
-            var usuario = await db.Users.FirstOrDefaultAsync(u =>
+            
+            var usuario = await AppDbContext.ExecuteSafeAsync(async db =>
+            await db.Users.FirstOrDefaultAsync(u =>
                 u.Username == Username &&
                 u.Password == Password &&
-                !u.Deleted);
+                !u.Deleted),
+                async ex => await DisplayAlert("Error",  "Se ha producido un error al intentar conectase a la Base de Datos", "OK"));
 
             await Task.Delay(100);
             ProgressValue = 0.9;

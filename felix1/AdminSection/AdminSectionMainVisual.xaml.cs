@@ -10,9 +10,9 @@ public partial class AdminSectionMainVisual : ContentPage
         InitializeComponent();
         SetButtonChecked(btnShowArticle);
         RightPanel.Content = new ListArticleVisual();
-        #if WINDOWS
+#if WINDOWS
             WindowUtils.MaximizeWindow(Application.Current.Windows.FirstOrDefault());
-        #endif
+#endif
     }
 
     private void SetButtonChecked(SfButton checkedButton)
@@ -22,26 +22,54 @@ public partial class AdminSectionMainVisual : ContentPage
         btnShowConfiguration.IsChecked = checkedButton == btnShowConfiguration;
     }
 
-    private void OnShowArticle(object sender, EventArgs e)
+    private async void OnShowArticle(object sender, EventArgs e)
     {
-        SetButtonChecked(btnShowArticle);
-        RightPanel.Content = new ListArticleVisual();
+        try
+        {
+            SetButtonChecked(btnShowArticle);
+            RightPanel.Content = new ListArticleVisual();
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"No se pudo cargar la sección de artículos: {ex.Message}", "OK");
+        }
     }
 
-    private void OnShowUser(object sender, EventArgs e)
+    private async void OnShowUser(object sender, EventArgs e)
     {
-        SetButtonChecked(btnShowUser);
-        RightPanel.Content = new ListUserVisual();
+        try
+        {
+            SetButtonChecked(btnShowUser);
+            RightPanel.Content = new ListUserVisual();
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"No se pudo cargar la sección de usuarios: {ex.Message}", "OK");
+        }
     }
 
-    private void OnShowConfiguration(object sender, EventArgs e)
+    private async void OnShowConfiguration(object sender, EventArgs e)
     {
-        SetButtonChecked(btnShowConfiguration);
-        RightPanel.Content = new Configuration();
+        try
+        {
+            SetButtonChecked(btnShowConfiguration);
+            RightPanel.Content = new Configuration();
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"No se pudo cargar la configuración: {ex.Message}", "OK");
+        }
     }
 
     private async void OnExitButtonClicked(object sender, EventArgs e)
     {
-        Application.Current.MainPage = new NavigationPage(new LoginPage());
+        try
+        {
+            Application.Current.MainPage = new NavigationPage(new LoginPage());
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"No se pudo cerrar la sesión: {ex.Message}", "OK");
+        }
     }
 }

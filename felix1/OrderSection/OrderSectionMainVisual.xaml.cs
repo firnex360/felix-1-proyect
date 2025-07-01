@@ -14,9 +14,9 @@ public partial class OrderSectionMainVisual : ContentPage
         _cashRegister = cashRegister;
         DisplayCashRegisterInfo();
         RightPanel.Content = new ListOrderVisual();
-        #if WINDOWS
+#if WINDOWS
             WindowUtils.MaximizeWindow(Application.Current.Windows.FirstOrDefault());
-        #endif
+#endif
     }
 
     private void DisplayCashRegisterInfo()
@@ -37,21 +37,27 @@ public partial class OrderSectionMainVisual : ContentPage
         if (!confirm)
             return;
 
-        using var db = new AppDbContext();
-        var user = db.Users.Find(AppSession.CurrentUser.Id);
-        var register = db.CashRegisters.Find(_cashRegister.Id);
-        if (register != null)
+        await AppDbContext.ExecuteSafeAsync(async db =>
         {
-            register.Cashier = user;
-            register.IsOpen = false;
-            register.TimeFinish = DateTime.Now;
-            db.CashRegisters.Update(register);
-            db.SaveChanges();
-        }
+            var user = await db.Users.FindAsync(AppSession.CurrentUser.Id);
+            var register = await db.CashRegisters.FindAsync(_cashRegister.Id);
 
-        await Navigation.PopAsync();
-        var loginPage = new LoginPage();
-        Application.Current.MainPage = new NavigationPage(loginPage);
+            if (register != null)
+            {
+                register.Cashier = user;
+                register.IsOpen = false;
+                register.TimeFinish = DateTime.Now;
+                db.CashRegisters.Update(register);
+                await db.SaveChangesAsync();
+            }
+
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                Navigation.PopAsync();
+                var loginPage = new LoginPage();
+                Application.Current.MainPage = new NavigationPage(loginPage);
+            });
+        });
     }
 
     private async void OnCloseSesion(object sender, EventArgs e)

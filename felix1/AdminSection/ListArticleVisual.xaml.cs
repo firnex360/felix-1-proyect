@@ -8,7 +8,6 @@ namespace felix1;
 
 public partial class ListArticleVisual : ContentView
 {
-
     public static ListArticleVisual? Instance { get; private set; }
 
     public ObservableCollection<Article> Articles { get; set; } = new();
@@ -23,11 +22,11 @@ public partial class ListArticleVisual : ContentView
 
     private void LoadArticles()
     {
-        using var db = new AppDbContext();
-        var articlesFromDb = db.Articles != null
-            ? db.Articles.Where(a => !a.IsDeleted)
-            .ToList()
-            : new List<Article>();
+        var articlesFromDb = AppDbContext.ExecuteSafeAsync(async db =>
+            await db.Articles
+                .Where(a => !a.IsDeleted)
+                .ToListAsync())
+            .GetAwaiter().GetResult();
 
         Articles.Clear();
         foreach (var article in articlesFromDb)
@@ -38,7 +37,6 @@ public partial class ListArticleVisual : ContentView
     {
         LoadArticles();
     }
-
 
     private void OnCreateArticleWindowClicked(object sender, EventArgs e)
     {
@@ -87,16 +85,17 @@ public partial class ListArticleVisual : ContentView
 
                 if (answer)
                 {
-                    using var db = new AppDbContext();
-                    var articleToDelete = await db.Articles.FindAsync(article.Id);
-
-                    if (articleToDelete != null)
+                    await AppDbContext.ExecuteSafeAsync(async db =>
                     {
-                        articleToDelete.IsDeleted = true;
-                        await db.SaveChangesAsync();
+                        var articleToDelete = await db.Articles.FindAsync(article.Id);
 
-                        LoadArticles();
-                    }
+                        if (articleToDelete != null)
+                        {
+                            articleToDelete.IsDeleted = true;
+                            await db.SaveChangesAsync();
+                            Device.BeginInvokeOnMainThread(LoadArticles);
+                        }
+                    });
                 }
             }
         }
@@ -109,7 +108,7 @@ public partial class ListArticleVisual : ContentView
         if (string.IsNullOrWhiteSpace(searchText))
         {
             // Reset the DataGrid to show all articles
-            dataGrid.ItemsSource = Articles; 
+            dataGrid.ItemsSource = Articles;
         }
         else
         {
@@ -119,5 +118,4 @@ public partial class ListArticleVisual : ContentView
                 .ToList();
         }
     }
-
 }

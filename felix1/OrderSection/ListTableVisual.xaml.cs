@@ -1,4 +1,3 @@
-
 using System.Collections.ObjectModel;
 using felix1.Data;
 using felix1.Logic;
@@ -21,23 +20,24 @@ public partial class ListOrderVisual : ContentView
 
     private void LoadMeseros()
     {
-        using var db = new AppDbContext();
-        var meseros = db.Users
-            .Where(u => u.Role == "Mesero" && !u.Deleted && u.Available)
-            .ToList();
+        var meseros = AppDbContext.ExecuteSafeAsync(async db =>
+            await db.Users
+                .Where(u => u.Role == "Mesero" && !u.Deleted && u.Available)
+                .ToListAsync())
+            .GetAwaiter().GetResult();
 
-        var tableOrders = db.Orders
-            .Include(o => o.Table)
-            .Include(o => o.Waiter)
-            .Where(o => o.Table != null && o.Waiter != null)
-            .ToList();
-
+        var tableOrders = AppDbContext.ExecuteSafeAsync(async db =>
+            await db.Orders
+                .Include(o => o.Table)
+                .Include(o => o.Waiter)
+                .Where(o => o.Table != null && o.Waiter != null)
+                .ToListAsync())
+            .GetAwaiter().GetResult();
 
         MeseroContainer.Children.Clear();
 
         foreach (var user in meseros)
         {
-
             var userTables = tableOrders
                 .Where(o => o.Waiter?.Id == user.Id && o.Table != null)
                 .Select(o => o.Table!)
@@ -71,9 +71,11 @@ public partial class ListOrderVisual : ContentView
             foreach (var table in userTables)
             {
                 // Get orders associated with this table
-                var ordersForTable = db.Orders
-                    .Where(o => o.Table != null && o.Table.Id == table.Id)
-                    .ToList();
+                var ordersForTable = AppDbContext.ExecuteSafeAsync(async db =>
+                    await db.Orders
+                        .Where(o => o.Table != null && o.Table.Id == table.Id)
+                        .ToListAsync())
+                    .GetAwaiter().GetResult();
 
                 // Create inner vertical stack for label + order buttons
                 var tableContent = new VerticalStackLayout
@@ -121,13 +123,10 @@ public partial class ListOrderVisual : ContentView
                     BorderColor = Color.FromArgb("#C7CFDD")
                 };
 
-                // Add the frame to the row
                 tableRow.Children.Add(tableFrame);
             }
-
             // Add the row to the main stack
             stack.Children.Add(tableRow);
-
 
             stack.Children.Add(new Button
             {
@@ -139,11 +138,9 @@ public partial class ListOrderVisual : ContentView
                 WidthRequest = 120,
                 HorizontalOptions = LayoutOptions.Center,
                 VerticalOptions = LayoutOptions.Center,
-                Command = new Command(() => OnCreateTableWindowClicked(user)) // CLICK EVENT TO CREATE TABLE
-            });  
+                Command = new Command(() => OnCreateTableWindowClicked(user)) // CLICK EVENT 
+            });
 
-
-            // *************
             var card = new Frame
             {
                 WidthRequest = 300,
@@ -160,44 +157,34 @@ public partial class ListOrderVisual : ContentView
         }
     }
 
-
     private void OnCreateTableWindowClicked(User user)
     {
         // Get display size
         var displayInfo = DeviceDisplay.Current.MainDisplayInfo;
-
         var window = new Window(new CreateTableVisual(user));
-
         window.Height = 700;
         window.Width = 800;
 
         // Center the window
         window.X = (displayInfo.Width / displayInfo.Density - window.Width) / 2;
         window.Y = (displayInfo.Height / displayInfo.Density - window.Height) / 2;
-
         Application.Current?.OpenWindow(window);
     }
 
-
     private void LoadTables()
     {
-        using var db = new AppDbContext();
-        var tablesFromDb = db.Tables != null
-            ? db.Tables.ToList()
-            : new List<Table>();
+        var tablesFromDb = AppDbContext.ExecuteSafeAsync(async db =>
+            await db.Tables.ToListAsync())
+            .GetAwaiter().GetResult();
 
         Tables.Clear();
         foreach (var table in tablesFromDb)
             Tables.Add(table);
     }
 
-
     public void ReloadTM() // PUBLIC method to allow external refresh
     {
         LoadTables();
         LoadMeseros();
     }
-
-
-
 }

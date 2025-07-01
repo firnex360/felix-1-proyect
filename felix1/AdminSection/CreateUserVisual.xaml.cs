@@ -1,5 +1,6 @@
 ﻿using felix1.Data;
 using felix1.Logic;
+using Microsoft.EntityFrameworkCore;
 
 namespace felix1
 {
@@ -70,60 +71,74 @@ namespace felix1
                 return;
             }
 
-            using var db = new AppDbContext();
-
-            var usernameExists = db.Users.Any(u =>
-                u.Username.ToLower() == entryUsername.Text.Trim().ToLower() &&
-                (usuario == null || u.Id != usuario.Id));
-
-            if (usernameExists)
+            try
             {
-                await DisplayAlert("Error", "El nombre de usuario ya está en uso. Por favor elija otro.", "OK");
-                return;
-            }
-
-            if (usuario == null)
-            {
-                var newUsuario = new Logic.User
+                var usernameExists = await AppDbContext.ExecuteSafeAsync<bool>(async db =>
                 {
-                    Name = entryNombre.Text,
-                    Username = entryUsername.Text,
-                    Password = entryPassword.Text,
-                    Role = pickerRol.SelectedItem.ToString()
-                };
+                    return await db.Users.AnyAsync(u =>
+                        u.Username.ToLower() == entryUsername.Text.Trim().ToLower() &&
+                        (usuario == null || u.Id != usuario.Id));
+                });
 
-                db.Users.Add(newUsuario);
-                db.SaveChanges();
-                await DisplayAlert("Éxito", "Usuario agregado correctamente", "OK");
-            }
-            else
-            {
-                var UsuarioToUpdate = db.Users.FirstOrDefault(u => u.Id == usuario.Id);
-
-                if (UsuarioToUpdate != null)
+                if (usernameExists)
                 {
-                    UsuarioToUpdate.Name = entryNombre.Text;
-                    UsuarioToUpdate.Username = entryUsername.Text;
-                    UsuarioToUpdate.Password = entryPassword.Text;
-                    UsuarioToUpdate.Role = pickerRol.SelectedItem.ToString();
+                    await DisplayAlert("Error", "El nombre de usuario ya está en uso. Por favor elija otro.", "OK");
+                    return;
+                }
 
-                    db.SaveChanges();
-                    await DisplayAlert("Éxito", "Usuario modificado correctamente", "OK");
+                if (usuario == null)
+                {
+                    var newUsuario = new Logic.User
+                    {
+                        Name = entryNombre.Text,
+                        Username = entryUsername.Text,
+                        Password = entryPassword.Text,
+                        Role = pickerRol.SelectedItem.ToString()
+                    };
+
+                    await AppDbContext.ExecuteSafeAsync(async db =>
+                    {
+                        await db.Users.AddAsync(newUsuario);
+                        await db.SaveChangesAsync();
+                    });
+
+                    await DisplayAlert("Éxito", "Usuario agregado correctamente", "OK");
                 }
                 else
                 {
-                    await DisplayAlert("Error", "No se encontró el usuario", "OK");
-                    return;
+                    await AppDbContext.ExecuteSafeAsync(async db =>
+                    {
+                        var UsuarioToUpdate = await db.Users.FirstOrDefaultAsync(u => u.Id == usuario.Id);
+
+                        if (UsuarioToUpdate != null)
+                        {
+                            UsuarioToUpdate.Name = entryNombre.Text;
+                            UsuarioToUpdate.Username = entryUsername.Text;
+                            UsuarioToUpdate.Password = entryPassword.Text;
+                            UsuarioToUpdate.Role = pickerRol.SelectedItem.ToString();
+
+                            await db.SaveChangesAsync();
+                            await DisplayAlert("Éxito", "Usuario modificado correctamente", "OK");
+                        }
+                        else
+                        {
+                            await DisplayAlert("Error", "No se encontró el usuario", "OK");
+                        }
+                    });
+                }
+
+                if (Window != null)
+                {
+                    Application.Current.CloseWindow(Window);
+                }
+                else
+                {
+                    await Navigation.PopModalAsync();
                 }
             }
-
-            if (Window != null)
+            catch (Exception ex)
             {
-                Application.Current.CloseWindow(Window);
-            }
-            else
-            {
-                await Navigation.PopModalAsync();
+                await DisplayAlert("Error", $"Ocurrió un error: {ex.Message}", "OK");
             }
         }
     }

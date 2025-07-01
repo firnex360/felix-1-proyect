@@ -37,6 +37,49 @@ namespace felix1.Data
             optionsBuilder.UseSqlite($"Filename={_dbPath}");
         }
 
+        public static async Task<T> ExecuteSafeAsync<T>(Func<AppDbContext, Task<T>> databaseOperation, Action<Exception> errorHandler = null)
+        {
+            try
+            {
+                using var db = new AppDbContext();
+                return await databaseOperation(db);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                errorHandler?.Invoke(dbEx);
+                Console.WriteLine($"Database update error: {dbEx.Message}");
+                // You might want to throw a custom exception here or return default(T)
+                throw;
+            }
+            catch (Exception ex)
+            {
+                errorHandler?.Invoke(ex);
+                Console.WriteLine($"General database error: {ex.Message}");
+                throw;
+            }
+        }
+
+        public static async Task ExecuteSafeAsync(Func<AppDbContext, Task> databaseOperation, Action<Exception> errorHandler = null)
+        {
+            try
+            {
+                using var db = new AppDbContext();
+                await databaseOperation(db);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                errorHandler?.Invoke(dbEx);
+                Console.WriteLine($"Database update error: {dbEx.Message}");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                errorHandler?.Invoke(ex);
+                Console.WriteLine($"General database error: {ex.Message}");
+                throw;
+            }
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Store enum as string

@@ -7,7 +7,6 @@ namespace felix1;
 
 public partial class ListUserVisual : ContentView
 {
-
     public ObservableCollection<User> Users { get; set; } = new();
 
     public ListUserVisual()
@@ -15,22 +14,20 @@ public partial class ListUserVisual : ContentView
         InitializeComponent();
         BindingContext = this;
         LoadUsers();
-
     }
 
     private void LoadUsers()
     {
-        using var db = new AppDbContext();
-        var usersFromDb = db.Users != null
-            ? db.Users.Where(u => !u.Deleted)
-            .ToList()
-            : new List<User>();
+        var usersFromDb = AppDbContext.ExecuteSafeAsync(async db =>
+            await db.Users
+                .Where(u => !u.Deleted)
+                .ToListAsync())
+            .GetAwaiter().GetResult();
 
         Users.Clear();
         foreach (var user in usersFromDb)
             Users.Add(user);
     }
-
 
     private void OnCreateUserWindowClicked(object sender, EventArgs e)
     {
@@ -111,17 +108,19 @@ public partial class ListUserVisual : ContentView
 
             if (answer)
             {
-                using var db = new AppDbContext();
-                var userToDelete = await db.Users.FindAsync(user.Id);
-
-                if (userToDelete != null)
+                await AppDbContext.ExecuteSafeAsync(async db =>
                 {
-                    userToDelete.Deleted = true;
-                    await db.SaveChangesAsync();
+                    var userToDelete = await db.Users.FindAsync(user.Id);
 
-                    //Ahora sin sniper, supongo que no est� camuflado
-                    LoadUsers();
-                }
+                    if (userToDelete != null)
+                    {
+                        userToDelete.Deleted = true;
+                        await db.SaveChangesAsync();
+
+                        //Ahora sin sniper, supongo que no est� camuflado
+                        Device.BeginInvokeOnMainThread(LoadUsers);
+                    }
+                });
             }
         }
     }
@@ -130,16 +129,17 @@ public partial class ListUserVisual : ContentView
     {
         if (sender is CheckBox checkBox && checkBox.BindingContext is User user)
         {
-            using var db = new AppDbContext();
-            var dbUser = db.Users.Find(user.Id);
-            if (dbUser != null)
+            AppDbContext.ExecuteSafeAsync(async db =>
             {
-                dbUser.Available = e.Value;
-                db.SaveChanges();
-            }
+                var dbUser = await db.Users.FindAsync(user.Id);
+                if (dbUser != null)
+                {
+                    dbUser.Available = e.Value;
+                    await db.SaveChangesAsync();
+                }
+            }).GetAwaiter().GetResult();
         }
     }
-
 
     //Handles the text change event of the search bar to filter users.
     private void OnSearchBarTextChanged(object sender, TextChangedEventArgs e)
@@ -159,5 +159,4 @@ public partial class ListUserVisual : ContentView
                 .ToList();
         }
     }
-
 }

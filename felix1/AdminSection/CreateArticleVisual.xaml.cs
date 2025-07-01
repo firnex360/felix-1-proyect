@@ -63,10 +63,12 @@ public partial class CreateArticleVisual : ContentPage
         BindingContext = this;
 
         // Initialize the ObservableCollection for side dishes
-        using var db = new AppDbContext();
-        var sideDishes = db.Articles
-                        .Where(a => a.IsSideDish && !a.IsDeleted)
-                        .ToList();
+        var sideDishes = AppDbContext.ExecuteSafeAsync(async db =>
+        {
+            return await db.Articles
+                .Where(a => a.IsSideDish && !a.IsDeleted)
+                .ToListAsync();
+        }).GetAwaiter().GetResult();
 
         var selectedIds = new HashSet<int>();
 
@@ -79,10 +81,13 @@ public partial class CreateArticleVisual : ContentPage
         // Checking if an article is being edited
         if (articleToEdit != null)
         {
-            editingArticle = db.Articles
-                .Where(a => a.Id == articleToEdit.Id)
-                .Include(a => a.SideDishes)
-                .FirstOrDefault();
+            editingArticle = AppDbContext.ExecuteSafeAsync(async db =>
+            {
+                return await db.Articles
+                    .Where(a => a.Id == articleToEdit.Id)
+                    .Include(a => a.SideDishes)
+                    .FirstOrDefaultAsync();
+            }).GetAwaiter().GetResult();
 
             // Pre-fill the fields
             txtCode.Text = editingArticle?.Id.ToString() ?? string.Empty;
@@ -94,7 +99,6 @@ public partial class CreateArticleVisual : ContentPage
             pckCategory.SelectedItem = editingArticle?.Category.ToString() ?? string.Empty;
 
             selectedIds = editingArticle?.SideDishes?.Select(sd => sd.Id).ToHashSet() ?? new HashSet<int>();
-
         }
 
         // Build the observable collection for the grid
@@ -110,11 +114,7 @@ public partial class CreateArticleVisual : ContentPage
 
             SideDishArticles.Add(selectable);
         }
-
-
     }
-
-
 
     private async void OnSaveArticle(object sender, EventArgs e)
     {
@@ -137,9 +137,6 @@ public partial class CreateArticleVisual : ContentPage
             return;
         }
 
-
-
-
         //POPUP CONFIRMATION
         bool confirm = await DisplayAlert(
             "Confirmación",
@@ -150,73 +147,87 @@ public partial class CreateArticleVisual : ContentPage
         if (!confirm)
             return;
 
-        using var db = new AppDbContext();
-
-        var selectedCategory = pckCategory.SelectedItem?.ToString();
-        var parsed = Enum.TryParse<ArticleCategory>(selectedCategory, out var categoryEnum);
-
-        // Collect selected side dishes
-        var selectedSideDishes = SideDishArticles
-            .Where(a => a.IsSelected)
-            .Select(a => db.Articles.Find(a.Id)) // fetch tracked instances
-            .Where(a => a != null)
-            .ToList();
-
-        if (editingArticle == null)
+        try
         {
+            var selectedCategory = pckCategory.SelectedItem?.ToString();
+            var parsed = Enum.TryParse<ArticleCategory>(selectedCategory, out var categoryEnum);
 
-            var newArticle = new Article
+            if (editingArticle == null)
             {
-                Name = txtName.Text,
-                PriPrice = txtPrice.Text != null ? float.Parse(txtPrice.Text) : 0f,
-                SecPrice = txtSecondaryPrice.Text != null ? float.Parse(txtSecondaryPrice.Text) : 0f,
-                Category = parsed ? categoryEnum : ArticleCategory.Otros,
-                IsDeleted = false,
-                IsSideDish = txtSideDish.IsChecked,
-                SideDishes = selectedSideDishes
-                    .Where(a => a != null)
-                    .Cast<Article>()
-                    .ToList()
-            };
-
-            db.Articles.Add(newArticle);
-
-        }
-        else
-        {
-            // UPDATE EXISTING
-            var article = db.Articles
-                .Include(a => a.SideDishes) // Include side dishes for update
-                .FirstOrDefault(a => a.Id == editingArticle.Id);
-
-            if (article != null)
-            {
-                article.Name = txtName.Text;
-                article.PriPrice = float.TryParse(txtPrice.Text, out var pri) ? pri : 0f;
-                article.SecPrice = float.TryParse(txtSecondaryPrice.Text, out var sec) ? sec : 0f;
-                article.Category = parsed ? categoryEnum : ArticleCategory.Otros;
-                article.IsSideDish = txtSideDish.IsChecked;
-
-                // Clear and update side dishes
-                if (article.SideDishes != null)
+                var selectedSideDishes = await AppDbContext.ExecuteSafeAsync(async db =>
                 {
-                    article.SideDishes.Clear();
+                    return await db.Articles
+                        .Where(a => SideDishArticles
+                            .Where(sd => sd.IsSelected)
+                            .Select(sd => sd.Id)
+                            .Contains(a.Id))
+                        .ToListAsync();
+                });
 
-                    foreach (var sd in selectedSideDishes)
-                        if (sd != null)
-                            article.SideDishes.Add(sd);
-                }
+                var newArticle = new Article
+                {
+                    Name = txtName.Text,
+                    PriPrice = txtPrice.Text != null ? float.Parse(txtPrice.Text) : 0f,
+                    SecPrice = txtSecondaryPrice.Text != null ? float.Parse(txtSecondaryPrice.Text) : 0f,
+                    Category = parsed ? categoryEnum : ArticleCategory.Otros,
+                    IsDeleted = false,
+                    IsSideDish = txtSideDish.IsChecked,
+                    SideDishes = selectedSideDishes
+                };
 
-                db.Articles.Update(article);
+                await AppDbContext.ExecuteSafeAsync(async db =>
+                {
+                    await db.Articles.AddAsync(newArticle);
+                    await db.SaveChangesAsync();
+                });
             }
+            else
+            {
+                await AppDbContext.ExecuteSafeAsync(async db =>
+                {
+                    // UPDATE EXISTING
+                    var article = await db.Articles
+                        .Include(a => a.SideDishes) // Include side dishes for update
+                        .FirstOrDefaultAsync(a => a.Id == editingArticle.Id);
+
+                    if (article != null)
+                    {
+                        article.Name = txtName.Text;
+                        article.PriPrice = float.TryParse(txtPrice.Text, out var pri) ? pri : 0f;
+                        article.SecPrice = float.TryParse(txtSecondaryPrice.Text, out var sec) ? sec : 0f;
+                        article.Category = parsed ? categoryEnum : ArticleCategory.Otros;
+                        article.IsSideDish = txtSideDish.IsChecked;
+
+                        // Clear and update side dishes
+                        if (article.SideDishes != null)
+                        {
+                            article.SideDishes.Clear();
+
+                            var selectedSideDishes = await db.Articles
+                                .Where(a => SideDishArticles
+                                    .Where(sd => sd.IsSelected)
+                                    .Select(sd => sd.Id)
+                                    .Contains(a.Id))
+                                .ToListAsync();
+
+                            foreach (var sd in selectedSideDishes)
+                                if (sd != null)
+                                    article.SideDishes.Add(sd);
+                        }
+
+                        await db.SaveChangesAsync();
+                    }
+                });
+            }
+
+            ListArticleVisual.Instance?.ReloadArticles(); // REFRESH THE LIST
+            await DisplayAlert("Éxito", "Artículo guardado correctamente.", "OK");
+            CloseThisWindow();
         }
-
-        db.SaveChanges();
-        ListArticleVisual.Instance?.ReloadArticles(); // REFRESH THE LIST
-        await DisplayAlert("Éxito", "Artículo guardado correctamente.", "OK");
-
-        CloseThisWindow();
-
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"Ocurrió un error al guardar: {ex.Message}", "OK");
+        }
     }
 
     private void CloseThisWindow()
@@ -234,7 +245,7 @@ public partial class CreateArticleVisual : ContentPage
         }
         else
         {
-            
+
         }
     }
 
@@ -257,4 +268,3 @@ public partial class CreateArticleVisual : ContentPage
         }
     }
 }
-
