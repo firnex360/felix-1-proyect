@@ -13,13 +13,13 @@
         <HorizontalStackLayout Grid.Row="0"
                                Spacing="20">
             <Frame
-                BackgroundColor="#F5F7FA"
+                BackgroundColor="#F3F3F3"
                 CornerRadius="10"
                 Padding="0"
                 HasShadow="False"
                 VerticalOptions="Center"
                 HeightRequest="40"
-                BorderColor="#F5F7FA"
+                BorderColor="#FFE0E0E0"
                 WidthRequest="340"
                 Margin="20,10,0,0">
 
