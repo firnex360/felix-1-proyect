@@ -71,7 +71,7 @@ public partial class OrderSectionMainVisual : ContentPage
         if (!confirm)
             return;
 
-        AppSession.CurrentUser = null;
+        AppSession.CurrentUser = null!;
 
         var loginPage = new LoginPage();
         Application.Current.MainPage = new NavigationPage(loginPage);
