@@ -161,9 +161,11 @@ public partial class ListOrderVisual : ContentView
     {
         // Get display size
         var displayInfo = DeviceDisplay.Current.MainDisplayInfo;
-        var window = new Window(new CreateTableVisual(user));
-        window.Height = 700;
-        window.Width = 800;
+        //change this to OrderVisual instead
+        //var window = new Window(new CreateTableVisual(user));
+        var window = new Window(new OrderVisual());
+        window.Height = 800;
+        window.Width = 1000;
 
         // Center the window
         window.X = (displayInfo.Width / displayInfo.Density - window.Width) / 2;
