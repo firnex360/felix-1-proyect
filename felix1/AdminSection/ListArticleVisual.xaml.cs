@@ -93,7 +93,10 @@ public partial class ListArticleVisual : ContentView
                         {
                             articleToDelete.IsDeleted = true;
                             await db.SaveChangesAsync();
-                            Device.BeginInvokeOnMainThread(LoadArticles);
+                            LoadArticles();
+                            
+                            //for what is this code below?
+                            //Device.BeginInvokeOnMainThread(LoadArticles);
                         }
                     });
                 }
