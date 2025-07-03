@@ -7,12 +7,12 @@
     <Grid ColumnDefinitions="*, Auto" BackgroundColor="White">
         
         <!--    SCROLLABLE MESERO   -->
-        <ScrollView Grid.Column="0" Orientation="Horizontal" VerticalOptions="FillAndExpand">
+        <ScrollView Grid.Column="0" Orientation="Horizontal" VerticalOptions="Fill">
             <HorizontalStackLayout x:Name="MeseroContainer"
                                 Spacing="10"
                                 Padding="10"
                                 BackgroundColor="#F5F7FA"
-                                VerticalOptions="FillAndExpand" />
+                                VerticalOptions="Fill" />
         </ScrollView>
         
         <!--    STATIC TAKEOUT   -->
@@ -20,7 +20,7 @@
             WidthRequest="{Binding Source={x:Reference MainGrid}, Path=Width, Converter={StaticResource WidthTo30PercentConverter}}"
             x:Name="TakeoutPanel" 
             Padding="10" 
-            VerticalOptions="FillAndExpand"
+            VerticalOptions="Fill"
             BackgroundColor="#F5F7FA">
                 
                 <Frame
@@ -28,10 +28,10 @@
                 Padding = "10"
                 BackgroundColor="White"
                 BorderColor="White"
-                VerticalOptions="FillAndExpand"
+                VerticalOptions="Fill"
                 WidthRequest="300">
                     <VerticalStackLayout Spacing="12"
-                                        VerticalOptions="FillAndExpand">
+                                        VerticalOptions="Fill">
                         <Label
                             Text="Takeout"
                             FontSize="18"
