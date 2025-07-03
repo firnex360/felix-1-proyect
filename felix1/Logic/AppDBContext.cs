@@ -14,70 +14,23 @@ namespace felix1.Data
         public DbSet<Transaction> Transactions { get; set; } = null!;
         public DbSet<Refund> Refunds { get; set; } = null!;
 
-
         private string _dbPath;
 
-        //this is for storing de DB on a temporary location
-        private string TempDBPath = "C:\\Users\\HP\\Desktop\\mita\\FELIX1PROY\\felix-1-proyect\\felix1\\tempDBStorage"; //for maria
-        //private string TempDBPath = "C:\\Codes\\github\\felix-1-proyect\\felix1\\tempDBStorage";
 
+        //this is for storing de DB on a temporary location
+        private string TempDBPath = "C:\\Codes\\github\\felix-1-proyect\\felix1\\tempDBStorage";
+        //private string TempDBPath = "C:\\Users\\HP\\Desktop\\mita\\FELIX1PROY\\felix-1-proyect\\felix1\\tempDBStorage"; //for maria
+        //private string TempDBPath = "C:\\Users\\dell\\Source\\Repos\\felix-1-proyect\\felix1\\tempDBStorage\\"; //ChenFan
 
         public AppDbContext()
         {
-            //on production the lines of code below should be uncommented
-            //var folder = FileSystem.AppDataDirectory;
-            //_dbPath = Path.Combine(folder, "appdata.db");
-
             _dbPath = Path.Combine(TempDBPath, "appdata.db");
-            Database.EnsureCreated(); // creates DB if not exists
+            Database.EnsureCreated();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlite($"Filename={_dbPath}");
-        }
-
-        public static async Task<T> ExecuteSafeAsync<T>(Func<AppDbContext, Task<T>> databaseOperation, Action<Exception> errorHandler = null)
-        {
-            try
-            {
-                using var db = new AppDbContext();
-                return await databaseOperation(db);
-            }
-            catch (DbUpdateException dbEx)
-            {
-                errorHandler?.Invoke(dbEx);
-                Console.WriteLine($"Database update error: {dbEx.Message}");
-                // You might want to throw a custom exception here or return default(T)
-                throw;
-            }
-            catch (Exception ex)
-            {
-                errorHandler?.Invoke(ex);
-                Console.WriteLine($"General database error: {ex.Message}");
-                throw;
-            }
-        }
-
-        public static async Task ExecuteSafeAsync(Func<AppDbContext, Task> databaseOperation, Action<Exception> errorHandler = null)
-        {
-            try
-            {
-                using var db = new AppDbContext();
-                await databaseOperation(db);
-            }
-            catch (DbUpdateException dbEx)
-            {
-                errorHandler?.Invoke(dbEx);
-                Console.WriteLine($"Database update error: {dbEx.Message}");
-                throw;
-            }
-            catch (Exception ex)
-            {
-                errorHandler?.Invoke(ex);
-                Console.WriteLine($"General database error: {ex.Message}");
-                throw;
-            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -100,67 +53,48 @@ namespace felix1.Data
             // FK for Cashier
             modelBuilder.Entity<CashRegister>()
                 .HasOne(c => c.Cashier);
+        }
 
+        public static async Task ExecuteSafeAsync(Func<AppDbContext, Task> operation, Action<Exception> errorHandler = null)
+        {
+            try
+            {
+                using var db = new AppDbContext();
+                await operation(db);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                errorHandler?.Invoke(dbEx);
+                Console.WriteLine($"Database update error: {dbEx.Message}");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                errorHandler?.Invoke(ex);
+                Console.WriteLine($"General database error: {ex.Message}");
+                throw;
+            }
+        }
 
-            // Define relationship between OrderItem and Article
-            modelBuilder.Entity<OrderItem>()
-                .HasOne(oi => oi.Article)
-                .WithMany()
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // Define relationship between Order and OrderItem
-            modelBuilder.Entity<Order>()
-                .HasMany(o => o.Items)
-                .WithOne()
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Define relationship between Order and User
-            modelBuilder.Entity<Order>()
-                .HasOne(o => o.Waiter)
-                .WithMany()
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // Define relationship between Order and Table
-            modelBuilder.Entity<Order>()
-                .HasOne(o => o.Table)
-                .WithMany()
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // Define relationship between Order and CashRegister
-            modelBuilder.Entity<Order>()
-                .HasOne(o => o.CashRegister)
-                .WithMany()
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // Define relationship between Transaction and Order
-            modelBuilder.Entity<Transaction>()
-                .HasOne(t => t.Order)
-                .WithMany()
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // Define relationship between Transaction and Refund
-            modelBuilder.Entity<Transaction>()
-                .HasOne(t => t.Refund)
-                .WithMany()
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // Define relationship between Refund and Order
-            modelBuilder.Entity<Refund>()
-                .HasOne(r => r.Order)
-                .WithMany()
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // Define relationship between Refund and User
-            modelBuilder.Entity<Refund>()
-                .HasOne(r => r.User)
-                .WithMany()
-                .OnDelete(DeleteBehavior.Restrict);
-                
-            // Define relationship between Refund and OrderItem
-            modelBuilder.Entity<Refund>()
-                .HasMany(r => r.RefundedItems)
-                .WithOne()
-                .OnDelete(DeleteBehavior.Cascade);
+        public static async Task<T> ExecuteSafeAsync<T>(Func<AppDbContext, Task<T>> operation, Action<Exception> errorHandler = null)
+        {
+            try
+            {
+                using var db = new AppDbContext();
+                return await operation(db);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                errorHandler?.Invoke(dbEx);
+                Console.WriteLine($"Database update error: {dbEx.Message}");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                errorHandler?.Invoke(ex);
+                Console.WriteLine($"General database error: {ex.Message}");
+                throw;
+            }
         }
     }
 }
