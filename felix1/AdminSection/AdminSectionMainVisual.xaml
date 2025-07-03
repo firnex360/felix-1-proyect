@@ -167,14 +167,14 @@
                     <!-- Default State -->
                     <VisualState x:Name="Normal">
                         <VisualState.Setters>
-                            <Setter Property="Background" Value="#F5F7FA"/>
+                            <Setter Property="Background" Value="#F3F3F3"/>
                         </VisualState.Setters>
                     </VisualState>
 
                     <!-- Hovered State -->
                     <VisualState x:Name="Hovered">
                         <VisualState.Setters>
-                            <Setter Property="Background" Value="#7DFF0000"/>
+                            <Setter Property="Background" Value="#fd2d2d"/>
                         </VisualState.Setters>
                     </VisualState>
 
