@@ -77,15 +77,14 @@ public partial class CreateArticleVisual : ContentPage
                                          .Cast<ArticleCategory>()
                                          .Select(c => c.ToString())
                                          .ToList();
-
-        // Checking if an article is being edited
+        // UPDATE EXISTING
         if (articleToEdit != null)
         {
             editingArticle = AppDbContext.ExecuteSafeAsync(async db =>
             {
                 return await db.Articles
                     .Where(a => a.Id == articleToEdit.Id)
-                    .Include(a => a.SideDishes)
+                    .Include(a => a.SideDishes) // Include side dishes for update
                     .FirstOrDefaultAsync();
             }).GetAwaiter().GetResult();
 
@@ -137,30 +136,32 @@ public partial class CreateArticleVisual : ContentPage
             return;
         }
 
-        //POPUP CONFIRMATION
+        // POPUP CONFIRMATION
         bool confirm = await DisplayAlert(
             "Confirmación",
             editingArticle == null ? "¿Crear este artículo?" : "¿Actualizar este artículo?",
             "Sí",
             "No");
 
-        if (!confirm)
-            return;
+        if (!confirm) return;
 
         try
         {
             var selectedCategory = pckCategory.SelectedItem?.ToString();
             var parsed = Enum.TryParse<ArticleCategory>(selectedCategory, out var categoryEnum);
 
+            var selectedIds = SideDishArticles
+                .Where(sd => sd.IsSelected)
+                .Select(sd => sd.Id)
+                .ToList();
+
             if (editingArticle == null)
             {
+                // CREATE NEW ARTICLE
                 var selectedSideDishes = await AppDbContext.ExecuteSafeAsync(async db =>
                 {
                     return await db.Articles
-                        .Where(a => SideDishArticles
-                            .Where(sd => sd.IsSelected)
-                            .Select(sd => sd.Id)
-                            .Contains(a.Id))
+                        .Where(a => selectedIds.Contains(a.Id))
                         .ToListAsync();
                 });
 
@@ -183,11 +184,11 @@ public partial class CreateArticleVisual : ContentPage
             }
             else
             {
+                // UPDATE EXISTING ARTICLE
                 await AppDbContext.ExecuteSafeAsync(async db =>
                 {
-                    // UPDATE EXISTING
                     var article = await db.Articles
-                        .Include(a => a.SideDishes) // Include side dishes for update
+                        .Include(a => a.SideDishes)
                         .FirstOrDefaultAsync(a => a.Id == editingArticle.Id);
 
                     if (article != null)
@@ -198,21 +199,17 @@ public partial class CreateArticleVisual : ContentPage
                         article.Category = parsed ? categoryEnum : ArticleCategory.Otros;
                         article.IsSideDish = txtSideDish.IsChecked;
 
-                        // Clear and update side dishes
-                        if (article.SideDishes != null)
+                        // Clear existing side dishes
+                        article.SideDishes.Clear();
+
+                        // Add new selected side dishes
+                        var selectedSideDishes = await db.Articles
+                            .Where(a => selectedIds.Contains(a.Id))
+                            .ToListAsync();
+
+                        foreach (var sd in selectedSideDishes)
                         {
-                            article.SideDishes.Clear();
-
-                            var selectedSideDishes = await db.Articles
-                                .Where(a => SideDishArticles
-                                    .Where(sd => sd.IsSelected)
-                                    .Select(sd => sd.Id)
-                                    .Contains(a.Id))
-                                .ToListAsync();
-
-                            foreach (var sd in selectedSideDishes)
-                                if (sd != null)
-                                    article.SideDishes.Add(sd);
+                            article.SideDishes.Add(sd);
                         }
 
                         await db.SaveChangesAsync();
