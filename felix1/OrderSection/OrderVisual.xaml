@@ -35,7 +35,8 @@
                                        SortingMode="Single"
                                        AllowTriStateSorting="True"
                                        EmptyView="No hay registros"
-                                       ColumnWidthMode="Auto">
+                                       ColumnWidthMode="Auto"
+                                       CellDoubleTapped="OnArticleCellDoubleTapped">
 
                     <syncfusion:SfDataGrid.DefaultStyle>
                         <syncfusion:DataGridStyle HeaderRowBackground="#005F8C"

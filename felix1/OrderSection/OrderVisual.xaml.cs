@@ -8,16 +8,7 @@ namespace felix1.OrderSection;
 public partial class OrderVisual : ContentPage
 {
     public ObservableCollection<Article> ListArticles { get; set; } = new();
-    public ObservableCollection<OrderItemDisplay> OrderItems { get; set; } = new();
-
-    // Helper class for DataGrid display
-    public class OrderItemDisplay
-    {
-        public int Quantity { get; set; }
-        public string ArticleName { get; set; } = "";
-        public decimal UnitPrice { get; set; }
-        public decimal TotalPrice => Quantity * UnitPrice;
-    }
+    public ObservableCollection<OrderItem> OrderItems { get; set; } = new();
 
     private void LoadArticles()
     {
@@ -47,6 +38,38 @@ public partial class OrderVisual : ContentPage
             listArticleDataGrid.ItemsSource = ListArticles
                 .Where(a => a.Name != null && a.Name.ToLower().Contains(searchText))
                 .ToList();
+        }
+    }
+
+    private void OnArticleCellDoubleTapped(object sender, Syncfusion.Maui.DataGrid.DataGridCellDoubleTappedEventArgs e)
+    {
+        if (e.RowData is Article selectedArticle)
+        {
+            AddArticleToOrder(selectedArticle);
+        }
+    }
+
+    private void AddArticleToOrder(Article article)
+    {
+        // Check if the article is already in the order
+        var existingOrderItem = OrderItems.FirstOrDefault(oi => oi.Article?.Id == article.Id);
+
+        if (existingOrderItem != null)
+        {
+            // If it exists, increase the quantity
+            existingOrderItem.Quantity++;
+        }
+        else
+        {
+            // Create new order item with default quantity of 1
+            var newOrderItem = new OrderItem
+            {
+                Article = article,
+                Quantity = 1,
+                UnitPrice = (decimal)article.PriPrice
+            };
+
+            OrderItems.Add(newOrderItem);
         }
     }
 
