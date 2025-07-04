@@ -15,7 +15,8 @@ public class OrderItem : INotifyPropertyChanged
         set 
         {
             _quantity = value;
-            OnPropertyChanged(nameof(TotalPrice));
+            OnPropertyChanged(); //This notifies that Quantity itself changed ()
+            OnPropertyChanged(nameof(TotalPrice)); //This notifies that TotalPrice changed
         }
     }
     

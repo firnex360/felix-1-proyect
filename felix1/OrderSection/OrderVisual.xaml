@@ -34,14 +34,20 @@
                                        AutoGenerateColumnsMode="None"
                                        SortingMode="Single"
                                        AllowTriStateSorting="True"
-                                       EmptyView="No hay registros"
                                        ColumnWidthMode="Auto"
                                        CellDoubleTapped="OnArticleCellDoubleTapped">
+
+                    <syncfusion:SfDataGrid.EmptyView>
+                        <Label Text="No hay registros"
+                               TextColor="Black"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"/>
+                    </syncfusion:SfDataGrid.EmptyView>
 
                     <syncfusion:SfDataGrid.DefaultStyle>
                         <syncfusion:DataGridStyle HeaderRowBackground="#005F8C"
                                                   HeaderRowTextColor="#F3F3F3"
-                                                  RowTextColor="#005F8C"
+                                                  RowTextColor="Black"
                                                   HeaderRowFontAttributes="Bold"/>
                     </syncfusion:SfDataGrid.DefaultStyle>
 
@@ -118,13 +124,19 @@
                                        AutoGenerateColumnsMode="None"
                                        SortingMode="Single"
                                        AllowTriStateSorting="True"
-                                       EmptyView="No hay artículos en la orden"
                                        ColumnWidthMode="Auto">
+
+                    <syncfusion:SfDataGrid.EmptyView>
+                        <Label Text="No hay articulos en la orden"
+                               TextColor="Black"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"/>
+                    </syncfusion:SfDataGrid.EmptyView>
 
                     <syncfusion:SfDataGrid.DefaultStyle>
                         <syncfusion:DataGridStyle HeaderRowBackground="#005F8C"
                                                   HeaderRowTextColor="#F3F3F3"
-                                                  RowTextColor="#005F8C"
+                                                  RowTextColor="Black"
                                                   HeaderRowFontAttributes="Bold"/>
                     </syncfusion:SfDataGrid.DefaultStyle>
 
