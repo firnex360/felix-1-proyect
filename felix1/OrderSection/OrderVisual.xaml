@@ -159,7 +159,7 @@
                                        HeaderRowHeight="60"
                                        RowHeight="50"
                                        AutoGenerateColumnsMode="None"
-                                       SortingMode="Single"
+                                       SortingMode="None"
                                        AllowTriStateSorting="True"
                                        ColumnWidthMode="Auto"
                                        SelectionMode="Single"

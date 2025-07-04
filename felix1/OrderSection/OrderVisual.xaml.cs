@@ -124,7 +124,7 @@ public partial class OrderVisual : ContentPage
         }
     }
 
-    // Alternative: Add toolbar buttons for common actions
+    //methods for button actions
     private void OnEditQuantityClicked(object sender, EventArgs e)
     {
         EditSelectedQuantity();
@@ -132,18 +132,22 @@ public partial class OrderVisual : ContentPage
 
     private void OnIncreaseQuantityClicked(object sender, EventArgs e)
     {
-        if (orderItemsDataGrid.SelectedIndex >= 0 && orderItemsDataGrid.SelectedIndex < OrderItems.Count)
+        var selectedItemIndex = orderItemsDataGrid.SelectedIndex;
+
+        if (selectedItemIndex >= 0 && selectedItemIndex <= OrderItems.Count)
         {
-            var selectedItem = OrderItems[orderItemsDataGrid.SelectedIndex];
+            var selectedItem = OrderItems[selectedItemIndex - 1];
             selectedItem.Quantity++;
         }
     }
 
     private void OnDecreaseQuantityClicked(object sender, EventArgs e)
     {
-        if (orderItemsDataGrid.SelectedIndex >= 0 && orderItemsDataGrid.SelectedIndex < OrderItems.Count)
+        var selectedItemIndex = orderItemsDataGrid.SelectedIndex;
+
+        if (selectedItemIndex >= 0 && selectedItemIndex <= OrderItems.Count)
         {
-            var selectedItem = OrderItems[orderItemsDataGrid.SelectedIndex];
+            var selectedItem = OrderItems[selectedItemIndex - 1];
             if (selectedItem.Quantity > 1)
                 selectedItem.Quantity--;
             else
@@ -153,9 +157,11 @@ public partial class OrderVisual : ContentPage
 
     private void OnRemoveItemClicked(object sender, EventArgs e)
     {
-        if (orderItemsDataGrid.SelectedIndex >= 0 && orderItemsDataGrid.SelectedIndex < OrderItems.Count)
+        var selectedItemIndex = orderItemsDataGrid.SelectedIndex;
+
+        if (selectedItemIndex >= 0 && selectedItemIndex <= OrderItems.Count)
         {
-            var selectedItem = OrderItems[orderItemsDataGrid.SelectedIndex];
+            var selectedItem = OrderItems[selectedItemIndex - 1];
             OrderItems.Remove(selectedItem);
         }
     }
