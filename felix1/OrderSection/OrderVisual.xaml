@@ -101,11 +101,48 @@
 
         <!-- RIGHT COLUMN -->
         <Grid Grid.Column="1"
-              RowDefinitions="*,*"
+              RowDefinitions="Auto,*,*"
               Margin="20,20,20,20">
 
+            <!-- Toolbar for Order Actions -->
+            <StackLayout Grid.Row="0"
+                         Orientation="Horizontal"
+                         Spacing="10"
+                         Margin="0,0,0,10">
+                
+                <Button Text="Edit Qty (Enter)"
+                        BackgroundColor="#005F8C"
+                        TextColor="White"
+                        Clicked="OnEditQuantityClicked"
+                        FontSize="12"
+                        Padding="8,4"/>
+                
+                <Button Text="+"
+                        BackgroundColor="#28a745"
+                        TextColor="White"
+                        Clicked="OnIncreaseQuantityClicked"
+                        FontSize="14"
+                        WidthRequest="40"
+                        Padding="4"/>
+                
+                <Button Text="-"
+                        BackgroundColor="#dc3545"
+                        TextColor="White"
+                        Clicked="OnDecreaseQuantityClicked"
+                        FontSize="14"
+                        WidthRequest="40"
+                        Padding="4"/>
+                
+                <Button Text="Remove"
+                        BackgroundColor="#6c757d"
+                        TextColor="White"
+                        Clicked="OnRemoveItemClicked"
+                        FontSize="12"
+                        Padding="8,4"/>
+            </StackLayout>
+
             <!-- Order Items DataGrid -->
-            <Frame Grid.Row="0"
+            <Frame Grid.Row="1"
                    CornerRadius="10"
                    Padding="0"
                    HasShadow="True"
@@ -124,7 +161,11 @@
                                        AutoGenerateColumnsMode="None"
                                        SortingMode="Single"
                                        AllowTriStateSorting="True"
-                                       ColumnWidthMode="Auto">
+                                       ColumnWidthMode="Auto"
+                                       SelectionMode="Single"
+                                       NavigationMode="Row"
+                                       AllowEditing="True"
+                                       CellTapped="OnOrderItemCellTapped">
 
                     <syncfusion:SfDataGrid.EmptyView>
                         <Label Text="No hay articulos en la orden"
@@ -146,6 +187,7 @@
                             HeaderText="Cantidad"
                             CellTextAlignment="Center"
                             HeaderTextAlignment="Center"
+                            AllowEditing="True"
                             ColumnWidthMode="FitByCell"
                             MaximumWidth="100"/>
 
@@ -178,7 +220,7 @@
             </Frame>
 
             <Label Text="Row 2 Content"
-                   Grid.Row="1"
+                   Grid.Row="2"
                    VerticalOptions="Center"
                    HorizontalOptions="Center"/>
         </Grid>
