@@ -103,31 +103,18 @@ public partial class OrderVisual : ContentPage
         // For now, we'll use the cell tapped approach with double-tap for editing
     }
 
-    private void OnOrderItemCellTapped(object sender, Syncfusion.Maui.DataGrid.DataGridCellTappedEventArgs e)
-    {
-        // Store the selected row and column for potential editing
-        if (e.RowData is OrderItem)
-        {
-            // You can implement double-tap to edit logic here
-            // For now, we'll add a method that can be called programmatically
-        }
-    }
+    //methods for button actions
 
-    // Method to start editing quantity of the selected row (call this when Enter is pressed)
-    public void EditSelectedQuantity()
+    //method to start editing quantity of the selected row
+    private void OnEditQuantityClicked(object sender, EventArgs e)
     {
         if (orderItemsDataGrid.SelectedIndex >= 0)
         {
             // Find the column index for Quantity
-            int quantityColumnIndex = 0; // Quantity is the first column
-            orderItemsDataGrid.BeginEdit(orderItemsDataGrid.SelectedIndex, quantityColumnIndex);
+            int rowIndex = orderItemsDataGrid.SelectedIndex;
+            int quantityColumnIndex = 0;
+            orderItemsDataGrid.BeginEdit(rowIndex, quantityColumnIndex);
         }
-    }
-
-    //methods for button actions
-    private void OnEditQuantityClicked(object sender, EventArgs e)
-    {
-        EditSelectedQuantity();
     }
 
     private void OnIncreaseQuantityClicked(object sender, EventArgs e)

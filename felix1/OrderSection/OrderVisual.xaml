@@ -163,9 +163,10 @@
                                        AllowTriStateSorting="True"
                                        ColumnWidthMode="Auto"
                                        SelectionMode="Single"
-                                       NavigationMode="Row"
-                                       AllowEditing="True"
-                                       CellTapped="OnOrderItemCellTapped">
+                                       NavigationMode="Cell"
+                                       AllowEditing="False"
+                                       LostFocusBehavior="EndEditCurrentCell"
+                                       EditTapAction="OnTap">
 
                     <syncfusion:SfDataGrid.EmptyView>
                         <Label Text="No hay articulos en la orden"
