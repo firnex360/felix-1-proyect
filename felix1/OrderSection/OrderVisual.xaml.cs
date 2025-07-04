@@ -2,6 +2,13 @@ using System.Collections.ObjectModel;
 using felix1.Logic;
 using felix1.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Windows.System;
+
+#if WINDOWS
+using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml;
+#endif
 
 namespace felix1.OrderSection;
 
@@ -84,24 +91,41 @@ public partial class OrderVisual : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        // Set up key handling for the page
         this.HandlerChanged += OnHandlerChanged;
     }
 
     private void OnHandlerChanged(object? sender, EventArgs e)
     {
-        if (this.Handler?.PlatformView != null)
+#if WINDOWS
+        var platformView = this.Handler?.PlatformView as Microsoft.UI.Xaml.FrameworkElement;
+        if (platformView != null)
         {
-            // Add platform-specific key handling here if needed
-            SetupKeyHandling();
+            platformView.KeyDown -= PlatformView_KeyDown;
+            platformView.KeyDown += PlatformView_KeyDown;
         }
+#endif
     }
 
-    private void SetupKeyHandling()
+#if WINDOWS
+    private void PlatformView_KeyDown(object sender, KeyRoutedEventArgs e)
     {
-        // This method can be expanded for platform-specific key handling
-        // For now, we'll use the cell tapped approach with double-tap for editing
+        switch (e.Key)
+        {
+            case Windows.System.VirtualKey.Enter: //doesnt work right yet
+                OnEditQuantityClicked(this, EventArgs.Empty);
+                break;
+            case Windows.System.VirtualKey.Add:
+                OnIncreaseQuantityClicked(this, EventArgs.Empty);
+                break;
+            case Windows.System.VirtualKey.Subtract:
+                OnDecreaseQuantityClicked(this, EventArgs.Empty);
+                break;
+            case Windows.System.VirtualKey.Delete:
+                OnRemoveItemClicked(this, EventArgs.Empty);
+                break;
+        }
     }
+#endif
 
     //methods for button actions
 
