@@ -158,33 +158,41 @@ public partial class CreateArticleVisual : ContentPage
             if (editingArticle == null)
             {
                 // CREATE NEW ARTICLE
-                var selectedSideDishes = await AppDbContext.ExecuteSafeAsync(async db =>
-                {
-                    return await db.Articles
-                        .Where(a => selectedIds.Contains(a.Id))
-                        .ToListAsync();
-                });
-
-                var newArticle = new Article
-                {
-                    Name = txtName.Text,
-                    PriPrice = txtPrice.Text != null ? float.Parse(txtPrice.Text) : 0f,
-                    SecPrice = txtSecondaryPrice.Text != null ? float.Parse(txtSecondaryPrice.Text) : 0f,
-                    Category = parsed ? categoryEnum : ArticleCategory.Otros,
-                    IsDeleted = false,
-                    IsSideDish = txtSideDish.IsChecked,
-                    SideDishes = selectedSideDishes
-                };
-
                 await AppDbContext.ExecuteSafeAsync(async db =>
                 {
+                    var newArticle = new Article
+                    {
+                        Name = txtName.Text,
+                        PriPrice = txtPrice.Text != null ? float.Parse(txtPrice.Text) : 0f,
+                        SecPrice = txtSecondaryPrice.Text != null ? float.Parse(txtSecondaryPrice.Text) : 0f,
+                        Category = parsed ? categoryEnum : ArticleCategory.Otros,
+                        IsDeleted = false,
+                        IsSideDish = txtSideDish.IsChecked
+                    };
+
+                    // Attach the side dishes to the context first
+                    if (selectedIds.Any())
+                    {
+                        var selectedSideDishes = await db.Articles
+                            .Where(a => selectedIds.Contains(a.Id))
+                            .ToListAsync();
+
+                        // Set the state of each side dish to Unchanged
+                        foreach (var sideDish in selectedSideDishes)
+                        {
+                            db.Entry(sideDish).State = EntityState.Unchanged;
+                        }
+
+                        newArticle.SideDishes = selectedSideDishes;
+                    }
+
                     await db.Articles.AddAsync(newArticle);
                     await db.SaveChangesAsync();
                 });
             }
             else
             {
-                // UPDATE EXISTING ARTICLE
+                // UPDATE EXISTING ARTICLE (unchanged)
                 await AppDbContext.ExecuteSafeAsync(async db =>
                 {
                     var article = await db.Articles
@@ -217,7 +225,7 @@ public partial class CreateArticleVisual : ContentPage
                 });
             }
 
-            ListArticleVisual.Instance?.ReloadArticles(); // REFRESH THE LIST
+            ListArticleVisual.Instance?.ReloadArticles();
             await DisplayAlert("Éxito", "Artículo guardado correctamente.", "OK");
             CloseThisWindow();
         }
