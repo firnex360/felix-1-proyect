@@ -4,6 +4,11 @@ using felix1.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Windows.System;
+using Syncfusion.Maui.DataGrid;
+using Syncfusion.Maui.Core.Internals;
+using Syncfusion.Maui.DataGrid.Helper;
+
+
 
 #if WINDOWS
 using Microsoft.UI.Xaml.Input;
@@ -17,11 +22,15 @@ public partial class OrderVisual : ContentPage
     public ObservableCollection<Article> ListArticles { get; set; } = new();
     public ObservableCollection<OrderItem> OrderItems { get; set; } = new();
 
+    private bool _isEditing = false;
+
     public OrderVisual()
     {
         InitializeComponent();
         BindingContext = this;
         LoadArticles();
+        orderItemsDataGrid.CurrentCellBeginEdit += (s, e) => _isEditing = true;
+        orderItemsDataGrid.CurrentCellEndEdit += (s, e) => _isEditing = false;
     }
 
 
@@ -63,7 +72,7 @@ public partial class OrderVisual : ContentPage
             AddArticleToOrder(selectedArticle);
         }
     }
- 
+
     private void OnArticleCellTapped(object sender, Syncfusion.Maui.DataGrid.DataGridCellTappedEventArgs e)
     {
         if (e.RowData is Article selectedArticle)
@@ -100,12 +109,13 @@ public partial class OrderVisual : ContentPage
     {
         base.OnAppearing();
         this.HandlerChanged += OnHandlerChanged;
+        orderItemsDataGrid.SelectionController = new CustomRowSelectionController(orderItemsDataGrid, this);
     }
 
     private void OnHandlerChanged(object? sender, EventArgs e)
     {
 #if WINDOWS
-        var platformView = this.Handler?.PlatformView as Microsoft.UI.Xaml.FrameworkElement;
+        var platformView = orderItemsDataGrid.Handler?.PlatformView as Microsoft.UI.Xaml.FrameworkElement;
         if (platformView != null)
         {
             platformView.KeyDown -= PlatformView_KeyDown;
@@ -115,29 +125,72 @@ public partial class OrderVisual : ContentPage
     }
 
 #if WINDOWS
-    private void PlatformView_KeyDown(object sender, KeyRoutedEventArgs e)
+    private void PlatformView_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
     {
         switch (e.Key)
         {
-            case Windows.System.VirtualKey.Enter: //doesnt work right yet
-                OnEditQuantityClicked(this, EventArgs.Empty);
+            case Windows.System.VirtualKey.Enter:
+                //OnEditQuantityClicked(this, EventArgs.Empty);
+                e.Handled = true;
                 break;
             case Windows.System.VirtualKey.Add:
                 OnIncreaseQuantityClicked(this, EventArgs.Empty);
+                e.Handled = true;
                 break;
             case Windows.System.VirtualKey.Subtract:
                 OnDecreaseQuantityClicked(this, EventArgs.Empty);
+                e.Handled = true;
                 break;
             case Windows.System.VirtualKey.Delete:
                 OnRemoveItemClicked(this, EventArgs.Empty);
+                e.Handled = true;
                 break;
         }
     }
 #endif
 
+
+    public class CustomRowSelectionController : DataGridRowSelectionController
+    {
+        private readonly OrderVisual _parent;
+        public CustomRowSelectionController(SfDataGrid dataGrid, OrderVisual parent) : base(dataGrid)
+        {
+            _parent = parent;
+        }
+        protected override void ProcessKeyDown(KeyEventArgs args, bool isCtrlKeyPressed, bool isShiftKeyPressed)
+        {
+            if (args.Key == KeyboardKey.Enter)
+            {
+                if (_parent._isEditing)
+                {
+                    // If already editing, treat Enter as Tab (move to next cell)
+                    var tabArgs = new KeyEventArgs(KeyboardKey.Tab) { Handled = false };
+                    base.ProcessKeyDown(tabArgs, isCtrlKeyPressed, isShiftKeyPressed);
+                    args.Handled = true;
+                }
+                else
+                {
+                    int selectedIndex = DataGrid != null ? DataGrid.SelectedIndex : -1;
+                    if (selectedIndex >= 0 && selectedIndex <= _parent.OrderItems.Count)
+                    {
+                        var selectedItem = _parent.OrderItems[selectedIndex];
+                        _parent.EditOrderItemQuantity(selectedItem);
+                        args.Handled = true;
+                    }
+                }
+            }
+            else
+            {
+                base.ProcessKeyDown(args, isCtrlKeyPressed, isShiftKeyPressed);
+            }
+        }
+    }
+
+
     //methods for button actions
 
-    //method to start editing quantity of the selected row
+    //method to start editing quantity of the selected row (deprecated)
+    [Obsolete("Use EditOrderItemQuantity method instead.")]
     private void OnEditQuantityClicked(object sender, EventArgs e)
     {
         if (orderItemsDataGrid.SelectedIndex >= 0)
@@ -149,13 +202,22 @@ public partial class OrderVisual : ContentPage
         }
     }
 
+    //new method to edit a specific OrderItem
+    public void EditOrderItemQuantity(OrderItem item)
+    {
+        int rowIndex = OrderItems.IndexOf(item);
+        int quantityColumnIndex = 0;
+        if (rowIndex >= 0)
+            orderItemsDataGrid.BeginEdit(rowIndex, quantityColumnIndex);
+    }
+
     private void OnIncreaseQuantityClicked(object sender, EventArgs e)
     {
         var selectedItemIndex = orderItemsDataGrid.SelectedIndex;
 
-        if (selectedItemIndex >= 0 && selectedItemIndex <= OrderItems.Count)
+        if (selectedItemIndex >= 0 && selectedItemIndex < OrderItems.Count)
         {
-            var selectedItem = OrderItems[selectedItemIndex - 1];
+            var selectedItem = OrderItems[selectedItemIndex];
             selectedItem.Quantity++;
         }
     }
