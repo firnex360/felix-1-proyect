@@ -35,7 +35,7 @@
                                        SortingMode="Single"
                                        AllowTriStateSorting="True"
                                        ColumnWidthMode="Auto"
-                                       CellDoubleTapped="OnArticleCellDoubleTapped">
+                                       CellTapped="OnArticleCellTapped">
 
                     <syncfusion:SfDataGrid.EmptyView>
                         <Label Text="No hay registros"

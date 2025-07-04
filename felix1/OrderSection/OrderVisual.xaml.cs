@@ -63,6 +63,14 @@ public partial class OrderVisual : ContentPage
             AddArticleToOrder(selectedArticle);
         }
     }
+ 
+    private void OnArticleCellTapped(object sender, Syncfusion.Maui.DataGrid.DataGridCellTappedEventArgs e)
+    {
+        if (e.RowData is Article selectedArticle)
+        {
+            AddArticleToOrder(selectedArticle);
+        }
+    }
 
     private void AddArticleToOrder(Article article)
     {
