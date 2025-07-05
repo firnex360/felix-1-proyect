@@ -173,7 +173,7 @@ public partial class OrderVisual : ContentPage
                     int selectedIndex = DataGrid != null ? DataGrid.SelectedIndex : -1;
                     if (selectedIndex >= 0 && selectedIndex <= _parent.OrderItems.Count)
                     {
-                        var selectedItem = _parent.OrderItems[selectedIndex];
+                        var selectedItem = _parent.OrderItems[selectedIndex - 1];
                         _parent.EditOrderItemQuantity(selectedItem);
                         args.Handled = true;
                     }
@@ -205,7 +205,7 @@ public partial class OrderVisual : ContentPage
     //new method to edit a specific OrderItem
     public void EditOrderItemQuantity(OrderItem item)
     {
-        int rowIndex = OrderItems.IndexOf(item);
+        int rowIndex = OrderItems.IndexOf(item) + 1; // +1 because the first row is empty in the DataGrid
         int quantityColumnIndex = 0;
         if (rowIndex >= 0)
             orderItemsDataGrid.BeginEdit(rowIndex, quantityColumnIndex);
@@ -217,7 +217,7 @@ public partial class OrderVisual : ContentPage
 
         if (selectedItemIndex >= 0 && selectedItemIndex < OrderItems.Count)
         {
-            var selectedItem = OrderItems[selectedItemIndex];
+            var selectedItem = OrderItems[selectedItemIndex - 1];
             selectedItem.Quantity++;
         }
     }
