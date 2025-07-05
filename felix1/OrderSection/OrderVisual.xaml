@@ -33,6 +33,8 @@
                                        RowHeight="50"
                                        AutoGenerateColumnsMode="None"
                                        SortingMode="Single"
+                                       SelectionMode="Single"
+                                       NavigationMode="Row"
                                        AllowTriStateSorting="True"
                                        ColumnWidthMode="Auto"
                                        CellTapped="OnArticleCellTapped">
@@ -109,14 +111,14 @@
                          Orientation="Horizontal"
                          Spacing="10"
                          Margin="0,0,0,10">
-                
+
                 <Button Text="Edit Qty (Enter)"
                         BackgroundColor="#005F8C"
                         TextColor="White"
                         Clicked="OnEditQuantityClicked"
                         FontSize="12"
                         Padding="8,4"/>
-                
+
                 <Button Text="+"
                         BackgroundColor="#28a745"
                         TextColor="White"
@@ -124,7 +126,7 @@
                         FontSize="14"
                         WidthRequest="40"
                         Padding="4"/>
-                
+
                 <Button Text="-"
                         BackgroundColor="#dc3545"
                         TextColor="White"
@@ -132,7 +134,7 @@
                         FontSize="14"
                         WidthRequest="40"
                         Padding="4"/>
-                
+
                 <Button Text="Remove"
                         BackgroundColor="#6c757d"
                         TextColor="White"
@@ -179,7 +181,9 @@
                         <syncfusion:DataGridStyle HeaderRowBackground="#005F8C"
                                                   HeaderRowTextColor="#F3F3F3"
                                                   RowTextColor="Black"
-                                                  HeaderRowFontAttributes="Bold"/>
+                                                  HeaderRowFontAttributes="Bold"
+                                                  SelectionBackground="#C7CFDD"
+                                                  CurrentCellBorderColor="#C7CFDD"/>
                     </syncfusion:SfDataGrid.DefaultStyle>
 
                     <syncfusion:SfDataGrid.Columns>

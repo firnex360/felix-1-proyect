@@ -215,7 +215,7 @@ public partial class OrderVisual : ContentPage
     {
         var selectedItemIndex = orderItemsDataGrid.SelectedIndex;
 
-        if (selectedItemIndex >= 0 && selectedItemIndex < OrderItems.Count)
+        if (selectedItemIndex >= 0 && selectedItemIndex <= OrderItems.Count)
         {
             var selectedItem = OrderItems[selectedItemIndex - 1];
             selectedItem.Quantity++;
