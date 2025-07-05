@@ -110,6 +110,10 @@ public partial class OrderVisual : ContentPage
         base.OnAppearing();
         this.HandlerChanged += OnHandlerChanged;
         orderItemsDataGrid.SelectionController = new CustomRowSelectionController(orderItemsDataGrid, this);
+        listArticleDataGrid.SelectionController = new CustomArticleSelectionController(listArticleDataGrid, this);
+        
+        // Ensure handler for both grids are set on appearing
+        OnHandlerChanged(this, EventArgs.Empty);
     }
 
     private void OnHandlerChanged(object? sender, EventArgs e)
@@ -177,6 +181,32 @@ public partial class OrderVisual : ContentPage
                         _parent.EditOrderItemQuantity(selectedItem);
                         args.Handled = true;
                     }
+                }
+            }
+            else
+            {
+                base.ProcessKeyDown(args, isCtrlKeyPressed, isShiftKeyPressed);
+            }
+        }
+    }
+
+    public class CustomArticleSelectionController : DataGridRowSelectionController
+    {
+        private readonly OrderVisual _parent;
+        public CustomArticleSelectionController(SfDataGrid dataGrid, OrderVisual parent) : base(dataGrid)
+        {
+            _parent = parent;
+        }
+        protected override void ProcessKeyDown(KeyEventArgs args, bool isCtrlKeyPressed, bool isShiftKeyPressed)
+        {
+            if (args.Key == KeyboardKey.Enter)
+            {
+                int selectedIndex = DataGrid != null ? DataGrid.SelectedIndex : -1;
+                if (selectedIndex >= 0 && selectedIndex <= _parent.ListArticles.Count)
+                {
+                    var selectedArticle = _parent.ListArticles[selectedIndex - 1];
+                    _parent.AddArticleToOrder(selectedArticle);
+                    args.Handled = true;
                 }
             }
             else

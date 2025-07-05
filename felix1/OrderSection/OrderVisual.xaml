@@ -50,7 +50,9 @@
                         <syncfusion:DataGridStyle HeaderRowBackground="#005F8C"
                                                   HeaderRowTextColor="#F3F3F3"
                                                   RowTextColor="Black"
-                                                  HeaderRowFontAttributes="Bold"/>
+                                                  HeaderRowFontAttributes="Bold"
+                                                  SelectionBackground="#C7CFDD"
+                                                  CurrentCellBorderColor="#C7CFDD"/>
                     </syncfusion:SfDataGrid.DefaultStyle>
 
                     <syncfusion:SfDataGrid.Columns>
