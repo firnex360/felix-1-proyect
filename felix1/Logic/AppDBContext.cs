@@ -55,7 +55,7 @@ namespace felix1.Data
                 .HasOne(c => c.Cashier);
         }
 
-        public static async Task ExecuteSafeAsync(Func<AppDbContext, Task> operation, Action<Exception> errorHandler = null)
+        public static async Task ExecuteSafeAsync(Func<AppDbContext, Task> operation, Action<Exception> errorHandler = null!)
         {
             try
             {
@@ -76,7 +76,7 @@ namespace felix1.Data
             }
         }
 
-        public static async Task<T> ExecuteSafeAsync<T>(Func<AppDbContext, Task<T>> operation, Action<Exception> errorHandler = null)
+        public static async Task<T> ExecuteSafeAsync<T>(Func<AppDbContext, Task<T>> operation, Action<Exception> errorHandler = null!)
         {
             try
             {
