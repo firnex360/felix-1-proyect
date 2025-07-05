@@ -34,7 +34,7 @@
                                        AutoGenerateColumnsMode="None"
                                        SortingMode="Single"
                                        SelectionMode="Single"
-                                       NavigationMode="Row"
+                                       NavigationMode="Cell"
                                        AllowTriStateSorting="True"
                                        ColumnWidthMode="Auto"
                                        CellTapped="OnArticleCellTapped">

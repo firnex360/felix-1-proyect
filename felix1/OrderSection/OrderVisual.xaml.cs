@@ -23,6 +23,7 @@ public partial class OrderVisual : ContentPage
     public ObservableCollection<OrderItem> OrderItems { get; set; } = new();
 
     private bool _isEditing = false;
+    private bool _isArticleTableFocused = true; // Track which table has focus
 
     public OrderVisual()
     {
@@ -104,6 +105,46 @@ public partial class OrderVisual : ContentPage
             OrderItems.Add(newOrderItem);
         }
     }
+public void ToggleTableFocus()
+{
+    if (_isArticleTableFocused)
+    {
+        // Switch to order items table
+        if (OrderItems.Count > 0)
+        {
+            orderItemsDataGrid.SelectedIndex = 1;
+            orderItemsDataGrid.Focus();
+            orderItemsDataGrid.MoveCurrentCellTo(new Syncfusion.Maui.GridCommon.ScrollAxis.RowColumnIndex(1, 1));
+            orderItemsDataGrid.ScrollToRowIndex(1);
+            
+            // Simulate Tab key press to activate keyboard navigation
+            if (orderItemsDataGrid.SelectionController is CustomRowSelectionController controller)
+            {
+                controller.SimulateTabKey();
+            }
+        }
+        _isArticleTableFocused = false;
+    }
+    else
+    {
+        // Switch to article table
+        if (ListArticles.Count > 0)
+        {
+            listArticleDataGrid.SelectedIndex = 1;
+            listArticleDataGrid.Focus();
+            listArticleDataGrid.MoveCurrentCellTo(new Syncfusion.Maui.GridCommon.ScrollAxis.RowColumnIndex(1, 1));
+            listArticleDataGrid.ScrollToRowIndex(1);
+            
+            // Simulate Tab key press to activate keyboard navigation
+            if (listArticleDataGrid.SelectionController is CustomArticleSelectionController controller)
+            {
+                controller.SimulateTabKey();
+            }
+        }
+        _isArticleTableFocused = true;
+    }
+}
+
 
     protected override void OnAppearing()
     {
@@ -161,6 +202,13 @@ public partial class OrderVisual : ContentPage
         {
             _parent = parent;
         }
+        
+        public void SimulateTabKey()
+        {
+            var tabArgs = new KeyEventArgs(KeyboardKey.Tab) { Handled = false };
+            ProcessKeyDown(tabArgs, false, false);
+        }
+        
         protected override void ProcessKeyDown(KeyEventArgs args, bool isCtrlKeyPressed, bool isShiftKeyPressed)
         {
             if (args.Key == KeyboardKey.Enter)
@@ -183,6 +231,11 @@ public partial class OrderVisual : ContentPage
                     }
                 }
             }
+            else if (args.Key == KeyboardKey.Space)
+            {
+                _parent.ToggleTableFocus();
+                args.Handled = true;
+            }
             else
             {
                 base.ProcessKeyDown(args, isCtrlKeyPressed, isShiftKeyPressed);
@@ -197,6 +250,13 @@ public partial class OrderVisual : ContentPage
         {
             _parent = parent;
         }
+        
+        public void SimulateTabKey()
+        {
+            var tabArgs = new KeyEventArgs(KeyboardKey.Tab) { Handled = false };
+            ProcessKeyDown(tabArgs, false, false);
+        }
+        
         protected override void ProcessKeyDown(KeyEventArgs args, bool isCtrlKeyPressed, bool isShiftKeyPressed)
         {
             if (args.Key == KeyboardKey.Enter)
@@ -208,6 +268,11 @@ public partial class OrderVisual : ContentPage
                     _parent.AddArticleToOrder(selectedArticle);
                     args.Handled = true;
                 }
+            }
+            else if (args.Key == KeyboardKey.Space)
+            {
+                _parent.ToggleTableFocus();
+                args.Handled = true;
             }
             else
             {
