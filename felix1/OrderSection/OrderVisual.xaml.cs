@@ -342,4 +342,14 @@ public void ToggleTableFocus()
         }
     }
 
+    private void OnExitSave(object sender, EventArgs e)
+    {
+        Console.WriteLine("Exit & Save button clicked");
+    }
+
+    private void OnPrintReceipt(object sender, EventArgs e)
+    {
+        Console.WriteLine("Print Receipt button clicked");
+    }
+
 }
