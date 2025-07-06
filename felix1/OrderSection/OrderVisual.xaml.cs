@@ -104,45 +104,45 @@ public partial class OrderVisual : ContentPage
             OrderItems.Add(newOrderItem);
         }
     }
-public void ToggleTableFocus()
-{
-    if (_isArticleTableFocused)
+    public void ToggleTableFocus()
     {
-        // Switch to order items table
-        if (OrderItems.Count > 0)
+        if (_isArticleTableFocused)
         {
-            orderItemsDataGrid.SelectedIndex = 1;
-            orderItemsDataGrid.Focus();
-            orderItemsDataGrid.MoveCurrentCellTo(new Syncfusion.Maui.GridCommon.ScrollAxis.RowColumnIndex(1, 1));
-            orderItemsDataGrid.ScrollToRowIndex(1);
-            
-            // Simulate Tab key press to activate keyboard navigation
-            if (orderItemsDataGrid.SelectionController is CustomRowSelectionController controller)
+            // Switch to order items table
+            if (OrderItems.Count > 0)
             {
-                controller.SimulateTabKey();
+                orderItemsDataGrid.SelectedIndex = 1;
+                orderItemsDataGrid.Focus();
+                orderItemsDataGrid.MoveCurrentCellTo(new Syncfusion.Maui.GridCommon.ScrollAxis.RowColumnIndex(1, 1));
+                orderItemsDataGrid.ScrollToRowIndex(1);
+
+                // Simulate Tab key press to activate keyboard navigation
+                if (orderItemsDataGrid.SelectionController is CustomRowSelectionController controller)
+                {
+                    controller.SimulateTabKey();
+                }
             }
+            _isArticleTableFocused = false;
         }
-        _isArticleTableFocused = false;
-    }
-    else
-    {
-        // Switch to article table
-        if (ListArticles.Count > 0)
+        else
         {
-            listArticleDataGrid.SelectedIndex = 1;
-            listArticleDataGrid.Focus();
-            listArticleDataGrid.MoveCurrentCellTo(new Syncfusion.Maui.GridCommon.ScrollAxis.RowColumnIndex(1, 1));
-            listArticleDataGrid.ScrollToRowIndex(1);
-            
-            // Simulate Tab key press to activate keyboard navigation
-            if (listArticleDataGrid.SelectionController is CustomArticleSelectionController controller)
+            // Switch to article table (this has a bug, it should select the first row but sometimes it selects the second row)
+            if (ListArticles.Count > 0)
             {
-                controller.SimulateTabKey();
+                listArticleDataGrid.SelectedIndex = 1;
+                listArticleDataGrid.Focus();
+                listArticleDataGrid.MoveCurrentCellTo(new Syncfusion.Maui.GridCommon.ScrollAxis.RowColumnIndex(0, 1));
+                listArticleDataGrid.ScrollToRowIndex(0);
+
+                // Simulate Tab key press to activate keyboard navigation
+                if (listArticleDataGrid.SelectionController is CustomArticleSelectionController controller)
+                {
+                    controller.SimulateTabKey();
+                }
             }
+            _isArticleTableFocused = true;
         }
-        _isArticleTableFocused = true;
     }
-}
 
 
     protected override void OnAppearing()
@@ -166,7 +166,7 @@ public void ToggleTableFocus()
                 Console.WriteLine("Search bar focused");
             }
         });
-        
+
     }
 
     private void OnHandlerChanged(object? sender, EventArgs e)
@@ -214,13 +214,13 @@ public void ToggleTableFocus()
         {
             _parent = parent;
         }
-        
+
         public void SimulateTabKey()
         {
             var tabArgs = new KeyEventArgs(KeyboardKey.Tab) { Handled = false };
             ProcessKeyDown(tabArgs, false, false);
         }
-        
+
         protected override void ProcessKeyDown(KeyEventArgs args, bool isCtrlKeyPressed, bool isShiftKeyPressed)
         {
             if (args.Key == KeyboardKey.Enter)
@@ -262,13 +262,13 @@ public void ToggleTableFocus()
         {
             _parent = parent;
         }
-        
+
         public void SimulateTabKey()
         {
             var tabArgs = new KeyEventArgs(KeyboardKey.Tab) { Handled = false };
             ProcessKeyDown(tabArgs, false, false);
         }
-        
+
         protected override void ProcessKeyDown(KeyEventArgs args, bool isCtrlKeyPressed, bool isShiftKeyPressed)
         {
             if (args.Key == KeyboardKey.Enter)
