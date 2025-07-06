@@ -151,9 +151,22 @@ public void ToggleTableFocus()
         this.HandlerChanged += OnHandlerChanged;
         orderItemsDataGrid.SelectionController = new CustomRowSelectionController(orderItemsDataGrid, this);
         listArticleDataGrid.SelectionController = new CustomArticleSelectionController(listArticleDataGrid, this);
-        
+
         // Ensure handler for both grids are set on appearing
         OnHandlerChanged(this, EventArgs.Empty);
+
+        searchBar.Text = string.Empty;
+        MainThread.BeginInvokeOnMainThread(async () =>
+        {
+
+            await Task.Delay(300);
+
+            if (searchBar.Focus())
+            {
+                Console.WriteLine("Search bar focused");
+            }
+        });
+        
     }
 
     private void OnHandlerChanged(object? sender, EventArgs e)

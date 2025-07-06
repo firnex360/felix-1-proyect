@@ -32,10 +32,8 @@
                                        HeaderRowHeight="60"
                                        RowHeight="50"
                                        AutoGenerateColumnsMode="None"
-                                       SortingMode="Single"
                                        SelectionMode="Single"
                                        NavigationMode="Cell"
-                                       AllowTriStateSorting="True"
                                        ColumnWidthMode="Auto"
                                        CellTapped="OnArticleCellTapped">
 
