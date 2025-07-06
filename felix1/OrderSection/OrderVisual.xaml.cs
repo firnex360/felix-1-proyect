@@ -3,7 +3,6 @@ using felix1.Logic;
 using felix1.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Windows.System;
 using Syncfusion.Maui.DataGrid;
 using Syncfusion.Maui.Core.Internals;
 using Syncfusion.Maui.DataGrid.Helper;

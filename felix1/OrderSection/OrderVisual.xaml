@@ -192,6 +192,7 @@
                         <syncfusion:DataGridNumericColumn
                             MappingName="Quantity"
                             HeaderText="Cantidad"
+                            Format="0"
                             CellTextAlignment="Center"
                             HeaderTextAlignment="Center"
                             AllowEditing="True"
