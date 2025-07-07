@@ -107,7 +107,8 @@ public partial class ListOrderVisual : ContentView
                         BackgroundColor = Color.FromArgb("#C7CFDD"),
                         TextColor = Colors.White,
                         CornerRadius = 5,
-                        HorizontalOptions = LayoutOptions.Center
+                        HorizontalOptions = LayoutOptions.Center,
+                        Command = new Command(() => OnViewTableClicked(table)) // CLICK EVENT
                     });
                 }
 
