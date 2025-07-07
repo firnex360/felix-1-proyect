@@ -59,10 +59,26 @@ public partial class OrderVisual : ContentPage
         else
         {
             // Filter the collection
-            listArticleDataGrid.ItemsSource = ListArticles
+            var filteredArticles = ListArticles
                 .Where(a => a.Name != null && a.Name.ToLower().Contains(searchText))
                 .ToList();
+
+            listArticleDataGrid.ItemsSource = filteredArticles;
         }
+
+        // Select first item after filtering
+        if (listArticleDataGrid.ItemsSource is System.Collections.IList items && items.Count > 0)
+        {
+            listArticleDataGrid.SelectedIndex = 1;
+            listArticleDataGrid.ScrollToRowIndex(0);
+        }
+
+        // Maintain search bar focus
+        MainThread.BeginInvokeOnMainThread(async () =>
+        {
+            await Task.Delay(50);
+            searchBar.Focus();
+        });
     }
 
     private void OnArticleCellDoubleTapped(object sender, Syncfusion.Maui.DataGrid.DataGridCellDoubleTappedEventArgs e)
@@ -148,25 +164,38 @@ public partial class OrderVisual : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
+
         this.HandlerChanged += OnHandlerChanged;
+        this.HandlerChanged += OnSearchBarHandlerChanged;
+
         orderItemsDataGrid.SelectionController = new CustomRowSelectionController(orderItemsDataGrid, this);
         listArticleDataGrid.SelectionController = new CustomArticleSelectionController(listArticleDataGrid, this);
 
-        // Ensure handler for both grids are set on appearing
         OnHandlerChanged(this, EventArgs.Empty);
+        OnSearchBarHandlerChanged(this, EventArgs.Empty);
 
         searchBar.Text = string.Empty;
         MainThread.BeginInvokeOnMainThread(async () =>
         {
-
             await Task.Delay(300);
-
             if (searchBar.Focus())
             {
                 Console.WriteLine("Search bar focused");
             }
         });
+    }
 
+
+    private void OnSearchBarHandlerChanged(object? sender, EventArgs e)
+    {
+#if WINDOWS
+        var searchBarPlatformView = searchBar.Handler?.PlatformView as Microsoft.UI.Xaml.Controls.TextBox;
+        if (searchBarPlatformView != null)
+        {
+            searchBarPlatformView.KeyDown -= SearchBarPlatformView_KeyDown;
+            searchBarPlatformView.KeyDown += SearchBarPlatformView_KeyDown;
+        }
+#endif
     }
 
     private void OnHandlerChanged(object? sender, EventArgs e)
@@ -201,6 +230,43 @@ public partial class OrderVisual : ContentPage
             case Windows.System.VirtualKey.Delete:
                 OnRemoveItemClicked(this, EventArgs.Empty);
                 e.Handled = true;
+                break;
+        }
+    }
+
+    private void SearchBarPlatformView_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
+    {
+
+        Console.WriteLine($"[SearchBar KeyDown] Key: {e.Key}");
+
+        switch (e.Key)
+        {
+            case Windows.System.VirtualKey.Down:
+                NavigateArticleGrid(1);
+                e.Handled = true;
+                break;
+            case Windows.System.VirtualKey.Up:
+                NavigateArticleGrid(-1);
+                e.Handled = true;
+                break;
+            case Windows.System.VirtualKey.Enter:
+                AddSelectedArticleToOrder();
+                Console.WriteLine("Enter key pressed in search bar, but not handled here.");
+                e.Handled = true;
+                break;
+            case Windows.System.VirtualKey.Tab:
+                ToggleTableFocus();
+                e.Handled = true;
+                break;
+            case Windows.System.VirtualKey.Space:
+                // Only handle space if Ctrl is pressed (to avoid interfering with typing)
+                // var ctrlState = Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(Windows.System.VirtualKey.Control);
+                // if (ctrlState.HasFlag(Microsoft.UI.Core.CoreVirtualKeyStates.Down))
+                // {
+                //     ToggleTableFocus();
+                //     e.Handled = true;
+                // }
+                Console.WriteLine("Space key pressed in search bar, but not handled here.");
                 break;
         }
     }
@@ -271,14 +337,24 @@ public partial class OrderVisual : ContentPage
 
         protected override void ProcessKeyDown(KeyEventArgs args, bool isCtrlKeyPressed, bool isShiftKeyPressed)
         {
+            // Only handle keys when the article grid has direct focus (not when search bar is focused)
+            if (_parent.searchBar.IsFocused)
+            {
+                // Let the search bar handle navigation
+                return;
+            }
+
             if (args.Key == KeyboardKey.Enter)
             {
                 int selectedIndex = DataGrid != null ? DataGrid.SelectedIndex : -1;
-                if (selectedIndex >= 0 && selectedIndex <= _parent.ListArticles.Count)
+                if (selectedIndex >= 0 && DataGrid != null)
                 {
-                    var selectedArticle = _parent.ListArticles[selectedIndex - 1];
-                    _parent.AddArticleToOrder(selectedArticle);
-                    args.Handled = true;
+                    var currentItems = DataGrid.ItemsSource as System.Collections.IList ?? _parent.ListArticles;
+                    if (selectedIndex < currentItems.Count && currentItems[selectedIndex] is Article selectedArticle)
+                    {
+                        _parent.AddArticleToOrder(selectedArticle);
+                        args.Handled = true;
+                    }
                 }
             }
             else if (args.Key == KeyboardKey.Space)
@@ -364,4 +440,65 @@ public partial class OrderVisual : ContentPage
         Console.WriteLine("Print Receipt button clicked");
     }
 
+    public void NavigateArticleGrid(int direction)
+    {
+        var currentItems = listArticleDataGrid.ItemsSource as System.Collections.IList ?? ListArticles;
+
+        if (currentItems.Count == 0) return;
+
+        int currentIndex = listArticleDataGrid.SelectedIndex;
+        int newIndex = currentIndex + direction;
+
+        // Clamp to valid range
+        newIndex = Math.Max(0, Math.Min(newIndex, currentItems.Count - 1));
+
+        listArticleDataGrid.SelectedIndex = newIndex;
+        listArticleDataGrid.ScrollToRowIndex(newIndex);
+
+        // Visual feedback without losing search bar focus
+        MainThread.BeginInvokeOnMainThread(async () =>
+        {
+            await Task.Delay(50);
+            searchBar.Focus(); // Maintain search bar focus
+        });
+    }
+
+    public void AddSelectedArticleToOrder()
+    {
+        Console.WriteLine("AddSelectedArticleToOrder called");
+
+        var currentItems = listArticleDataGrid.ItemsSource as System.Collections.IList;
+        if (currentItems == null)
+        {
+            Console.WriteLine("No items in current list");
+            return;
+        }
+
+        int selectedIndex = listArticleDataGrid.SelectedIndex;
+        Console.WriteLine($"Selected index: {selectedIndex}, Total items: {currentItems.Count}");
+
+        if (selectedIndex >= 0 && selectedIndex < currentItems.Count)
+        {
+            if (currentItems[selectedIndex] is Article selectedArticle)
+            {
+                Console.WriteLine($"Adding article: {selectedArticle.Name}");
+                AddArticleToOrder(selectedArticle);
+
+                // Keep search bar focused after adding article
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    await Task.Delay(50);
+                    searchBar.Focus();
+                });
+            }
+            else
+            {
+                Console.WriteLine("Selected item is not an Article");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Invalid selection index");
+        }
+    }
 }
