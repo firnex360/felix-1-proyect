@@ -272,4 +272,18 @@ public partial class CreateArticleVisual : ContentPage
                 .ToList();
         }
     }
+
+    private void OnSideDishClicked(object sender, CheckedChangedEventArgs e)
+    {
+        // Handle the side dish checkbox click event
+        if (e.Value)
+        {
+            RightPanelA.IsEnabled = false;
+            foreach (var item in SideDishArticles) { item.IsSelected = false; }
+        }
+        else
+        {
+            RightPanelA.IsEnabled = true;
+        }
+    }
 }
