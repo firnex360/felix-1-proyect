@@ -74,11 +74,7 @@ public partial class OrderVisual : ContentPage
         }
 
         // Maintain search bar focus
-        MainThread.BeginInvokeOnMainThread(async () =>
-        {
-            await Task.Delay(50);
-            searchBar.Focus();
-        });
+        FocusSearchBarAsync();
     }
 
     private void OnSearchBarSearchButtonPressed(object sender, EventArgs e)
@@ -254,13 +250,16 @@ public partial class OrderVisual : ContentPage
                 e.Handled = true;
                 break;
             case Windows.System.VirtualKey.Enter:
+                // Handle Enter key press in search bar (this doesnt work, it is handled by the SearchButtonPressed event)
                 AddSelectedArticleToOrder();
-                Console.WriteLine("Enter key pressed in search bar, but not handled here.");
                 e.Handled = true;
+
+                Console.WriteLine("Enter key pressed in search bar, but not handled here.");
                 break;
             case Windows.System.VirtualKey.Tab:
                 ToggleTableFocus();
                 e.Handled = true;
+                Console.WriteLine("Tab key pressed in search bar, toggling table focus.");
                 break;
             case Windows.System.VirtualKey.Space:
                 // Only handle space if Ctrl is pressed (to avoid interfering with typing)
@@ -315,6 +314,11 @@ public partial class OrderVisual : ContentPage
                     }
                 }
             }
+            // else if (args.Key == KeyboardKey.Tab)
+            // {
+            //     _parent.FocusSearchBarAsync();
+            //     args.Handled = true;
+            // }
             else if (args.Key == KeyboardKey.Space)
             {
                 _parent.ToggleTableFocus();
@@ -448,6 +452,16 @@ public partial class OrderVisual : ContentPage
         Console.WriteLine("Print Receipt button clicked");
     }
 
+    // Method for search bar focus management
+    private void FocusSearchBarAsync()
+    {
+        MainThread.BeginInvokeOnMainThread(async () =>
+        {
+            await Task.Delay(50);
+            searchBar.Focus();
+        });
+    }
+
     public void NavigateArticleGrid(int direction)
     {
         var currentItems = listArticleDataGrid.ItemsSource as System.Collections.IList ?? ListArticles;
@@ -464,11 +478,7 @@ public partial class OrderVisual : ContentPage
         listArticleDataGrid.ScrollToRowIndex(newIndex);
 
         // Visual feedback without losing search bar focus
-        MainThread.BeginInvokeOnMainThread(async () =>
-        {
-            await Task.Delay(50);
-            searchBar.Focus(); // Maintain search bar focus
-        });
+        FocusSearchBarAsync();
     }
 
     public void AddSelectedArticleToOrder()
@@ -493,11 +503,7 @@ public partial class OrderVisual : ContentPage
                 AddArticleToOrder(selectedArticle);
 
                 // Keep search bar focused after adding article
-                MainThread.BeginInvokeOnMainThread(async () =>
-                {
-                    await Task.Delay(50);
-                    searchBar.Focus();
-                });
+                FocusSearchBarAsync();
             }
             else
             {
