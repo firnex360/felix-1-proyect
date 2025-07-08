@@ -166,37 +166,35 @@ public partial class OrderVisual : ContentPage
         base.OnAppearing();
 
         this.HandlerChanged += OnHandlerChanged;
-        this.HandlerChanged += OnSearchBarHandlerChanged;
-
         orderItemsDataGrid.SelectionController = new CustomRowSelectionController(orderItemsDataGrid, this);
         listArticleDataGrid.SelectionController = new CustomArticleSelectionController(listArticleDataGrid, this);
 
         OnHandlerChanged(this, EventArgs.Empty);
-        OnSearchBarHandlerChanged(this, EventArgs.Empty);
 
         searchBar.Text = string.Empty;
         MainThread.BeginInvokeOnMainThread(async () =>
         {
-            await Task.Delay(300);
-            if (searchBar.Focus())
-            {
-                Console.WriteLine("Search bar focused");
-            }
-        });
-    }
+            await Task.Delay(200); // Give MAUI/WinUI time to fully render the searchBar
 
-
-    private void OnSearchBarHandlerChanged(object? sender, EventArgs e)
-    {
 #if WINDOWS
-        var searchBarPlatformView = searchBar.Handler?.PlatformView as Microsoft.UI.Xaml.Controls.TextBox;
-        if (searchBarPlatformView != null)
-        {
-            searchBarPlatformView.KeyDown -= SearchBarPlatformView_KeyDown;
-            searchBarPlatformView.KeyDown += SearchBarPlatformView_KeyDown;
-        }
+            var autoSuggestBox = searchBar.Handler?.PlatformView as Microsoft.UI.Xaml.Controls.AutoSuggestBox;
+            if (autoSuggestBox != null)
+            {
+                Console.WriteLine("Successfully attached SearchBar KeyDown event to AutoSuggestBox");
+                autoSuggestBox.KeyDown -= SearchBarPlatformView_KeyDown;
+                autoSuggestBox.KeyDown += SearchBarPlatformView_KeyDown;
+            }
+            else
+            {
+                Console.WriteLine("Failed to get searchBar AutoSuggestBox platform view");
+            }
 #endif
+
+            searchBar.Focus();
+        });
+
     }
+
 
     private void OnHandlerChanged(object? sender, EventArgs e)
     {
