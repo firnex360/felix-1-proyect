@@ -81,6 +81,12 @@ public partial class OrderVisual : ContentPage
         });
     }
 
+    private void OnSearchBarSearchButtonPressed(object sender, EventArgs e)
+    {
+        Console.WriteLine("Enter key pressed in SearchBar (SearchButtonPressed event)");
+        AddSelectedArticleToOrder();
+    }
+
     private void OnArticleCellDoubleTapped(object sender, Syncfusion.Maui.DataGrid.DataGridCellDoubleTappedEventArgs e)
     {
         if (e.RowData is Article selectedArticle)
@@ -174,7 +180,7 @@ public partial class OrderVisual : ContentPage
         searchBar.Text = string.Empty;
         MainThread.BeginInvokeOnMainThread(async () =>
         {
-            await Task.Delay(200); // Give MAUI/WinUI time to fully render the searchBar
+            await Task.Delay(100); // Give MAUI/WinUI time to fully render the searchBar
 
 #if WINDOWS
             var autoSuggestBox = searchBar.Handler?.PlatformView as Microsoft.UI.Xaml.Controls.AutoSuggestBox;
@@ -271,6 +277,8 @@ public partial class OrderVisual : ContentPage
 #endif
 
 
+    // Custom selection controller for the order items table
+    // This controller handles keyboard navigation and selection in the order items grid
     public class CustomRowSelectionController : DataGridRowSelectionController
     {
         private readonly OrderVisual _parent;
@@ -319,6 +327,8 @@ public partial class OrderVisual : ContentPage
         }
     }
 
+    //article table selection controller
+    // This controller handles keyboard navigation and selection in the article grid
     public class CustomArticleSelectionController : DataGridRowSelectionController
     {
         private readonly OrderVisual _parent;
@@ -448,7 +458,7 @@ public partial class OrderVisual : ContentPage
         int newIndex = currentIndex + direction;
 
         // Clamp to valid range
-        newIndex = Math.Max(0, Math.Min(newIndex, currentItems.Count - 1));
+        newIndex = Math.Max(1, Math.Min(newIndex, currentItems.Count));
 
         listArticleDataGrid.SelectedIndex = newIndex;
         listArticleDataGrid.ScrollToRowIndex(newIndex);
@@ -472,10 +482,10 @@ public partial class OrderVisual : ContentPage
             return;
         }
 
-        int selectedIndex = listArticleDataGrid.SelectedIndex;
+        int selectedIndex = listArticleDataGrid.SelectedIndex - 1; // -1 Adjust for header row
         Console.WriteLine($"Selected index: {selectedIndex}, Total items: {currentItems.Count}");
 
-        if (selectedIndex >= 0 && selectedIndex < currentItems.Count)
+        if (selectedIndex >= 0 && selectedIndex <= currentItems.Count)
         {
             if (currentItems[selectedIndex] is Article selectedArticle)
             {

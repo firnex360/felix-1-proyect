@@ -97,7 +97,8 @@
                            FontSize="16"
                            Margin="8,0"
                            HeightRequest="40"
-                           HorizontalOptions="Fill"/>
+                           HorizontalOptions="Fill"
+                           SearchButtonPressed="OnSearchBarSearchButtonPressed"/>
             </Frame>
         </Grid>
 
