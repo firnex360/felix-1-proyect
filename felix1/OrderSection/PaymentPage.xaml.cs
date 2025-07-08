@@ -1,7 +1,10 @@
-using felix1.Data;
+﻿using felix1.Data;
 using felix1.Logic;
 using Microsoft.Maui.Controls;
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 
 namespace felix1.OrderSection
@@ -12,50 +15,346 @@ namespace felix1.OrderSection
         public decimal Subtotal => Order.Items?.Sum(i => i.TotalPrice) ?? 0;
         public decimal Tax => Subtotal * 0.05m;
         public decimal Total => Subtotal + Tax;
+        public decimal TotalPayment => _cashAmount + _cardAmount + _transferAmount;
+
+        public ObservableCollection<PaymentMethodOption> AvailablePaymentMethods { get; set; }
+
+        // Propiedades para controlar la visibilidad
+        public bool AnyPaymentMethodUsed => _cashAmount > 0 || _cardAmount > 0 || _transferAmount > 0;
+        public bool IsCashUsed => _cashAmount > 0;
+        public bool IsCardUsed => _cardAmount > 0;
+        public bool IsTransferUsed => _transferAmount > 0;
+
+        // Propiedades para los montos
+        public decimal CashAmount => _cashAmount;
+        public decimal CardAmount => _cardAmount;
+        public decimal TransferAmount => _transferAmount;
+        public decimal ChangeAmount => _changeAmount;
 
         private decimal _cashAmount;
         private decimal _cardAmount;
         private decimal _transferAmount;
         private decimal _changeAmount;
+        private List<Frame> _activePaymentFrames = new List<Frame>();
 
         public PaymentPage(Order order)
         {
             InitializeComponent();
             Order = order;
             BindingContext = this;
+
+            AvailablePaymentMethods = new ObservableCollection<PaymentMethodOption>
+            {
+                new PaymentMethodOption { Name = "Efectivo", Command = new Command(() => AddPaymentMethod("Efectivo")) },
+                new PaymentMethodOption { Name = "Tarjeta", Command = new Command(() => AddPaymentMethod("Tarjeta")) },
+                new PaymentMethodOption { Name = "Transferencia", Command = new Command(() => AddPaymentMethod("Transferencia")) },
+            };
         }
 
-        private void OnAddPaymentMethodClicked(object sender, EventArgs e)
+        private async void OnAddPaymentMethodClicked(object sender, EventArgs e)
         {
-            // Toggle visibility of payment method selection
-            PaymentMethodSelectionGrid.IsVisible = !PaymentMethodSelectionGrid.IsVisible;
+            var availableMethods = AvailablePaymentMethods
+                .Where(p => !_activePaymentFrames.Any(f => GetPaymentMethodName(f) == p.Name))
+                .Select(p => p.Name)
+                .ToArray();
+
+            if (availableMethods.Length == 0)
+            {
+                await DisplayAlert("Información", "Todos los métodos de pago ya han sido añadidos", "OK");
+                return;
+            }
+
+            var result = await DisplayActionSheet("Seleccionar método de pago", "Cancelar", null, availableMethods);
+
+            if (!string.IsNullOrEmpty(result) && result != "Cancelar")
+            {
+                AddPaymentMethod(result);
+            }
         }
 
-        private void OnCashSelected(object sender, EventArgs e)
+        private string GetPaymentMethodName(Frame frame)
         {
-            CashFrame.IsVisible = true;
-            PaymentMethodSelectionGrid.IsVisible = false;
-            UpdateAddPaymentMethodButton();
+            if (frame.Content is VerticalStackLayout layout &&
+                layout.Children[0] is Grid header &&
+                header.Children[0] is Label label)
+            {
+                return label.Text;
+            }
+            return null;
         }
 
-        private void OnCardSelected(object sender, EventArgs e)
+        private void AddPaymentMethod(string method)
         {
-            CardFrame.IsVisible = true;
-            PaymentMethodSelectionGrid.IsVisible = false;
-            UpdateAddPaymentMethodButton();
+            if (_activePaymentFrames.Any(f => GetPaymentMethodName(f) == method))
+            {
+                DisplayAlert("Advertencia", $"Ya has añadido un método de pago de tipo {method}", "OK");
+                return;
+            }
+
+            Frame paymentFrame = null;
+
+            switch (method)
+            {
+                case "Efectivo":
+                    paymentFrame = CreateCashFrame();
+                    break;
+                case "Tarjeta":
+                    paymentFrame = CreateCardFrame();
+                    break;
+                case "Transferencia":
+                    paymentFrame = CreateTransferFrame();
+                    break;
+            }
+
+            if (paymentFrame != null)
+            {
+                ActivePaymentMethodsContainer.Children.Insert(0, paymentFrame);
+                _activePaymentFrames.Add(paymentFrame);
+
+                UpdatePaymentSummary();
+                UpdateProperties();
+            }
         }
 
-        private void OnTransferSelected(object sender, EventArgs e)
+        private Frame CreateCashFrame()
         {
-            TransferFrame.IsVisible = true;
-            PaymentMethodSelectionGrid.IsVisible = false;
-            UpdateAddPaymentMethodButton();
+            var frame = new Frame
+            {
+                BackgroundColor = Color.FromArgb("#F5F5F5"),
+                BorderColor = Colors.White,
+                CornerRadius = 10,
+                Padding = 10,
+                HasShadow = true
+            };
+
+            var layout = new VerticalStackLayout();
+
+            var header = new Grid
+            {
+                ColumnDefinitions = new ColumnDefinitionCollection
+                {
+                    new ColumnDefinition { Width = GridLength.Star },
+                    new ColumnDefinition { Width = GridLength.Auto }
+                }
+            };
+
+            var label = new Label
+            {
+                Text = "Efectivo",
+                FontAttributes = FontAttributes.Bold,
+                TextColor = Color.FromArgb("#005F8C")
+            };
+            Grid.SetColumn(label, 0);
+            header.Children.Add(label);
+
+            var removeButton = new Button
+            {
+                Text = "×",
+                FontSize = 20,
+                TextColor = Color.FromArgb("#FF0000"),
+                BackgroundColor = Colors.Transparent,
+                Padding = 0,
+                WidthRequest = 30,
+                HeightRequest = 30,
+                CornerRadius = 15
+            };
+
+            removeButton.Clicked += (s, e) =>
+            {
+                ActivePaymentMethodsContainer.Children.Remove(frame);
+                _activePaymentFrames.Remove(frame);
+                _cashAmount = 0;
+                UpdatePaymentSummary();
+                UpdateProperties();
+            };
+
+            Grid.SetColumn(removeButton, 1);
+            header.Children.Add(removeButton);
+            layout.Children.Add(header);
+
+            var entry = new Entry
+            {
+                Placeholder = "$0.00",
+                Keyboard = Keyboard.Numeric,
+                BackgroundColor = Colors.White,
+                TextColor = Colors.Black
+            };
+
+            entry.TextChanged += (sender, e) =>
+            {
+                if (decimal.TryParse(e.NewTextValue, out var amount))
+                    _cashAmount = amount;
+                else
+                    _cashAmount = 0;
+
+                UpdatePaymentSummary();
+                UpdateProperties();
+            };
+
+            layout.Children.Add(entry);
+            frame.Content = layout;
+
+            return frame;
         }
 
-        private void UpdateAddPaymentMethodButton()
+        private Frame CreateCardFrame()
         {
-            bool allVisible = CashFrame.IsVisible && CardFrame.IsVisible && TransferFrame.IsVisible;
-            AddPaymentMethodButton.IsVisible = !allVisible;
+            var frame = new Frame
+            {
+                BackgroundColor = Color.FromArgb("#F5F5F5"),
+                BorderColor = Colors.White,
+                CornerRadius = 10,
+                Padding = 10,
+                HasShadow = true
+            };
+
+            var layout = new VerticalStackLayout();
+
+            var header = new Grid
+            {
+                ColumnDefinitions = new ColumnDefinitionCollection
+                {
+                    new ColumnDefinition { Width = GridLength.Star },
+                    new ColumnDefinition { Width = GridLength.Auto }
+                }
+            };
+
+            var label = new Label
+            {
+                Text = "Tarjeta",
+                FontAttributes = FontAttributes.Bold,
+                TextColor = Color.FromArgb("#005F8C")
+            };
+            Grid.SetColumn(label, 0);
+            header.Children.Add(label);
+
+            var removeButton = new Button
+            {
+                Text = "×",
+                FontSize = 20,
+                TextColor = Color.FromArgb("#FF0000"),
+                BackgroundColor = Colors.Transparent,
+                Padding = 0,
+                WidthRequest = 30,
+                HeightRequest = 30,
+                CornerRadius = 15
+            };
+
+            removeButton.Clicked += (s, e) =>
+            {
+                ActivePaymentMethodsContainer.Children.Remove(frame);
+                _activePaymentFrames.Remove(frame);
+                _cardAmount = 0;
+                UpdatePaymentSummary();
+                UpdateProperties();
+            };
+
+            Grid.SetColumn(removeButton, 1);
+            header.Children.Add(removeButton);
+            layout.Children.Add(header);
+
+            var entry = new Entry
+            {
+                Placeholder = "$0.00",
+                Keyboard = Keyboard.Numeric,
+                BackgroundColor = Colors.White,
+                TextColor = Colors.Black
+            };
+
+            entry.TextChanged += (sender, e) =>
+            {
+                if (decimal.TryParse(e.NewTextValue, out var amount))
+                    _cardAmount = amount;
+                else
+                    _cardAmount = 0;
+                UpdatePaymentSummary();
+                UpdateProperties();
+            };
+
+            layout.Children.Add(entry);
+            frame.Content = layout;
+
+            return frame;
+        }
+
+        private Frame CreateTransferFrame()
+        {
+            var frame = new Frame
+            {
+                BackgroundColor = Color.FromArgb("#F5F5F5"),
+                BorderColor = Colors.White,
+                CornerRadius = 10,
+                Padding = 10,
+                HasShadow = true
+            };
+
+            var layout = new VerticalStackLayout();
+
+            var header = new Grid
+            {
+                ColumnDefinitions = new ColumnDefinitionCollection
+                {
+                    new ColumnDefinition { Width = GridLength.Star },
+                    new ColumnDefinition { Width = GridLength.Auto }
+                }
+            };
+
+            var label = new Label
+            {
+                Text = "Transferencia",
+                FontAttributes = FontAttributes.Bold,
+                TextColor = Color.FromArgb("#005F8C")
+            };
+            Grid.SetColumn(label, 0);
+            header.Children.Add(label);
+
+            var removeButton = new Button
+            {
+                Text = "×",
+                FontSize = 20,
+                TextColor = Color.FromArgb("#FF0000"),
+                BackgroundColor = Colors.Transparent,
+                Padding = 0,
+                WidthRequest = 30,
+                HeightRequest = 30,
+                CornerRadius = 15
+            };
+
+            removeButton.Clicked += (s, e) =>
+            {
+                ActivePaymentMethodsContainer.Children.Remove(frame);
+                _activePaymentFrames.Remove(frame);
+                _transferAmount = 0;
+                UpdatePaymentSummary();
+                UpdateProperties();
+            };
+
+            Grid.SetColumn(removeButton, 1);
+            header.Children.Add(removeButton);
+            layout.Children.Add(header);
+
+            var entry = new Entry
+            {
+                Placeholder = "$0.00",
+                Keyboard = Keyboard.Numeric,
+                BackgroundColor = Colors.White,
+                TextColor = Colors.Black
+            };
+
+            entry.TextChanged += (sender, e) =>
+            {
+                if (decimal.TryParse(e.NewTextValue, out var amount))
+                    _transferAmount = amount;
+                else
+                    _transferAmount = 0;
+                UpdatePaymentSummary();
+                UpdateProperties();
+            };
+
+            layout.Children.Add(entry);
+            frame.Content = layout;
+
+            return frame;
         }
 
         private void OnChargeClicked(object sender, EventArgs e)
@@ -69,6 +368,7 @@ namespace felix1.OrderSection
             }
 
             _changeAmount = totalPayment > Total ? totalPayment - Total : 0;
+            UpdateProperties();
 
             var transaction = new Transaction
             {
@@ -82,9 +382,9 @@ namespace felix1.OrderSection
             };
 
             string message = $"Efectivo: ${_cashAmount:F2}\n" +
-                            $"Tarjeta: ${_cardAmount:F2}\n" +
-                            $"Transferencia: ${_transferAmount:F2}\n" +
-                            $"Total: ${Total:F2}";
+                           $"Tarjeta: ${_cardAmount:F2}\n" +
+                           $"Transferencia: ${_transferAmount:F2}\n" +
+                           $"Total: ${Total:F2}";
 
             if (_changeAmount > 0)
             {
@@ -93,46 +393,7 @@ namespace felix1.OrderSection
 
             DisplayAlert("Pago realizado", message, "OK");
 
-            //no se puede tener ua base de datos en est� econom�a
-        }
-
-        private void OnCashAmountChanged(object sender, TextChangedEventArgs e)
-        {
-            if (decimal.TryParse(e.NewTextValue, out var amount))
-            {
-                _cashAmount = amount;
-            }
-            else
-            {
-                _cashAmount = 0;
-            }
-            UpdatePaymentSummary();
-        }
-
-        private void OnCardAmountChanged(object sender, TextChangedEventArgs e)
-        {
-            if (decimal.TryParse(e.NewTextValue, out var amount))
-            {
-                _cardAmount = amount;
-            }
-            else
-            {
-                _cardAmount = 0;
-            }
-            UpdatePaymentSummary();
-        }
-
-        private void OnTransferAmountChanged(object sender, TextChangedEventArgs e)
-        {
-            if (decimal.TryParse(e.NewTextValue, out var amount))
-            {
-                _transferAmount = amount;
-            }
-            else
-            {
-                _transferAmount = 0;
-            }
-            UpdatePaymentSummary();
+            //no se puede tener ua base de datos en está economía
         }
 
         private void UpdatePaymentSummary()
@@ -148,12 +409,47 @@ namespace felix1.OrderSection
                 {
                     var change = totalPayment - Total;
                     PaymentSummaryLabel.Text += $" (Devuelta: ${change:F2})";
+                    _changeAmount = change;
+                    OnPropertyChanged(nameof(ChangeAmount));
                 }
             }
             else
             {
                 PaymentSummaryLabel.TextColor = Colors.Red;
             }
+        }
+
+        private void UpdateProperties()
+        {
+            OnPropertyChanged(nameof(AnyPaymentMethodUsed));
+            OnPropertyChanged(nameof(IsCashUsed));
+            OnPropertyChanged(nameof(IsCardUsed));
+            OnPropertyChanged(nameof(IsTransferUsed));
+            OnPropertyChanged(nameof(CashAmount));
+            OnPropertyChanged(nameof(CardAmount));
+            OnPropertyChanged(nameof(TransferAmount));
+            OnPropertyChanged(nameof(ChangeAmount));
+            OnPropertyChanged(nameof(TotalPayment));
+        }
+    }
+
+    public class PaymentMethodOption
+    {
+        public string Name { get; set; }
+        public bool IsSelected { get; set; } = false;
+        public Command Command { get; set; }
+    }
+
+    public class BoolToColorConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return (bool)value ? Color.FromArgb("#DFF6FF") : Color.FromArgb("#FFFFFF");
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
         }
     }
 }
