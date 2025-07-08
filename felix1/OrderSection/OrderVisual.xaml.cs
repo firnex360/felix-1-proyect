@@ -7,8 +7,6 @@ using Syncfusion.Maui.DataGrid;
 using Syncfusion.Maui.Core.Internals;
 using Syncfusion.Maui.DataGrid.Helper;
 
-
-
 #if WINDOWS
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml;
@@ -78,8 +76,17 @@ public partial class OrderVisual : ContentPage
 
     private void OnSearchBarSearchButtonPressed(object sender, EventArgs e)
     {
-        //Console.WriteLine("Enter key pressed in SearchBar (SearchButtonPressed event)");
         AddSelectedArticleToOrder();
+    }
+
+    // Method for search bar focus management
+    private void FocusSearchBarAsync()
+    {
+        MainThread.BeginInvokeOnMainThread(async () =>
+        {
+            await Task.Delay(50);
+            searchBar.Focus();
+        });
     }
 
     private void OnArticleCellDoubleTapped(object sender, Syncfusion.Maui.DataGrid.DataGridCellDoubleTappedEventArgs e)
@@ -170,13 +177,8 @@ public partial class OrderVisual : ContentPage
             var autoSuggestBox = searchBar.Handler?.PlatformView as Microsoft.UI.Xaml.Controls.AutoSuggestBox;
             if (autoSuggestBox != null)
             {
-                Console.WriteLine("Successfully attached SearchBar KeyDown event to AutoSuggestBox");
                 autoSuggestBox.KeyDown -= SearchBarPlatformView_KeyDown;
                 autoSuggestBox.KeyDown += SearchBarPlatformView_KeyDown;
-            }
-            else
-            {
-                Console.WriteLine("Failed to get searchBar AutoSuggestBox platform view");
             }
 #endif
 
@@ -204,7 +206,6 @@ public partial class OrderVisual : ContentPage
         switch (e.Key)
         {
             case Windows.System.VirtualKey.Enter:
-                //OnEditQuantityClicked(this, EventArgs.Empty);
                 e.Handled = true;
                 break;
             case Windows.System.VirtualKey.Add:
@@ -224,9 +225,6 @@ public partial class OrderVisual : ContentPage
 
     private void SearchBarPlatformView_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
     {
-
-        Console.WriteLine($"[SearchBar KeyDown] Key: {e.Key}");
-
         switch (e.Key)
         {
             case Windows.System.VirtualKey.Down:
@@ -238,25 +236,12 @@ public partial class OrderVisual : ContentPage
                 e.Handled = true;
                 break;
             case Windows.System.VirtualKey.Enter:
-                // Handle Enter key press in search bar (this doesnt work, it is handled by the SearchButtonPressed event)
                 AddSelectedArticleToOrder();
                 e.Handled = true;
-                //Console.WriteLine("Enter key pressed in search bar, but not handled here.");
                 break;
             case Windows.System.VirtualKey.Tab:
                 ToggleTableFocus();
                 e.Handled = true;
-                //Console.WriteLine("Tab key pressed in search bar, toggling table focus.");
-                break;
-            case Windows.System.VirtualKey.Space:
-                // Only handle space if Ctrl is pressed (to avoid interfering with typing)
-                // var ctrlState = Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(Windows.System.VirtualKey.Control);
-                // if (ctrlState.HasFlag(Microsoft.UI.Core.CoreVirtualKeyStates.Down))
-                // {
-                //     ToggleTableFocus();
-                //     e.Handled = true;
-                // }
-                Console.WriteLine("Space key pressed in search bar, but not handled here.");
                 break;
         }
     }
@@ -283,7 +268,6 @@ public partial class OrderVisual : ContentPage
 
         protected override void ProcessKeyDown(KeyEventArgs args, bool isCtrlKeyPressed, bool isShiftKeyPressed)
         {
-
             if (args.Key == KeyboardKey.Enter)
             {
                 if (_parent._isEditing)
@@ -316,20 +300,14 @@ public partial class OrderVisual : ContentPage
         }
     }
 
-    //article table selection controller
-    // This controller handles keyboard navigation and selection in the article grid
+    // Custom selection controller for the article grid
     public class CustomArticleSelectionController : DataGridRowSelectionController
     {
         private readonly OrderVisual _parent;
+
         public CustomArticleSelectionController(SfDataGrid dataGrid, OrderVisual parent) : base(dataGrid)
         {
             _parent = parent;
-        }
-
-        public void SimulateTabKey()
-        {
-            var tabArgs = new KeyEventArgs(KeyboardKey.Tab) { Handled = false };
-            ProcessKeyDown(tabArgs, false, false);
         }
 
         protected override void ProcessKeyDown(KeyEventArgs args, bool isCtrlKeyPressed, bool isShiftKeyPressed)
@@ -337,7 +315,6 @@ public partial class OrderVisual : ContentPage
             // Only handle keys when the article grid has direct focus (not when search bar is focused)
             if (_parent.searchBar.IsFocused)
             {
-                // Let the search bar handle navigation
                 return;
             }
 
@@ -367,30 +344,8 @@ public partial class OrderVisual : ContentPage
     }
 
 
-    //methods for button actions
-
-    //method to start editing quantity of the selected row (deprecated)
-    [Obsolete("Use EditOrderItemQuantity method instead.")]
-    private void OnEditQuantityClicked(object sender, EventArgs e)
-    {
-        if (orderItemsDataGrid.SelectedIndex >= 0)
-        {
-            // Find the column index for Quantity
-            int rowIndex = orderItemsDataGrid.SelectedIndex;
-            int quantityColumnIndex = 0;
-            orderItemsDataGrid.BeginEdit(rowIndex, quantityColumnIndex);
-        }
-    }
-
-    //new method to edit a specific OrderItem
-    public void EditOrderItemQuantity(OrderItem item)
-    {
-        int rowIndex = OrderItems.IndexOf(item) + 1; // +1 because the first row is empty in the DataGrid
-        int quantityColumnIndex = 0;
-        if (rowIndex >= 0)
-            orderItemsDataGrid.BeginEdit(rowIndex, quantityColumnIndex);
-    }
-
+    // Button action methods
+    // when "+" is clicked, increase the quantity of the selected item
     private void OnIncreaseQuantityClicked(object sender, EventArgs e)
     {
         var selectedItemIndex = orderItemsDataGrid.SelectedIndex;
@@ -402,6 +357,7 @@ public partial class OrderVisual : ContentPage
         }
     }
 
+    // when "-" is clicked, decrease the quantity of the selected item
     private void OnDecreaseQuantityClicked(object sender, EventArgs e)
     {
         var selectedItemIndex = orderItemsDataGrid.SelectedIndex;
@@ -416,6 +372,7 @@ public partial class OrderVisual : ContentPage
         }
     }
 
+    // when "delete" is clicked, remove the selected item from the order
     private void OnRemoveItemClicked(object sender, EventArgs e)
     {
         var selectedItemIndex = orderItemsDataGrid.SelectedIndex;
@@ -427,26 +384,26 @@ public partial class OrderVisual : ContentPage
         }
     }
 
+    // when "enter" is clicked, open the quantity editor for the selected item
+    public void EditOrderItemQuantity(OrderItem item)
+    {
+        int rowIndex = OrderItems.IndexOf(item) + 1; // +1 because the first row is empty in the DataGrid
+        int quantityColumnIndex = 0;
+        if (rowIndex >= 0)
+            orderItemsDataGrid.BeginEdit(rowIndex, quantityColumnIndex);
+    }
+
     private void OnExitSave(object sender, EventArgs e)
     {
-        Console.WriteLine("Exit & Save button clicked");
+        // TODO: Implement save and exit functionality
     }
 
     private void OnPrintReceipt(object sender, EventArgs e)
     {
-        Console.WriteLine("Print Receipt button clicked");
+        // TODO: Implement print receipt functionality
     }
 
-    // Method for search bar focus management
-    private void FocusSearchBarAsync()
-    {
-        MainThread.BeginInvokeOnMainThread(async () =>
-        {
-            await Task.Delay(50);
-            searchBar.Focus();
-        });
-    }
-
+    // Navigation methods for article grid
     public void NavigateArticleGrid(int direction)
     {
         var currentItems = listArticleDataGrid.ItemsSource as System.Collections.IList ?? ListArticles;
@@ -462,42 +419,23 @@ public partial class OrderVisual : ContentPage
         listArticleDataGrid.SelectedIndex = newIndex;
         listArticleDataGrid.ScrollToRowIndex(newIndex);
 
-        // Visual feedback without losing search bar focus
         FocusSearchBarAsync();
     }
 
     public void AddSelectedArticleToOrder()
     {
-        Console.WriteLine("AddSelectedArticleToOrder called");
-
         var currentItems = listArticleDataGrid.ItemsSource as System.Collections.IList;
-        if (currentItems == null)
-        {
-            Console.WriteLine("No items in current list");
-            return;
-        }
+        if (currentItems == null) return;
 
-        int selectedIndex = listArticleDataGrid.SelectedIndex - 1; // -1 Adjust for header row
-        Console.WriteLine($"Selected index: {selectedIndex}, Total items: {currentItems.Count}");
+        int selectedIndex = listArticleDataGrid.SelectedIndex - 1; // Adjust for header row
 
         if (selectedIndex >= 0 && selectedIndex <= currentItems.Count)
         {
             if (currentItems[selectedIndex] is Article selectedArticle)
             {
-                Console.WriteLine($"Adding article: {selectedArticle.Name}");
                 AddArticleToOrder(selectedArticle);
-
-                // Keep search bar focused after adding article
                 FocusSearchBarAsync();
             }
-            else
-            {
-                Console.WriteLine("Selected item is not an Article");
-            }
-        }
-        else
-        {
-            Console.WriteLine("Invalid selection index");
         }
     }
 }

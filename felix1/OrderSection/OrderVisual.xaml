@@ -112,14 +112,7 @@
                          Orientation="Horizontal"
                          Spacing="10"
                          Margin="0,0,0,10">
-
-                <Button Text="Edit Qty (Enter)"
-                        BackgroundColor="#005F8C"
-                        TextColor="White"
-                        Clicked="OnEditQuantityClicked"
-                        FontSize="12"
-                        Padding="8,4"/>
-
+                         
                 <Button Text="+"
                         BackgroundColor="#28a745"
                         TextColor="White"
