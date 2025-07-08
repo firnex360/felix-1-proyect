@@ -22,8 +22,6 @@ public partial class OrderVisual : ContentPage
     public ObservableCollection<OrderItem> OrderItems { get; set; } = new();
 
     private bool _isEditing = false;
-    private bool _isProgrammaticTabSwitch = false;
-
 
     public OrderVisual()
     {
@@ -138,10 +136,10 @@ public partial class OrderVisual : ContentPage
                 orderItemsDataGrid.MoveCurrentCellTo(new Syncfusion.Maui.GridCommon.ScrollAxis.RowColumnIndex(1, 1));
                 orderItemsDataGrid.ScrollToRowIndex(1);
 
-                // Simulate Tab key press to activate keyboard navigation
+                // Activate keyboard navigation without simulating Tab
                 if (orderItemsDataGrid.SelectionController is CustomRowSelectionController controller)
                 {
-                    controller.SimulateTabKey();
+                    controller.ActivateKeyboardNavigation();
                 }
             }
         }
@@ -275,14 +273,17 @@ public partial class OrderVisual : ContentPage
             _parent = parent;
         }
 
-        public void SimulateTabKey()
+        public void ActivateKeyboardNavigation()
         {
-            var tabArgs = new KeyEventArgs(KeyboardKey.Tab) { Handled = false };
-            ProcessKeyDown(tabArgs, false, false);
+            // Directly activate keyboard navigation without simulating Tab
+            // This avoids triggering the Tab key handler that switches focus back to search bar
+            var rightArrowArgs = new KeyEventArgs(KeyboardKey.Right) { Handled = false };
+            base.ProcessKeyDown(rightArrowArgs, false, false);
         }
 
         protected override void ProcessKeyDown(KeyEventArgs args, bool isCtrlKeyPressed, bool isShiftKeyPressed)
         {
+
             if (args.Key == KeyboardKey.Enter)
             {
                 if (_parent._isEditing)
@@ -308,11 +309,6 @@ public partial class OrderVisual : ContentPage
                 _parent.FocusSearchBarAsync();
                 args.Handled = true;
             }
-            // else if (args.Key == KeyboardKey.Space)
-            // {
-            //     _parent.ToggleTableFocus();
-            //     args.Handled = true;
-            // }
             else
             {
                 base.ProcessKeyDown(args, isCtrlKeyPressed, isShiftKeyPressed);
