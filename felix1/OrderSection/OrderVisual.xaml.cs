@@ -122,6 +122,10 @@ public partial class OrderVisual : ContentPage
             OrderItems.Add(newOrderItem);
         }
     }
+
+
+    // Toggle focus between article and order items tables
+    //there are some conditional that dont make sense right now, but they are there to avoid undesired behavior
     public void ToggleTableFocus()
     {
         if (_isArticleTableFocused)
@@ -140,7 +144,7 @@ public partial class OrderVisual : ContentPage
                     controller.SimulateTabKey();
                 }
             }
-            _isArticleTableFocused = false;
+            //_isArticleTableFocused = false;
         }
         else
         {
@@ -158,7 +162,7 @@ public partial class OrderVisual : ContentPage
                     controller.SimulateTabKey();
                 }
             }
-            _isArticleTableFocused = true;
+            //_isArticleTableFocused = true;
         }
     }
 
@@ -253,13 +257,12 @@ public partial class OrderVisual : ContentPage
                 // Handle Enter key press in search bar (this doesnt work, it is handled by the SearchButtonPressed event)
                 AddSelectedArticleToOrder();
                 e.Handled = true;
-
-                Console.WriteLine("Enter key pressed in search bar, but not handled here.");
+                //Console.WriteLine("Enter key pressed in search bar, but not handled here.");
                 break;
             case Windows.System.VirtualKey.Tab:
                 ToggleTableFocus();
                 e.Handled = true;
-                Console.WriteLine("Tab key pressed in search bar, toggling table focus.");
+                //Console.WriteLine("Tab key pressed in search bar, toggling table focus.");
                 break;
             case Windows.System.VirtualKey.Space:
                 // Only handle space if Ctrl is pressed (to avoid interfering with typing)
@@ -314,16 +317,16 @@ public partial class OrderVisual : ContentPage
                     }
                 }
             }
-            // else if (args.Key == KeyboardKey.Tab)
-            // {
-            //     _parent.FocusSearchBarAsync();
-            //     args.Handled = true;
-            // }
-            else if (args.Key == KeyboardKey.Space)
+            else if (args.Key == KeyboardKey.Tab)
             {
-                _parent.ToggleTableFocus();
+                _parent.FocusSearchBarAsync();
                 args.Handled = true;
             }
+            // else if (args.Key == KeyboardKey.Space)
+            // {
+            //     _parent.ToggleTableFocus();
+            //     args.Handled = true;
+            // }
             else
             {
                 base.ProcessKeyDown(args, isCtrlKeyPressed, isShiftKeyPressed);
