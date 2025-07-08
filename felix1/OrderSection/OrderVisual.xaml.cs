@@ -22,7 +22,8 @@ public partial class OrderVisual : ContentPage
     public ObservableCollection<OrderItem> OrderItems { get; set; } = new();
 
     private bool _isEditing = false;
-    private bool _isArticleTableFocused = true; // Track which table has focus
+    private bool _isProgrammaticTabSwitch = false;
+
 
     public OrderVisual()
     {
@@ -79,7 +80,7 @@ public partial class OrderVisual : ContentPage
 
     private void OnSearchBarSearchButtonPressed(object sender, EventArgs e)
     {
-        Console.WriteLine("Enter key pressed in SearchBar (SearchButtonPressed event)");
+        //Console.WriteLine("Enter key pressed in SearchBar (SearchButtonPressed event)");
         AddSelectedArticleToOrder();
     }
 
@@ -124,11 +125,10 @@ public partial class OrderVisual : ContentPage
     }
 
 
-    // Toggle focus between article and order items tables
-    //there are some conditional that dont make sense right now, but they are there to avoid undesired behavior
+    // Toggle focus between search bar and order items table
     public void ToggleTableFocus()
     {
-        if (_isArticleTableFocused)
+        if (searchBar.IsFocused)
         {
             // Switch to order items table
             if (OrderItems.Count > 0)
@@ -144,25 +144,11 @@ public partial class OrderVisual : ContentPage
                     controller.SimulateTabKey();
                 }
             }
-            //_isArticleTableFocused = false;
         }
         else
         {
-            // Switch to article table (this has a bug, it should select the first row but sometimes it selects the second row)
-            if (ListArticles.Count > 0)
-            {
-                listArticleDataGrid.SelectedIndex = 1;
-                listArticleDataGrid.Focus();
-                listArticleDataGrid.MoveCurrentCellTo(new Syncfusion.Maui.GridCommon.ScrollAxis.RowColumnIndex(0, 1));
-                listArticleDataGrid.ScrollToRowIndex(0);
-
-                // Simulate Tab key press to activate keyboard navigation
-                if (listArticleDataGrid.SelectionController is CustomArticleSelectionController controller)
-                {
-                    controller.SimulateTabKey();
-                }
-            }
-            //_isArticleTableFocused = true;
+            // Switch back to search bar
+            FocusSearchBarAsync();
         }
     }
 
