@@ -76,4 +76,41 @@ public partial class OrderSectionMainVisual : ContentPage
         var loginPage = new LoginPage();
         Application.Current.MainPage = new NavigationPage(loginPage);
     }
+    private async void OnPaymentButtonClicked(object sender, EventArgs e)
+    {
+        // Crear un pedido de prueba con artículos reales
+        var testOrder = new Order
+        {
+            Id = 999,
+            Date = DateTime.Now,
+            Items = new List<OrderItem>
+        {
+            new OrderItem
+            {
+                Article = new Article { Name = "Pollo Frito" },
+                Quantity = 1,
+                UnitPrice = 250.50m
+            },
+            new OrderItem
+            {
+                Article = new Article { Name = "Sandía" },
+                Quantity = 2,
+                UnitPrice = 22.25m
+            }
+        }
+        };
+
+        // Mostrar pantalla de pago
+        var paymentPage = new PaymentPage(testOrder);
+
+        if (Navigation != null)
+        {
+            await Navigation.PushAsync(paymentPage);
+        }
+        else
+        {
+            await Application.Current.MainPage.DisplayAlert("Error", "No se puede navegar a la página de pago", "OK");
+        }
+    }
+
 }

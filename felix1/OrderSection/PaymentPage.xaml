@@ -1,0 +1,164 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="felix1.OrderSection.PaymentPage"
+             BackgroundColor="#FFFFFF"
+             Title="Pago">
+
+    <Grid RowDefinitions="Auto, Auto, *, Auto" 
+        ColumnDefinitions="*, 30, *"
+          Padding="20">
+
+        <Frame Grid.Row="0" Grid.Column="0"
+               BackgroundColor="#F5F5F5"
+               CornerRadius="10"
+               BorderColor="#FFE0E0E0"
+               HasShadow="True"
+               Padding="20">
+            <VerticalStackLayout Spacing="10">
+                <Label Text="Detalles" FontAttributes="Bold" FontSize="18" TextColor="#005F8C" />
+
+                <CollectionView x:Name="ItemsList" ItemsSource="{Binding Order.Items}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ColumnDefinitions="*, Auto" ColumnSpacing="10">
+                                <HorizontalStackLayout Grid.Column="0" Spacing="5">
+                                    <Label Text="{Binding ArticleName}"
+                                           TextColor="#005F8C" />
+                                    <Label Text="{Binding UnitPrice, StringFormat='${0:F2}'}"
+                                           TextColor="#005F8C" />
+                                </HorizontalStackLayout>
+
+                                <Label Grid.Column="1"
+                                       Text="{Binding Quantity, StringFormat='x{0}'}"
+                                       TextColor="#005F8C"
+                                       HorizontalOptions="End" />
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <BoxView HeightRequest="1" BackgroundColor="#005F8C" Margin="0,10" />
+
+                <HorizontalStackLayout >
+                    <Label Text="Items"  TextColor="#005F8C" />
+                    <Label Text="{Binding Subtotal, StringFormat='${0:F2}'}" HorizontalOptions="EndAndExpand"  TextColor="#005F8C"/>
+                </HorizontalStackLayout>
+
+                <HorizontalStackLayout>
+                    <Label Text="Impuestos (5%)"  TextColor="#005F8C"/>
+                    <Label Text="{Binding Tax, StringFormat='${0:F2}'}" HorizontalOptions="EndAndExpand"  TextColor="#005F8C"/>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+        </Frame>
+
+        <HorizontalStackLayout Grid.Row="1" Grid.Column="0"
+                              Margin="0,10,0,0"
+                              HorizontalOptions="End">
+            <Label Text="Total" FontAttributes="Bold" TextColor="#005F8C" />
+            <Label Text="{Binding Total, StringFormat='${0:F2}'}" 
+                   FontAttributes="Bold" 
+                   TextColor="#005F8C" 
+                   Margin="10,0,0,0"/>
+        </HorizontalStackLayout>
+        
+        <VerticalStackLayout Grid.Row="0" Grid.RowSpan="3" Grid.Column="2" Spacing="15">
+            <Label Text="Métodos de pago" FontAttributes="Bold" FontSize="18" TextColor="#005F8C"/>
+
+            <Button x:Name="AddPaymentMethodButton"
+                    Text="Agregar método de pago"
+                    BackgroundColor="#005F8C"
+                    TextColor="White"
+                    CornerRadius="8"
+                    Clicked="OnAddPaymentMethodClicked"/>
+
+            <Grid x:Name="PaymentMethodSelectionGrid" 
+                  IsVisible="False"
+                  ColumnDefinitions="*,*,*"
+                  ColumnSpacing="10">
+                <Button Grid.Column="0"
+                        Text="Efectivo"
+                        BackgroundColor="#005F8C"
+                        TextColor="White"
+                        CornerRadius="8"
+                        Clicked="OnCashSelected"/>
+                <Button Grid.Column="1"
+                        Text="Tarjeta"
+                        BackgroundColor="#005F8C"
+                        TextColor="White"
+                        CornerRadius="8"
+                        Clicked="OnCardSelected"/>
+                <Button Grid.Column="2"
+                        Text="Transferencia"
+                        BackgroundColor="#005F8C"
+                        TextColor="White"
+                        CornerRadius="8"
+                        Clicked="OnTransferSelected"/>
+            </Grid>
+
+            <Frame x:Name="CashFrame" 
+                   IsVisible="False"
+                   BackgroundColor="#F5F5F5"
+                   CornerRadius="10"
+                   Padding="10">
+                <VerticalStackLayout>
+                    <Label Text="Efectivo" FontAttributes="Bold" TextColor="#005F8C"/>
+                    <Entry x:Name="CashEntry" 
+                           Placeholder="$0.00" 
+                           Keyboard="Numeric"
+                           TextChanged="OnCashAmountChanged"
+                           BackgroundColor="White"
+                           TextColor="Black"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame x:Name="CardFrame" 
+                   IsVisible="False"
+                   BackgroundColor="#F5F5F5"
+                   CornerRadius="10"
+                   Padding="10">
+                <VerticalStackLayout>
+                    <Label Text="Tarjeta" FontAttributes="Bold" TextColor="#005F8C"/>
+                    <Entry x:Name="CardEntry" 
+                           Placeholder="$0.00" 
+                           Keyboard="Numeric"
+                           TextChanged="OnCardAmountChanged"
+                           BackgroundColor="White"
+                           TextColor="Black"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame x:Name="TransferFrame" 
+                   IsVisible="False"
+                   BackgroundColor="#F5F5F5"
+                   CornerRadius="10"
+                   Padding="10">
+                <VerticalStackLayout>
+                    <Label Text="Transferencia" FontAttributes="Bold" TextColor="#005F8C"/>
+                    <Entry x:Name="TransferEntry" 
+                           Placeholder="$0.00" 
+                           Keyboard="Numeric"
+                           TextChanged="OnTransferAmountChanged"
+                           BackgroundColor="White"
+                           TextColor="Black"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Label x:Name="PaymentSummaryLabel" 
+                   Text="Pagado: $0.00 / $0.00" 
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"/>
+        </VerticalStackLayout>
+
+        <Button Grid.Row="3" Grid.Column="2"
+                Text="Charge"
+                BackgroundColor="#005F8C"
+                TextColor="White"
+                CornerRadius="8"
+                WidthRequest="150"
+                HeightRequest="40"
+                HorizontalOptions="End"
+                VerticalOptions="End"
+                Margin="0,20,0,0"
+                Clicked="OnChargeClicked"/>
+    </Grid>
+</ContentPage>
