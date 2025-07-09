@@ -20,6 +20,8 @@ public partial class OrderVisual : ContentPage
     public ObservableCollection<OrderItem> OrderItems { get; set; } = new();
 
     private bool _isEditing = false;
+    private const decimal TAX_RATE = 0.16m; // 16% tax rate
+    private decimal _discountAmount = 0m;
 
     public OrderVisual()
     {
@@ -28,6 +30,9 @@ public partial class OrderVisual : ContentPage
         LoadArticles();
         orderItemsDataGrid.CurrentCellBeginEdit += (s, e) => _isEditing = true;
         orderItemsDataGrid.CurrentCellEndEdit += (s, e) => _isEditing = false;
+        
+        // Subscribe to collection changes to update totals
+        OrderItems.CollectionChanged += (s, e) => UpdateOrderTotals();
     }
 
 
@@ -127,6 +132,8 @@ public partial class OrderVisual : ContentPage
 
             OrderItems.Add(newOrderItem);
         }
+        
+        UpdateOrderTotals();
     }
 
 
@@ -354,6 +361,7 @@ public partial class OrderVisual : ContentPage
         {
             var selectedItem = OrderItems[selectedItemIndex - 1];
             selectedItem.Quantity++;
+            UpdateOrderTotals();
         }
     }
 
@@ -366,9 +374,14 @@ public partial class OrderVisual : ContentPage
         {
             var selectedItem = OrderItems[selectedItemIndex - 1];
             if (selectedItem.Quantity > 1)
+            {
                 selectedItem.Quantity--;
+                UpdateOrderTotals();
+            }
             else
+            {
                 OrderItems.Remove(selectedItem);
+            }
         }
     }
 
@@ -437,5 +450,44 @@ public partial class OrderVisual : ContentPage
                 FocusSearchBarAsync();
             }
         }
+    }
+
+    // Order calculation methods
+    private void UpdateOrderTotals()
+    {
+        decimal subtotal = CalculateSubtotal();
+        decimal tax = CalculateTax(subtotal);
+        decimal total = subtotal + tax - _discountAmount;
+
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            subtotalLabel.Text = subtotal.ToString("C2");
+            taxLabel.Text = tax.ToString("C2");
+            totalLabel.Text = total.ToString("C2");
+        });
+    }
+
+    private decimal CalculateSubtotal()
+    {
+        return OrderItems.Sum(item => item.TotalPrice);
+    }
+
+    private decimal CalculateTax(decimal subtotal)
+    {
+        return subtotal * TAX_RATE;
+    }
+
+    private void OnDiscountChanged(object sender, TextChangedEventArgs e)
+    {
+        if (decimal.TryParse(e.NewTextValue, out decimal discount))
+        {
+            _discountAmount = Math.Max(0, discount); // Ensure discount is not negative
+        }
+        else
+        {
+            _discountAmount = 0;
+        }
+        
+        UpdateOrderTotals();
     }
 }

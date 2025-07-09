@@ -112,7 +112,7 @@
                          Orientation="Horizontal"
                          Spacing="10"
                          Margin="0,0,0,10">
-                         
+
                 <Button Text="+"
                         BackgroundColor="#28a745"
                         TextColor="White"
@@ -219,36 +219,113 @@
                 </syncfusion:SfDataGrid>
             </Frame>
 
-            <!-- Action Buttons -->
-            <StackLayout Grid.Row="2"
-                         Orientation="Horizontal"
-                         Spacing="15"
-                         HorizontalOptions="Center"
-                         VerticalOptions="Center"
-                         Margin="0,10,0,0">
+            <!-- Order Summary -->
+            <Frame Grid.Row="2"
+                   CornerRadius="10"
+                   Padding="15"
+                   HasShadow="True"
+                   BackgroundColor="#F8F9FA"
+                   BorderColor="#E9ECEF"
+                   Margin="0,5,0,10">
 
-                <Button x:Name="exitSaveButton"
-                        Text="Salir"
-                        BackgroundColor="#28a745"
-                        TextColor="White"
-                        Clicked="OnExitSave"
-                        FontSize="14"
-                        WidthRequest="120"
-                        HeightRequest="45"
-                        CornerRadius="8"
-                        FontAttributes="Bold"/>
+                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
+                    
+                    <!-- Subtotal -->
+                    <Label Grid.Row="0" Grid.Column="0"
+                           Text="Subtotal:"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           VerticalOptions="Center"/>
+                    <Label Grid.Row="0" Grid.Column="1"
+                           x:Name="subtotalLabel"
+                           Text="$0.00"
+                           FontSize="14"
+                           HorizontalTextAlignment="End"
+                           VerticalOptions="Center"/>
 
-                <Button x:Name="printReceiptButton"
-                        Text="Imprimir Recibo"
-                        BackgroundColor="#007bff"
-                        TextColor="White"
-                        Clicked="OnPrintReceipt"
-                        FontSize="14"
-                        WidthRequest="120"
-                        HeightRequest="45"
-                        CornerRadius="8"
-                        FontAttributes="Bold"/>
-            </StackLayout>
+                    <!-- Tax -->
+                    <Label Grid.Row="1" Grid.Column="0"
+                           Text="Impuestos:"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           VerticalOptions="Center"/>
+                    <Label Grid.Row="1" Grid.Column="1"
+                           x:Name="taxLabel"
+                           Text="$0.00"
+                           FontSize="14"
+                           HorizontalTextAlignment="End"
+                           VerticalOptions="Center"/>
+
+                    <!-- Discount -->
+                    <Label Grid.Row="2" Grid.Column="0"
+                           Text="Descuento:"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           VerticalOptions="Center"/>
+                    <Entry Grid.Row="2" Grid.Column="1"
+                           x:Name="discountEntry"
+                           Text="0"
+                           FontSize="14"
+                           HorizontalTextAlignment="End"
+                           Keyboard="Numeric"
+                           WidthRequest="100"
+                           HorizontalOptions="End"
+                           TextChanged="OnDiscountChanged"/>
+
+                    <!-- Separator Line -->
+                    <BoxView Grid.Row="3" Grid.ColumnSpan="2"
+                             Color="#E9ECEF"
+                             HeightRequest="1"
+                             Margin="0,10"/>
+
+                    <!-- Total -->
+                    <Label Grid.Row="4" Grid.Column="0"
+                           Text="Total:"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="#007bff"
+                           VerticalOptions="Center"/>
+                    <Label Grid.Row="4" Grid.Column="1"
+                           x:Name="totalLabel"
+                           Text="$0.00"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="#007bff"
+                           HorizontalTextAlignment="End"
+                           VerticalOptions="Center"/>
+
+                    <!-- Action Buttons -->
+                    <StackLayout Grid.Row="5" Grid.ColumnSpan="2"
+                                 Orientation="Horizontal"
+                                 Spacing="15"
+                                 HorizontalOptions="Center"
+                                 VerticalOptions="Center"
+                                 Margin="0,15,0,0">
+
+                        <Button x:Name="exitSaveButton"
+                                Text="Salir"
+                                BackgroundColor="#28a745"
+                                TextColor="White"
+                                Clicked="OnExitSave"
+                                FontSize="14"
+                                WidthRequest="120"
+                                HeightRequest="45"
+                                CornerRadius="8"
+                                FontAttributes="Bold"/>
+
+                        <Button x:Name="printReceiptButton"
+                                Text="Imprimir Recibo"
+                                BackgroundColor="#007bff"
+                                TextColor="White"
+                                Clicked="OnPrintReceipt"
+                                FontSize="14"
+                                WidthRequest="120"
+                                HeightRequest="45"
+                                CornerRadius="8"
+                                FontAttributes="Bold"/>
+                    </StackLayout>
+                </Grid>
+            </Frame>
         </Grid>
     </Grid>
 </ContentPage>
