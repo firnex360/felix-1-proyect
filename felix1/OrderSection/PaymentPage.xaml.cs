@@ -39,7 +39,6 @@ namespace felix1.OrderSection
             Order = order;
             BindingContext = this;
 
-            // Add Cash payment method by default
             AddCashMethod();
         }
 
@@ -339,6 +338,8 @@ namespace felix1.OrderSection
             }
 
             DisplayAlert("Pago realizado", message, "OK");
+
+            //no se puede tener ua base de datos en está economía
         }
 
         private void UpdatePaymentSummary()
