@@ -135,6 +135,15 @@
                         Clicked="OnRemoveItemClicked"
                         FontSize="12"
                         Padding="8,4"/>
+
+                <CheckBox x:Name="dueToPayCheckBox"
+                          VerticalOptions="Center"
+                          Color="#005F8C"/>
+
+                <Label Text="Por cobrar"
+                       FontSize="14"
+                       TextColor="Black"
+                       VerticalOptions="Center"/>
             </StackLayout>
 
             <!-- Order Items DataGrid -->
@@ -228,7 +237,7 @@
                    BorderColor="#E9ECEF"
                    Margin="0,5,0,10">
 
-                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
+                <Grid ColumnDefinitions="*,Auto" RowDefinitions="25,25,50,Auto,50,Auto">
                     
                     <!-- Subtotal -->
                     <Label Grid.Row="0" Grid.Column="0"
@@ -274,7 +283,10 @@
                            HorizontalTextAlignment="End"
                            Keyboard="Numeric"
                            WidthRequest="100"
+                           HeightRequest="10"
                            HorizontalOptions="End"
+                           BackgroundColor="Transparent"
+                           TextColor="Black"
                            TextChanged="OnDiscountChanged"/>
 
                     <!-- Separator Line -->
@@ -293,42 +305,44 @@
                     <Label Grid.Row="4" Grid.Column="1"
                            x:Name="totalLabel"
                            Text="$0.00"
-                           FontSize="16"
+                           FontSize="28"
                            FontAttributes="Bold"
                            TextColor="#007bff"
                            HorizontalTextAlignment="End"
                            VerticalOptions="Center"/>
 
                     <!-- Action Buttons -->
-                    <StackLayout Grid.Row="5" Grid.ColumnSpan="2"
-                                 Orientation="Horizontal"
+                    <HorizontalStackLayout  Grid.Row="5" Grid.ColumnSpan="2"
                                  Spacing="15"
                                  HorizontalOptions="Center"
                                  VerticalOptions="Center"
                                  Margin="0,15,0,0">
 
                         <Button x:Name="exitSaveButton"
-                                Text="Salir"
-                                BackgroundColor="#28a745"
-                                TextColor="White"
+                                Text="Salir y Guardar"
+                                BackgroundColor="#C7CFDD"
+                                TextColor="Black"
                                 Clicked="OnExitSave"
                                 FontSize="14"
-                                WidthRequest="120"
+                                WidthRequest="150"
                                 HeightRequest="45"
                                 CornerRadius="8"
-                                FontAttributes="Bold"/>
+                                FontAttributes="Bold">
+
+
+                        </Button>
 
                         <Button x:Name="printReceiptButton"
                                 Text="Imprimir Recibo"
-                                BackgroundColor="#007bff"
+                                BackgroundColor="#005F8C"
                                 TextColor="White"
                                 Clicked="OnPrintReceipt"
                                 FontSize="14"
-                                WidthRequest="120"
+                                WidthRequest="200"
                                 HeightRequest="45"
                                 CornerRadius="8"
                                 FontAttributes="Bold"/>
-                    </StackLayout>
+                    </HorizontalStackLayout>
                 </Grid>
             </Frame>
         </Grid>

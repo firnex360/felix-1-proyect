@@ -27,12 +27,25 @@ public partial class ListOrderVisual : ContentView
             .GetAwaiter().GetResult();
 
         var tableOrders = AppDbContext.ExecuteSafeAsync(async db =>
-            await db.Orders
+        {
+            var orders = await db.Orders
                 .Include(o => o.Table)
                 .Include(o => o.Waiter)
                 .Where(o => o.Table != null && o.Waiter != null)
-                .ToListAsync())
-            .GetAwaiter().GetResult();
+                .ToListAsync();
+
+            // Load OrderItems separately for each order
+            foreach (var order in orders)
+            {
+                order.Items = await db.OrderItems
+                    .Include(oi => oi.Article)
+                    .Where(oi => EF.Property<int>(oi, "OrderId") == order.Id)
+                    .ToListAsync();
+            }
+
+            return orders;
+        })
+        .GetAwaiter().GetResult();
 
         MeseroContainer.Children.Clear();
 
@@ -72,10 +85,23 @@ public partial class ListOrderVisual : ContentView
             {
                 // Get orders associated with this table
                 var ordersForTable = AppDbContext.ExecuteSafeAsync(async db =>
-                    await db.Orders
+                {
+                    var orders = await db.Orders
                         .Where(o => o.Table != null && o.Table.Id == table.Id)
-                        .ToListAsync())
-                    .GetAwaiter().GetResult();
+                        .ToListAsync();
+
+                    // Load OrderItems for each order
+                    foreach (var order in orders)
+                    {
+                        order.Items = await db.OrderItems
+                            .Include(oi => oi.Article)
+                            .Where(oi => EF.Property<int>(oi, "OrderId") == order.Id)
+                            .ToListAsync();
+                    }
+
+                    return orders;
+                })
+                .GetAwaiter().GetResult();
 
                 // Create inner vertical stack for label + order buttons
                 var tableContent = new VerticalStackLayout
