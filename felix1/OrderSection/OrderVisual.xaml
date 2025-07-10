@@ -228,7 +228,7 @@
                    BorderColor="#E9ECEF"
                    Margin="0,5,0,10">
 
-                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
+                <Grid ColumnDefinitions="*,Auto" RowDefinitions="25,25,50,Auto,Auto,125">
                     
                     <!-- Subtotal -->
                     <Label Grid.Row="0" Grid.Column="0"
@@ -274,7 +274,10 @@
                            HorizontalTextAlignment="End"
                            Keyboard="Numeric"
                            WidthRequest="100"
+                           HeightRequest="20"
                            HorizontalOptions="End"
+                           BackgroundColor="#C7CFDD"
+                           TextColor="Black"
                            TextChanged="OnDiscountChanged"/>
 
                     <!-- Separator Line -->
@@ -300,8 +303,7 @@
                            VerticalOptions="Center"/>
 
                     <!-- Action Buttons -->
-                    <StackLayout Grid.Row="5" Grid.ColumnSpan="2"
-                                 Orientation="Horizontal"
+                    <HorizontalStackLayout  Grid.Row="5" Grid.ColumnSpan="2"
                                  Spacing="15"
                                  HorizontalOptions="Center"
                                  VerticalOptions="Center"
@@ -309,18 +311,21 @@
 
                         <Button x:Name="exitSaveButton"
                                 Text="Salir"
-                                BackgroundColor="#28a745"
-                                TextColor="White"
+                                BackgroundColor="#C7CFDD"
+                                TextColor="Black"
                                 Clicked="OnExitSave"
                                 FontSize="14"
                                 WidthRequest="120"
                                 HeightRequest="45"
                                 CornerRadius="8"
-                                FontAttributes="Bold"/>
+                                FontAttributes="Bold">
+
+
+                        </Button>
 
                         <Button x:Name="printReceiptButton"
                                 Text="Imprimir Recibo"
-                                BackgroundColor="#007bff"
+                                BackgroundColor="#005F8C"
                                 TextColor="White"
                                 Clicked="OnPrintReceipt"
                                 FontSize="14"
@@ -328,7 +333,7 @@
                                 HeightRequest="45"
                                 CornerRadius="8"
                                 FontAttributes="Bold"/>
-                    </StackLayout>
+                    </HorizontalStackLayout>
                 </Grid>
             </Frame>
         </Grid>

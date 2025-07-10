@@ -40,6 +40,7 @@ public partial class OrderVisual : ContentPage
         {
             LoadOrderDetails(_currentOrder);
         }
+        
     }
 
     private void LoadOrderDetails(Order order)
@@ -246,6 +247,10 @@ public partial class OrderVisual : ContentPage
                 OnRemoveItemClicked(this, EventArgs.Empty);
                 e.Handled = true;
                 break;
+            case Windows.System.VirtualKey.Escape:
+                OnExitSave(this, EventArgs.Empty);
+                e.Handled = true;
+                break;
         }
     }
 
@@ -267,6 +272,10 @@ public partial class OrderVisual : ContentPage
                 break;
             case Windows.System.VirtualKey.Tab:
                 ToggleTableFocus();
+                e.Handled = true;
+                break;
+            case Windows.System.VirtualKey.Escape:
+                OnExitSave(this, EventArgs.Empty);
                 e.Handled = true;
                 break;
         }
@@ -510,6 +519,7 @@ public partial class OrderVisual : ContentPage
             subtotalLabel.Text = subtotal.ToString("C2");
             taxLabel.Text = tax.ToString("C2");
             totalLabel.Text = total.ToString("C2");
+            //discountEntry.Text = _discountAmount.ToString("C2");
         });
     }
 
@@ -536,4 +546,5 @@ public partial class OrderVisual : ContentPage
         
         UpdateOrderTotals();
     }
+
 }
