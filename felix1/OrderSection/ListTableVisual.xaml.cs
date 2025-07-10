@@ -225,7 +225,8 @@ public partial class ListOrderVisual : ContentView
             var cashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
             if (cashRegister == null)
             {
-                await Application.Current?.MainPage.DisplayAlert("Error", "No hay una caja abierta.", "OK");
+                if (Application.Current?.MainPage != null)
+                    await Application.Current.MainPage.DisplayAlert("Error", "No hay una caja abierta.", "OK");
                 return;
             }
 
@@ -248,6 +249,7 @@ public partial class ListOrderVisual : ContentView
                 .Where(o => o.CashRegister != null &&
                             o.CashRegister.Id == cashRegister.Id &&
                             o.Waiter != null &&
+                            waiter != null &&
                             o.Waiter.Id == waiter.Id &&
                             o.Table != null)
                 .Select(o => o.Table!)
@@ -268,16 +270,20 @@ public partial class ListOrderVisual : ContentView
 
         await AppDbContext.ExecuteSafeAsync(async db =>
         {
+            if (table == null) return;
+            
             var savedTable = await db.Tables.FirstOrDefaultAsync(t => t.Id == table.Id);
             var cashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
 
             if (savedTable == null || cashRegister == null)
             {
-                await Application.Current?.MainPage.DisplayAlert("Error", "Datos no válidos al crear la orden.", "OK");
+                if (Application.Current?.MainPage != null)
+                    await Application.Current.MainPage.DisplayAlert("Error", "Datos no válidos al crear la orden.", "OK");
                 return;
             }
 
-            db.Attach(waiter);
+            if (waiter != null)
+                db.Attach(waiter);
             db.Attach(cashRegister);
 
             var order = new Order
