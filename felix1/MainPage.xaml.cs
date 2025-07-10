@@ -1,4 +1,5 @@
 ﻿using System.Data.Common;
+using Microsoft.EntityFrameworkCore;
 using felix1.Data;
 using felix1.Logic;
 using felix1.OrderSection;
@@ -48,6 +49,18 @@ public partial class MainPage : ContentPage
     private async void OnGoToLogin(object sender, EventArgs e)
     {
         await Navigation.PushAsync(new LoginPage()); //CHECKING - navigate to example page
+    }
+
+    private async void OnGoToBalanceClicked(object sender, EventArgs e)
+    {
+        using var db = new AppDbContext();
+        var cashRegister = await db.CashRegisters.FirstOrDefaultAsync(cr => cr.IsOpen);
+        if (cashRegister == null)   
+        {
+            await DisplayAlert("Error", "No hay caja abierta.", "OK");
+            return;
+        }
+        await Navigation.PushAsync(new BalanceVisual(cashRegister));
     }
 
     private async void OnSaveOrderTest(object sender, EventArgs e)
