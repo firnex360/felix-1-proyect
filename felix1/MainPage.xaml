@@ -35,7 +35,10 @@
                     VerticalOptions="Start"
                     HorizontalOptions="Center"
                     Clicked="ClickToShowPopup_Clicked"/>
-            <syncfusion:SfPopup x:Name="popup"/>
+
+            <syncfusion:SfPopup x:Name="popup"
+                StaysOpen="True"
+                ShowCloseButton="True"/>
 
             <Button Text="Admin Section"
                     Clicked="OnGoToPageBClicked"/>
