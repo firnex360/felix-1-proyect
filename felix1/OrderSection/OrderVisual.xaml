@@ -235,33 +235,38 @@
                            Text="Subtotal:"
                            FontSize="14"
                            FontAttributes="Bold"
-                           VerticalOptions="Center"/>
+                           VerticalOptions="Center"
+                           TextColor="Black"/>
                     <Label Grid.Row="0" Grid.Column="1"
                            x:Name="subtotalLabel"
                            Text="$0.00"
                            FontSize="14"
                            HorizontalTextAlignment="End"
-                           VerticalOptions="Center"/>
+                           VerticalOptions="Center"
+                           TextColor="Black"/>
 
                     <!-- Tax -->
                     <Label Grid.Row="1" Grid.Column="0"
                            Text="Impuestos:"
                            FontSize="14"
                            FontAttributes="Bold"
-                           VerticalOptions="Center"/>
+                           VerticalOptions="Center"
+                           TextColor="Black"/>
                     <Label Grid.Row="1" Grid.Column="1"
                            x:Name="taxLabel"
                            Text="$0.00"
                            FontSize="14"
                            HorizontalTextAlignment="End"
-                           VerticalOptions="Center"/>
+                           VerticalOptions="Center"
+                           TextColor="Black"/>
 
                     <!-- Discount -->
                     <Label Grid.Row="2" Grid.Column="0"
                            Text="Descuento:"
                            FontSize="14"
                            FontAttributes="Bold"
-                           VerticalOptions="Center"/>
+                           VerticalOptions="Center"
+                           TextColor="Black"/>
                     <Entry Grid.Row="2" Grid.Column="1"
                            x:Name="discountEntry"
                            Text="0"
