@@ -27,12 +27,25 @@ public partial class ListOrderVisual : ContentView
             .GetAwaiter().GetResult();
 
         var tableOrders = AppDbContext.ExecuteSafeAsync(async db =>
-            await db.Orders
+        {
+            var orders = await db.Orders
                 .Include(o => o.Table)
                 .Include(o => o.Waiter)
                 .Where(o => o.Table != null && o.Waiter != null)
-                .ToListAsync())
-            .GetAwaiter().GetResult();
+                .ToListAsync();
+
+            // Load OrderItems separately for each order
+            foreach (var order in orders)
+            {
+                order.Items = await db.OrderItems
+                    .Include(oi => oi.Article)
+                    .Where(oi => EF.Property<int>(oi, "OrderId") == order.Id)
+                    .ToListAsync();
+            }
+
+            return orders;
+        })
+        .GetAwaiter().GetResult();
 
         MeseroContainer.Children.Clear();
 
@@ -72,10 +85,23 @@ public partial class ListOrderVisual : ContentView
             {
                 // Get orders associated with this table
                 var ordersForTable = AppDbContext.ExecuteSafeAsync(async db =>
-                    await db.Orders
+                {
+                    var orders = await db.Orders
                         .Where(o => o.Table != null && o.Table.Id == table.Id)
-                        .ToListAsync())
-                    .GetAwaiter().GetResult();
+                        .ToListAsync();
+
+                    // Load OrderItems for each order
+                    foreach (var order in orders)
+                    {
+                        order.Items = await db.OrderItems
+                            .Include(oi => oi.Article)
+                            .Where(oi => EF.Property<int>(oi, "OrderId") == order.Id)
+                            .ToListAsync();
+                    }
+
+                    return orders;
+                })
+                .GetAwaiter().GetResult();
 
                 // Create inner vertical stack for label + order buttons
                 var tableContent = new VerticalStackLayout
@@ -107,7 +133,8 @@ public partial class ListOrderVisual : ContentView
                         BackgroundColor = Color.FromArgb("#C7CFDD"),
                         TextColor = Colors.White,
                         CornerRadius = 5,
-                        HorizontalOptions = LayoutOptions.Center
+                        HorizontalOptions = LayoutOptions.Center,
+                        Command = new Command(() => OnViewOrderClicked(order)) // CLICK EVENT
                     });
                 }
 
@@ -157,19 +184,138 @@ public partial class ListOrderVisual : ContentView
         }
     }
 
-    private void OnCreateTableWindowClicked(User user)
+    private async void OnCreateTableWindowClicked(User user)
+    {
+
+
+        /*var cashRegister = await AppDbContext.ExecuteSafeAsync(async db =>
+            await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen));*/
+
+        
+        /*if (cashRegister == null)
+        {
+            await Application.Current?.MainPage.DisplayAlert("Error", "No hay una caja abierta.", "OK");
+            return;
+        }*/
+        //ORDER NUMBER
+        /*var orderNumber = await AppDbContext.ExecuteSafeAsync(async db => await db.Orders
+                .Where(o => o.CashRegister != null && o.CashRegister.Id == cashRegister.Id)
+                .CountAsync());*/
+
+
+        var waiter = await AppDbContext.ExecuteSafeAsync(async db =>
+            await db.Users.FindAsync(user.Id));
+
+        /*if (waiter == null)
+        {
+            await Application.Current?.MainPage.DisplayAlert("Error", "Mesero no encontrado.", "OK");
+            return;
+        }*/
+
+        Table? table = null;
+        int orderNumber = 0;
+        await AppDbContext.ExecuteSafeAsync(async db =>
+        {
+            /*
+            if (cashRegister == null)
+            {
+                await Application.Current?.MainPage.DisplayAlert("Error", "No hay una caja abierta.", "OK");
+                return;
+            }*/
+            var cashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
+            if (cashRegister == null)
+            {
+                await Application.Current?.MainPage.DisplayAlert("Error", "No hay una caja abierta.", "OK");
+                return;
+            }
+
+            orderNumber = await db.Orders
+            .Where(o => o.CashRegister != null && o.CashRegister.Id == cashRegister.Id)
+            .CountAsync();
+
+            // ALL TABLES IN THE **OPEN** CASH REGISTER
+            var allTables = await db.Orders
+                .Include(o => o.Table)
+                .Include(o => o.Waiter)
+                .Where(o => o.CashRegister != null && o.CashRegister.Id == cashRegister.Id && o.Table != null)
+                .Select(o => o.Table!)
+                //.Distinct()
+                .ToListAsync();
+
+            // ALL TABLES FROM CURRENT WAITER
+            var waiterTables = await db.Orders
+                .Include(o => o.Table)
+                .Where(o => o.CashRegister != null &&
+                            o.CashRegister.Id == cashRegister.Id &&
+                            o.Waiter != null &&
+                            o.Waiter.Id == waiter.Id &&
+                            o.Table != null)
+                .Select(o => o.Table!)
+                .ToListAsync();
+
+            table = new Table
+            {
+                LocalNumber = waiterTables.Count + 1,
+                GlobalNumber = allTables.Count + 1,
+                IsTakeOut = false,
+                IsBillRequested = false,
+                IsPaid = false
+            };
+
+            db.Tables.Add(table);
+            await db.SaveChangesAsync();
+        });
+
+        await AppDbContext.ExecuteSafeAsync(async db =>
+        {
+            var savedTable = await db.Tables.FirstOrDefaultAsync(t => t.Id == table.Id);
+            var cashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
+
+            if (savedTable == null || cashRegister == null)
+            {
+                await Application.Current?.MainPage.DisplayAlert("Error", "Datos no válidos al crear la orden.", "OK");
+                return;
+            }
+
+            db.Attach(waiter);
+            db.Attach(cashRegister);
+
+            var order = new Order
+            {
+                OrderNumber = orderNumber + 1,
+                Date = DateTime.Now,
+                Waiter = waiter, //comes as a parameter from the list, depending where we clicked
+                Table = savedTable, //automatically created before a new order
+                Items = null,
+                CashRegister = cashRegister,  //we can only work with the open cash register
+                IsDuePaid = false,
+                IsBillRequested = false
+            };
+
+            db.Orders.Add(order);
+            await db.SaveChangesAsync();
+        OnViewOrderClicked(order);
+        });
+
+        ReloadTM();
+
+
+    }
+
+
+    private void OnViewOrderClicked(Order order)
     {
         // Get display size
         var displayInfo = DeviceDisplay.Current.MainDisplayInfo;
-        //change this to OrderVisual instead
+
         //var window = new Window(new CreateTableVisual(user));
-        var window = new Window(new OrderVisual());
-        window.Height = 800;
+        var window = new Window(new OrderVisual(order));
+        window.Height = 700;
         window.Width = 1000;
 
         // Center the window
         window.X = (displayInfo.Width / displayInfo.Density - window.Width) / 2;
-        window.Y = (displayInfo.Height / displayInfo.Density - window.Height) / 2;
+        window.Y = ((displayInfo.Height / displayInfo.Density - window.Height) / 2) - 25; // Add some offset for better visibility
         Application.Current?.OpenWindow(window);
     }
 

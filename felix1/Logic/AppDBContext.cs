@@ -18,8 +18,8 @@ namespace felix1.Data
 
 
         //this is for storing de DB on a temporary location
-        private string TempDBPath = "C:\\Codes\\github\\felix-1-proyect\\felix1\\tempDBStorage";
-        //private string TempDBPath = "C:\\Users\\HP\\Desktop\\mita\\FELIX1PROY\\felix-1-proyect\\felix1\\tempDBStorage"; //for maria
+        //private string TempDBPath = "C:\\Codes\\github\\felix-1-proyect\\felix1\\tempDBStorage";
+        private string TempDBPath = "C:\\Users\\HP\\Desktop\\mita\\FELIX1PROY\\felix-1-proyect\\felix1\\tempDBStorage"; //for maria
         //private string TempDBPath = "C:\\Users\\dell\\Source\\Repos\\felix-1-proyect\\felix1\\tempDBStorage\\"; //ChenFan
 
         public AppDbContext()
@@ -53,6 +53,36 @@ namespace felix1.Data
             // FK for Cashier
             modelBuilder.Entity<CashRegister>()
                 .HasOne(c => c.Cashier);
+
+            // Define relationship between Transaction and Order
+            modelBuilder.Entity<Transaction>()
+                .HasOne(t => t.Order)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Define relationship between Transaction and Refund
+            modelBuilder.Entity<Transaction>()
+                .HasOne(t => t.Refund)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Define relationship between Refund and Order
+            modelBuilder.Entity<Refund>()
+                .HasOne(r => r.Order)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Define relationship between Refund and User
+            modelBuilder.Entity<Refund>()
+                .HasOne(r => r.User)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Define relationship between Refund and OrderItem
+            modelBuilder.Entity<Refund>()
+                .HasMany(r => r.RefundedItems)
+                .WithOne()
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
         public static async Task ExecuteSafeAsync(Func<AppDbContext, Task> operation, Action<Exception> errorHandler = null!)
@@ -71,7 +101,7 @@ namespace felix1.Data
             catch (Exception ex)
             {
                 errorHandler?.Invoke(ex);
-                Console.WriteLine($"General database error: {ex.Message}");
+                Console.WriteLine($"General error: {ex.Message}");
                 throw;
             }
         }
@@ -92,7 +122,7 @@ namespace felix1.Data
             catch (Exception ex)
             {
                 errorHandler?.Invoke(ex);
-                Console.WriteLine($"General database error: {ex.Message}");
+                Console.WriteLine($"General error: {ex.Message}");
                 throw;
             }
         }
