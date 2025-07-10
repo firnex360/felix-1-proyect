@@ -18,12 +18,13 @@ public partial class OrderVisual : ContentPage
 {
     public ObservableCollection<Article> ListArticles { get; set; } = new();
     public ObservableCollection<OrderItem> OrderItems { get; set; } = new();
-
+    private Order? _currentOrder;
     private bool _isEditing = false;
-    private const decimal TAX_RATE = 0.16m; // 16% tax rate
+
+    // Constants for testing
+    private const decimal TAX_RATE = 0.18m; // 18% tax rate
     private decimal _discountAmount = 0m;
 
-    private Order _currentOrder;
 
     public OrderVisual(Order order)
     {
@@ -34,6 +35,7 @@ public partial class OrderVisual : ContentPage
         orderItemsDataGrid.CurrentCellBeginEdit += (s, e) => _isEditing = true;
         orderItemsDataGrid.CurrentCellEndEdit += (s, e) => _isEditing = false;
         OrderItems.CollectionChanged += (s, e) => UpdateOrderTotals();
+
         if (_currentOrder != null)
         {
             LoadOrderDetails(_currentOrder);
@@ -425,14 +427,19 @@ public partial class OrderVisual : ContentPage
 
     private void OnExitSave(object sender, EventArgs e)
     {
-        _currentOrder.Items = OrderItems.ToList();
-        _currentOrder.Discount = _discountAmount;
+        if (_currentOrder != null)
+        {
+            _currentOrder.Items = OrderItems.ToList();
+            _currentOrder.Discount = _discountAmount;
 
-        using var db = new AppDbContext();
-        db.Orders.Update(_currentOrder);
-        db.SaveChanges();
+            using var db = new AppDbContext();
+            db.Orders.Update(_currentOrder);
+            db.SaveChanges();
+            
+            CloseThisWindow();
+        }
+
         CloseThisWindow();
-
     }
     private void CloseThisWindow()
     {
