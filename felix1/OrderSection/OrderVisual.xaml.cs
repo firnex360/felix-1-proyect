@@ -572,6 +572,8 @@ public partial class OrderVisual : ContentPage
         {
             _currentOrder.IsBillRequested = true;
         }
+
+        OnExitSave(sender, e); // Save the order after printing and close the window
     }
 
     // Navigation methods for article grid
