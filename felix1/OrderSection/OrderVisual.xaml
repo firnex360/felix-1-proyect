@@ -274,7 +274,7 @@
                            HorizontalTextAlignment="End"
                            Keyboard="Numeric"
                            WidthRequest="100"
-                           HeightRequest="20"
+                           HeightRequest="10"
                            HorizontalOptions="End"
                            BackgroundColor="#C7CFDD"
                            TextColor="Black"
@@ -310,12 +310,12 @@
                                  Margin="0,15,0,0">
 
                         <Button x:Name="exitSaveButton"
-                                Text="Salir"
+                                Text="Salir y Guardar"
                                 BackgroundColor="#C7CFDD"
                                 TextColor="Black"
                                 Clicked="OnExitSave"
                                 FontSize="14"
-                                WidthRequest="120"
+                                WidthRequest="150"
                                 HeightRequest="45"
                                 CornerRadius="8"
                                 FontAttributes="Bold">
@@ -329,7 +329,7 @@
                                 TextColor="White"
                                 Clicked="OnPrintReceipt"
                                 FontSize="14"
-                                WidthRequest="120"
+                                WidthRequest="200"
                                 HeightRequest="45"
                                 CornerRadius="8"
                                 FontAttributes="Bold"/>

@@ -206,6 +206,8 @@ public partial class OrderVisual : ContentPage
             {
                 autoSuggestBox.KeyDown -= SearchBarPlatformView_KeyDown;
                 autoSuggestBox.KeyDown += SearchBarPlatformView_KeyDown;
+                autoSuggestBox.KeyUp -= SearchBarPlatformView_KeyUp;
+                autoSuggestBox.KeyUp += SearchBarPlatformView_KeyUp;
             }
 #endif
 
@@ -251,6 +253,17 @@ public partial class OrderVisual : ContentPage
                 OnExitSave(this, EventArgs.Empty);
                 e.Handled = true;
                 break;
+        }
+    }
+
+    private void SearchBarPlatformView_KeyUp(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
+    {
+        //Console.WriteLine($"SearchBar KeyUp: {e.Key}");
+        if (e.Key == Windows.System.VirtualKey.Escape)
+        {
+            //Console.WriteLine("Escape pressed in search bar (KeyUp)");
+            OnExitSave(this, EventArgs.Empty);
+            e.Handled = true;
         }
     }
 
@@ -310,7 +323,9 @@ public partial class OrderVisual : ContentPage
                     // If already editing, treat Enter as Tab (move to next cell)
                     var tabArgs = new KeyEventArgs(KeyboardKey.Tab) { Handled = false };
                     base.ProcessKeyDown(tabArgs, isCtrlKeyPressed, isShiftKeyPressed);
+                    _parent.UpdateOrderTotals();
                     args.Handled = true;
+
                 }
                 else
                 {
@@ -326,6 +341,11 @@ public partial class OrderVisual : ContentPage
             else if (args.Key == KeyboardKey.Tab)
             {
                 _parent.FocusSearchBarAsync();
+                args.Handled = true;
+            }
+            else if (args.Key == KeyboardKey.Escape)
+            {
+                _parent.OnExitSave(_parent, EventArgs.Empty);
                 args.Handled = true;
             }
             else
@@ -369,6 +389,11 @@ public partial class OrderVisual : ContentPage
             else if (args.Key == KeyboardKey.Space)
             {
                 _parent.ToggleTableFocus();
+                args.Handled = true;
+            }
+            else if (args.Key == KeyboardKey.Escape)
+            {
+                _parent.OnExitSave(_parent, EventArgs.Empty);
                 args.Handled = true;
             }
             else
