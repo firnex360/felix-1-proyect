@@ -53,8 +53,11 @@ public partial class OrderSectionMainVisual : ContentPage
 
             Device.BeginInvokeOnMainThread(() =>
             {
-                Navigation.PopAsync();
+                /*Navigation.PopAsync();
                 var balanceVisual = new BalanceVisual(register);
+                Application.Current.MainPage = new NavigationPage(balanceVisual);*/
+                Navigation.PopAsync();
+                var balanceVisual = new LoginPage();
                 Application.Current.MainPage = new NavigationPage(balanceVisual);
             });
         });
