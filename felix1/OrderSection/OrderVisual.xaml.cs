@@ -23,18 +23,35 @@ public partial class OrderVisual : ContentPage
     private const decimal TAX_RATE = 0.16m; // 16% tax rate
     private decimal _discountAmount = 0m;
 
-    public OrderVisual()
+    private Order _currentOrder;
+
+    public OrderVisual(Order order)
     {
         InitializeComponent();
         BindingContext = this;
+        _currentOrder = order;
         LoadArticles();
         orderItemsDataGrid.CurrentCellBeginEdit += (s, e) => _isEditing = true;
         orderItemsDataGrid.CurrentCellEndEdit += (s, e) => _isEditing = false;
-        
-        // Subscribe to collection changes to update totals
         OrderItems.CollectionChanged += (s, e) => UpdateOrderTotals();
+        if (_currentOrder != null)
+        {
+            LoadOrderDetails(_currentOrder);
+        }
     }
 
+    private void LoadOrderDetails(Order order)
+    {
+        OrderItems.Clear();
+        if (order.Items != null)
+        {
+            foreach (var item in order.Items)
+            {
+                OrderItems.Add(item);
+            }
+            _discountAmount = order.Discount;
+        }
+    }
 
     private void LoadArticles()
     {
@@ -408,7 +425,29 @@ public partial class OrderVisual : ContentPage
 
     private void OnExitSave(object sender, EventArgs e)
     {
-        // TODO: Implement save and exit functionality
+        _currentOrder.Items = OrderItems.ToList();
+        _currentOrder.Discount = _discountAmount;
+
+        using var db = new AppDbContext();
+        db.Orders.Update(_currentOrder);
+        db.SaveChanges();
+        CloseThisWindow();
+
+    }
+    private void CloseThisWindow()
+    {
+        var app = Microsoft.Maui.Controls.Application.Current;
+        if (app != null)
+        {
+            foreach (var window in app.Windows)
+            {
+                if (window.Page == this)
+                {
+                    app.CloseWindow(window);
+                    break;
+                }
+            }
+        }
     }
 
     private void OnPrintReceipt(object sender, EventArgs e)

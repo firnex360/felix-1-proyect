@@ -108,7 +108,7 @@ public partial class ListOrderVisual : ContentView
                         TextColor = Colors.White,
                         CornerRadius = 5,
                         HorizontalOptions = LayoutOptions.Center,
-                        Command = new Command(() => OnViewTableClicked(table)) // CLICK EVENT
+                        Command = new Command(() => OnViewOrderClicked(order)) // CLICK EVENT
                     });
                 }
 
@@ -268,22 +268,22 @@ public partial class ListOrderVisual : ContentView
 
             db.Orders.Add(order);
             await db.SaveChangesAsync();
+        OnViewOrderClicked(order);
         });
 
-        OnViewTableClicked(table);
         ReloadTM();
 
 
     }
 
 
-    private void OnViewTableClicked(Table table)
+    private void OnViewOrderClicked(Order order)
     {
         // Get display size
         var displayInfo = DeviceDisplay.Current.MainDisplayInfo;
 
         //var window = new Window(new CreateTableVisual(user));
-        var window = new Window(new OrderVisual());
+        var window = new Window(new OrderVisual(order));
         window.Height = 700;
         window.Width = 1000;
 
