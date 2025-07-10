@@ -321,7 +321,7 @@ namespace felix1.OrderSection
                 Date = DateTime.Now,
                 Order = Order,
                 TotalAmount = Total,
-                TaxAmount = Tax,
+                TaxAmountITBIS = Tax,
                 CashAmount = _cashAmount,
                 CardAmount = _cardAmount,
                 TransferAmount = _transferAmount
