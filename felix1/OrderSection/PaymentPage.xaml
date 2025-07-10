@@ -27,7 +27,7 @@
                        HasShadow="True"
                        Padding="20">
                     <VerticalStackLayout Spacing="10">
-                        <Label Text="Detalles" FontAttributes="Bold" FontSize="18" TextColor="#005F8C" />
+                        <Label Text="Detalles" FontAttributes="Bold" FontSize="20" TextColor="#005F8C" />
 
                         <CollectionView x:Name="ItemsList" ItemsSource="{Binding Order.Items}">
                             <CollectionView.ItemTemplate>
@@ -92,19 +92,19 @@
                 </Frame>
 
                 <Frame IsVisible="{Binding IsCashUsed}"
-                       BackgroundColor="#F5F5F5"
+                       BackgroundColor="White"
                        CornerRadius="10"
-                       BorderColor="#FFE0E0E0"
+                       BorderColor="White"
                        HasShadow="True"
                        Padding="15">
                     <VerticalStackLayout Spacing="8">
                         <HorizontalStackLayout>
-                            <Label Text="Total" FontAttributes="Bold" TextColor="#005F8C" />
-                            <Label Text="{Binding Total, StringFormat='${0:F2}'}" FontAttributes="Bold" HorizontalOptions="EndAndExpand" TextColor="#005F8C" />
+                            <Label Text="Total" FontAttributes="Bold" TextColor="#005F8C" FontSize="30" />
+                            <Label Text="{Binding Total, StringFormat='${0:F2}'}" FontAttributes="Bold" FontSize="30" HorizontalOptions="EndAndExpand" TextColor="#005F8C" />
                         </HorizontalStackLayout>
                         <HorizontalStackLayout>
-                            <Label Text="Devuelta" FontAttributes="Bold" TextColor="#005F8C" />
-                            <Label Text="{Binding ChangeAmount, StringFormat='${0:F2}'}" FontAttributes="Bold" HorizontalOptions="EndAndExpand" TextColor="#005F8C" />
+                            <Label Text="Devuelta" FontAttributes="Bold" TextColor="#005F8C" FontSize="30" />
+                            <Label Text="{Binding ChangeAmount, StringFormat='${0:F2}'}" FontAttributes="Bold" FontSize="30" HorizontalOptions="EndAndExpand" TextColor="#005F8C" />
                         </HorizontalStackLayout>
                     </VerticalStackLayout>
                 </Frame>
@@ -112,20 +112,29 @@
         </ScrollView>
 
         <VerticalStackLayout Grid.Row="0" Grid.Column="2" Spacing="15">
-            <Label Text="Métodos de pago" FontAttributes="Bold" FontSize="18" TextColor="#005F8C" />
+            <Label Text="Métodos de pago" FontAttributes="Bold" FontSize="20" TextColor="#005F8C" />
 
             <ScrollView Orientation="Vertical" VerticalScrollBarVisibility="Always">
                 <VerticalStackLayout Spacing="15">
-                    <Button x:Name="AddPaymentMethodButton" 
-                            Text="+" 
-                            WidthRequest="50" 
-                            HeightRequest="50" 
-                            CornerRadius="25" 
-                            FontSize="20" 
-                            BackgroundColor="#005F8C" 
-                            TextColor="White"
-                            Clicked="OnAddPaymentMethodClicked"
-                            HorizontalOptions="Start"/>
+                    <HorizontalStackLayout Spacing="10">
+                        <Button Text="Transferencia" 
+                                WidthRequest="120"
+                                HeightRequest="40" 
+                                CornerRadius="8" 
+                                FontSize="14" 
+                                BackgroundColor="#005F8C" 
+                                TextColor="White"
+                                Clicked="OnAddTransferClicked"/>
+
+                        <Button Text="Tarjeta" 
+                                WidthRequest="120"
+                                HeightRequest="40" 
+                                CornerRadius="8" 
+                                FontSize="14" 
+                                BackgroundColor="#005F8C" 
+                                TextColor="White"
+                                Clicked="OnAddCardClicked"/>
+                    </HorizontalStackLayout>
 
                     <StackLayout x:Name="ActivePaymentMethodsContainer" Spacing="10">
                     </StackLayout>

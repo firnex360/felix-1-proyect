@@ -17,15 +17,11 @@ namespace felix1.OrderSection
         public decimal Total => Subtotal + Tax;
         public decimal TotalPayment => _cashAmount + _cardAmount + _transferAmount;
 
-        public ObservableCollection<PaymentMethodOption> AvailablePaymentMethods { get; set; }
-
-        // Propiedades para controlar la visibilidad
         public bool AnyPaymentMethodUsed => _cashAmount > 0 || _cardAmount > 0 || _transferAmount > 0;
         public bool IsCashUsed => _cashAmount > 0;
         public bool IsCardUsed => _cardAmount > 0;
         public bool IsTransferUsed => _transferAmount > 0;
 
-        // Propiedades para los montos
         public decimal CashAmount => _cashAmount;
         public decimal CardAmount => _cardAmount;
         public decimal TransferAmount => _transferAmount;
@@ -43,33 +39,41 @@ namespace felix1.OrderSection
             Order = order;
             BindingContext = this;
 
-            AvailablePaymentMethods = new ObservableCollection<PaymentMethodOption>
-            {
-                new PaymentMethodOption { Name = "Efectivo", Command = new Command(() => AddPaymentMethod("Efectivo")) },
-                new PaymentMethodOption { Name = "Tarjeta", Command = new Command(() => AddPaymentMethod("Tarjeta")) },
-                new PaymentMethodOption { Name = "Transferencia", Command = new Command(() => AddPaymentMethod("Transferencia")) },
-            };
+            // Add Cash payment method by default
+            AddCashMethod();
         }
 
-        private async void OnAddPaymentMethodClicked(object sender, EventArgs e)
+        private void AddCashMethod()
         {
-            var availableMethods = AvailablePaymentMethods
-                .Where(p => !_activePaymentFrames.Any(f => GetPaymentMethodName(f) == p.Name))
-                .Select(p => p.Name)
-                .ToArray();
+            var cashFrame = CreateCashFrame();
+            ActivePaymentMethodsContainer.Children.Add(cashFrame);
+            _activePaymentFrames.Add(cashFrame);
+        }
 
-            if (availableMethods.Length == 0)
+        private void OnAddTransferClicked(object sender, EventArgs e)
+        {
+            if (_activePaymentFrames.Any(f => GetPaymentMethodName(f) == "Transferencia"))
             {
-                await DisplayAlert("Información", "Todos los métodos de pago ya han sido añadidos", "OK");
+                DisplayAlert("Advertencia", "Ya has añadido un método de pago por transferencia", "OK");
                 return;
             }
 
-            var result = await DisplayActionSheet("Seleccionar método de pago", "Cancelar", null, availableMethods);
+            var transferFrame = CreateTransferFrame();
+            ActivePaymentMethodsContainer.Children.Add(transferFrame);
+            _activePaymentFrames.Add(transferFrame);
+        }
 
-            if (!string.IsNullOrEmpty(result) && result != "Cancelar")
+        private void OnAddCardClicked(object sender, EventArgs e)
+        {
+            if (_activePaymentFrames.Any(f => GetPaymentMethodName(f) == "Tarjeta"))
             {
-                AddPaymentMethod(result);
+                DisplayAlert("Advertencia", "Ya has añadido un método de pago por tarjeta", "OK");
+                return;
             }
+
+            var cardFrame = CreateCardFrame();
+            ActivePaymentMethodsContainer.Children.Add(cardFrame);
+            _activePaymentFrames.Add(cardFrame);
         }
 
         private string GetPaymentMethodName(Frame frame)
@@ -81,39 +85,6 @@ namespace felix1.OrderSection
                 return label.Text;
             }
             return null;
-        }
-
-        private void AddPaymentMethod(string method)
-        {
-            if (_activePaymentFrames.Any(f => GetPaymentMethodName(f) == method))
-            {
-                DisplayAlert("Advertencia", $"Ya has añadido un método de pago de tipo {method}", "OK");
-                return;
-            }
-
-            Frame paymentFrame = null;
-
-            switch (method)
-            {
-                case "Efectivo":
-                    paymentFrame = CreateCashFrame();
-                    break;
-                case "Tarjeta":
-                    paymentFrame = CreateCardFrame();
-                    break;
-                case "Transferencia":
-                    paymentFrame = CreateTransferFrame();
-                    break;
-            }
-
-            if (paymentFrame != null)
-            {
-                ActivePaymentMethodsContainer.Children.Insert(0, paymentFrame);
-                _activePaymentFrames.Add(paymentFrame);
-
-                UpdatePaymentSummary();
-                UpdateProperties();
-            }
         }
 
         private Frame CreateCashFrame()
@@ -133,8 +104,7 @@ namespace felix1.OrderSection
             {
                 ColumnDefinitions = new ColumnDefinitionCollection
                 {
-                    new ColumnDefinition { Width = GridLength.Star },
-                    new ColumnDefinition { Width = GridLength.Auto }
+                    new ColumnDefinition { Width = GridLength.Star }
                 }
             };
 
@@ -147,29 +117,6 @@ namespace felix1.OrderSection
             Grid.SetColumn(label, 0);
             header.Children.Add(label);
 
-            var removeButton = new Button
-            {
-                Text = "×",
-                FontSize = 20,
-                TextColor = Color.FromArgb("#FF0000"),
-                BackgroundColor = Colors.Transparent,
-                Padding = 0,
-                WidthRequest = 30,
-                HeightRequest = 30,
-                CornerRadius = 15
-            };
-
-            removeButton.Clicked += (s, e) =>
-            {
-                ActivePaymentMethodsContainer.Children.Remove(frame);
-                _activePaymentFrames.Remove(frame);
-                _cashAmount = 0;
-                UpdatePaymentSummary();
-                UpdateProperties();
-            };
-
-            Grid.SetColumn(removeButton, 1);
-            header.Children.Add(removeButton);
             layout.Children.Add(header);
 
             var entry = new Entry
@@ -392,8 +339,6 @@ namespace felix1.OrderSection
             }
 
             DisplayAlert("Pago realizado", message, "OK");
-
-            //no se puede tener ua base de datos en está economía
         }
 
         private void UpdatePaymentSummary()
@@ -431,13 +376,6 @@ namespace felix1.OrderSection
             OnPropertyChanged(nameof(ChangeAmount));
             OnPropertyChanged(nameof(TotalPayment));
         }
-    }
-
-    public class PaymentMethodOption
-    {
-        public string Name { get; set; }
-        public bool IsSelected { get; set; } = false;
-        public Command Command { get; set; }
     }
 
     public class BoolToColorConverter : IValueConverter
