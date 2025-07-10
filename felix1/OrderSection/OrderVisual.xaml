@@ -135,6 +135,15 @@
                         Clicked="OnRemoveItemClicked"
                         FontSize="12"
                         Padding="8,4"/>
+
+                <CheckBox x:Name="dueToPayCheckBox"
+                          VerticalOptions="Center"
+                          Color="#005F8C"/>
+
+                <Label Text="Por cobrar"
+                       FontSize="14"
+                       TextColor="Black"
+                       VerticalOptions="Center"/>
             </StackLayout>
 
             <!-- Order Items DataGrid -->
@@ -228,7 +237,7 @@
                    BorderColor="#E9ECEF"
                    Margin="0,5,0,10">
 
-                <Grid ColumnDefinitions="*,Auto" RowDefinitions="25,25,50,Auto,Auto,125">
+                <Grid ColumnDefinitions="*,Auto" RowDefinitions="25,25,50,Auto,50,Auto">
                     
                     <!-- Subtotal -->
                     <Label Grid.Row="0" Grid.Column="0"
@@ -276,7 +285,7 @@
                            WidthRequest="100"
                            HeightRequest="10"
                            HorizontalOptions="End"
-                           BackgroundColor="#C7CFDD"
+                           BackgroundColor="Transparent"
                            TextColor="Black"
                            TextChanged="OnDiscountChanged"/>
 
@@ -296,7 +305,7 @@
                     <Label Grid.Row="4" Grid.Column="1"
                            x:Name="totalLabel"
                            Text="$0.00"
-                           FontSize="16"
+                           FontSize="28"
                            FontAttributes="Bold"
                            TextColor="#007bff"
                            HorizontalTextAlignment="End"

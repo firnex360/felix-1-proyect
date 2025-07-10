@@ -39,6 +39,10 @@ public partial class OrderVisual : ContentPage
         if (_currentOrder != null)
         {
             LoadOrderDetails(_currentOrder);
+            _discountAmount = order.Discount;
+            discountEntry.Text = _discountAmount.ToString();
+
+            dueToPayCheckBox.IsChecked = order.IsDuePaid;
         }
         
     }
@@ -52,7 +56,6 @@ public partial class OrderVisual : ContentPage
             {
                 OrderItems.Add(item);
             }
-            _discountAmount = order.Discount;
         }
     }
 
@@ -253,6 +256,10 @@ public partial class OrderVisual : ContentPage
                 OnExitSave(this, EventArgs.Empty);
                 e.Handled = true;
                 break;
+            case Windows.System.VirtualKey.F2:
+                OnPrintReceipt(this, EventArgs.Empty);
+                e.Handled = true;
+                break;
         }
     }
 
@@ -289,6 +296,10 @@ public partial class OrderVisual : ContentPage
                 break;
             case Windows.System.VirtualKey.Escape:
                 OnExitSave(this, EventArgs.Empty);
+                e.Handled = true;
+                break;
+            case Windows.System.VirtualKey.F2:
+                OnPrintReceipt(this, EventArgs.Empty);
                 e.Handled = true;
                 break;
         }
@@ -348,6 +359,11 @@ public partial class OrderVisual : ContentPage
                 _parent.OnExitSave(_parent, EventArgs.Empty);
                 args.Handled = true;
             }
+            else if (args.Key == KeyboardKey.F2)
+            {
+                _parent.OnPrintReceipt(_parent, EventArgs.Empty);
+                args.Handled = true;
+            }
             else
             {
                 base.ProcessKeyDown(args, isCtrlKeyPressed, isShiftKeyPressed);
@@ -394,6 +410,11 @@ public partial class OrderVisual : ContentPage
             else if (args.Key == KeyboardKey.Escape)
             {
                 _parent.OnExitSave(_parent, EventArgs.Empty);
+                args.Handled = true;
+            }
+            else if (args.Key == KeyboardKey.F2)
+            {
+                _parent.OnPrintReceipt(_parent, EventArgs.Empty);
                 args.Handled = true;
             }
             else
@@ -465,7 +486,9 @@ public partial class OrderVisual : ContentPage
         {
             _currentOrder.Items = OrderItems.ToList();
             _currentOrder.Discount = _discountAmount;
+            _currentOrder.IsDuePaid = dueToPayCheckBox.IsChecked;
 
+            //this need to be wrapped in a try catch block to handle any potential database errors
             using var db = new AppDbContext();
             db.Orders.Update(_currentOrder);
             db.SaveChanges();
@@ -493,7 +516,12 @@ public partial class OrderVisual : ContentPage
 
     private void OnPrintReceipt(object sender, EventArgs e)
     {
-        // TODO: Implement print receipt functionality
+        // TODO: Implement print receipt functionality (print the actual receipt)
+        Console.WriteLine("Print receipt clicked");
+        if (_currentOrder != null)
+        {
+            _currentOrder.IsBillRequested = true;
+        }
     }
 
     // Navigation methods for article grid
