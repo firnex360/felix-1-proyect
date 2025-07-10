@@ -20,6 +20,7 @@ public partial class OrderVisual : ContentPage
     public ObservableCollection<OrderItem> OrderItems { get; set; } = new();
     private Order? _currentOrder;
     private bool _isEditing = false;
+    private bool _useSecondaryPrice = false; // Cache for cash register setting
 
     // Constants for testing
     private const decimal TAX_RATE = 0.18m; // 18% tax rate
@@ -31,6 +32,7 @@ public partial class OrderVisual : ContentPage
         InitializeComponent();
         BindingContext = this;
         _currentOrder = order;
+        LoadCashRegisterSettings(); // Load cash register settings first
         LoadArticles();
         orderItemsDataGrid.CurrentCellBeginEdit += (s, e) => _isEditing = true;
         orderItemsDataGrid.CurrentCellEndEdit += (s, e) => _isEditing = false;
@@ -45,6 +47,15 @@ public partial class OrderVisual : ContentPage
             dueToPayCheckBox.IsChecked = order.IsDuePaid;
         }
         
+    }
+
+    private void LoadCashRegisterSettings()
+    {
+        var cashRegister = AppDbContext.ExecuteSafeAsync(async db =>
+            await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen))
+            .GetAwaiter().GetResult();
+            
+        _useSecondaryPrice = cashRegister?.IsSecPrice ?? false;
     }
 
     private void LoadOrderDetails(Order order)
@@ -69,7 +80,30 @@ public partial class OrderVisual : ContentPage
 
         ListArticles.Clear();
         foreach (var article in articlesFromDb)
-            ListArticles.Add(article);
+        {
+            // Create a copy of the article with the display price set appropriately
+            var displayArticle = new Article
+            {
+                Id = article.Id,
+                Name = article.Name,
+                PriPrice = GetDisplayPrice(article), // Use the appropriate price for display
+                SecPrice = article.SecPrice,
+                Category = article.Category,
+                IsDeleted = article.IsDeleted,
+                IsSideDish = article.IsSideDish,
+                SideDishes = article.SideDishes
+            };
+            ListArticles.Add(displayArticle);
+        }
+    }
+
+    private float GetDisplayPrice(Article article)
+    {
+        if (_useSecondaryPrice && article.SecPrice > 0)
+        {
+            return article.SecPrice;
+        }
+        return article.PriPrice;
     }
 
     private void OnSearchBarTextChanged(object sender, TextChangedEventArgs e)
@@ -138,6 +172,17 @@ public partial class OrderVisual : ContentPage
         // Check if the article is already in the order
         var existingOrderItem = OrderItems.FirstOrDefault(oi => oi.Article?.Id == article.Id);
 
+        // Determine which price to use based on cash register setting and availability
+        decimal priceToUse;
+        if (_useSecondaryPrice && article.SecPrice > 0)
+        {
+            priceToUse = (decimal)article.SecPrice;
+        }
+        else
+        {
+            priceToUse = (decimal)article.PriPrice;
+        }
+
         if (existingOrderItem != null)
         {
             // If it exists, increase the quantity
@@ -145,12 +190,17 @@ public partial class OrderVisual : ContentPage
         }
         else
         {
-            // Create new order item with default quantity of 1
+            // Get the original article data for saving (not the display version)
+            var originalArticle = AppDbContext.ExecuteSafeAsync(async db =>
+                await db.Articles.FindAsync(article.Id))
+                .GetAwaiter().GetResult();
+
+            // Create new order item with appropriate price
             var newOrderItem = new OrderItem
             {
-                Article = article,
+                Article = originalArticle,
                 Quantity = 1,
-                UnitPrice = (decimal)article.PriPrice
+                UnitPrice = priceToUse
             };
 
             OrderItems.Add(newOrderItem);
