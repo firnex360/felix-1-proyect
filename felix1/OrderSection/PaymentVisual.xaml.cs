@@ -1,5 +1,6 @@
 ﻿using felix1.Data;
 using felix1.Logic;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Maui.Controls;
 using System;
 using System.Collections.Generic;
@@ -9,13 +10,15 @@ using System.Linq;
 
 namespace felix1.OrderSection
 {
-    public partial class PaymentPage : ContentPage
+    public partial class PaymentVisual : ContentPage
     {
         public Order Order { get; set; }
         public decimal Subtotal => Order.Items?.Sum(i => i.TotalPrice) ?? 0;
-        public decimal Tax => Subtotal * 0.05m;
-        public decimal Total => Subtotal + Tax;
+        public decimal TaxITBIS => Subtotal * 0.18m; //Tenemos que arreglar esto, ni idea de como tengas el cálculo firnex
+        public decimal TaxWaiters => Subtotal * 0.10m; 
+        public decimal Total => Subtotal + TaxITBIS + TaxWaiters;
         public decimal TotalPayment => _cashAmount + _cardAmount + _transferAmount;
+        public int ItemsCount => Order.Items?.Sum(i => i.Quantity) ?? 0;
 
         public bool AnyPaymentMethodUsed => _cashAmount > 0 || _cardAmount > 0 || _transferAmount > 0;
         public bool IsCashUsed => _cashAmount > 0;
@@ -33,7 +36,7 @@ namespace felix1.OrderSection
         private decimal _changeAmount;
         private List<Frame> _activePaymentFrames = new List<Frame>();
 
-        public PaymentPage(Order order)
+        public PaymentVisual(Order order)
         {
             InitializeComponent();
             Order = order;
@@ -303,33 +306,75 @@ namespace felix1.OrderSection
             return frame;
         }
 
-        private void OnChargeClicked(object sender, EventArgs e)
+        private async void OnChargeClicked(object sender, EventArgs e)
         {
             var totalPayment = _cashAmount + _cardAmount + _transferAmount;
 
             if (totalPayment < Total)
             {
-                DisplayAlert("Error", $"El total pagado (${totalPayment:F2}) es menor que el total de la orden (${Total:F2})", "OK");
+                await DisplayAlert("Error", $"El total pagado (${totalPayment:F2}) es menor que el total de la orden (${Total:F2})", "OK");
                 return;
             }
 
             _changeAmount = totalPayment > Total ? totalPayment - Total : 0;
             UpdateProperties();
 
-            var transaction = new Transaction
+            bool success = await AppDbContext.ExecuteSafeAsync(async db =>
             {
-                Date = DateTime.Now,
-                Order = Order,
-                TotalAmount = Total,
-                TaxAmount = Tax,
-                CashAmount = _cashAmount,
-                CardAmount = _cardAmount,
-                TransferAmount = _transferAmount
-            };
+                var orderToUpdate = await db.Orders
+                    .Include(o => o.Table)
+                    .Include(o => o.Items)
+                    .FirstOrDefaultAsync(o => o.Id == Order.Id);
+
+                if (orderToUpdate == null) return false;
+
+                var transaction = new Transaction
+                {
+                    Date = DateTime.Now,
+                    Order = orderToUpdate, 
+                    TotalAmount = Total,
+                    TaxAmountITBIS = TaxITBIS,
+                    TaxAmountWaiters = TaxWaiters,
+                    CashAmount = _cashAmount,
+                    CardAmount = _cardAmount,
+                    TransferAmount = _transferAmount
+                };
+
+                orderToUpdate.IsDuePaid = true;
+                orderToUpdate.IsBillRequested = false;
+
+                if (orderToUpdate.Table != null)
+                {
+                    orderToUpdate.Table.IsPaid = true;
+                    orderToUpdate.Table.IsBillRequested = false;
+                }
+
+                db.Transactions.Add(transaction);
+                await db.SaveChangesAsync();
+
+                Order.IsDuePaid = orderToUpdate.IsDuePaid;
+                Order.IsBillRequested = orderToUpdate.IsBillRequested;
+                if (Order.Table != null)
+                {
+                    Order.Table.IsPaid = orderToUpdate.Table?.IsPaid ?? false;
+                    Order.Table.IsBillRequested = orderToUpdate.Table?.IsBillRequested ?? false;
+                }
+
+                return true;
+            });
+
+            if (!success)
+            {
+                await DisplayAlert("Error", "No se pudo guardar la transacción", "OK");
+                return;
+            }
 
             string message = $"Efectivo: ${_cashAmount:F2}\n" +
                            $"Tarjeta: ${_cardAmount:F2}\n" +
                            $"Transferencia: ${_transferAmount:F2}\n" +
+                           $"Subtotal: ${Subtotal:F2}\n" +
+                           $"ITBIS (18%): ${TaxITBIS:F2}\n" +
+                           $"Propina (10%): ${TaxWaiters:F2}\n" +
                            $"Total: ${Total:F2}";
 
             if (_changeAmount > 0)
@@ -337,9 +382,15 @@ namespace felix1.OrderSection
                 message += $"\n\nDevuelta: ${_changeAmount:F2}";
             }
 
-            DisplayAlert("Pago realizado", message, "OK");
+            await DisplayAlert("Pago realizado", message, "OK");
 
-            //no se puede tener ua base de datos en está economía
+            var window = this.GetParentWindow();
+            if (window != null)
+            {
+                Application.Current?.CloseWindow(window);
+            }
+
+            ListOrderVisual.Instance?.ReloadTM();
         }
 
         private void UpdatePaymentSummary()
@@ -376,6 +427,10 @@ namespace felix1.OrderSection
             OnPropertyChanged(nameof(TransferAmount));
             OnPropertyChanged(nameof(ChangeAmount));
             OnPropertyChanged(nameof(TotalPayment));
+            OnPropertyChanged(nameof(ItemsCount));
+            OnPropertyChanged(nameof(TaxITBIS));
+            OnPropertyChanged(nameof(TaxWaiters));
+            OnPropertyChanged(nameof(Total));
         }
     }
 

@@ -571,6 +571,7 @@ public partial class OrderVisual : ContentPage
         if (_currentOrder != null)
         {
             _currentOrder.IsBillRequested = true;
+            DisplayAlert("Éxito", "Se ha generado un recibo, ahora puede realizar una transacción.", "OK");
         }
     }
 

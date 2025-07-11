@@ -2,9 +2,8 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:felix1.OrderSection"
-             x:Class="felix1.OrderSection.PaymentPage"
-             BackgroundColor="#FFFFFF"
-             Title="Pago">
+             x:Class="felix1.OrderSection.PaymentVisual"
+             BackgroundColor="#FFFFFF">
 
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -17,15 +16,15 @@
           Padding="20"
           RowSpacing="20">
 
-        <ScrollView Grid.Row="0" Grid.Column="0"
-                    Orientation="Vertical"
-                    VerticalScrollBarVisibility="Always">
-            <VerticalStackLayout Spacing="15">
-                <Frame BackgroundColor="#F5F5F5"
-                       CornerRadius="10"
-                       BorderColor="#FFE0E0E0"
-                       HasShadow="True"
-                       Padding="20">
+        <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="15">
+            <Frame BackgroundColor="#F5F5F5"
+                   CornerRadius="10"
+                   BorderColor="#FFE0E0E0"
+                   HasShadow="True"
+                   Padding="0">
+                <ScrollView Orientation="Vertical" 
+                            VerticalScrollBarVisibility="Always"
+                            Padding="20,20,30,20">
                     <VerticalStackLayout Spacing="10">
                         <Label Text="Detalles" FontAttributes="Bold" FontSize="20" TextColor="#005F8C" />
 
@@ -36,8 +35,14 @@
                                         <HorizontalStackLayout Grid.Column="0" Spacing="5">
                                             <Label Text="{Binding ArticleName}" TextColor="#005F8C" />
                                             <Label Text="{Binding UnitPrice, StringFormat='${0:F2}'}" TextColor="#005F8C" />
+                                            <Label Text="{Binding Quantity, StringFormat='x{0}'}" 
+                           TextColor="#005F8C" />
                                         </HorizontalStackLayout>
-                                        <Label Grid.Column="1" Text="{Binding Quantity, StringFormat='x{0}'}" TextColor="#005F8C" HorizontalOptions="End" />
+                                        <Label Grid.Column="1" 
+                       Text="{Binding UnitPrice, StringFormat='${0:F2}'}" 
+                       TextColor="#005F8C" 
+                       HorizontalOptions="End"
+                       Margin="0,0,5,0"/>
                                     </Grid>
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>
@@ -46,70 +51,74 @@
                         <BoxView HeightRequest="1" BackgroundColor="#005F8C" Margin="0,10" />
 
                         <HorizontalStackLayout>
-                            <Label Text="Items" TextColor="#005F8C" />
-                            <Label Text="{Binding Subtotal, StringFormat='${0:F2}'}" HorizontalOptions="EndAndExpand" TextColor="#005F8C" />
+                            <Label Text="{Binding ItemsCount, StringFormat='Items ({0})'}" TextColor="#005F8C" />
+                            <Label Text="{Binding Subtotal, StringFormat=' ${0:F2}'}" HorizontalOptions="EndAndExpand" TextColor="#005F8C" />
                         </HorizontalStackLayout>
                         <HorizontalStackLayout>
-                            <Label Text="Impuestos (5%)" TextColor="#005F8C" />
-                            <Label Text="{Binding Tax, StringFormat='${0:F2}'}" HorizontalOptions="EndAndExpand" TextColor="#005F8C" />
+                            <Label Text="ITBIS (18%)" TextColor="#005F8C" />
+                            <Label Text="{Binding TaxITBIS, StringFormat=' ${0:F2}'}" HorizontalOptions="EndAndExpand" TextColor="#005F8C" />
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout>
+                            <Label Text="Propina (10%)" TextColor="#005F8C" />
+                            <Label Text="{Binding TaxWaiters, StringFormat=' ${0:F2}'}" HorizontalOptions="EndAndExpand" TextColor="#005F8C" />
                         </HorizontalStackLayout>
                         <HorizontalStackLayout>
                             <Label Text="Total" FontAttributes="Bold" TextColor="#005F8C" />
-                            <Label Text="{Binding Total, StringFormat='${0:F2}'}" FontAttributes="Bold" HorizontalOptions="EndAndExpand" TextColor="#005F8C" />
+                            <Label Text="{Binding Total, StringFormat=' ${0:F2}'}" FontAttributes="Bold" HorizontalOptions="EndAndExpand" TextColor="#005F8C" />
                         </HorizontalStackLayout>
 
                         <BoxView HeightRequest="1" BackgroundColor="#005F8C" Margin="0,10" IsVisible="{Binding AnyPaymentMethodUsed}"/>
 
                         <HorizontalStackLayout IsVisible="{Binding IsCashUsed}">
                             <Label Text="Efectivo:" TextColor="#005F8C" />
-                            <Label Text="{Binding CashAmount, StringFormat='${0:F2}'}" 
+                            <Label Text="{Binding CashAmount, StringFormat=' ${0:F2}'}" 
                                    HorizontalOptions="EndAndExpand" 
                                    TextColor="#005F8C" />
                         </HorizontalStackLayout>
 
                         <HorizontalStackLayout IsVisible="{Binding IsCardUsed}">
                             <Label Text="Tarjeta:" TextColor="#005F8C" />
-                            <Label Text="{Binding CardAmount, StringFormat='${0:F2}'}" 
+                            <Label Text="{Binding CardAmount, StringFormat=' ${0:F2}'}" 
                                    HorizontalOptions="EndAndExpand" 
                                    TextColor="#005F8C" />
                         </HorizontalStackLayout>
 
                         <HorizontalStackLayout IsVisible="{Binding IsTransferUsed}">
                             <Label Text="Transferencia:" TextColor="#005F8C" />
-                            <Label Text="{Binding TransferAmount, StringFormat='${0:F2}'}" 
+                            <Label Text="{Binding TransferAmount, StringFormat=' ${0:F2}'}" 
                                    HorizontalOptions="EndAndExpand" 
                                    TextColor="#005F8C" />
                         </HorizontalStackLayout>
 
                         <HorizontalStackLayout IsVisible="{Binding AnyPaymentMethodUsed}">
                             <Label Text="Total Pagado:" FontAttributes="Bold" TextColor="#005F8C" />
-                            <Label Text="{Binding TotalPayment, StringFormat='${0:F2}'}" 
+                            <Label Text="{Binding TotalPayment, StringFormat=' ${0:F2}'}" 
                                    FontAttributes="Bold" 
                                    HorizontalOptions="EndAndExpand" 
                                    TextColor="#005F8C" />
                         </HorizontalStackLayout>
                     </VerticalStackLayout>
-                </Frame>
+                </ScrollView>
+            </Frame>
 
-                <Frame IsVisible="{Binding IsCashUsed}"
-                       BackgroundColor="White"
-                       CornerRadius="10"
-                       BorderColor="White"
-                       HasShadow="True"
-                       Padding="15">
-                    <VerticalStackLayout Spacing="8">
-                        <HorizontalStackLayout>
-                            <Label Text="Total" FontAttributes="Bold" TextColor="#005F8C" FontSize="30" />
-                            <Label Text="{Binding Total, StringFormat='${0:F2}'}" FontAttributes="Bold" FontSize="30" HorizontalOptions="EndAndExpand" TextColor="#005F8C" />
-                        </HorizontalStackLayout>
-                        <HorizontalStackLayout>
-                            <Label Text="Devuelta" FontAttributes="Bold" TextColor="#005F8C" FontSize="30" />
-                            <Label Text="{Binding ChangeAmount, StringFormat='${0:F2}'}" FontAttributes="Bold" FontSize="30" HorizontalOptions="EndAndExpand" TextColor="#005F8C" />
-                        </HorizontalStackLayout>
-                    </VerticalStackLayout>
-                </Frame>
-            </VerticalStackLayout>
-        </ScrollView>
+            <Frame IsVisible="{Binding IsCashUsed}"
+                   BackgroundColor="White"
+                   CornerRadius="10"
+                   BorderColor="White"
+                   HasShadow="True"
+                   Padding="15">
+                <VerticalStackLayout Spacing="8">
+                    <HorizontalStackLayout>
+                        <Label Text="Total" FontAttributes="Bold" TextColor="#005F8C" FontSize="30" />
+                        <Label Text="{Binding Total, StringFormat=' ${0:F2}'}" FontAttributes="Bold" FontSize="30" HorizontalOptions="EndAndExpand" TextColor="#005F8C" />
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout>
+                        <Label Text="Devuelta" FontAttributes="Bold" TextColor="#005F8C" FontSize="30" />
+                        <Label Text="{Binding ChangeAmount, StringFormat=' ${0:F2}'}" FontAttributes="Bold" FontSize="30" HorizontalOptions="EndAndExpand" TextColor="#005F8C" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Frame>
+        </VerticalStackLayout>
 
         <VerticalStackLayout Grid.Row="0" Grid.Column="2" Spacing="15">
             <Label Text="Métodos de pago" FontAttributes="Bold" FontSize="20" TextColor="#005F8C" />
@@ -124,6 +133,7 @@
                                 FontSize="14" 
                                 BackgroundColor="#005F8C" 
                                 TextColor="White"
+                                FontAttributes="Bold"
                                 Clicked="OnAddTransferClicked"/>
 
                         <Button Text="Tarjeta" 
@@ -133,6 +143,7 @@
                                 FontSize="14" 
                                 BackgroundColor="#005F8C" 
                                 TextColor="White"
+                                FontAttributes="Bold"
                                 Clicked="OnAddCardClicked"/>
                     </HorizontalStackLayout>
 
@@ -151,6 +162,7 @@
                 Text="Charge"
                 BackgroundColor="#005F8C"
                 TextColor="White"
+                FontAttributes="Bold"
                 CornerRadius="8"
                 WidthRequest="150"
                 HeightRequest="40"

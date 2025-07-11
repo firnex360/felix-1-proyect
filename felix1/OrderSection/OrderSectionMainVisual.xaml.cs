@@ -101,7 +101,7 @@ public partial class OrderSectionMainVisual : ContentPage
         };
 
         // Mostrar pantalla de pago
-        var paymentPage = new PaymentPage(testOrder);
+        var paymentPage = new PaymentVisual(testOrder);
 
         if (Navigation != null)
         {
