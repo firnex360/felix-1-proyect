@@ -28,10 +28,13 @@ public partial class ListOrderVisual : ContentView
 
         var tableOrders = AppDbContext.ExecuteSafeAsync(async db =>
         {
+            var openCashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
+            if (openCashRegister == null) return new List<Order>();
+            
             var orders = await db.Orders
                 .Include(o => o.Table)
                 .Include(o => o.Waiter)
-                .Where(o => o.Table != null && o.Waiter != null)
+                .Where(o => o.Table != null && o.Waiter != null && o.CashRegister == openCashRegister)
                 .ToListAsync();
 
             // Load OrderItems separately for each order

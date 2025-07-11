@@ -40,6 +40,9 @@
                 StaysOpen="True"
                 ShowCloseButton="True"/>
 
+            <Button Text="Balance"
+                    Clicked="OnGoToBalanceClicked"/>
+
             <Button Text="Admin Section"
                     Clicked="OnGoToPageBClicked"/>
 
