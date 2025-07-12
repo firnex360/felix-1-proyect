@@ -10,9 +10,13 @@ public partial class AdminSectionMainVisual : ContentPage
         InitializeComponent();
         SetButtonChecked(btnShowArticle);
         RightPanel.Content = new ListArticleVisual();
-#if WINDOWS
-            WindowUtils.MaximizeWindow(Application.Current.Windows.FirstOrDefault());
-#endif
+        #if WINDOWS
+        var window = Application.Current?.Windows.FirstOrDefault();
+        if (window != null)
+        {
+            WindowUtils.MaximizeWindow(window);
+        }
+        #endif
     }
 
     private void SetButtonChecked(SfButton checkedButton)
