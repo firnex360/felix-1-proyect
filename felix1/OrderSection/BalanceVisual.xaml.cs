@@ -43,7 +43,7 @@ public partial class BalanceVisual : ContentPage
 		//filter the transactions by the current cash register
 		var transactions = AppDbContext.ExecuteSafeAsync(async db =>
 			await db.Transactions
-				.Where(t => t.Order.CashRegister == _cashRegister)
+				.Where(t => t.Order!.CashRegister == _cashRegister)
 				.ToListAsync())
 			.GetAwaiter().GetResult();
 
@@ -83,9 +83,9 @@ public partial class BalanceVisual : ContentPage
 	{
 		var transactions = AppDbContext.ExecuteSafeAsync(async db =>
 			await db.Transactions
-				.Where(t => t.Order.CashRegister == _cashRegister)
+				.Where(t => t.Order!.CashRegister == _cashRegister)
 				.Include(t => t.Refund)
-				.ThenInclude(r => r.RefundedItems)
+				.ThenInclude(r => r!.RefundedItems)
 				.ToListAsync())
 			.GetAwaiter().GetResult();
 

@@ -118,7 +118,7 @@ public partial class ListUserVisual : ContentView
                         await db.SaveChangesAsync();
 
                         //Ahora sin sniper, supongo que no est� camuflado
-                        Device.BeginInvokeOnMainThread(LoadUsers);
+                        Dispatcher.Dispatch(LoadUsers);
                     }
                 });
             }

@@ -45,7 +45,8 @@
                             CornerRadius="8"
                             HeightRequest="40"
                             WidthRequest="120"
-                            HorizontalOptions="Center" VerticalOptions="Center" />
+                            HorizontalOptions="Center" VerticalOptions="Start"
+                            Clicked="OnCreateTakeoutOrderClicked" />
                     </VerticalStackLayout>
                 </Frame>
 

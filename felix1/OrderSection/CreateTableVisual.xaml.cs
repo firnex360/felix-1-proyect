@@ -76,7 +76,7 @@ public partial class CreateTableVisual : ContentPage
 
     private void CloseThisWindow()
     {
-        foreach (var window in Application.Current.Windows)
+        foreach (var window in Application.Current!.Windows)
         {
             if (window.Page == this)
             {

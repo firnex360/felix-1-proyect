@@ -1,5 +1,7 @@
 using felix1.Data;
 using felix1.Logic;
+using Microsoft.Maui.ApplicationModel;
+
 
 namespace felix1.OrderSection;
 
@@ -7,16 +9,20 @@ public partial class OrderSectionMainVisual : ContentPage
 {
     private CashRegister _cashRegister;
 
-    [Obsolete]
     public OrderSectionMainVisual(CashRegister cashRegister)
     {
         InitializeComponent();
         _cashRegister = cashRegister;
         DisplayCashRegisterInfo();
         RightPanel.Content = new ListOrderVisual();
-#if WINDOWS
-            WindowUtils.MaximizeWindow(Application.Current.Windows.FirstOrDefault());
-#endif
+        #if WINDOWS
+        var window = Application.Current?.Windows.FirstOrDefault();
+        if (window != null)
+        {
+            WindowUtils.MaximizeWindow(window);
+        }
+        #endif
+
     }
 
     private void DisplayCashRegisterInfo()
@@ -51,14 +57,14 @@ public partial class OrderSectionMainVisual : ContentPage
                 await db.SaveChangesAsync();
             }
 
-            Device.BeginInvokeOnMainThread(() =>
+            Dispatcher.Dispatch( () =>
             {
                 /*Navigation.PopAsync();
                 var balanceVisual = new BalanceVisual(register);
-                Application.Current.MainPage = new NavigationPage(balanceVisual);*/
+                Application.Current!.MainPage = new NavigationPage(balanceVisual);*/
                 Navigation.PopAsync();
                 var balanceVisual = new LoginPage();
-                Application.Current.MainPage = new NavigationPage(balanceVisual);
+                Application.Current!.MainPage = new NavigationPage(balanceVisual);
             });
         });
     }
@@ -77,7 +83,7 @@ public partial class OrderSectionMainVisual : ContentPage
         AppSession.CurrentUser = null!;
 
         var loginPage = new LoginPage();
-        Application.Current.MainPage = new NavigationPage(loginPage);
+        Application.Current!.MainPage = new NavigationPage(loginPage);
     }
     private async void OnPaymentButtonClicked(object sender, EventArgs e)
     {
@@ -112,7 +118,7 @@ public partial class OrderSectionMainVisual : ContentPage
         }
         else
         {
-            await Application.Current.MainPage.DisplayAlert("Error", "No se puede navegar a la página de pago", "OK");
+            await Application.Current!.MainPage!.DisplayAlert("Error", "No se puede navegar a la página de pago", "OK");
         }
     }
 
