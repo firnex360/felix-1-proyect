@@ -14,9 +14,11 @@ namespace felix1.OrderSection
     {
         public Order Order { get; set; }
         public decimal Subtotal => Order.Items?.Sum(i => i.TotalPrice) ?? 0;
-        public decimal TaxITBIS => Subtotal * 0.18m; //Tenemos que arreglar esto, ni idea de como tengas el cálculo firnex
-        public decimal TaxWaiters => Subtotal * 0.10m; 
-        public decimal Total => Subtotal + TaxITBIS + TaxWaiters;
+        public decimal Discount => Order.Discount;
+        public decimal TaxableAmount => Subtotal - Discount;
+        public decimal TaxITBIS => Subtotal * 0.18m;
+        public decimal TaxWaiters => TaxableAmount * 0.10m; //No se usa aún no sé por qué!!!!11
+        public decimal Total => (Subtotal + TaxITBIS) - Discount;
         public decimal TotalPayment => _cashAmount + _cardAmount + _transferAmount;
         public int ItemsCount => Order.Items?.Sum(i => i.Quantity) ?? 0;
 
@@ -42,6 +44,7 @@ namespace felix1.OrderSection
             Order = order;
             BindingContext = this;
 
+            UpdatePaymentSummary();
             AddCashMethod();
         }
 
@@ -331,10 +334,9 @@ namespace felix1.OrderSection
                 var transaction = new Transaction
                 {
                     Date = DateTime.Now,
-                    Order = orderToUpdate, 
+                    Order = orderToUpdate,
                     TotalAmount = Total,
                     TaxAmountITBIS = TaxITBIS,
-                    TaxAmountWaiters = TaxWaiters,
                     CashAmount = _cashAmount,
                     CardAmount = _cardAmount,
                     TransferAmount = _transferAmount
@@ -370,12 +372,12 @@ namespace felix1.OrderSection
             }
 
             string message = $"Efectivo: ${_cashAmount:F2}\n" +
-                           $"Tarjeta: ${_cardAmount:F2}\n" +
-                           $"Transferencia: ${_transferAmount:F2}\n" +
-                           $"Subtotal: ${Subtotal:F2}\n" +
-                           $"ITBIS (18%): ${TaxITBIS:F2}\n" +
-                           $"Propina (10%): ${TaxWaiters:F2}\n" +
-                           $"Total: ${Total:F2}";
+               $"Tarjeta: ${_cardAmount:F2}\n" +
+               $"Transferencia: ${_transferAmount:F2}\n" +
+               $"Subtotal: ${Subtotal:F2}\n" +
+               $"ITBIS (18%): ${TaxITBIS:F2}\n" +
+               $"Descuento: ${Discount:F2}\n" +
+               $"Total: ${Total:F2}";
 
             if (_changeAmount > 0)
             {
@@ -428,6 +430,9 @@ namespace felix1.OrderSection
             OnPropertyChanged(nameof(ChangeAmount));
             OnPropertyChanged(nameof(TotalPayment));
             OnPropertyChanged(nameof(ItemsCount));
+            OnPropertyChanged(nameof(Subtotal));
+            OnPropertyChanged(nameof(Discount));
+            OnPropertyChanged(nameof(TaxableAmount));
             OnPropertyChanged(nameof(TaxITBIS));
             OnPropertyChanged(nameof(TaxWaiters));
             OnPropertyChanged(nameof(Total));
