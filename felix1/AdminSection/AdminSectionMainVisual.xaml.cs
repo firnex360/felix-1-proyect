@@ -31,7 +31,7 @@ public partial class AdminSectionMainVisual : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"No se pudo cargar la sección de artículos: {ex.Message}", "OK");
+            await DisplayAlert("Error", $"No se pudo cargar la seccion de articulos: {ex.Message}", "OK");
         }
     }
 
@@ -44,7 +44,7 @@ public partial class AdminSectionMainVisual : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"No se pudo cargar la sección de usuarios: {ex.Message}", "OK");
+            await DisplayAlert("Error", $"No se pudo cargar la seccion de usuarios: {ex.Message}", "OK");
         }
     }
 
@@ -57,7 +57,7 @@ public partial class AdminSectionMainVisual : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"No se pudo cargar la configuración: {ex.Message}", "OK");
+            await DisplayAlert("Error", $"No se pudo cargar la configuracion: {ex.Message}", "OK");
         }
     }
 
@@ -65,11 +65,18 @@ public partial class AdminSectionMainVisual : ContentPage
     {
         try
         {
-            Application.Current.MainPage = new NavigationPage(new LoginPage());
+            if (Application.Current != null)
+            {
+                Application.Current.MainPage = new NavigationPage(new LoginPage());
+            }
+            else
+            {
+                await DisplayAlert("Error", "No se pudo cerrar la sesiÃ³n: Application.Current es null.", "OK");
+            }
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"No se pudo cerrar la sesión: {ex.Message}", "OK");
+            await DisplayAlert("Error", $"No se pudo cerrar la sesion: {ex.Message}", "OK");
         }
     }
 }
