@@ -138,7 +138,7 @@
                                         Padding="10"
                                         WidthRequest="28"
                                         HeightRequest="28"
-                                        BackgroundColor="#FFD6D7DA"
+                                        BackgroundColor="#F3F3F3"
                                         Clicked="OnEditClicked"
                                         VerticalOptions="Center">
                                         <VisualStateManager.VisualStateGroups>
@@ -147,7 +147,7 @@
                                                     <VisualState x:Name="Normal">
                                                         <VisualState.Setters>
                                                             <Setter Property="BackgroundColor"
-                                                                    Value="#F5F7FA"/>
+                                                                    Value="Transparent"/>
                                                         </VisualState.Setters>
                                                     </VisualState>
                                                     <VisualState x:Name="PointerOver">
