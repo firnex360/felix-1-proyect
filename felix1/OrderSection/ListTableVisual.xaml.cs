@@ -18,6 +18,18 @@ public partial class ListOrderVisual : ContentView
         LoadMeseros();
     }
 
+    private Color GetOrderButtonColor(Order order)
+    {
+        if (order.IsBillRequested)
+        {
+            return Color.FromArgb("#4CAF50"); // CUANDO YA IMPRIMES  COLOR TEMPORAL
+        }
+        else
+        {
+            return Color.FromArgb("#2196F3"); // CUANDO ACABAS DE GENERAR LA ORDEN  COLOR TEMPORAL
+        }
+    }
+
     private void LoadMeseros()
     {
         var meseros = AppDbContext.ExecuteSafeAsync(async db =>
@@ -30,21 +42,18 @@ public partial class ListOrderVisual : ContentView
         {
             var openCashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
             if (openCashRegister == null) return new List<Order>();
-            
+
+            // Load orders with all required relationships
             var orders = await db.Orders
                 .Include(o => o.Table)
                 .Include(o => o.Waiter)
-                .Where(o => o.Table != null && o.Waiter != null && o.CashRegister == openCashRegister)
+                .Include(o => o.Items)
+                    .ThenInclude(oi => oi.Article)
+                .Where(o => o.Table != null &&
+                           o.Waiter != null &&
+                           o.CashRegister == openCashRegister &&
+                           !o.IsDuePaid) // Only show unpaid orders
                 .ToListAsync();
-
-            // Load OrderItems separately for each order
-            foreach (var order in orders)
-            {
-                order.Items = await db.OrderItems
-                    .Include(oi => oi.Article)
-                    .Where(oi => EF.Property<int>(oi, "OrderId") == order.Id)
-                    .ToListAsync();
-            }
 
             return orders;
         })
@@ -66,7 +75,7 @@ public partial class ListOrderVisual : ContentView
                 VerticalOptions = LayoutOptions.Start,
             };
 
-            //mesero's name
+            // Mesero's name
             stack.Children.Add(new Label
             {
                 Text = user.Name,
@@ -76,8 +85,7 @@ public partial class ListOrderVisual : ContentView
                 HorizontalOptions = LayoutOptions.Center
             });
 
-            //ADD AVAILABLE TABLES WITHIN THE ORDERS THAT THE MESERO HAS
-            // Create a horizontal layout to hold all table frames
+            // Create a horizontal layout for tables
             var tableRow = new HorizontalStackLayout
             {
                 Spacing = 10,
@@ -86,27 +94,11 @@ public partial class ListOrderVisual : ContentView
 
             foreach (var table in userTables)
             {
-                // Get orders associated with this table
-                var ordersForTable = AppDbContext.ExecuteSafeAsync(async db =>
-                {
-                    var orders = await db.Orders
-                        .Where(o => o.Table != null && o.Table.Id == table.Id)
-                        .ToListAsync();
+                var ordersForTable = tableOrders
+                    .Where(o => o.Table?.Id == table.Id)
+                    .OrderBy(o => o.OrderNumber)
+                    .ToList();
 
-                    // Load OrderItems for each order
-                    foreach (var order in orders)
-                    {
-                        order.Items = await db.OrderItems
-                            .Include(oi => oi.Article)
-                            .Where(oi => EF.Property<int>(oi, "OrderId") == order.Id)
-                            .ToListAsync();
-                    }
-
-                    return orders;
-                })
-                .GetAwaiter().GetResult();
-
-                // Create inner vertical stack for label + order buttons
                 var tableContent = new VerticalStackLayout
                 {
                     Spacing = 5,
@@ -114,7 +106,7 @@ public partial class ListOrderVisual : ContentView
                     VerticalOptions = LayoutOptions.Center
                 };
 
-                // Add label for table number
+                // Table number label
                 tableContent.Children.Add(new Label
                 {
                     Text = $"Mesa #{table.LocalNumber}",
@@ -127,21 +119,30 @@ public partial class ListOrderVisual : ContentView
                 // Add buttons for each order
                 foreach (var order in ordersForTable)
                 {
-                    tableContent.Children.Add(new Button
+                    var orderButton = new Button
                     {
                         Text = $"Orden #{order.OrderNumber}",
                         FontSize = 12,
                         HeightRequest = 30,
                         WidthRequest = 90,
-                        BackgroundColor = Color.FromArgb("#C7CFDD"),
+                        BackgroundColor = order.IsBillRequested ?
+                            Color.FromArgb("#4CAF50") : // Green for printed orders
+                            Color.FromArgb("#2196F3"),  // Blue for regular orders
                         TextColor = Colors.White,
                         CornerRadius = 5,
                         HorizontalOptions = LayoutOptions.Center,
-                        Command = new Command(() => OnViewOrderClicked(order)) // CLICK EVENT
-                    });
+                        Command = new Command(() => OnViewOrderClicked(order))
+                    };
+                    tableContent.Children.Add(orderButton);
                 }
 
-                // Wrap everything inside a frame
+                // Determine frame border color based on orders
+                Color frameBorderColor = ordersForTable.Any() ?
+                    (ordersForTable.First().IsBillRequested ?
+                        Color.FromArgb("#4CAF50") :
+                        Color.FromArgb("#2196F3")) :
+                    Color.FromArgb("#C7CFDD"); // Default color if no orders
+
                 var tableFrame = new Frame
                 {
                     WidthRequest = 100,
@@ -150,14 +151,15 @@ public partial class ListOrderVisual : ContentView
                     CornerRadius = 10,
                     Padding = 8,
                     Content = tableContent,
-                    BorderColor = Color.FromArgb("#C7CFDD")
+                    BorderColor = frameBorderColor
                 };
 
                 tableRow.Children.Add(tableFrame);
             }
-            // Add the row to the main stack
+
             stack.Children.Add(tableRow);
 
+            // Add "Create Table" button
             stack.Children.Add(new Button
             {
                 Text = "Crear Mesa",
@@ -167,8 +169,7 @@ public partial class ListOrderVisual : ContentView
                 HeightRequest = 40,
                 WidthRequest = 120,
                 HorizontalOptions = LayoutOptions.Center,
-                VerticalOptions = LayoutOptions.Center,
-                Command = new Command(() => OnCreateTableWindowClicked(user)) // CLICK EVENT 
+                Command = new Command(() => OnCreateTableWindowClicked(user))
             });
 
             var card = new Frame
@@ -178,15 +179,12 @@ public partial class ListOrderVisual : ContentView
                 Padding = 10,
                 BackgroundColor = Colors.White,
                 BorderColor = Colors.White,
-                VerticalOptions = LayoutOptions.Fill,
-                Shadow = new Shadow { Brush = Brush.Black, Opacity = 0.2f },
                 Content = stack,
             };
 
             MeseroContainer.Children.Add(card);
         }
     }
-
     private async void OnCreateTableWindowClicked(User user)
     {
         Order? order = null;
@@ -206,8 +204,8 @@ public partial class ListOrderVisual : ContentView
 
             var table = new Table
             {
-                LocalNumber = 4, //aaaaaaah me duele la cabeza y me quedé sin pastel
-                GlobalNumber = 3,//puse numeros randoms
+                LocalNumber = 4,
+                GlobalNumber = 3,
                 IsTakeOut = false,
                 IsBillRequested = false,
                 IsPaid = false
@@ -222,7 +220,7 @@ public partial class ListOrderVisual : ContentView
                 Date = DateTime.Now,
                 Waiter = await db.Users.FindAsync(user.Id),
                 Table = table,
-                Items = new List<OrderItem>(), 
+                Items = new List<OrderItem>(),
                 CashRegister = cashRegister,
                 IsDuePaid = false,
                 IsBillRequested = false
@@ -291,7 +289,7 @@ public partial class ListOrderVisual : ContentView
             Tables.Add(table);
     }
 
-    public void ReloadTM() // PUBLIC method to allow external refresh
+    public void ReloadTM()
     {
         LoadTables();
         LoadMeseros();

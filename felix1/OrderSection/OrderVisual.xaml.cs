@@ -564,14 +564,35 @@ public partial class OrderVisual : ContentPage
         }
     }
 
-    private void OnPrintReceipt(object sender, EventArgs e)
+    private async void OnPrintReceipt(object sender, EventArgs e)
     {
         // TODO: Implement print receipt functionality (print the actual receipt)
         Console.WriteLine("Print receipt clicked");
         if (_currentOrder != null)
         {
-            _currentOrder.IsBillRequested = true;
-            DisplayAlert("Éxito", "Se ha generado un recibo, ahora puede realizar una transacción.", "OK");
+            try
+            {
+                using var db = new AppDbContext();
+                _currentOrder.IsBillRequested = true;
+                db.Orders.Update(_currentOrder);
+                await db.SaveChangesAsync();
+
+                if (ListOrderVisual.Instance != null)
+                {
+                    await MainThread.InvokeOnMainThreadAsync(() =>
+                    {
+                        ListOrderVisual.Instance.ReloadTM();
+                    });
+                }
+
+                await DisplayAlert("Éxito", "Se ha generado un recibo, ahora puede realizar una transacción.", "OK");
+
+                CloseThisWindow();
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", $"No se pudo actualizar la orden: {ex.Message}", "OK");
+            }
         }
     }
 
