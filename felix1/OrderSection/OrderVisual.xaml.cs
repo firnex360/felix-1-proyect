@@ -594,6 +594,8 @@ public partial class OrderVisual : ContentPage
                 await DisplayAlert("Error", $"No se pudo actualizar la orden: {ex.Message}", "OK");
             }
         }
+
+        OnExitSave(sender, e); // Save the order after printing and close the window
     }
 
     // Navigation methods for article grid
