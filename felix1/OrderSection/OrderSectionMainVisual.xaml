@@ -32,6 +32,14 @@
                               HorizontalOptions="End"
                               Style="{StaticResource SidebarButtonStyle}" />
 
+            <!-- Add this new button -->
+            <buttons:SfButton x:Name="btnTestRefund"
+                  Text="Test Refund"
+                  Clicked="OnTestRefundClicked"
+                  HorizontalOptions="End"
+                  Style="{StaticResource SidebarButtonStyle}"
+                  BackgroundColor="LightBlue"/>
+
 
         </HorizontalStackLayout>
 

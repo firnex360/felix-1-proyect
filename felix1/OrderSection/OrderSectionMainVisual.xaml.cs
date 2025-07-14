@@ -116,4 +116,41 @@ public partial class OrderSectionMainVisual : ContentPage
         }
     }
 
+    private async void OnTestRefundClicked(object sender, EventArgs e)
+    {
+        // Create fake articles
+        var articles = new List<Article>
+    {
+        new Article { Id = 1, Name = "Burger", PriPrice = 9.99f, Category = ArticleCategory.Principal },
+        new Article { Id = 2, Name = "Fries", PriPrice = 3.99f, Category = ArticleCategory.Secundario },
+        new Article { Id = 3, Name = "Soda", PriPrice = 1.99f, Category = ArticleCategory.Bebidas },
+        new Article { Id = 4, Name = "Ice Cream", PriPrice = 4.50f, Category = ArticleCategory.Postres }
+    };
+
+        // Create fake order items
+        var items = new List<OrderItem>
+    {
+        new OrderItem { Article = articles[0], Quantity = 2, UnitPrice = (decimal)articles[0].PriPrice },
+        new OrderItem { Article = articles[1], Quantity = 1, UnitPrice = (decimal)articles[1].PriPrice },
+        new OrderItem { Article = articles[2], Quantity = 3, UnitPrice = (decimal)articles[2].PriPrice },
+        new OrderItem { Article = articles[3], Quantity = 1, UnitPrice = (decimal)articles[3].PriPrice }
+    };
+
+        // Create fake order
+        var testOrder = new Order
+        {
+            Id = 999,
+            OrderNumber = 12345,
+            Date = DateTime.Now.AddHours(-1),
+            Items = items,
+            Table = new Table { Id = 1, LocalNumber = 5 },
+            Waiter = new User { Id = 1, Name = "Test Waiter" },
+            CashRegister = _cashRegister
+        };
+
+        // Open the refund visual with the test order
+        var refundPage = new RefundVisual(testOrder);
+        await Navigation.PushAsync(refundPage);
+    }
+
 }
