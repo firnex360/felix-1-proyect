@@ -31,11 +31,6 @@
                               Clicked="OnCloseSesion"
                               HorizontalOptions="End"
                               Style="{StaticResource SidebarButtonStyle}" />
-            <buttons:SfButton x:Name="btnPayment"
-                              Text="Abrir Pago"
-                              Clicked="OnPaymentButtonClicked"
-                              HorizontalOptions="End"
-                              Style="{StaticResource PaymentButtonStyle}" />
 
 
         </HorizontalStackLayout>
@@ -61,12 +56,12 @@
                         <VisualStateGroup x:Name="CommonStates">
                             <VisualState x:Name="Normal">
                                 <VisualState.Setters>
-                                    <Setter Property="Background" Value="#FFF39F9F"/>
+                                    <Setter Property="Background" Value="#C7CFDD"/>
                                 </VisualState.Setters>
                             </VisualState>
                             <VisualState x:Name="Hovered">
                                 <VisualState.Setters>
-                                    <Setter Property="Background" Value="#C2C7CD"/>
+                                    <Setter Property="Background" Value="#AFFF1D1D"/>
                                 </VisualState.Setters>
                             </VisualState>
                             <VisualState x:Name="Pressed">

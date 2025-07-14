@@ -20,7 +20,10 @@
                               IsCheckable="True"
                               IsChecked="True"
                               Margin="0,0,0,0"
-                              BackgroundColor="#F3F3F3">
+                              BackgroundColor="Transparent"
+                              ImageSource="foodtray.png"
+                              ImageAlignment="Start"
+                              ShowIcon="True">
 
                 <VisualStateManager.VisualStateGroups>
                     <VisualStateGroup x:Name="CommonStates">
@@ -67,7 +70,10 @@
                               Clicked="OnShowUser"
                               IsCheckable="True"
                               Margin="0,0,0,0"
-                              BackgroundColor="#F3F3F3">
+                              BackgroundColor="#F3F3F3"
+                              ImageSource="user.png"
+                              ImageAlignment="Start"
+                              ShowIcon="True">
 
                 <VisualStateManager.VisualStateGroups>
                     <VisualStateGroup x:Name="CommonStates">
@@ -112,7 +118,10 @@
                               Clicked="OnShowConfiguration"
                               IsCheckable="True"
                               Margin="0,0,0,0"
-                              BackgroundColor="#F3F3F3">
+                              BackgroundColor="#F3F3F3"
+                              ImageSource="settings.png"
+                              ImageAlignment="Start"
+                              ShowIcon="True">
 
                 <VisualStateManager.VisualStateGroups>
                     <VisualStateGroup x:Name="CommonStates">
@@ -159,7 +168,10 @@
             CornerRadius="5"
             Margin="10,10,10,10"
             HeightRequest="40"
-            VerticalOptions="End">
+            VerticalOptions="End"
+            ImageSource="exit.png"
+            ImageAlignment="Start"
+            ShowIcon="True">
 
             <VisualStateManager.VisualStateGroups>
                 <VisualStateGroup x:Name="CommonStates">
