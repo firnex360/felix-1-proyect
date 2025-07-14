@@ -10,9 +10,13 @@ public partial class AdminSectionMainVisual : ContentPage
         InitializeComponent();
         SetButtonChecked(btnShowArticle);
         RightPanel.Content = new ListArticleVisual();
-#if WINDOWS
-            WindowUtils.MaximizeWindow(Application.Current.Windows.FirstOrDefault());
-#endif
+        #if WINDOWS
+        var window = Application.Current?.Windows.FirstOrDefault();
+        if (window != null)
+        {
+            WindowUtils.MaximizeWindow(window);
+        }
+        #endif
     }
 
     private void SetButtonChecked(SfButton checkedButton)
@@ -74,6 +78,9 @@ public partial class AdminSectionMainVisual : ContentPage
                 await DisplayAlert("Error", "No se pudo cerrar la sesión: Application.Current es null.", "OK");
             }
         }
+        /*{
+            Application.Current!.MainPage = new NavigationPage(new LoginPage());
+        }*/
         catch (Exception ex)
         {
             await DisplayAlert("Error", $"No se pudo cerrar la sesion: {ex.Message}", "OK");

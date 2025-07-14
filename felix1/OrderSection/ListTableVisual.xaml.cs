@@ -85,11 +85,12 @@ public partial class ListOrderVisual : ContentView
                 HorizontalOptions = LayoutOptions.Center
             });
 
-            // Create a horizontal layout for tables
-            var tableRow = new HorizontalStackLayout
+            //ADD AVAILABLE TABLES WITHIN THE ORDERS THAT THE MESERO HAS
+            // Create a horizontal layout to hold all table frames
+            var tableRow = new VerticalStackLayout
             {
                 Spacing = 10,
-                HorizontalOptions = LayoutOptions.Center
+                HorizontalOptions = LayoutOptions.Fill,
             };
 
             foreach (var table in userTables)
@@ -112,7 +113,7 @@ public partial class ListOrderVisual : ContentView
                     Text = $"Mesa #{table.LocalNumber}",
                     FontAttributes = FontAttributes.Bold,
                     FontSize = 14,
-                    HorizontalOptions = LayoutOptions.Center,
+                    HorizontalOptions = LayoutOptions.Start,
                     TextColor = Colors.Black
                 });
 
@@ -130,7 +131,7 @@ public partial class ListOrderVisual : ContentView
                             Color.FromArgb("#2196F3"),  // Blue for regular orders
                         TextColor = Colors.White,
                         CornerRadius = 5,
-                        HorizontalOptions = LayoutOptions.Center,
+                        HorizontalOptions = LayoutOptions.Start,
                         Command = new Command(() => OnViewOrderClicked(order))
                     };
                     tableContent.Children.Add(orderButton);
@@ -145,13 +146,13 @@ public partial class ListOrderVisual : ContentView
 
                 var tableFrame = new Frame
                 {
-                    WidthRequest = 100,
                     HeightRequest = 100,
                     BackgroundColor = Colors.White,
                     CornerRadius = 10,
                     Padding = 8,
                     Content = tableContent,
-                    BorderColor = frameBorderColor
+                    BorderColor = frameBorderColor,
+                    HorizontalOptions = LayoutOptions.Fill
                 };
 
                 tableRow.Children.Add(tableFrame);
@@ -191,60 +192,235 @@ public partial class ListOrderVisual : ContentView
 
         await AppDbContext.ExecuteSafeAsync(async db =>
         {
-            var cashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
-            if (cashRegister == null)
+            var waiter = await AppDbContext.ExecuteSafeAsync(async db =>
+            await db.Users.FindAsync(user.Id));
+
+            if (waiter == null)
             {
-                await Application.Current.MainPage.DisplayAlert("Error", "No hay una caja abierta.", "OK");
+                await Application.Current!.MainPage!.DisplayAlert("Error", "Mesero no encontrado.", "OK");
                 return;
             }
+            
+            Table? table = null;
+            int orderNumber = 0;
+            await AppDbContext.ExecuteSafeAsync(async db =>
+            {
+                var cashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
+                if (cashRegister == null)
+                {
+                    if (Application.Current?.MainPage != null)
+                        await Application.Current.MainPage.DisplayAlert("Error", "No hay una caja abierta.", "OK");
+                    return;
+                }
 
-            int orderNumber = await db.Orders
+                orderNumber = await db.Orders
                 .Where(o => o.CashRegister != null && o.CashRegister.Id == cashRegister.Id)
                 .CountAsync();
 
-            var table = new Table
-            {
-                LocalNumber = 4,
-                GlobalNumber = 3,
-                IsTakeOut = false,
-                IsBillRequested = false,
-                IsPaid = false
-            };
-
-            db.Tables.Add(table);
-            await db.SaveChangesAsync();
-
-            order = new Order
-            {
-                OrderNumber = orderNumber + 1,
-                Date = DateTime.Now,
-                Waiter = await db.Users.FindAsync(user.Id),
-                Table = table,
-                Items = new List<OrderItem>(),
-                CashRegister = cashRegister,
-                IsDuePaid = false,
-                IsBillRequested = false
-            };
-
-            db.Orders.Add(order);
-            await db.SaveChangesAsync();
-        });
-
-        if (order != null)
-        {
-            order = await AppDbContext.ExecuteSafeAsync(async db =>
-                await db.Orders
+                // ALL TABLES IN THE **OPEN** CASH REGISTER
+                var allTables = await db.Orders
                     .Include(o => o.Table)
                     .Include(o => o.Waiter)
-                    .Include(o => o.Items)
-                    .ThenInclude(oi => oi.Article)
-                    .FirstOrDefaultAsync(o => o.Id == order.Id));
+                    .Where(o => o.CashRegister != null && o.CashRegister.Id == cashRegister.Id && o.Table != null)
+                    .Select(o => o.Table!)
+                    //.Distinct()
+                    .ToListAsync();
 
-            OnViewOrderClicked(order);
+                // ALL TABLES FROM CURRENT WAITER
+                var waiterTables = await db.Orders
+                    .Include(o => o.Table)
+                    .Where(o => o.CashRegister != null &&
+                                o.CashRegister.Id == cashRegister.Id &&
+                                o.Waiter != null &&
+                                o.Waiter.Id == waiter!.Id &&
+                                o.Table != null)
+                    .Select(o => o.Table!)
+                    .ToListAsync();
+
+                table = new Table
+                {
+                    LocalNumber = waiterTables.Count + 1,
+                    GlobalNumber = allTables.Count + 1,
+                    IsTakeOut = false,
+                    IsBillRequested = false,
+                    IsPaid = false
+                };
+
+                db.Tables.Add(table);
+                await db.SaveChangesAsync();
+
+            });
+
+
+            await AppDbContext.ExecuteSafeAsync(async db =>
+            {
+                if (table == null) return;
+
+                var savedTable = await db.Tables.FirstOrDefaultAsync(t => t.Id == table!.Id);
+                var cashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
+
+                if (savedTable == null || cashRegister == null)
+                {
+                    await Application.Current!.MainPage!.DisplayAlert("Error", "Datos no válidos al crear la orden.", "OK");
+                    return;
+                }
+
+                if (waiter != null)
+                    db.Attach(waiter);
+                db.Attach(cashRegister);
+
+                var order = new Order
+                {
+                    OrderNumber = orderNumber + 1,
+                    Date = DateTime.Now,
+                    Waiter = waiter,
+                    Table = savedTable,
+                    Items = null,
+                    CashRegister = cashRegister,
+                    IsDuePaid = false,
+                    IsBillRequested = false
+                };
+
+                db.Orders.Add(order);
+                await db.SaveChangesAsync();
+                OnViewOrderClicked(order!);
+            });
+            ReloadTM();
+
+            /*if (order != null)
+            {
+                order = await AppDbContext.ExecuteSafeAsync(async db =>
+                    await db.Orders
+                        //.Include(o => o.Table)
+                        //.Include(o => o.Waiter)
+                        //.Include(o => o.Items)
+                        //.ThenInclude(oi => oi.Article)
+                        .FirstOrDefaultAsync(o => o.Id == order.Id));
+
+                OnViewOrderClicked(order!);
+            }*/
+        });
+    }
+
+    private void AddTakeoutOrderToPanel(Order order)
+    {
+        int displayOrderNumber = order.Table?.LocalNumber ?? order.OrderNumber;
+
+        var orderButton = new Button
+        {
+            Text = $"Orden #{displayOrderNumber}",
+            FontSize = 14,
+            HeightRequest = 40,
+            BackgroundColor = Color.FromArgb("#C7CFDD"),
+            TextColor = Colors.White,
+            CornerRadius = 6,
+            HorizontalOptions = LayoutOptions.Fill,
+            Margin = new Thickness(0, 5),
+            Command = new Command(() => OnViewOrderClicked(order))
+        };
+
+        TakeoutPanel.Children.Add(orderButton);
+    }
+
+    private void LoadExistingTakeoutOrders()
+    {
+        var takeoutOrders = AppDbContext.ExecuteSafeAsync(async db =>
+        {
+            var openCashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
+            if (openCashRegister == null) return new List<Order>();
+
+            var orders = await db.Orders
+                .Include(o => o.Table)
+                .Where(o => o.CashRegister!.Id == openCashRegister.Id &&
+                            o.Table != null &&
+                            o.Table.IsTakeOut)
+                .ToListAsync();
+
+            foreach (var order in orders)
+            {
+                order.Items = await db.OrderItems
+                    .Include(oi => oi.Article)
+                    .Where(oi => EF.Property<int>(oi, "OrderId") == order.Id)
+                    .ToListAsync();
+            }
+
+            return orders;
+        }).GetAwaiter().GetResult();
+
+        // Only add buttons that aren't already there (basic duplicate check by text)
+        foreach (var order in takeoutOrders)
+        {
+            int displayOrderNumber = order.Table?.LocalNumber ?? order.OrderNumber;
+            string buttonText = $"Orden #{displayOrderNumber}";
+
+            bool alreadyExists = TakeoutPanel.Children
+                .OfType<Button>()
+                .Any(b => b.Text == buttonText);
+
+            if (!alreadyExists)
+            {
+                AddTakeoutOrderToPanel(order);
+            }
+        }
+    }
+
+    private async void OnCreateTakeoutOrderClicked(object sender, EventArgs e)
+    {
+        await AppDbContext.ExecuteSafeAsync(async db =>
+        {
+            var waiter = await db.Users.FirstOrDefaultAsync(u => u.Name == "TAKEOUT");
+        var cashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
+
+        if (cashRegister == null)
+        {
+            await Application.Current!.MainPage!.DisplayAlert("Error", "No hay una caja abierta.", "OK");
+            return;
         }
 
-        ReloadTM();
-    }
+        var existingTakeouts = await db.Orders
+            .Where(o => o.CashRegister!.Id == cashRegister.Id && o.Table != null && o.Table.IsTakeOut)
+            .Select(o => o.Table!)
+            .ToListAsync();
+
+        int nextTakeoutNumber = -(existingTakeouts.Count + 1);
+
+        var table = new Table
+        {
+            LocalNumber = nextTakeoutNumber,
+            IsTakeOut = true,
+            IsBillRequested = false,
+            IsPaid = false
+        };
+
+        db.Tables.Add(table);
+        await db.SaveChangesAsync();
+
+        int orderNumber = await db.Orders
+            .Where(o => o.CashRegister!.Id == cashRegister.Id)
+            .CountAsync();
+
+        db.Attach(cashRegister);
+        if (waiter != null) db.Attach(waiter);
+
+        var order = new Order
+        {
+            OrderNumber = orderNumber + 1,
+            Date = DateTime.Now,
+            Waiter = waiter,
+            Table = table,
+            Items = null,
+            CashRegister = cashRegister,
+            IsDuePaid = false,
+            IsBillRequested = false
+        };
+
+        db.Orders.Add(order);
+        await db.SaveChangesAsync();
+
+        AddTakeoutOrderToPanel(order); 
+        OnViewOrderClicked(order);
+    });
+}
 
     private async void OnViewOrderClicked(Order order)
     {
@@ -293,5 +469,6 @@ public partial class ListOrderVisual : ContentView
     {
         LoadTables();
         LoadMeseros();
+        LoadExistingTakeoutOrders();
     }
 }

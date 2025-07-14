@@ -208,7 +208,7 @@ public partial class CreateArticleVisual : ContentPage
                         article.IsSideDish = txtSideDish.IsChecked;
 
                         // Clear existing side dishes
-                        article.SideDishes.Clear();
+                        article.SideDishes!.Clear();
 
                         // Add new selected side dishes
                         var selectedSideDishes = await db.Articles
@@ -226,7 +226,6 @@ public partial class CreateArticleVisual : ContentPage
             }
 
             ListArticleVisual.Instance?.ReloadArticles();
-            await DisplayAlert("Éxito", "Artículo guardado correctamente.", "OK");
             CloseThisWindow();
         }
         catch (Exception ex)
