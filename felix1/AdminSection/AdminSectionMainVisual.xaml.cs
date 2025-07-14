@@ -77,6 +77,8 @@ public partial class AdminSectionMainVisual : ContentPage
             {
                 await DisplayAlert("Error", "No se pudo cerrar la sesión: Application.Current es null.", "OK");
             }
+        {
+            Application.Current!.MainPage = new NavigationPage(new LoginPage());
         }
         catch (Exception ex)
         {
