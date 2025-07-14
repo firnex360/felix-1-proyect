@@ -192,162 +192,183 @@ public partial class ListOrderVisual : ContentView
 
         await AppDbContext.ExecuteSafeAsync(async db =>
         {
-            var cashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
-            if (cashRegister == null)
+            var waiter = await AppDbContext.ExecuteSafeAsync(async db =>
+            await db.Users.FindAsync(user.Id));
+
+            if (waiter == null)
             {
-                await Application.Current!.MainPage!.DisplayAlert("Error", "No hay una caja abierta.", "OK");
+                await Application.Current!.MainPage!.DisplayAlert("Error", "Mesero no encontrado.", "OK");
                 return;
             }
+            
+            Table? table = null;
+            int orderNumber = 0;
+            await AppDbContext.ExecuteSafeAsync(async db =>
+            {
+                var cashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
+                if (cashRegister == null)
+                {
+                    if (Application.Current?.MainPage != null)
+                        await Application.Current.MainPage.DisplayAlert("Error", "No hay una caja abierta.", "OK");
+                    return;
+                }
 
-            int orderNumber = await db.Orders
+                orderNumber = await db.Orders
                 .Where(o => o.CashRegister != null && o.CashRegister.Id == cashRegister.Id)
                 .CountAsync();
 
-            // ALL TABLES IN THE **OPEN** CASH REGISTER
-            var allTables = await db.Orders
-                .Include(o => o.Table)
-                .Include(o => o.Waiter)
-                .Where(o => o.CashRegister != null && o.CashRegister.Id == cashRegister.Id && o.Table != null)
-                .Select(o => o.Table!)
-                //.Distinct()
-                .ToListAsync();
-
-            // ALL TABLES FROM CURRENT WAITER
-            var waiterTables = await db.Orders
-                .Include(o => o.Table)
-                .Where(o => o.CashRegister != null &&
-                            o.CashRegister.Id == cashRegister.Id &&
-                            o.Waiter != null &&
-                            o.Waiter.Id == waiter!.Id &&
-                            o.Table != null)
-                .Select(o => o.Table!)
-                .ToListAsync();
-
-            table = new Table
-            {
-                LocalNumber = 4,
-                GlobalNumber = 3,
-                IsTakeOut = false,
-                IsBillRequested = false,
-                IsPaid = false
-            };
-
-            db.Tables.Add(table);
-            await db.SaveChangesAsync();
-        });
-
-        await AppDbContext.ExecuteSafeAsync(async db =>
-        {
-            var savedTable = await db.Tables.FirstOrDefaultAsync(t => t.Id == table!.Id);
-            var cashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
-
-            if (savedTable == null || cashRegister == null)
-            {
-                await Application.Current!.MainPage!.DisplayAlert("Error", "Datos no válidos al crear la orden.", "OK");
-                return;
-            }
-
-            db.Attach(waiter!);
-            db.Attach(cashRegister);
-
-            var order = new Order
-            {
-                OrderNumber = orderNumber + 1,
-                Date = DateTime.Now,
-                Waiter = await db.Users.FindAsync(user.Id),
-                Table = table,
-                Items = new List<OrderItem>(),
-                CashRegister = cashRegister,
-                IsDuePaid = false,
-                IsBillRequested = false
-            };
-
-            db.Orders.Add(order);
-            await db.SaveChangesAsync();
-        });
-
-        if (order != null)
-        {
-            order = await AppDbContext.ExecuteSafeAsync(async db =>
-                await db.Orders
+                // ALL TABLES IN THE **OPEN** CASH REGISTER
+                var allTables = await db.Orders
                     .Include(o => o.Table)
                     .Include(o => o.Waiter)
-                    .Include(o => o.Items)
-                    .ThenInclude(oi => oi.Article)
-                    .FirstOrDefaultAsync(o => o.Id == order.Id));
+                    .Where(o => o.CashRegister != null && o.CashRegister.Id == cashRegister.Id && o.Table != null)
+                    .Select(o => o.Table!)
+                    //.Distinct()
+                    .ToListAsync();
 
-            OnViewOrderClicked(order);
-        }
+                // ALL TABLES FROM CURRENT WAITER
+                var waiterTables = await db.Orders
+                    .Include(o => o.Table)
+                    .Where(o => o.CashRegister != null &&
+                                o.CashRegister.Id == cashRegister.Id &&
+                                o.Waiter != null &&
+                                o.Waiter.Id == waiter!.Id &&
+                                o.Table != null)
+                    .Select(o => o.Table!)
+                    .ToListAsync();
 
-        ReloadTM();
+                table = new Table
+                {
+                    LocalNumber = waiterTables.Count + 1,
+                    GlobalNumber = allTables.Count + 1,
+                    IsTakeOut = false,
+                    IsBillRequested = false,
+                    IsPaid = false
+                };
+
+                db.Tables.Add(table);
+                await db.SaveChangesAsync();
+
+            });
+
+
+            await AppDbContext.ExecuteSafeAsync(async db =>
+            {
+                if (table == null) return;
+
+                var savedTable = await db.Tables.FirstOrDefaultAsync(t => t.Id == table!.Id);
+                var cashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
+
+                if (savedTable == null || cashRegister == null)
+                {
+                    await Application.Current!.MainPage!.DisplayAlert("Error", "Datos no válidos al crear la orden.", "OK");
+                    return;
+                }
+
+                if (waiter != null)
+                    db.Attach(waiter);
+                db.Attach(cashRegister);
+
+                var order = new Order
+                {
+                    OrderNumber = orderNumber + 1,
+                    Date = DateTime.Now,
+                    Waiter = waiter,
+                    Table = savedTable,
+                    Items = null,
+                    CashRegister = cashRegister,
+                    IsDuePaid = false,
+                    IsBillRequested = false
+                };
+
+                db.Orders.Add(order);
+                await db.SaveChangesAsync();
+                OnViewOrderClicked(order!);
+            });
+            ReloadTM();
+
+            /*if (order != null)
+            {
+                order = await AppDbContext.ExecuteSafeAsync(async db =>
+                    await db.Orders
+                        //.Include(o => o.Table)
+                        //.Include(o => o.Waiter)
+                        //.Include(o => o.Items)
+                        //.ThenInclude(oi => oi.Article)
+                        .FirstOrDefaultAsync(o => o.Id == order.Id));
+
+                OnViewOrderClicked(order!);
+            }*/
+        });
     }
 
-private void AddTakeoutOrderToPanel(Order order)
-{
-    int displayOrderNumber = order.Table?.LocalNumber ?? order.OrderNumber;
-
-    var orderButton = new Button
-    {
-        Text = $"Orden #{displayOrderNumber}",
-        FontSize = 14,
-        HeightRequest = 40,
-        BackgroundColor = Color.FromArgb("#C7CFDD"),
-        TextColor = Colors.White,
-        CornerRadius = 6,
-        HorizontalOptions = LayoutOptions.Fill,
-        Margin = new Thickness(0, 5),
-        Command = new Command(() => OnViewOrderClicked(order))
-    };
-
-    TakeoutPanel.Children.Add(orderButton);
-}
-
-private void LoadExistingTakeoutOrders()
-{
-    var takeoutOrders = AppDbContext.ExecuteSafeAsync(async db =>
-    {
-        var openCashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
-        if (openCashRegister == null) return new List<Order>();
-
-        var orders = await db.Orders
-            .Include(o => o.Table)
-            .Where(o => o.CashRegister!.Id == openCashRegister.Id &&
-                        o.Table != null &&
-                        o.Table.IsTakeOut)
-            .ToListAsync();
-
-        foreach (var order in orders)
-        {
-            order.Items = await db.OrderItems
-                .Include(oi => oi.Article)
-                .Where(oi => EF.Property<int>(oi, "OrderId") == order.Id)
-                .ToListAsync();
-        }
-
-        return orders;
-    }).GetAwaiter().GetResult();
-
-    // Only add buttons that aren't already there (basic duplicate check by text)
-    foreach (var order in takeoutOrders)
+    private void AddTakeoutOrderToPanel(Order order)
     {
         int displayOrderNumber = order.Table?.LocalNumber ?? order.OrderNumber;
-        string buttonText = $"Orden #{displayOrderNumber}";
 
-        bool alreadyExists = TakeoutPanel.Children
-            .OfType<Button>()
-            .Any(b => b.Text == buttonText);
-
-        if (!alreadyExists)
+        var orderButton = new Button
         {
-            AddTakeoutOrderToPanel(order);
+            Text = $"Orden #{displayOrderNumber}",
+            FontSize = 14,
+            HeightRequest = 40,
+            BackgroundColor = Color.FromArgb("#C7CFDD"),
+            TextColor = Colors.White,
+            CornerRadius = 6,
+            HorizontalOptions = LayoutOptions.Fill,
+            Margin = new Thickness(0, 5),
+            Command = new Command(() => OnViewOrderClicked(order))
+        };
+
+        TakeoutPanel.Children.Add(orderButton);
+    }
+
+    private void LoadExistingTakeoutOrders()
+    {
+        var takeoutOrders = AppDbContext.ExecuteSafeAsync(async db =>
+        {
+            var openCashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
+            if (openCashRegister == null) return new List<Order>();
+
+            var orders = await db.Orders
+                .Include(o => o.Table)
+                .Where(o => o.CashRegister!.Id == openCashRegister.Id &&
+                            o.Table != null &&
+                            o.Table.IsTakeOut)
+                .ToListAsync();
+
+            foreach (var order in orders)
+            {
+                order.Items = await db.OrderItems
+                    .Include(oi => oi.Article)
+                    .Where(oi => EF.Property<int>(oi, "OrderId") == order.Id)
+                    .ToListAsync();
+            }
+
+            return orders;
+        }).GetAwaiter().GetResult();
+
+        // Only add buttons that aren't already there (basic duplicate check by text)
+        foreach (var order in takeoutOrders)
+        {
+            int displayOrderNumber = order.Table?.LocalNumber ?? order.OrderNumber;
+            string buttonText = $"Orden #{displayOrderNumber}";
+
+            bool alreadyExists = TakeoutPanel.Children
+                .OfType<Button>()
+                .Any(b => b.Text == buttonText);
+
+            if (!alreadyExists)
+            {
+                AddTakeoutOrderToPanel(order);
+            }
         }
     }
-}
-private async void OnCreateTakeoutOrderClicked(object sender, EventArgs e)
-{
-    await AppDbContext.ExecuteSafeAsync(async db =>
+
+    private async void OnCreateTakeoutOrderClicked(object sender, EventArgs e)
     {
-        var waiter = await db.Users.FirstOrDefaultAsync(u => u.Name == "TAKEOUT");
+        await AppDbContext.ExecuteSafeAsync(async db =>
+        {
+            var waiter = await db.Users.FirstOrDefaultAsync(u => u.Name == "TAKEOUT");
         var cashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
 
         if (cashRegister == null)

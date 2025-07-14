@@ -226,7 +226,6 @@ public partial class CreateArticleVisual : ContentPage
             }
 
             ListArticleVisual.Instance?.ReloadArticles();
-            await DisplayAlert("Éxito", "Artículo guardado correctamente.", "OK");
             CloseThisWindow();
         }
         catch (Exception ex)

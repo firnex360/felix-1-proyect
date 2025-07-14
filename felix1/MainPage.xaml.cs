@@ -75,13 +75,29 @@ public partial class MainPage : ContentPage
 
         var newUser = new User
         {
-            Name = "John Doe",
-            Username = "johnd",
-            Password = "secret123",
+            Name = "Admin",
+            Username = "a",
+            Password = "a",
             Role = "Admin"
+        };
+        var newUser2 = new User
+        {
+            Name = "Mesero",
+            Username = "m",
+            Password = "m",
+            Role = "Mesero"
+        };
+        var newUser3 = new User
+        {
+            Name = "Cajero",
+            Username = "c",
+            Password = "c",
+            Role = "Cajero"
         };
 
         db.Users.Add(newUser);
+        db.Users.Add(newUser2);
+        db.Users.Add(newUser3);
         db.SaveChanges();
     }
 
