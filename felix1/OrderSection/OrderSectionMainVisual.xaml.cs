@@ -15,13 +15,13 @@ public partial class OrderSectionMainVisual : ContentPage
         _cashRegister = cashRegister;
         DisplayCashRegisterInfo();
         RightPanel.Content = new ListOrderVisual();
-        #if WINDOWS
+#if WINDOWS
         var window = Application.Current?.Windows.FirstOrDefault();
         if (window != null)
         {
             WindowUtils.MaximizeWindow(window);
         }
-        #endif
+#endif
 
     }
 
@@ -57,7 +57,7 @@ public partial class OrderSectionMainVisual : ContentPage
                 await db.SaveChangesAsync();
             }
 
-            Dispatcher.Dispatch( () =>
+            Dispatcher.Dispatch(() =>
             {
                 /*Navigation.PopAsync();
                 var balanceVisual = new BalanceVisual(register);
@@ -127,7 +127,7 @@ public partial class OrderSectionMainVisual : ContentPage
     private void OnSearchBarTextChanged(object sender, TextChangedEventArgs e)
     {
         var searchText = e.NewTextValue?.ToLower() ?? "";
-        
+
         // Get the ListOrderVisual instance and pass the search text to it
         if (RightPanel.Content is ListOrderVisual listOrderVisual)
         {
@@ -138,8 +138,13 @@ public partial class OrderSectionMainVisual : ContentPage
 
     private void OnSearchBarSearchButtonPressed(object sender, EventArgs e)
     {
-        // Handle search button press if needed
-        // This could trigger a more specific search or action
+        // Handle search button press - open the highlighted table
+        if (RightPanel.Content is ListOrderVisual listOrderVisual)
+        {
+            listOrderVisual.OpenHighlightedTable();
+        }
     }
+    
+    
 
 }

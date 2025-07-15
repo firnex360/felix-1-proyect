@@ -9,6 +9,10 @@ public partial class ListOrderVisual : ContentView
 {
     public static ListOrderVisual? Instance { get; private set; }
     public ObservableCollection<Table> Tables { get; set; } = new();
+    
+    // Add tracking for currently highlighted table
+    private Table? _currentHighlightedTable = null;
+    private bool _isGlobalSearchMatch = false;
 
     public ListOrderVisual()
     {
@@ -472,14 +476,57 @@ public partial class ListOrderVisual : ContentView
         LoadExistingTakeoutOrders();
     }
 
+    // Method to open the currently highlighted table's order
+    public async void OpenHighlightedTable()
+    {
+        if (_currentHighlightedTable == null) return;
+
+        // Find the order for the highlighted table
+        var order = await AppDbContext.ExecuteSafeAsync(async db =>
+        {
+            var openCashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
+            if (openCashRegister == null) return null;
+
+            return await db.Orders
+                .Include(o => o.Table)
+                .Include(o => o.Waiter)
+                .Include(o => o.Items)
+                    .ThenInclude(oi => oi.Article)
+                .FirstOrDefaultAsync(o => o.CashRegister != null &&
+                                         o.CashRegister.Id == openCashRegister.Id &&
+                                         o.Table != null &&
+                                         o.Table.Id == _currentHighlightedTable.Id &&
+                                         !o.IsDuePaid);
+        });
+
+        if (order != null)
+        {
+            // Use the existing OnViewOrderClicked method
+            OnViewOrderClicked(order);
+        }
+        else
+        {
+            if (Application.Current?.MainPage != null)
+            {
+                await Application.Current.MainPage.DisplayAlert("Info", 
+                    $"No se encontró una orden activa para la Mesa #{_currentHighlightedTable.LocalNumber}", "OK");
+            }
+        }
+    }
+
     //for search by table number
     public void FilterTablesByNumber(string searchText)
     {
         // Reset all frames to default appearance first
         ResetAllTableFrames();
 
+        // Clear highlighted table when search is cleared
         if (string.IsNullOrWhiteSpace(searchText))
+        {
+            _currentHighlightedTable = null;
+            _isGlobalSearchMatch = false;
             return;
+        }
 
         // Try to parse the search text as a number
         if (int.TryParse(searchText.Trim(), out int searchNumber))
@@ -495,6 +542,11 @@ public partial class ListOrderVisual : ContentView
             {
                 HighlightTableByLocalNumber(searchNumber);
             }
+        }
+        else
+        {
+            _currentHighlightedTable = null;
+            _isGlobalSearchMatch = false;
         }
     }
 
@@ -525,6 +577,8 @@ public partial class ListOrderVisual : ContentView
     private bool HighlightTableByGlobalNumber(int globalNumber)
     {
         bool foundMatch = false;
+        _currentHighlightedTable = null;
+        _isGlobalSearchMatch = false;
 
         // First, we need to get all tables with their global numbers from the database
         var allTablesWithGlobal = AppDbContext.ExecuteSafeAsync(async db =>
@@ -549,6 +603,8 @@ public partial class ListOrderVisual : ContentView
 
         if (targetTable != null)
         {
+            _currentHighlightedTable = targetTable;
+            _isGlobalSearchMatch = true;
             // Find and highlight the frame for this table
             foundMatch = HighlightTableFrame(targetTable, true); // true indicates global search
         }
@@ -559,6 +615,30 @@ public partial class ListOrderVisual : ContentView
     private bool HighlightTableByLocalNumber(int localNumber)
     {
         bool foundMatch = false;
+        
+        // Only clear if we haven't found a global match
+        if (!_isGlobalSearchMatch)
+        {
+            _currentHighlightedTable = null;
+        }
+
+        // Get all tables to find the one with matching local number
+        var allTables = AppDbContext.ExecuteSafeAsync(async db =>
+        {
+            var openCashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
+            if (openCashRegister == null) return new List<Table>();
+
+            return await db.Orders
+                .Include(o => o.Table)
+                .Include(o => o.Waiter)
+                .Where(o => o.CashRegister != null && 
+                           o.CashRegister.Id == openCashRegister.Id && 
+                           o.Table != null &&
+                           !o.IsDuePaid)
+                .Select(o => o.Table!)
+                .Distinct()
+                .ToListAsync();
+        }).GetAwaiter().GetResult();
 
         // Search through all visible table frames
         foreach (var meseroCard in MeseroContainer.Children.OfType<Frame>())
@@ -583,6 +663,13 @@ public partial class ListOrderVisual : ContentView
                                     var labelText = tableLabel.Text.Replace("Mesa #", "");
                                     if (int.TryParse(labelText, out int tableLocalNumber) && tableLocalNumber == localNumber)
                                     {
+                                        // Find the corresponding table object and track it if not global match
+                                        var matchingTable = allTables.FirstOrDefault(t => t.LocalNumber == localNumber);
+                                        if (matchingTable != null && !_isGlobalSearchMatch)
+                                        {
+                                            _currentHighlightedTable = matchingTable;
+                                        }
+
                                         // Highlight this frame with local search styling
                                         ApplyHighlightStyling(tableFrame, false); // false indicates local search
                                         foundMatch = true;
@@ -621,13 +708,51 @@ public partial class ListOrderVisual : ContentView
                                 if (tableLabel != null)
                                 {
                                     var labelText = tableLabel.Text.Replace("Mesa #", "");
-                                    if (int.TryParse(labelText, out int displayedLocalNumber) && 
-                                        displayedLocalNumber == targetTable.LocalNumber)
+                                    if (int.TryParse(labelText, out int displayedLocalNumber))
                                     {
-                                        // Apply global search highlighting
-                                        ApplyHighlightStyling(tableFrame, isGlobalSearch);
-                                        foundMatch = true;
-                                        break;
+                                        // For global search, we need to check if this displayed table
+                                        // corresponds to our target table by comparing the actual table data
+                                        // that's being displayed in this UI frame
+                                        
+                                        // Get the table data that corresponds to this UI frame
+                                        // We need to find which table from our loaded data matches this display
+                                        if (isGlobalSearch)
+                                        {
+                                            // For global search, we're looking for the table with the specific GlobalNumber
+                                            // and LocalNumber combination that matches our target
+                                            if (displayedLocalNumber == targetTable.LocalNumber)
+                                            {
+                                                // We found a potential match, but we need to verify it's the right table
+                                                // by checking if this waiter section contains our target table
+                                                var meseroNameLabel = meseroStack.Children.OfType<Label>()
+                                                    .FirstOrDefault(l => l.FontAttributes == FontAttributes.Bold);
+                                                
+                                                if (meseroNameLabel != null)
+                                                {
+                                                    // Get the waiter's tables to verify this is the correct table
+                                                    var waiterName = meseroNameLabel.Text;
+                                                    
+                                                    // Check if our target table belongs to this waiter by verifying
+                                                    // that this waiter has a table with this LocalNumber AND GlobalNumber
+                                                    if (DoesWaiterHaveTable(waiterName, targetTable))
+                                                    {
+                                                        ApplyHighlightStyling(tableFrame, isGlobalSearch);
+                                                        foundMatch = true;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            // For local search, just match by local number as before
+                                            if (displayedLocalNumber == targetTable.LocalNumber)
+                                            {
+                                                ApplyHighlightStyling(tableFrame, isGlobalSearch);
+                                                foundMatch = true;
+                                                break;
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -640,6 +765,37 @@ public partial class ListOrderVisual : ContentView
         }
 
         return foundMatch;
+    }
+
+    private bool DoesWaiterHaveTable(string waiterName, Table targetTable)
+    {
+        // Get the waiter's tables from database to verify
+        var waiterTables = AppDbContext.ExecuteSafeAsync(async db =>
+        {
+            var openCashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
+            if (openCashRegister == null) return new List<Table>();
+
+            var waiter = await db.Users.FirstOrDefaultAsync(u => u.Name == waiterName && u.Role == "Mesero");
+            if (waiter == null) return new List<Table>();
+
+            return await db.Orders
+                .Include(o => o.Table)
+                .Include(o => o.Waiter)
+                .Where(o => o.CashRegister != null && 
+                           o.CashRegister.Id == openCashRegister.Id && 
+                           o.Table != null &&
+                           o.Waiter != null &&
+                           o.Waiter.Id == waiter.Id &&
+                           !o.IsDuePaid)
+                .Select(o => o.Table!)
+                .Distinct()
+                .ToListAsync();
+        }).GetAwaiter().GetResult();
+
+        // Check if any of this waiter's tables matches our target table
+        return waiterTables.Any(t => t.Id == targetTable.Id || 
+                                   (t.LocalNumber == targetTable.LocalNumber && 
+                                    t.GlobalNumber == targetTable.GlobalNumber));
     }
 
     private void ApplyHighlightStyling(Frame tableFrame, bool isGlobalSearch)
