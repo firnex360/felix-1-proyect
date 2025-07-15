@@ -472,6 +472,7 @@ public partial class ListOrderVisual : ContentView
         LoadExistingTakeoutOrders();
     }
 
+    //for search by table number
     public void FilterTablesByNumber(string searchText)
     {
         // Reset all frames to default appearance first
@@ -483,8 +484,17 @@ public partial class ListOrderVisual : ContentView
         // Try to parse the search text as a number
         if (int.TryParse(searchText.Trim(), out int searchNumber))
         {
-            // Find and highlight matching table frames
-            HighlightTableFrames(searchNumber);
+            // Priority-based search: Global first, then Local
+            bool foundMatch = false;
+
+            // First try to find by Global Number
+            foundMatch = HighlightTableByGlobalNumber(searchNumber);
+
+            // If no global match found, try Local Number
+            if (!foundMatch)
+            {
+                HighlightTableByLocalNumber(searchNumber);
+            }
         }
     }
 
@@ -502,7 +512,9 @@ public partial class ListOrderVisual : ContentView
                         {
                             // Reset to default appearance
                             tableFrame.BorderColor = Color.FromArgb("#C7CFDD");
+                            tableFrame.BackgroundColor = Colors.White;
                             tableFrame.HasShadow = false;
+                            tableFrame.Scale = 1.0; // Reset any scaling from animations
                         }
                     }
                 }
@@ -510,8 +522,45 @@ public partial class ListOrderVisual : ContentView
         }
     }
 
-    private void HighlightTableFrames(int searchNumber)
+    private bool HighlightTableByGlobalNumber(int globalNumber)
     {
+        bool foundMatch = false;
+
+        // First, we need to get all tables with their global numbers from the database
+        var allTablesWithGlobal = AppDbContext.ExecuteSafeAsync(async db =>
+        {
+            var openCashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
+            if (openCashRegister == null) return new List<Table>();
+
+            return await db.Orders
+                .Include(o => o.Table)
+                .Include(o => o.Waiter)
+                .Where(o => o.CashRegister != null && 
+                           o.CashRegister.Id == openCashRegister.Id && 
+                           o.Table != null &&
+                           !o.IsDuePaid)
+                .Select(o => o.Table!)
+                .Distinct()
+                .ToListAsync();
+        }).GetAwaiter().GetResult();
+
+        // Find the table with matching global number
+        var targetTable = allTablesWithGlobal.FirstOrDefault(t => t.GlobalNumber == globalNumber);
+
+        if (targetTable != null)
+        {
+            // Find and highlight the frame for this table
+            foundMatch = HighlightTableFrame(targetTable, true); // true indicates global search
+        }
+
+        return foundMatch;
+    }
+
+    private bool HighlightTableByLocalNumber(int localNumber)
+    {
+        bool foundMatch = false;
+
+        // Search through all visible table frames
         foreach (var meseroCard in MeseroContainer.Children.OfType<Frame>())
         {
             if (meseroCard.Content is VerticalStackLayout meseroStack)
@@ -530,14 +579,13 @@ public partial class ListOrderVisual : ContentView
 
                                 if (tableLabel != null)
                                 {
-                                    // Extract table number from label text
+                                    // Extract local table number from label text
                                     var labelText = tableLabel.Text.Replace("Mesa #", "");
-                                    if (int.TryParse(labelText, out int tableNumber) && tableNumber == searchNumber)
+                                    if (int.TryParse(labelText, out int tableLocalNumber) && tableLocalNumber == localNumber)
                                     {
-                                        // Highlight this frame
-                                        tableFrame.BorderColor = Color.FromArgb("#005F8C"); // Blue color
-                                        tableFrame.BackgroundColor = Color.FromArgb("#C7CFDD"); // Light blue background
-                                        tableFrame.HasShadow = true;
+                                        // Highlight this frame with local search styling
+                                        ApplyHighlightStyling(tableFrame, false); // false indicates local search
+                                        foundMatch = true;
                                     }
                                 }
                             }
@@ -546,5 +594,93 @@ public partial class ListOrderVisual : ContentView
                 }
             }
         }
+
+        return foundMatch;
+    }
+
+    private bool HighlightTableFrame(Table targetTable, bool isGlobalSearch)
+    {
+        bool foundMatch = false;
+
+        foreach (var meseroCard in MeseroContainer.Children.OfType<Frame>())
+        {
+            if (meseroCard.Content is VerticalStackLayout meseroStack)
+            {
+                foreach (var child in meseroStack.Children)
+                {
+                    if (child is VerticalStackLayout tableRow)
+                    {
+                        foreach (var tableFrame in tableRow.Children.OfType<Frame>())
+                        {
+                            if (tableFrame.Content is VerticalStackLayout tableContent)
+                            {
+                                // Find the table number label and check if it matches our target
+                                var tableLabel = tableContent.Children.OfType<Label>()
+                                    .FirstOrDefault(l => l.Text != null && l.Text.StartsWith("Mesa #"));
+
+                                if (tableLabel != null)
+                                {
+                                    var labelText = tableLabel.Text.Replace("Mesa #", "");
+                                    if (int.TryParse(labelText, out int displayedLocalNumber) && 
+                                        displayedLocalNumber == targetTable.LocalNumber)
+                                    {
+                                        // Apply global search highlighting
+                                        ApplyHighlightStyling(tableFrame, isGlobalSearch);
+                                        foundMatch = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        if (foundMatch) break;
+                    }
+                }
+                if (foundMatch) break;
+            }
+        }
+
+        return foundMatch;
+    }
+
+    private void ApplyHighlightStyling(Frame tableFrame, bool isGlobalSearch)
+    {
+        if (isGlobalSearch)
+        {
+            // Global search styling - more prominent
+            tableFrame.BorderColor = Color.FromArgb("#FF5722"); // Orange-Red for global
+            tableFrame.BackgroundColor = Color.FromArgb("#FFF3E0"); // Light orange background
+            tableFrame.HasShadow = true;
+            tableFrame.Shadow = new Shadow
+            {
+                Brush = new SolidColorBrush(Color.FromArgb("#FF5722")),
+                Offset = new Point(2, 2),
+                Radius = 5,
+                Opacity = 0.7f
+            };
+
+            // Add a small animation effect
+            _ = AnimateHighlight(tableFrame);
+        }
+        else
+        {
+            // Local search styling - less prominent
+            tableFrame.BorderColor = Color.FromArgb("#005F8C"); // Blue for local
+            tableFrame.BackgroundColor = Color.FromArgb("#E3F2FD"); // Light blue background
+            tableFrame.HasShadow = true;
+            tableFrame.Shadow = new Shadow
+            {
+                Brush = new SolidColorBrush(Color.FromArgb("#005F8C")),
+                Offset = new Point(1, 1),
+                Radius = 3,
+                Opacity = 0.5f
+            };
+        }
+    }
+
+    private async Task AnimateHighlight(Frame frame)
+    {
+        // Simple scale animation for global search results
+        await frame.ScaleTo(1.05, 150, Easing.BounceOut);
+        await frame.ScaleTo(1.0, 150, Easing.BounceOut);
     }
 }
