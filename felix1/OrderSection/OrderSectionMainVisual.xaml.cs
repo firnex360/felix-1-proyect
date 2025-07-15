@@ -122,4 +122,22 @@ public partial class OrderSectionMainVisual : ContentPage
         }
     }
 
+    private void OnSearchBarTextChanged(object sender, TextChangedEventArgs e)
+    {
+        var searchText = e.NewTextValue?.ToLower() ?? "";
+        
+        // Get the ListOrderVisual instance and pass the search text to it
+        if (RightPanel.Content is ListOrderVisual listOrderVisual)
+        {
+            // Call the filter method to highlight matching table numbers
+            listOrderVisual.FilterTablesByNumber(searchText);
+        }
+    }
+
+    private void OnSearchBarSearchButtonPressed(object sender, EventArgs e)
+    {
+        // Handle search button press if needed
+        // This could trigger a more specific search or action
+    }
+
 }

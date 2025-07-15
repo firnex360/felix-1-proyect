@@ -18,19 +18,44 @@
                    TextColor="Black"
                    FontSize="18"
                    VerticalOptions="Center"
-                   HorizontalOptions="End"/>
+                   HorizontalOptions="Start"/>
+
+            <Frame BackgroundColor="#F3F3F3"
+                   CornerRadius="10"
+                   Padding="0"
+                   HasShadow="False"
+                   VerticalOptions="Center"
+                   HorizontalOptions="Fill"
+                   WidthRequest="200"
+                   HeightRequest="40"
+                   BorderColor="#FFE0E0E0"
+                   Margin="10,0">
+
+                <SearchBar x:Name="searchBar"
+                           Placeholder="Buscar Mesa..."
+                           TextChanged="OnSearchBarTextChanged"
+                           TextColor="#22223B"
+                           PlaceholderColor="#FF78828F"
+                           BackgroundColor="Transparent"
+                           CancelButtonColor="#4F8FCB"
+                           FontSize="16"
+                           Margin="8,0"
+                           HeightRequest="10"
+                           HorizontalOptions="Fill"
+                           SearchButtonPressed="OnSearchBarSearchButtonPressed"/>
+            </Frame>
 
             <buttons:SfButton x:Name="btnCloseRegister"
                               Text="Cerrar Caja"
                               Clicked="OnCloseRegister"
                               HorizontalOptions="End"
-                              Style="{StaticResource SidebarButtonStyle}" />
+                              Style="{StaticResource SidebarButtonStyle}"/>
 
             <buttons:SfButton x:Name="btnCloseSesion"
                               Text="Cerrar Sesión"
                               Clicked="OnCloseSesion"
                               HorizontalOptions="End"
-                              Style="{StaticResource SidebarButtonStyle}" />
+                              Style="{StaticResource SidebarButtonStyle}"/>
 
 
         </HorizontalStackLayout>
@@ -38,40 +63,50 @@
         <!-- MAIN CONTENT -->
         <ContentView x:Name="RightPanel"
                      Grid.Row="1"
-                     BackgroundColor="White" />
+                     BackgroundColor="White"/>
     </Grid>
 
     <!-- SOMETHING LIKE A FUNCTION FOR XAML, CAN CREATE MULTIPLE "STYLES" -->
     <ContentPage.Resources>
         <ResourceDictionary>
 
-            <Style x:Key="SidebarButtonStyle" TargetType="buttons:SfButton">
-                <Setter Property="TextColor" Value="Black"/>
-                <Setter Property="CornerRadius" Value="5"/>
-                <Setter Property="IsCheckable" Value="True"/>
-                <Setter Property="Margin" Value="0"/>
-                <Setter Property="BackgroundColor" Value="#F5F7FA"/>
+            <Style x:Key="SidebarButtonStyle"
+                    TargetType="buttons:SfButton">
+                <Setter Property="TextColor"
+                        Value="Black"/>
+                <Setter Property="CornerRadius"
+                        Value="5"/>
+                <Setter Property="IsCheckable"
+                        Value="True"/>
+                <Setter Property="Margin"
+                        Value="0"/>
+                <Setter Property="BackgroundColor"
+                        Value="#F5F7FA"/>
                 <Setter Property="VisualStateManager.VisualStateGroups">
                     <VisualStateGroupList>
                         <VisualStateGroup x:Name="CommonStates">
                             <VisualState x:Name="Normal">
                                 <VisualState.Setters>
-                                    <Setter Property="Background" Value="#C7CFDD"/>
+                                    <Setter Property="Background"
+                                            Value="#C7CFDD"/>
                                 </VisualState.Setters>
                             </VisualState>
                             <VisualState x:Name="Hovered">
                                 <VisualState.Setters>
-                                    <Setter Property="Background" Value="#AFFF1D1D"/>
+                                    <Setter Property="Background"
+                                            Value="#AFFF1D1D"/>
                                 </VisualState.Setters>
                             </VisualState>
                             <VisualState x:Name="Pressed">
                                 <VisualState.Setters>
-                                    <Setter Property="Background" Value="#FF1D1D"/>
+                                    <Setter Property="Background"
+                                            Value="#FF1D1D"/>
                                 </VisualState.Setters>
                             </VisualState>
                             <VisualState x:Name="Checked">
                                 <VisualState.Setters>
-                                    <Setter Property="Background" Value="#FFF39F9F"/>
+                                    <Setter Property="Background"
+                                            Value="#C7CFDD"/>
                                 </VisualState.Setters>
                             </VisualState>
                         </VisualStateGroup>
