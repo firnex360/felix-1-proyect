@@ -197,8 +197,7 @@
                             CellTextAlignment="Center"
                             HeaderTextAlignment="Center"
                             AllowEditing="True"
-                            ColumnWidthMode="FitByCell"
-                            MaximumWidth="100"/>
+                            ColumnWidthMode="FitByHeader"/>
 
                         <syncfusion:DataGridTextColumn
                             MappingName="ArticleName"
@@ -206,7 +205,7 @@
                             CellTextAlignment="Start"
                             HeaderTextAlignment="Start"
                             ColumnWidthMode="FitByCell"
-                            MaximumWidth="200"/>
+                            MaximumWidth="400"/>
 
                         <syncfusion:DataGridNumericColumn
                             MappingName="UnitPrice"
