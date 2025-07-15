@@ -1,0 +1,19 @@
+{{- # Receipt Template -}}
+Mesa: {{ order.table.local_number }} (Global: {{ order.table.global_number }})
+Orden #: {{ order.order_number }}
+Fecha: {{ order.date | date.format "dd/MM/yyyy HH:mm" }}
+Mesero: {{ order.waiter.name }}
+--------------------------------------------------
+Artículos:
+{{ for item in order.items }}
+- {{ item.article_name }} x{{ item.quantity }} @ {{ item.unit_price | string.format '0.00' }} = {{ item.total_price | string.format '0.00' }}
+{{ end }}
+--------------------------------------------------
+Subtotal: {{ order.items.sum 'total_price' | string.format '0.00' }}
+Descuento: {{ order.discount | string.format '0.00' }}
+Total: {{ (order.items.sum 'total_price' - order.discount) | string.format '0.00' }}
+{{ if order.is_due_paid }}
+[Pagado]
+{{ else }}
+[Pendiente de pago]
+{{ end }}
