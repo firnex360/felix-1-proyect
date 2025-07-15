@@ -471,4 +471,80 @@ public partial class ListOrderVisual : ContentView
         LoadMeseros();
         LoadExistingTakeoutOrders();
     }
+
+    public void FilterTablesByNumber(string searchText)
+    {
+        // Reset all frames to default appearance first
+        ResetAllTableFrames();
+
+        if (string.IsNullOrWhiteSpace(searchText))
+            return;
+
+        // Try to parse the search text as a number
+        if (int.TryParse(searchText.Trim(), out int searchNumber))
+        {
+            // Find and highlight matching table frames
+            HighlightTableFrames(searchNumber);
+        }
+    }
+
+    private void ResetAllTableFrames()
+    {
+        foreach (var meseroCard in MeseroContainer.Children.OfType<Frame>())
+        {
+            if (meseroCard.Content is VerticalStackLayout meseroStack)
+            {
+                foreach (var child in meseroStack.Children)
+                {
+                    if (child is VerticalStackLayout tableRow)
+                    {
+                        foreach (var tableFrame in tableRow.Children.OfType<Frame>())
+                        {
+                            // Reset to default appearance
+                            tableFrame.BorderColor = Color.FromArgb("#C7CFDD");
+                            tableFrame.HasShadow = false;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void HighlightTableFrames(int searchNumber)
+    {
+        foreach (var meseroCard in MeseroContainer.Children.OfType<Frame>())
+        {
+            if (meseroCard.Content is VerticalStackLayout meseroStack)
+            {
+                foreach (var child in meseroStack.Children)
+                {
+                    if (child is VerticalStackLayout tableRow)
+                    {
+                        foreach (var tableFrame in tableRow.Children.OfType<Frame>())
+                        {
+                            if (tableFrame.Content is VerticalStackLayout tableContent)
+                            {
+                                // Find the table number label
+                                var tableLabel = tableContent.Children.OfType<Label>()
+                                    .FirstOrDefault(l => l.Text != null && l.Text.StartsWith("Mesa #"));
+
+                                if (tableLabel != null)
+                                {
+                                    // Extract table number from label text
+                                    var labelText = tableLabel.Text.Replace("Mesa #", "");
+                                    if (int.TryParse(labelText, out int tableNumber) && tableNumber == searchNumber)
+                                    {
+                                        // Highlight this frame
+                                        tableFrame.BorderColor = Color.FromArgb("#005F8C"); // Blue color
+                                        tableFrame.BackgroundColor = Color.FromArgb("#C7CFDD"); // Light blue background
+                                        tableFrame.HasShadow = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
