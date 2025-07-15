@@ -131,7 +131,7 @@ public partial class LoginPage : ContentPage, INotifyPropertyChanged
                 await Task.Delay(100);
 
                 //await Navigation.PushAsync(targetPage);
-                Application.Current.MainPage = new NavigationPage(targetPage);
+                Application.Current!.MainPage = new NavigationPage(targetPage);
             }
             else
             {
@@ -140,7 +140,7 @@ public partial class LoginPage : ContentPage, INotifyPropertyChanged
         }
         catch (Exception ex)
         {
-            //Nuestro salvador.
+            await DisplayAlert("Error", $"Ocurrió un error: {ex.Message}", "OK");
         }
         finally
         {
@@ -150,7 +150,7 @@ public partial class LoginPage : ContentPage, INotifyPropertyChanged
     }
 
     #region INotifyPropertyChanged
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
     protected virtual void OnPropertyChanged(string propertyName)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

@@ -31,11 +31,6 @@
                               Clicked="OnCloseSesion"
                               HorizontalOptions="End"
                               Style="{StaticResource SidebarButtonStyle}" />
-            <buttons:SfButton x:Name="btnPayment"
-                              Text="Abrir Pago"
-                              Clicked="OnPaymentButtonClicked"
-                              HorizontalOptions="End"
-                              Style="{StaticResource PaymentButtonStyle}" />
 
 
         </HorizontalStackLayout>

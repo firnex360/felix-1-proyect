@@ -14,7 +14,7 @@ namespace felix1
 
             this.usuario = usuario;
 
-            btnGuardarUsuario.Clicked += OnGuardarUsuarioClicked;
+            btnGuardarUsuario.Clicked += OnGuardarUsuarioClicked!;
 
             SetupKeyboardNavigation();
         }
@@ -38,7 +38,7 @@ namespace felix1
                 btnGuardarUsuario.Text = "Agregar Usuario";
             }
 
-            Device.BeginInvokeOnMainThread(() => entryNombre.Focus());
+            Dispatcher.Dispatch(() => entryNombre.Focus());
         }
 
         private void SetupKeyboardNavigation()
@@ -49,9 +49,9 @@ namespace felix1
             entryCPassword.Completed += (s, e) => btnGuardarUsuario.Focus();
         }
 
-        private async void OnCancelButtonClicked(object sender, EventArgs e)
+        private void OnCancelButtonClicked(object sender, EventArgs e)
         {
-            Application.Current.CloseWindow(Window);
+            Application.Current!.CloseWindow(Window);
         }
 
         private async void OnGuardarUsuarioClicked(object sender, EventArgs e)
@@ -76,7 +76,7 @@ namespace felix1
                 var usernameExists = await AppDbContext.ExecuteSafeAsync<bool>(async db =>
                 {
                     return await db.Users.AnyAsync(u =>
-                        u.Username.ToLower() == entryUsername.Text.Trim().ToLower() &&
+                        u.Username!.ToLower() == entryUsername.Text.Trim().ToLower() &&
                         (usuario == null || u.Id != usuario.Id));
                 });
 
@@ -129,7 +129,7 @@ namespace felix1
 
                 if (Window != null)
                 {
-                    Application.Current.CloseWindow(Window);
+                    Application.Current!.CloseWindow(Window);
                 }
                 else
                 {
