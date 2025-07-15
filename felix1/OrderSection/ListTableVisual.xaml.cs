@@ -240,7 +240,7 @@ public partial class ListOrderVisual : ContentView
                 table = new Table
                 {
                     LocalNumber = waiterTables.Count + 1,
-                    GlobalNumber = allTables.Count + 1,
+                    GlobalNumber = allTables.Count + 101, //global numbers start from 100
                     IsTakeOut = false,
                     IsBillRequested = false,
                     IsPaid = false
