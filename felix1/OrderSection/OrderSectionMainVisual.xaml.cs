@@ -15,13 +15,13 @@ public partial class OrderSectionMainVisual : ContentPage
         _cashRegister = cashRegister;
         DisplayCashRegisterInfo();
         RightPanel.Content = new ListOrderVisual();
-        #if WINDOWS
+#if WINDOWS
         var window = Application.Current?.Windows.FirstOrDefault();
         if (window != null)
         {
             WindowUtils.MaximizeWindow(window);
         }
-        #endif
+#endif
 
     }
 
@@ -57,7 +57,7 @@ public partial class OrderSectionMainVisual : ContentPage
                 await db.SaveChangesAsync();
             }
 
-            Dispatcher.Dispatch( () =>
+            Dispatcher.Dispatch(() =>
             {
                 /*Navigation.PopAsync();
                 var balanceVisual = new BalanceVisual(register);
@@ -85,6 +85,8 @@ public partial class OrderSectionMainVisual : ContentPage
         var loginPage = new LoginPage();
         Application.Current!.MainPage = new NavigationPage(loginPage);
     }
+
+    [Obsolete("This method is obsolete, delete this if sure wont be of use in the future")]
     private async void OnPaymentButtonClicked(object sender, EventArgs e)
     {
         // Crear un pedido de prueba con artículos reales
@@ -122,41 +124,27 @@ public partial class OrderSectionMainVisual : ContentPage
         }
     }
 
-    private async void OnTestRefundClicked(object sender, EventArgs e)
+    private void OnSearchBarTextChanged(object sender, TextChangedEventArgs e)
     {
-        // Create fake articles
-        var articles = new List<Article>
-    {
-        new Article { Id = 1, Name = "Burger", PriPrice = 9.99f, Category = ArticleCategory.Principal },
-        new Article { Id = 2, Name = "Fries", PriPrice = 3.99f, Category = ArticleCategory.Secundario },
-        new Article { Id = 3, Name = "Soda", PriPrice = 1.99f, Category = ArticleCategory.Bebidas },
-        new Article { Id = 4, Name = "Ice Cream", PriPrice = 4.50f, Category = ArticleCategory.Postres }
-    };
+        var searchText = e.NewTextValue?.ToLower() ?? "";
 
-        // Create fake order items
-        var items = new List<OrderItem>
-    {
-        new OrderItem { Article = articles[0], Quantity = 2, UnitPrice = (decimal)articles[0].PriPrice },
-        new OrderItem { Article = articles[1], Quantity = 1, UnitPrice = (decimal)articles[1].PriPrice },
-        new OrderItem { Article = articles[2], Quantity = 3, UnitPrice = (decimal)articles[2].PriPrice },
-        new OrderItem { Article = articles[3], Quantity = 1, UnitPrice = (decimal)articles[3].PriPrice }
-    };
-
-        // Create fake order
-        var testOrder = new Order
+        // Get the ListOrderVisual instance and pass the search text to it
+        if (RightPanel.Content is ListOrderVisual listOrderVisual)
         {
-            Id = 999,
-            OrderNumber = 12345,
-            Date = DateTime.Now.AddHours(-1),
-            Items = items,
-            Table = new Table { Id = 1, LocalNumber = 5 },
-            Waiter = new User { Id = 1, Name = "Test Waiter" },
-            CashRegister = _cashRegister
-        };
-
-        // Open the refund visual with the test order
-        var refundPage = new RefundVisual(testOrder);
-        await Navigation.PushAsync(refundPage);
+            // Call the filter method to highlight matching table numbers
+            listOrderVisual.FilterTablesByNumber(searchText);
+        }
     }
+
+    private void OnSearchBarSearchButtonPressed(object sender, EventArgs e)
+    {
+        // Handle search button press - open the highlighted table
+        if (RightPanel.Content is ListOrderVisual listOrderVisual)
+        {
+            listOrderVisual.OpenHighlightedTable();
+        }
+    }
+    
+    
 
 }
