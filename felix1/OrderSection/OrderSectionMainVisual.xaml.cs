@@ -144,7 +144,4 @@ public partial class OrderSectionMainVisual : ContentPage
             listOrderVisual.OpenHighlightedTable();
         }
     }
-    
-    
-
 }
