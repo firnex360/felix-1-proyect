@@ -35,7 +35,39 @@ public partial class OrderVisual : ContentPage
         LoadCashRegisterSettings(); // Load cash register settings first
         LoadArticles();
         orderItemsDataGrid.CurrentCellBeginEdit += (s, e) => _isEditing = true;
-        orderItemsDataGrid.CurrentCellEndEdit += (s, e) => _isEditing = false;
+        orderItemsDataGrid.CurrentCellEndEdit += (s, e) =>
+        {
+            _isEditing = false;
+
+            var rowIndex = e.RowColumnIndex.RowIndex;
+            var columnIndex = e.RowColumnIndex.ColumnIndex;
+
+            if (rowIndex <= 0 || rowIndex > OrderItems.Count)
+                return;
+
+            var column = orderItemsDataGrid.Columns[columnIndex];
+            if (column.MappingName != "Quantity")
+                return;
+
+            var item = OrderItems[rowIndex - 1];
+
+            // Obtener el valor actual de Quantity por reflexión
+            var quantityProp = item.GetType().GetProperty("Quantity");
+            if (quantityProp == null) return;
+
+            var value = quantityProp.GetValue(item);
+            if (value is int quantity && quantity < 0)
+            {
+                quantityProp.SetValue(item, 0); // Sobrescribir con 0
+                orderItemsDataGrid.View.Refresh(); // Refrescar el grid
+                UpdateOrderTotals();
+            }
+        };
+
+
+
+
+
         OrderItems.CollectionChanged += (s, e) => UpdateOrderTotals();
 
         if (_currentOrder != null)
@@ -421,6 +453,7 @@ public partial class OrderVisual : ContentPage
         }
     }
 
+
     // Custom selection controller for the article grid
     public class CustomArticleSelectionController : DataGridRowSelectionController
     {
@@ -532,22 +565,35 @@ public partial class OrderVisual : ContentPage
 
     private void OnExitSave(object sender, EventArgs e)
     {
+        if (OrderItems.Any(item => item.Quantity < 0))
+        {
+            DisplayAlert("Cantidad inválida", "No se puede guardar una orden con cantidades negativas.", "OK");
+            return;
+        }
+
         if (_currentOrder != null)
         {
             _currentOrder.Items = OrderItems.ToList();
             _currentOrder.Discount = _discountAmount;
             _currentOrder.IsDuePaid = dueToPayCheckBox.IsChecked;
 
-            //this need to be wrapped in a try catch block to handle any potential database errors
-            using var db = new AppDbContext();
-            db.Orders.Update(_currentOrder);
-            db.SaveChanges();
-            
-            CloseThisWindow();
+            try
+            {
+                //this need to be wrapped in a try catch block to handle any potential database errors
+                using var db = new AppDbContext();
+                db.Orders.Update(_currentOrder);
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                DisplayAlert("Error", $"No se pudo guardar la orden: {ex.Message}", "OK");
+                return;
+            }
         }
 
         CloseThisWindow();
     }
+
     private void CloseThisWindow()
     {
         var app = Microsoft.Maui.Controls.Application.Current;
