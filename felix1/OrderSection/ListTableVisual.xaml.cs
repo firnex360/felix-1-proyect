@@ -107,8 +107,8 @@ public partial class ListOrderVisual : ContentView
                 var tableContent = new VerticalStackLayout
                 {
                     Spacing = 5,
-                    HorizontalOptions = LayoutOptions.Center,
-                    VerticalOptions = LayoutOptions.Center
+                    HorizontalOptions = LayoutOptions.Start,
+                    VerticalOptions = LayoutOptions.Start
                 };
 
                 // Table number label
@@ -117,7 +117,7 @@ public partial class ListOrderVisual : ContentView
                     Text = $"Mesa #{table.LocalNumber}",
                     FontAttributes = FontAttributes.Bold,
                     FontSize = 14,
-                    HorizontalOptions = LayoutOptions.Start,
+                    HorizontalOptions = LayoutOptions.Center,
                     TextColor = Colors.Black
                 });
 

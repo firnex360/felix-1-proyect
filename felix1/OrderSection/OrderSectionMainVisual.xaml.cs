@@ -86,7 +86,6 @@ public partial class OrderSectionMainVisual : ContentPage
         Application.Current!.MainPage = new NavigationPage(loginPage);
     }
 
-    [Obsolete("This method is obsolete, delete this if sure wont be of use in the future")]
     private async void OnPaymentButtonClicked(object sender, EventArgs e)
     {
         // Crear un pedido de prueba con artículos reales
