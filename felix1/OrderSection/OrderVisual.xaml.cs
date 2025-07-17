@@ -617,10 +617,20 @@ public partial class OrderVisual : ContentPage
         {
             foreach (var window in app.Windows)
             {
+                
+                // Check if the page is directly OrderSectionMainVisual
                 if (window.Page is OrderSectionMainVisual orderSectionPage)
                 {
                     orderSectionPage.FocusSearchBar();
                     Console.WriteLine("Focused search bar in OrderSectionMainVisual");
+                    break;
+                }
+
+                // Check if it's wrapped in a NavigationPage
+                else if (window.Page is NavigationPage navPage && navPage.CurrentPage is OrderSectionMainVisual orderSectionMainPage)
+                {
+                    orderSectionMainPage.FocusSearchBar();
+                    Console.WriteLine("Focused search bar in OrderSectionMainVisual (via NavigationPage)");
                     break;
                 }
             }
