@@ -2,6 +2,11 @@ using felix1.Data;
 using felix1.Logic;
 using Microsoft.Maui.ApplicationModel;
 
+#if WINDOWS
+using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml;
+#endif
+
 
 namespace felix1.OrderSection;
 
@@ -15,8 +20,9 @@ public partial class OrderSectionMainVisual : ContentPage
         _cashRegister = cashRegister;
         DisplayCashRegisterInfo();
         RightPanel.Content = new ListOrderVisual();
+
 #if WINDOWS
-        var window = Application.Current?.Windows.FirstOrDefault();
+        var window = Microsoft.Maui.Controls.Application.Current?.Windows.FirstOrDefault();
         if (window != null)
         {
             WindowUtils.MaximizeWindow(window);
@@ -64,7 +70,7 @@ public partial class OrderSectionMainVisual : ContentPage
                 Application.Current!.MainPage = new NavigationPage(balanceVisual);*/
                 Navigation.PopAsync();
                 var balanceVisual = new LoginPage();
-                Application.Current!.MainPage = new NavigationPage(balanceVisual);
+                Microsoft.Maui.Controls.Application.Current!.MainPage = new NavigationPage(balanceVisual);
             });
         });
     }
@@ -83,7 +89,7 @@ public partial class OrderSectionMainVisual : ContentPage
         AppSession.CurrentUser = null!;
 
         var loginPage = new LoginPage();
-        Application.Current!.MainPage = new NavigationPage(loginPage);
+        Microsoft.Maui.Controls.Application.Current!.MainPage = new NavigationPage(loginPage);
     }
 
     [Obsolete("This method is obsolete, delete this if sure wont be of use in the future")]
@@ -120,7 +126,7 @@ public partial class OrderSectionMainVisual : ContentPage
         }
         else
         {
-            await Application.Current!.MainPage!.DisplayAlert("Error", "No se puede navegar a la página de pago", "OK");
+            await Microsoft.Maui.Controls.Application.Current!.MainPage!.DisplayAlert("Error", "No se puede navegar a la página de pago", "OK");
         }
     }
 
@@ -144,6 +150,53 @@ public partial class OrderSectionMainVisual : ContentPage
             listOrderVisual.OpenHighlightedTable();
         }
     }
+
+    public void FocusSearchBar()
+    {
+        MainThread.BeginInvokeOnMainThread(async () =>
+        {
+            await Task.Delay(100); // Give time for the window to close
+            searchBar?.Focus(); // Focus the search bar
+            searchBar?.ClearValue(Entry.TextProperty); // Clear the search bar text
+        });
+    }
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        this.HandlerChanged += OnHandlerChanged;
+        OnHandlerChanged(this, EventArgs.Empty);
+    }
+
+    private void OnHandlerChanged(object? sender, EventArgs e)
+    {
+#if WINDOWS
+        if (searchBar?.Handler?.PlatformView is Microsoft.UI.Xaml.Controls.AutoSuggestBox autoSuggestBox)
+        {
+            autoSuggestBox.KeyDown -= SearchBarPlatformView_KeyDown;
+            autoSuggestBox.KeyDown += SearchBarPlatformView_KeyDown;
+        }
+#endif
+    }
+
+#if WINDOWS
+    private void SearchBarPlatformView_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
+    {
+        if (e.Key == Windows.System.VirtualKey.Tab)
+        {
+            if (RightPanel.Content is ListOrderVisual listOrderVisual)
+            {
+                listOrderVisual.MoveToNextMatchingTable();
+                e.Handled = true;
+            }
+        }
+        else if (e.Key == Windows.System.VirtualKey.Enter)
+        {
+            OnSearchBarSearchButtonPressed(sender, EventArgs.Empty);
+            e.Handled = true;
+        }
+    }
+#endif
 
     private void OnShowCompletedChanged(object sender, CheckedChangedEventArgs e)
     {

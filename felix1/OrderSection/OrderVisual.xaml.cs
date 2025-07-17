@@ -7,6 +7,9 @@ using Syncfusion.Maui.DataGrid;
 using Syncfusion.Maui.Core.Internals;
 using Syncfusion.Maui.DataGrid.Helper;
 using Microsoft.Maui.Controls;
+using System.Drawing;
+using System.Drawing.Printing;
+using Scriban;
 
 #if WINDOWS
 using Microsoft.UI.Xaml.Input;
@@ -52,7 +55,7 @@ public partial class OrderVisual : ContentPage
 
             var item = OrderItems[rowIndex - 1];
 
-            // Obtener el valor actual de Quantity por reflexión
+            // Obtener el valor actual de Quantity por reflexiï¿½n
             var quantityProp = item.GetType().GetProperty("Quantity");
             if (quantityProp == null) return;
 
@@ -60,14 +63,10 @@ public partial class OrderVisual : ContentPage
             if (value is int quantity && quantity < 0)
             {
                 quantityProp.SetValue(item, 0); // Sobrescribir con 0
-                orderItemsDataGrid.View.Refresh(); // Refrescar el grid
+                orderItemsDataGrid.View?.Refresh(); // Refrescar el grid
                 UpdateOrderTotals();
             }
         };
-
-
-
-
 
         OrderItems.CollectionChanged += (s, e) => UpdateOrderTotals();
 
@@ -79,7 +78,7 @@ public partial class OrderVisual : ContentPage
 
             dueToPayCheckBox.IsChecked = order.IsDuePaid;
         }
-        
+
     }
 
     private void LoadCashRegisterSettings()
@@ -87,7 +86,7 @@ public partial class OrderVisual : ContentPage
         var cashRegister = AppDbContext.ExecuteSafeAsync(async db =>
             await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen))
             .GetAwaiter().GetResult();
-            
+
         _useSecondaryPrice = cashRegister?.IsSecPrice ?? false;
     }
 
@@ -238,7 +237,7 @@ public partial class OrderVisual : ContentPage
 
             OrderItems.Add(newOrderItem);
         }
-        
+
         UpdateOrderTotals();
     }
 
@@ -569,15 +568,15 @@ public partial class OrderVisual : ContentPage
     {
         if (OrderItems.Any(item => item.Quantity < 0))
         {
-            await DisplayAlert("Cantidad inválida", "No se puede guardar una orden con cantidades negativas.", "OK");
+            DisplayAlert("Cantidad invalida", "No se puede guardar una orden con cantidades negativas.", "OK");
             return;
         }
 
         if (!OrderItems.Any())
         {
-            var result = await DisplayAlert("Orden vacía",
-                "¿Desea cerrar esta orden sin artículos?",
-                "Sí, cerrar",
+            var result = await DisplayAlert("Orden vacï¿½a",
+                "ï¿½Desea cerrar esta orden sin artï¿½culos?",
+                "Sï¿½, cerrar",
                 "No, cancelar");
 
             if (!result) return;
@@ -615,19 +614,61 @@ public partial class OrderVisual : ContentPage
         var window = GetParentWindow();
         if (window != null)
         {
-            await Task.Delay(100); // Pequeño delay para permitir que se complete cualquier operación pendiente
-            Microsoft.Maui.Controls.Application.Current.CloseWindow(window);
+            foreach (var window in app.Windows)
+            {
+                if (window.Page == this)
+                {
+                    app.CloseWindow(window);
+                    FocusOrderSectionSearchBar();
+                    break;
+                }
+            }
+        }
+    }
+
+    private void FocusOrderSectionSearchBar()
+    {
+        var app = Microsoft.Maui.Controls.Application.Current;
+        if (app != null)
+        {
+            foreach (var window in app.Windows)
+            {
+                
+                // Check if the page is directly OrderSectionMainVisual
+                if (window.Page is OrderSectionMainVisual orderSectionPage)
+                {
+                    orderSectionPage.FocusSearchBar();
+                    Console.WriteLine("Focused search bar in OrderSectionMainVisual");
+                    break;
+                }
+
+                // Check if it's wrapped in a NavigationPage
+                else if (window.Page is NavigationPage navPage && navPage.CurrentPage is OrderSectionMainVisual orderSectionMainPage)
+                {
+                    orderSectionMainPage.FocusSearchBar();
+                    Console.WriteLine("Focused search bar in OrderSectionMainVisual (via NavigationPage)");
+                    break;
+                }
+            }
         }
     }
 
     private async void OnPrintReceipt(object sender, EventArgs e)
     {
-        if (!OrderItems.Any())
+
+        if (_currentOrder != null)
         {
-            await DisplayAlert("Orden vacía", "No se puede imprimir una orden sin artículos.", "OK");
-            return;
+            _currentOrder.Items = OrderItems.ToList();
+            _currentOrder.Discount = _discountAmount;
+            _currentOrder.IsDuePaid = dueToPayCheckBox.IsChecked;
+
+            //this need to be wrapped in a try catch block to handle any potential database errors
+            using var db = new AppDbContext();
+            db.Orders.Update(_currentOrder);
+            db.SaveChanges();
         }
 
+        Console.WriteLine("Print receipt clicked");
         if (_currentOrder != null)
         {
             try
@@ -645,14 +686,45 @@ public partial class OrderVisual : ContentPage
                     });
                 }
 
-                await DisplayAlert("Éxito", "Se ha generado un recibo.", "OK");
-                await CloseWindowAsync();
+                //CloseThisWindow();
             }
             catch (Exception ex)
             {
                 await DisplayAlert("Error", $"No se pudo actualizar la orden: {ex.Message}", "OK");
             }
         }
+
+        string templateText = File.ReadAllText(@"C:\Codes\github\felix-1-proyect\felix1\ReceiptTemplates\OrderTemplate.txt");
+        var template = Template.Parse(templateText);
+        var scribanModel = new { order = _currentOrder };
+        string text = template.Render(scribanModel, member => member.Name);
+
+
+#if WINDOWS
+
+                try
+                {
+                    PrintDocument pd = new PrintDocument();
+                    //pd.PrinterSettings.PrinterName = "Star SP500 Cutter"; // or whatever name shows in Windows, but it should take the default one
+                    pd.PrintPage += (sender, e) =>
+                    {
+                        System.Drawing.Font font = new System.Drawing.Font("Consolas", 10); // Monospaced font recommended for POS printers
+                        e.Graphics.DrawString(text, font, Brushes.Black, new System.Drawing.PointF(10, 10));
+                    };
+                    
+                    pd.Print();
+                    Console.WriteLine("Printed successfully.");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Print failed: " + ex.Message);
+                }
+#else
+        Console.WriteLine("Printing is only supported on Windows for now.");
+        await DisplayAlert("Error", $"No se pudo imprimir el recibo: La funcionalidad de impresiÃ³n no estÃ¡ disponible en esta plataforma (solo Windows).", "OK");
+#endif
+
+        OnExitSave(sender, e); // Save the order after printing and close the window
     }
 
     // Navigation methods for article grid
@@ -727,7 +799,7 @@ public partial class OrderVisual : ContentPage
         {
             _discountAmount = 0;
         }
-        
+
         UpdateOrderTotals();
     }
 

@@ -14,6 +14,12 @@ public partial class ListOrderVisual : ContentView
     // Add tracking for currently highlighted table
     private Table? _currentHighlightedTable = null;
     private bool _isGlobalSearchMatch = false;
+    
+    // Add tracking for multiple matching tables (Tab navigation)
+    private List<Frame> _matchingLocalFrames = new();
+    private List<Table> _matchingLocalTables = new();
+    private int _activeLocalFrameIndex = 0;
+
     public bool ShowCompletedOrders { get; set; } = false;
 
     public ListOrderVisual()
@@ -230,16 +236,16 @@ public partial class ListOrderVisual : ContentView
 
     private async void OnCreateTableWindowClicked(User user)
     {
-        Order? order = null;
-
+        // Removed unused variable 'order'
         await AppDbContext.ExecuteSafeAsync(async db =>
         {
             var waiter = await AppDbContext.ExecuteSafeAsync(async db =>
-            await db.Users.FindAsync(user.Id));
+                await db.Users.FindAsync(user.Id));
 
             if (waiter == null)
             {
-                await Application.Current!.MainPage!.DisplayAlert("Error", "Mesero no encontrado.", "OK");
+                if (Application.Current?.MainPage != null)
+                    await Application.Current.MainPage.DisplayAlert("Error", "Mesero no encontrado.", "OK");
                 return;
             }
 
@@ -256,8 +262,8 @@ public partial class ListOrderVisual : ContentView
                 }
 
                 orderNumber = await db.Orders
-                .Where(o => o.CashRegister != null && o.CashRegister.Id == cashRegister.Id)
-                .CountAsync();
+                    .Where(o => o.CashRegister != null && o.CashRegister.Id == cashRegister.Id)
+                    .CountAsync();
 
                 // ALL TABLES IN THE **OPEN** CASH REGISTER
                 var allTables = await db.Orders
@@ -265,7 +271,6 @@ public partial class ListOrderVisual : ContentView
                     .Include(o => o.Waiter)
                     .Where(o => o.CashRegister != null && o.CashRegister.Id == cashRegister.Id && o.Table != null)
                     .Select(o => o.Table!)
-                    //.Distinct()
                     .ToListAsync();
 
                 // ALL TABLES FROM CURRENT WAITER
@@ -290,9 +295,7 @@ public partial class ListOrderVisual : ContentView
 
                 db.Tables.Add(table);
                 await db.SaveChangesAsync();
-
             });
-
 
             await AppDbContext.ExecuteSafeAsync(async db =>
             {
@@ -303,7 +306,8 @@ public partial class ListOrderVisual : ContentView
 
                 if (savedTable == null || cashRegister == null)
                 {
-                    await Application.Current!.MainPage!.DisplayAlert("Error", "Datos no válidos al crear la orden.", "OK");
+                    if (Application.Current?.MainPage != null)
+                        await Application.Current.MainPage.DisplayAlert("Error", "Datos no válidos al crear la orden.", "OK");
                     return;
                 }
 
@@ -311,7 +315,7 @@ public partial class ListOrderVisual : ContentView
                     db.Attach(waiter);
                 db.Attach(cashRegister);
 
-                var order = new Order
+                var newOrder = new Order
                 {
                     OrderNumber = orderNumber + 1,
                     Date = DateTime.Now,
@@ -323,24 +327,11 @@ public partial class ListOrderVisual : ContentView
                     IsBillRequested = false
                 };
 
-                db.Orders.Add(order);
+                db.Orders.Add(newOrder);
                 await db.SaveChangesAsync();
-                OnViewOrderClicked(order!);
+                OnViewOrderClicked(newOrder);
             });
             ReloadTM();
-
-            /*if (order != null)
-            {
-                order = await AppDbContext.ExecuteSafeAsync(async db =>
-                    await db.Orders
-                        //.Include(o => o.Table)
-                        //.Include(o => o.Waiter)
-                        //.Include(o => o.Items)
-                        //.ThenInclude(oi => oi.Article)
-                        .FirstOrDefaultAsync(o => o.Id == order.Id));
-
-                OnViewOrderClicked(order!);
-            }*/
         });
     }
 
@@ -476,7 +467,8 @@ public partial class ListOrderVisual : ContentView
 
         if (loadedOrder == null)
         {
-            await Application.Current.MainPage.DisplayAlert("Error", "No se pudo cargar la orden.", "OK");
+            if (Application.Current?.MainPage != null)
+                await Application.Current.MainPage.DisplayAlert("Error", "No se pudo cargar la orden.", "OK");
             return;
         }
 
@@ -557,6 +549,11 @@ public partial class ListOrderVisual : ContentView
     {
         // Reset all frames to default appearance first
         ResetAllTableFrames();
+        
+        // Clear tracking collections
+        _matchingLocalFrames.Clear();
+        _matchingLocalTables.Clear();
+        _activeLocalFrameIndex = 0;
 
         // Clear highlighted table when search is cleared
         if (string.IsNullOrWhiteSpace(searchText))
@@ -575,10 +572,10 @@ public partial class ListOrderVisual : ContentView
             // First try to find by Global Number
             foundMatch = HighlightTableByGlobalNumber(searchNumber);
 
-            // If no global match found, try Local Number
+            // If no global match found, try Local Number and collect all matches
             if (!foundMatch)
             {
-                HighlightTableByLocalNumber(searchNumber);
+                CollectAndHighlightLocalMatches(searchNumber);
             }
         }
         else
@@ -715,8 +712,10 @@ public partial class ListOrderVisual : ContentView
                                 }
                             }
                         }
+                        if (foundMatch) break;
                     }
                 }
+                if (foundMatch) break;
             }
         }
 
@@ -844,6 +843,7 @@ public partial class ListOrderVisual : ContentView
             tableFrame.BorderColor = Color.FromArgb("#FF5722"); // Orange-Red for global
             tableFrame.BackgroundColor = Color.FromArgb("#FFF3E0"); // Light orange background
             tableFrame.HasShadow = true;
+            tableFrame.CornerRadius = 10;
             tableFrame.Shadow = new Shadow
             {
                 Brush = new SolidColorBrush(Color.FromArgb("#FF5722")),
@@ -851,19 +851,19 @@ public partial class ListOrderVisual : ContentView
                 Radius = 5,
                 Opacity = 0.7f
             };
-
             // Add a small animation effect
             _ = AnimateHighlight(tableFrame);
         }
         else
         {
-            // Local search styling - less prominent
-            tableFrame.BorderColor = Color.FromArgb("#005F8C"); // Blue for local
-            tableFrame.BackgroundColor = Color.FromArgb("#E3F2FD"); // Light blue background
+            // highlight for non-active frames when cycling with Tab
+            tableFrame.BorderColor = Color.FromArgb("#F3F3F3"); //  for non-active
+            tableFrame.BackgroundColor = Color.FromArgb("#F3F3F3"); // Light  background
             tableFrame.HasShadow = true;
+            tableFrame.CornerRadius = 10;
             tableFrame.Shadow = new Shadow
             {
-                Brush = new SolidColorBrush(Color.FromArgb("#005F8C")),
+                Brush = new SolidColorBrush(Color.FromArgb("#F3F3F3")),
                 Offset = new Point(1, 1),
                 Radius = 3,
                 Opacity = 0.5f
@@ -876,5 +876,168 @@ public partial class ListOrderVisual : ContentView
         // Simple scale animation for global search results
         await frame.ScaleTo(1.05, 150, Easing.BounceOut);
         await frame.ScaleTo(1.0, 150, Easing.BounceOut);
+    }
+
+    private void CollectAndHighlightLocalMatches(int localNumber)
+    {
+        // Get all tables to find those with matching local number
+        var allTables = AppDbContext.ExecuteSafeAsync(async db =>
+        {
+            var openCashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
+            if (openCashRegister == null) return new List<Table>();
+
+            return await db.Orders
+                .Include(o => o.Table)
+                .Include(o => o.Waiter)
+                .Where(o => o.CashRegister != null && 
+                           o.CashRegister.Id == openCashRegister.Id && 
+                           o.Table != null &&
+                           !o.IsDuePaid)
+                .Select(o => o.Table!)
+                .Distinct()
+                .ToListAsync();
+        }).GetAwaiter().GetResult();
+
+        // Find all matching tables and frames
+        var matchingTables = allTables.Where(t => t.LocalNumber == localNumber).ToList();
+        
+        // Search through all visible table frames and collect matching ones
+        foreach (var meseroCard in MeseroContainer.Children.OfType<Frame>())
+        {
+            if (meseroCard.Content is VerticalStackLayout meseroStack)
+            {
+                foreach (var child in meseroStack.Children)
+                {
+                    if (child is VerticalStackLayout tableRow)
+                    {
+                        foreach (var tableFrame in tableRow.Children.OfType<Frame>())
+                        {
+                            if (tableFrame.Content is VerticalStackLayout tableContent)
+                            {
+                                var tableLabel = tableContent.Children.OfType<Label>()
+                                    .FirstOrDefault(l => l.Text != null && l.Text.StartsWith("Mesa #"));
+                                
+                                if (tableLabel != null)
+                                {
+                                    var labelText = tableLabel.Text.Replace("Mesa #", "");
+                                    if (int.TryParse(labelText, out int tableLocalNumber) && tableLocalNumber == localNumber)
+                                    {
+                                        // Find the corresponding table from database
+                                        var matchingTable = matchingTables.FirstOrDefault(t => 
+                                            DoesFrameMatchTable(tableFrame, t));
+                                        
+                                        if (matchingTable != null)
+                                        {
+                                            _matchingLocalFrames.Add(tableFrame);
+                                            _matchingLocalTables.Add(matchingTable);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Highlight all matching frames, with special highlight for the active one
+        for (int i = 0; i < _matchingLocalFrames.Count; i++)
+        {
+            if (i == _activeLocalFrameIndex)
+            {
+                ApplyActiveTabHighlight(_matchingLocalFrames[i]);
+            }
+            else
+            {
+                ApplyHighlightStyling(_matchingLocalFrames[i], false);
+            }
+        }
+
+        // Set the current highlighted table to the active one
+        if (_matchingLocalTables.Count > 0)
+        {
+            _currentHighlightedTable = _matchingLocalTables[_activeLocalFrameIndex];
+        }
+    }
+
+    private bool DoesFrameMatchTable(Frame frame, Table table)
+    {
+        // Get the waiter name from the frame's parent structure
+        var meseroCard = GetParentMeseroCard(frame);
+        if (meseroCard?.Content is VerticalStackLayout meseroStack)
+        {
+            var waiterLabel = meseroStack.Children.OfType<Label>().FirstOrDefault();
+            if (waiterLabel != null)
+            {
+                return DoesWaiterHaveTable(waiterLabel.Text, table);
+            }
+        }
+        return false;
+    }
+
+    private Frame? GetParentMeseroCard(Frame tableFrame)
+    {
+        // Navigate up the visual tree to find the mesero card
+        foreach (var meseroCard in MeseroContainer.Children.OfType<Frame>())
+        {
+            if (meseroCard.Content is VerticalStackLayout meseroStack)
+            {
+                foreach (var child in meseroStack.Children)
+                {
+                    if (child is VerticalStackLayout tableRow)
+                    {
+                        if (tableRow.Children.Contains(tableFrame))
+                        {
+                            return meseroCard;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public void MoveToNextMatchingTable()
+    {
+        if (_matchingLocalFrames.Count > 1)
+        {
+            _activeLocalFrameIndex = (_activeLocalFrameIndex + 1) % _matchingLocalFrames.Count;
+            
+            // Re-highlight all frames
+            for (int i = 0; i < _matchingLocalFrames.Count; i++)
+            {
+                if (i == _activeLocalFrameIndex)
+                {
+                    ApplyActiveTabHighlight(_matchingLocalFrames[i]);
+                }
+                else
+                {
+                    ApplyHighlightStyling(_matchingLocalFrames[i], false);
+                }
+            }
+            
+            // Update the current highlighted table
+            if (_activeLocalFrameIndex < _matchingLocalTables.Count)
+            {
+                _currentHighlightedTable = _matchingLocalTables[_activeLocalFrameIndex];
+            }
+        }
+    }
+
+    private void ApplyActiveTabHighlight(Frame tableFrame)
+    {
+        // Blue highlight for the active frame (the one that opens on Enter)
+        tableFrame.BorderColor = Color.FromArgb("#005F8C"); // Blue for active
+        tableFrame.BackgroundColor = Color.FromArgb("#E3F2FD"); // Light blue
+        tableFrame.HasShadow = true;
+        tableFrame.CornerRadius = 10;
+        tableFrame.Shadow = new Shadow
+        {
+            Brush = new SolidColorBrush(Color.FromArgb("#005F8C")),
+            Offset = new Point(2, 2),
+            Radius = 7,
+            Opacity = 0.8f
+        };
+        tableFrame.Scale = 1.08;
     }
 }
