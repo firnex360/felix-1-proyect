@@ -568,15 +568,15 @@ public partial class OrderVisual : ContentPage
     {
         if (OrderItems.Any(item => item.Quantity < 0))
         {
-            DisplayAlert("Cantidad invalida", "No se puede guardar una orden con cantidades negativas.", "OK");
+            _ = DisplayAlert("Cantidad invalida", "No se puede guardar una orden con cantidades negativas.", "OK");
             return;
         }
 
         if (!OrderItems.Any())
         {
-            var result = await DisplayAlert("Orden vac�a",
-                "�Desea cerrar esta orden sin art�culos?",
-                "S�, cerrar",
+            var result = await DisplayAlert("Orden vacia",
+                "¿Desea cerrar esta orden sin articulos?",
+                "Si, cerrar",
                 "No, cancelar");
 
             if (!result) return;
@@ -606,13 +606,14 @@ public partial class OrderVisual : ContentPage
             }
         }
 
-        await CloseWindowAsync();
+        CloseThisWindow();
     }
 
-    private async Task CloseWindowAsync()
+
+    private void CloseThisWindow()
     {
-        var window = GetParentWindow();
-        if (window != null)
+        var app = Microsoft.Maui.Controls.Application.Current;
+        if (app != null)
         {
             foreach (var window in app.Windows)
             {
