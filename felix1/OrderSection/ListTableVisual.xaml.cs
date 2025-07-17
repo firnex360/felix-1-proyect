@@ -208,10 +208,6 @@ public partial class ListTableVisual : ContentView
     {
         var loadedOrder = await AppDbContext.ExecuteSafeAsync(async db =>
             await db.Orders
-                .Include(o => o.Table)
-                .Include(o => o.Waiter)
-                .Include(o => o.Items)
-                .ThenInclude(oi => oi.Article)
                 .FirstOrDefaultAsync(o => o.Id == order.Id));
 
         if (loadedOrder == null)
@@ -395,13 +391,7 @@ private void LoadExistingTakeoutOrders()
         {
             var waiter = await db.Users.FirstOrDefaultAsync(u => u.Name == "TAKEOUT");
             var cashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
-            var cashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
 
-            if (cashRegister == null)
-            {
-                await Application.Current!.MainPage!.DisplayAlert("Error", "No hay una caja abierta.", "OK");
-                return;
-            }
             if (cashRegister == null)
             {
                 await Application.Current!.MainPage!.DisplayAlert("Error", "No hay una caja abierta.", "OK");
@@ -412,21 +402,9 @@ private void LoadExistingTakeoutOrders()
                 .Where(o => o.CashRegister!.Id == cashRegister.Id && o.Table != null && o.Table.IsTakeOut)
                 .Select(o => o.Table!)
                 .ToListAsync();
-            var existingTakeouts = await db.Orders
-                .Where(o => o.CashRegister!.Id == cashRegister.Id && o.Table != null && o.Table.IsTakeOut)
-                .Select(o => o.Table!)
-                .ToListAsync();
 
             int nextTakeoutNumber = -(existingTakeouts.Count + 1);
-            int nextTakeoutNumber = -(existingTakeouts.Count + 1);
 
-            var table = new Table
-            {
-                LocalNumber = nextTakeoutNumber,
-                IsTakeOut = true,
-                IsBillRequested = false,
-                IsPaid = false
-            };
             var table = new Table
             {
                 LocalNumber = nextTakeoutNumber,
@@ -437,18 +415,11 @@ private void LoadExistingTakeoutOrders()
 
             db.Tables.Add(table);
             await db.SaveChangesAsync();
-            db.Tables.Add(table);
-            await db.SaveChangesAsync();
 
             int orderNumber = await db.Orders
                 .Where(o => o.CashRegister!.Id == cashRegister.Id)
                 .CountAsync();
-            int orderNumber = await db.Orders
-                .Where(o => o.CashRegister!.Id == cashRegister.Id)
-                .CountAsync();
 
-            db.Attach(cashRegister);
-            if (waiter != null) db.Attach(waiter);
             db.Attach(cashRegister);
             if (waiter != null) db.Attach(waiter);
 
@@ -463,20 +434,7 @@ private void LoadExistingTakeoutOrders()
                 IsDuePaid = false,
                 IsBillRequested = false
             };
-            var order = new Order
-            {
-                OrderNumber = orderNumber + 1,
-                Date = DateTime.Now,
-                Waiter = waiter,
-                Table = table,
-                Items = null,
-                CashRegister = cashRegister,
-                IsDuePaid = false,
-                IsBillRequested = false
-            };
 
-            db.Orders.Add(order);
-            await db.SaveChangesAsync();
             db.Orders.Add(order);
             await db.SaveChangesAsync();
 
@@ -489,10 +447,6 @@ private void LoadExistingTakeoutOrders()
     {
         var loadedOrder = await AppDbContext.ExecuteSafeAsync(async db =>
             await db.Orders
-                .Include(o => o.Table)
-                .Include(o => o.Waiter)
-                .Include(o => o.Items)
-                .ThenInclude(oi => oi.Article)
                 .FirstOrDefaultAsync(o => o.Id == order.Id));
 
         if (loadedOrder == null)
@@ -552,10 +506,6 @@ private void LoadExistingTakeoutOrders()
             if (openCashRegister == null) return null;
 
             return await db.Orders
-                .Include(o => o.Table)
-                .Include(o => o.Waiter)
-                .Include(o => o.Items)
-                    .ThenInclude(oi => oi.Article)
                 .FirstOrDefaultAsync(o => o.CashRegister != null &&
                                          o.CashRegister.Id == openCashRegister.Id &&
                                          o.Table != null &&
