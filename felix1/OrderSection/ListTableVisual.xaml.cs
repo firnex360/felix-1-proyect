@@ -5,16 +5,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace felix1.OrderSection;
 
-public partial class ListOrderVisual : ContentView
+public partial class ListTableVisual : ContentView
 {
-    public static ListOrderVisual? Instance { get; private set; }
+    public static ListTableVisual? Instance { get; private set; }
     public ObservableCollection<Table> Tables { get; set; } = new();
     
     // Add tracking for currently highlighted table
     private Table? _currentHighlightedTable = null;
     private bool _isGlobalSearchMatch = false;
 
-    public ListOrderVisual()
+    public ListTableVisual()
     {
         InitializeComponent();
         BindingContext = this;

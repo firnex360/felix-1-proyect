@@ -14,7 +14,7 @@ public partial class OrderSectionMainVisual : ContentPage
         InitializeComponent();
         _cashRegister = cashRegister;
         DisplayCashRegisterInfo();
-        RightPanel.Content = new ListOrderVisual();
+        RightPanel.Content = new ListTableVisual();
 
 #if WINDOWS
         var window = Application.Current?.Windows.FirstOrDefault();
@@ -125,20 +125,20 @@ public partial class OrderSectionMainVisual : ContentPage
     {
         var searchText = e.NewTextValue?.ToLower() ?? "";
 
-        // Get the ListOrderVisual instance and pass the search text to it
-        if (RightPanel.Content is ListOrderVisual listOrderVisual)
+        // Get the ListTableVisual instance and pass the search text to it
+        if (RightPanel.Content is ListTableVisual ListTableVisual)
         {
             // Call the filter method to highlight matching table numbers
-            listOrderVisual.FilterTablesByNumber(searchText);
+            ListTableVisual.FilterTablesByNumber(searchText);
         }
     }
 
     private void OnSearchBarSearchButtonPressed(object sender, EventArgs e)
     {
         // Handle search button press - open the highlighted table
-        if (RightPanel.Content is ListOrderVisual listOrderVisual)
+        if (RightPanel.Content is ListTableVisual ListTableVisual)
         {
-            listOrderVisual.OpenHighlightedTable();
+            ListTableVisual.OpenHighlightedTable();
         }
     }
 

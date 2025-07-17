@@ -392,7 +392,7 @@ namespace felix1.OrderSection
                 Application.Current?.CloseWindow(window);
             }
 
-            ListOrderVisual.Instance?.ReloadTM();
+            ListTableVisual.Instance?.ReloadTM();
         }
 
         private void UpdatePaymentSummary()

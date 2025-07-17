@@ -653,11 +653,11 @@ public partial class OrderVisual : ContentPage
                 db.Orders.Update(_currentOrder);
                 await db.SaveChangesAsync();
 
-                if (ListOrderVisual.Instance != null)
+                if (ListTableVisual.Instance != null)
                 {
                     await MainThread.InvokeOnMainThreadAsync(() =>
                     {
-                        ListOrderVisual.Instance.ReloadTM();
+                        ListTableVisual.Instance.ReloadTM();
                     });
                 }
 
