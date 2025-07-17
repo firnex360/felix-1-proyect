@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace felix1.OrderSection;
 
-public partial class ListOrderVisual : ContentView
+public partial class ListTableVisual : ContentView
 {
-    public static ListOrderVisual? Instance { get; private set; }
+    public static ListTableVisual? Instance { get; private set; }
     public ObservableCollection<Table> Tables { get; set; } = new();
 
 
@@ -22,7 +22,7 @@ public partial class ListOrderVisual : ContentView
 
     public bool ShowCompletedOrders { get; set; } = false;
 
-    public ListOrderVisual()
+    public ListTableVisual()
     {
         InitializeComponent();
         BindingContext = this;
@@ -115,8 +115,8 @@ public partial class ListOrderVisual : ContentView
                 var tableContent = new VerticalStackLayout
                 {
                     Spacing = 5,
-                    HorizontalOptions = LayoutOptions.Center,
-                    VerticalOptions = LayoutOptions.Center
+                    HorizontalOptions = LayoutOptions.Start,
+                    VerticalOptions = LayoutOptions.Start
                 };
 
                 // Table number label
@@ -125,7 +125,7 @@ public partial class ListOrderVisual : ContentView
                     Text = $"Mesa #{table.LocalNumber}",
                     FontAttributes = FontAttributes.Bold,
                     FontSize = 14,
-                    HorizontalOptions = LayoutOptions.Start,
+                    HorizontalOptions = LayoutOptions.Center,
                     TextColor = Colors.Black
                 });
 
@@ -208,10 +208,6 @@ public partial class ListOrderVisual : ContentView
     {
         var loadedOrder = await AppDbContext.ExecuteSafeAsync(async db =>
             await db.Orders
-                .Include(o => o.Table)
-                .Include(o => o.Waiter)
-                .Include(o => o.Items)
-                .ThenInclude(oi => oi.Article)
                 .FirstOrDefaultAsync(o => o.Id == order.Id));
 
         if (loadedOrder == null)
@@ -335,68 +331,60 @@ public partial class ListOrderVisual : ContentView
         });
     }
 
-    private void AddTakeoutOrderToPanel(Order order)
+private void AddTakeoutOrderToPanel(Order order)
+{
+    int displayOrderNumber = order.Table?.LocalNumber ?? order.OrderNumber;
+
+    var orderButton = new Button
     {
-        int displayOrderNumber = order.Table?.LocalNumber ?? order.OrderNumber;
+        Text = $"Orden #{displayOrderNumber}",
+        FontSize = 12,
+        HeightRequest = 30,
+        //WidthRequest = 90,
+        BackgroundColor = order.IsBillRequested ? 
+            Color.FromArgb("#4CAF50") : // Green for printed orders
+            Color.FromArgb("#2196F3"),  // Blue for regular orders
+        TextColor = Colors.White,
+        CornerRadius = 5,
+        HorizontalOptions = LayoutOptions.Fill,
+        Command = new Command(() => OnViewOrderClicked(order))
+    };
 
-        var orderButton = new Button
-        {
-            Text = $"Orden #{displayOrderNumber}",
-            FontSize = 14,
-            HeightRequest = 40,
-            BackgroundColor = Color.FromArgb("#C7CFDD"),
-            TextColor = Colors.White,
-            CornerRadius = 6,
-            HorizontalOptions = LayoutOptions.Fill,
-            Margin = new Thickness(0, 5),
-            Command = new Command(() => OnViewOrderClicked(order))
-        };
-
-        TakeoutPanel.Children.Add(orderButton);
+    // Find the container in the visual tree
+    if (this.FindByName("TakeoutOrdersContainer") is VerticalStackLayout container)
+    {
+        container.Children.Add(orderButton);
     }
+}
 
-    private void LoadExistingTakeoutOrders()
+private void LoadExistingTakeoutOrders()
+{
+    // Find the container in the visual tree
+    if (this.FindByName("TakeoutOrdersContainer") is VerticalStackLayout container)
     {
+        container.Children.Clear();
+
         var takeoutOrders = AppDbContext.ExecuteSafeAsync(async db =>
         {
             var openCashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
             if (openCashRegister == null) return new List<Order>();
 
-            var orders = await db.Orders
+            return await db.Orders
                 .Include(o => o.Table)
-                .Where(o => o.CashRegister!.Id == openCashRegister.Id &&
-                            o.Table != null &&
-                            o.Table.IsTakeOut)
+                .Where(o => o.Table != null &&
+                           o.Table.IsTakeOut &&
+                           o.CashRegister == openCashRegister &&
+                           !o.IsDuePaid)
+                .OrderBy(o => o.OrderNumber)
                 .ToListAsync();
-
-            foreach (var order in orders)
-            {
-                order.Items = await db.OrderItems
-                    .Include(oi => oi.Article)
-                    .Where(oi => EF.Property<int>(oi, "OrderId") == order.Id)
-                    .ToListAsync();
-            }
-
-            return orders;
         }).GetAwaiter().GetResult();
 
-        // Only add buttons that aren't already there (basic duplicate check by text)
         foreach (var order in takeoutOrders)
         {
-            int displayOrderNumber = order.Table?.LocalNumber ?? order.OrderNumber;
-            string buttonText = $"Orden #{displayOrderNumber}";
-
-            bool alreadyExists = TakeoutPanel.Children
-                .OfType<Button>()
-                .Any(b => b.Text == buttonText);
-
-            if (!alreadyExists)
-            {
-                AddTakeoutOrderToPanel(order);
-            }
+            AddTakeoutOrderToPanel(order);
         }
     }
-
+}
     private async void OnCreateTakeoutOrderClicked(object sender, EventArgs e)
     {
         await AppDbContext.ExecuteSafeAsync(async db =>
@@ -450,7 +438,7 @@ public partial class ListOrderVisual : ContentView
             db.Orders.Add(order);
             await db.SaveChangesAsync();
 
-            AddTakeoutOrderToPanel(order);
+            LoadExistingTakeoutOrders();
             OnViewOrderClicked(order);
         });
     }
@@ -459,10 +447,6 @@ public partial class ListOrderVisual : ContentView
     {
         var loadedOrder = await AppDbContext.ExecuteSafeAsync(async db =>
             await db.Orders
-                .Include(o => o.Table)
-                .Include(o => o.Waiter)
-                .Include(o => o.Items)
-                .ThenInclude(oi => oi.Article)
                 .FirstOrDefaultAsync(o => o.Id == order.Id));
 
         if (loadedOrder == null)
@@ -505,6 +489,10 @@ public partial class ListOrderVisual : ContentView
         LoadMeseros();
         LoadExistingTakeoutOrders();
     }
+    
+
+
+
 
     // Method to open the currently highlighted table's order
     public async void OpenHighlightedTable()
@@ -518,10 +506,6 @@ public partial class ListOrderVisual : ContentView
             if (openCashRegister == null) return null;
 
             return await db.Orders
-                .Include(o => o.Table)
-                .Include(o => o.Waiter)
-                .Include(o => o.Items)
-                    .ThenInclude(oi => oi.Article)
                 .FirstOrDefaultAsync(o => o.CashRegister != null &&
                                          o.CashRegister.Id == openCashRegister.Id &&
                                          o.Table != null &&

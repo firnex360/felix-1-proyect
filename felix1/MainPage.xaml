@@ -53,6 +53,12 @@
             <HorizontalStackLayout Spacing="10">
 
                 <Button
+                    x:Name="Ccr"
+                    Text="cash register (for testing)"
+                    Clicked="OnUpdateCcr"
+                    HorizontalOptions="Start"/>
+
+                <Button
                     x:Name="createOrderTemp"
                     Text="Create Order (for testing)"
                     Clicked="OnSaveOrderTest"
