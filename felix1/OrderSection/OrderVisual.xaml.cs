@@ -566,18 +566,8 @@ public partial class OrderVisual : ContentPage
     {
         if (OrderItems.Any(item => item.Quantity < 0))
         {
-            _ = DisplayAlert("Cantidad invalida", "No se puede guardar una orden con cantidades negativas.", "OK");
+            DisplayAlert("Cantidad invalida", "No se puede guardar una orden con cantidades negativas.", "OK");
             return;
-        }
-
-        if (!OrderItems.Any())
-        {
-            var result = await DisplayAlert("Orden vacia",
-                "¿Desea cerrar esta orden sin articulos?",
-                "Si, cerrar",
-                "No, cancelar");
-
-            if (!result) return;
         }
 
         if (_currentOrder != null)
