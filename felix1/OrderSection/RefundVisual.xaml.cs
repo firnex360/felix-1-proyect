@@ -40,8 +40,8 @@ public partial class RefundVisual : ContentPage
 
         LoadOrderItems();
 
-        DiscardCommand = new Command(OnDiscard);
-        ProcessRefundCommand = new Command(OnProcessRefund);
+        DiscardCommand = new Command(async () => await DiscardAsync());
+        ProcessRefundCommand = new Command(async () => await ProcessRefundAsync());
     }
 
     private void LoadOrderItems()
@@ -139,16 +139,20 @@ public partial class RefundVisual : ContentPage
         }
     }
 
-    private async void OnDiscard()
+    private async Task DiscardAsync()
     {
         bool confirm = await DisplayAlert("Confirmar", "¿Deseas descartar esta devolución?", "Sí", "No");
         if (confirm)
         {
-            await Navigation.PopAsync();
+            var window = this.GetParentWindow();
+            if (window != null)
+            {
+                Application.Current?.CloseWindow(window);
+            }
         }
     }
 
-    private async void OnProcessRefund()
+    private async Task ProcessRefundAsync()
     {
         if (RefundedItems.Count == 0)
         {
@@ -156,17 +160,48 @@ public partial class RefundVisual : ContentPage
             return;
         }
 
+        bool confirm = await DisplayAlert("Confirmar", "¿Deseas procesar la devolución?", "Sí", "No");
+        if (!confirm) return;
+
+        // Assign refunded items to the refund object
         Refund.RefundedItems = RefundedItems.ToList();
 
-        try
+        await AppDbContext.ExecuteSafeAsync(async db =>
         {
-            //base de datos here!!!!!
+            // Attach the existing order and user from the context if necessary
+            db.Orders.Attach(Refund.Order);
+            db.Users.Attach(Refund.User);
 
+            foreach (var item in Refund.RefundedItems)
+            {
+                db.Articles.Attach(item.Article); // Needed for FK
+            }
 
-        }
-        catch (Exception ex)
+            // Add the refund with its items
+            await db.Refunds.AddAsync(Refund);
+            await db.SaveChangesAsync(); // Save to generate Refund.Id
+
+            // Create the transaction
+            var transaction = new Transaction
+            {
+                Date = DateTime.Now,
+                CashAmount = RefundTotal,
+                TotalAmount = RefundTotal,
+                Refund = Refund
+            };
+
+            await db.Transactions.AddAsync(transaction);
+            await db.SaveChangesAsync(); // Save everything
+        },
+        async ex => await DisplayAlert("Error", "Ocurrió un error al guardar la devolución.", "OK"));
+
+        await DisplayAlert("Éxito", "La devolución fue procesada exitosamente.", "OK");
+
+        var window = this.GetParentWindow();
+        if (window != null)
         {
-            await DisplayAlert("Error", $"OMG no funciona lol {ex.Message}", "OK");
+            Application.Current?.CloseWindow(window);
         }
     }
+
 }

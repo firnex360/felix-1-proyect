@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Syncfusion.Maui.DataGrid;
 using Syncfusion.Maui.Core.Internals;
 using Syncfusion.Maui.DataGrid.Helper;
+using Microsoft.Maui.Controls;
 using System.Drawing;
 using System.Drawing.Printing;
 using Scriban;
@@ -562,12 +563,23 @@ public partial class OrderVisual : ContentPage
             orderItemsDataGrid.BeginEdit(rowIndex, quantityColumnIndex);
     }
 
-    private void OnExitSave(object sender, EventArgs e)
+
+    private async void OnExitSave(object sender, EventArgs e)
     {
         if (OrderItems.Any(item => item.Quantity < 0))
         {
-            DisplayAlert("Cantidad inv�lida", "No se puede guardar una orden con cantidades negativas.", "OK");
+            DisplayAlert("Cantidad invalida", "No se puede guardar una orden con cantidades negativas.", "OK");
             return;
+        }
+
+        if (!OrderItems.Any())
+        {
+            var result = await DisplayAlert("Orden vac�a",
+                "�Desea cerrar esta orden sin art�culos?",
+                "S�, cerrar",
+                "No, cancelar");
+
+            if (!result) return;
         }
 
         if (_currentOrder != null)
@@ -578,25 +590,29 @@ public partial class OrderVisual : ContentPage
 
             try
             {
-                //this need to be wrapped in a try catch block to handle any potential database errors
                 using var db = new AppDbContext();
-                db.Orders.Update(_currentOrder);
-                db.SaveChanges();
+
+                if (_currentOrder.Id == 0)
+                    db.Orders.Add(_currentOrder);
+                else
+                    db.Orders.Update(_currentOrder);
+
+                await db.SaveChangesAsync();
             }
             catch (Exception ex)
             {
-                DisplayAlert("Error", $"No se pudo guardar la orden: {ex.Message}", "OK");
+                await DisplayAlert("Error", $"No se pudo guardar la orden: {ex.Message}", "OK");
                 return;
             }
         }
 
-        CloseThisWindow();
+        await CloseWindowAsync();
     }
 
-    private void CloseThisWindow()
+    private async Task CloseWindowAsync()
     {
-        var app = Microsoft.Maui.Controls.Application.Current;
-        if (app != null)
+        var window = GetParentWindow();
+        if (window != null)
         {
             foreach (var window in app.Windows)
             {
@@ -617,10 +633,20 @@ public partial class OrderVisual : ContentPage
         {
             foreach (var window in app.Windows)
             {
+                
+                // Check if the page is directly OrderSectionMainVisual
                 if (window.Page is OrderSectionMainVisual orderSectionPage)
                 {
                     orderSectionPage.FocusSearchBar();
                     Console.WriteLine("Focused search bar in OrderSectionMainVisual");
+                    break;
+                }
+
+                // Check if it's wrapped in a NavigationPage
+                else if (window.Page is NavigationPage navPage && navPage.CurrentPage is OrderSectionMainVisual orderSectionMainPage)
+                {
+                    orderSectionMainPage.FocusSearchBar();
+                    Console.WriteLine("Focused search bar in OrderSectionMainVisual (via NavigationPage)");
                     break;
                 }
             }
@@ -642,7 +668,6 @@ public partial class OrderVisual : ContentPage
             db.SaveChanges();
         }
 
-        // TODO: Implement print receipt functionality (print the actual receipt)
         Console.WriteLine("Print receipt clicked");
         if (_currentOrder != null)
         {
@@ -669,9 +694,6 @@ public partial class OrderVisual : ContentPage
             }
         }
 
-        //Set printer name if needed
-        //pd.PrinterSettings.PrinterName = "SP500"; // or whatever name shows in Windows, but it should take the default one
-
         string templateText = File.ReadAllText(@"C:\Codes\github\felix-1-proyect\felix1\ReceiptTemplates\OrderTemplate.txt");
         var template = Template.Parse(templateText);
         var scribanModel = new { order = _currentOrder };
@@ -683,9 +705,10 @@ public partial class OrderVisual : ContentPage
                 try
                 {
                     PrintDocument pd = new PrintDocument();
+                    //pd.PrinterSettings.PrinterName = "Star SP500 Cutter"; // or whatever name shows in Windows, but it should take the default one
                     pd.PrintPage += (sender, e) =>
                     {
-                        System.Drawing.Font font = new System.Drawing.Font("Consolas", 8); // Monospaced font recommended for POS printers
+                        System.Drawing.Font font = new System.Drawing.Font("Consolas", 10); // Monospaced font recommended for POS printers
                         e.Graphics.DrawString(text, font, Brushes.Black, new System.Drawing.PointF(10, 10));
                     };
                     
@@ -697,7 +720,8 @@ public partial class OrderVisual : ContentPage
                     Console.WriteLine("Print failed: " + ex.Message);
                 }
 #else
-        Console.WriteLine("Printing is only supported on Windows.");
+        Console.WriteLine("Printing is only supported on Windows for now.");
+        await DisplayAlert("Error", $"No se pudo imprimir el recibo: La funcionalidad de impresión no está disponible en esta plataforma (solo Windows).", "OK");
 #endif
 
         OnExitSave(sender, e); // Save the order after printing and close the window

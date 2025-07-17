@@ -1,0 +1,35 @@
+========================================
+           COMPROBANTE DE PAGO
+========================================
+Mesa: {{ transaction.Order.Table.LocalNumber }} (Global: {{ transaction.Order.Table.GlobalNumber }})
+Orden #: {{ transaction.Order.OrderNumber }}
+Fecha: {{ transaction.Date }}
+Mesero: {{ transaction.Order.Waiter.Name }}
+--------------------------------------------------
+Artículos:
+{{ for item in transaction.Order.Items }}
+- {{ item.ArticleName }} x{{ item.Quantity }} @ ${{ item.UnitPrice }} = ${{ item.TotalPrice }}
+{{ end }}
+--------------------------------------------------
+Subtotal: ${{ transaction.Order.Subtotal }}
+Descuento: ${{ transaction.Order.Discount }}
+ITBIS (18%): ${{ transaction.TaxAmountITBIS }}
+TOTAL: ${{ transaction.TotalAmount }}
+
+MÉTODOS DE PAGO:
+{{ if transaction.CashAmount > 0 }}
+Efectivo: ${{ transaction.CashAmount }}
+{{ end }}
+{{ if transaction.CardAmount > 0 }}
+Tarjeta: ${{ transaction.CardAmount }}
+{{ end }}
+{{ if transaction.TransferAmount > 0 }}
+Transferencia: ${{ transaction.TransferAmount }}
+{{ end }}
+{{ if ChangeAmount > 0 }}
+Devuelta: ${{ ChangeAmount }}
+{{ end }}
+
+========================================
+           ¡GRACIAS POR SU COMPRA!
+========================================

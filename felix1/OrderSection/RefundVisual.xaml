@@ -148,30 +148,12 @@
                     CornerRadius="8"/>
         </StackLayout>
 
+        <!-- Reemplaza esta parte -->
         <Grid Grid.Row="4" Grid.ColumnSpan="2"
       ColumnDefinitions="Auto,*,Auto"
       VerticalOptions="Center"
       Padding="0,10"
       ColumnSpacing="15">
-
-            <StackLayout Grid.Column="0" Orientation="Vertical" HorizontalOptions="FillAndExpand" Spacing="5">
-                <Label Text="Razón de la devolución"
-               FontAttributes="Bold"
-               FontSize="14"
-               TextColor="#005F8C"/>
-                <Frame BackgroundColor="White"
-               BorderColor="#E9ECEF"
-               CornerRadius="6"
-               HasShadow="True"
-               Padding="5,2">
-                    <Entry Text="{Binding Refund.Reason}"
-                   Placeholder="Ingrese el motivo de la devolución"
-                   FontSize="14"
-                   FontAttributes="None"
-                   BackgroundColor="Transparent"
-                   TextColor="#005F8C"/>
-                </Frame>
-            </StackLayout>
 
             <Button Grid.Column="1"
             Text="Descartar"
@@ -194,6 +176,58 @@
             FontAttributes="Bold"
             CornerRadius="6"
             HorizontalOptions="End"/>
+        </Grid>
+
+        <!-- Por esta versión mejorada: -->
+        <Grid Grid.Row="4" Grid.ColumnSpan="2"
+      ColumnDefinitions="*,Auto,Auto"
+      VerticalOptions="Center"
+      Padding="20,10"
+      ColumnSpacing="15"
+      RowSpacing="0">
+
+            <!-- Razón de devolución (ocupará el espacio sobrante) -->
+            <Frame Grid.Column="0"
+           BackgroundColor="White"
+           BorderColor="#E9ECEF"
+           CornerRadius="6"
+           HasShadow="True"
+           Padding="5,2"
+           VerticalOptions="Center"
+           HorizontalOptions="FillAndExpand">
+                <Entry Text="{Binding Refund.Reason}"
+               Placeholder="Ingrese el motivo de la devolución"
+               FontSize="14"
+               FontAttributes="None"
+               BackgroundColor="Transparent"
+               TextColor="#005F8C"/>
+            </Frame>
+
+            <!-- Botón Descartar -->
+            <Button Grid.Column="1"
+            Text="Descartar"
+            Command="{Binding DiscardCommand}"
+            BackgroundColor="Black"
+            TextColor="White"
+            MinimumWidthRequest="130"
+            HeightRequest="45"
+            FontAttributes="Bold"
+            CornerRadius="6"
+            HorizontalOptions="End"
+            VerticalOptions="Center"/>
+
+            <!-- Botón Charge -->
+            <Button Grid.Column="2"
+            Text="Charge"
+            Command="{Binding ProcessRefundCommand}"
+            BackgroundColor="#005F8C"
+            TextColor="White"
+            MinimumWidthRequest="130"
+            HeightRequest="45"
+            FontAttributes="Bold"
+            CornerRadius="6"
+            HorizontalOptions="End"
+            VerticalOptions="Center"/>
         </Grid>
     </Grid>
 </ContentPage>

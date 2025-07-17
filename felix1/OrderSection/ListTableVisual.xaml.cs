@@ -9,10 +9,18 @@ public partial class ListTableVisual : ContentView
 {
     public static ListTableVisual? Instance { get; private set; }
     public ObservableCollection<Table> Tables { get; set; } = new();
-    
+
+
     // Add tracking for currently highlighted table
     private Table? _currentHighlightedTable = null;
     private bool _isGlobalSearchMatch = false;
+    
+    // Add tracking for multiple matching tables (Tab navigation)
+    private List<Frame> _matchingLocalFrames = new();
+    private List<Table> _matchingLocalTables = new();
+    private int _activeLocalFrameIndex = 0;
+
+    public bool ShowCompletedOrders { get; set; } = false;
 
     public ListTableVisual()
     {
@@ -56,7 +64,7 @@ public partial class ListTableVisual : ContentView
                 .Where(o => o.Table != null &&
                            o.Waiter != null &&
                            o.CashRegister == openCashRegister &&
-                           !o.IsDuePaid) // Only show unpaid orders
+                           (ShowCompletedOrders ? o.IsDuePaid : !o.IsDuePaid)) // Modified condition
                 .ToListAsync();
 
             return orders;
@@ -136,7 +144,12 @@ public partial class ListTableVisual : ContentView
                         TextColor = Colors.White,
                         CornerRadius = 5,
                         HorizontalOptions = LayoutOptions.Start,
-                        Command = new Command(() => OnViewOrderClicked(order))
+                        Command = new Command(() => {
+                            if (order.IsDuePaid)
+                                RefundVisual(order);
+                            else
+                                OnViewOrderClicked(order);
+                        })
                     };
                     tableContent.Children.Add(orderButton);
                 }
@@ -190,21 +203,52 @@ public partial class ListTableVisual : ContentView
             MeseroContainer.Children.Add(card);
         }
     }
+
+    private async void RefundVisual(Order order)
+    {
+        var loadedOrder = await AppDbContext.ExecuteSafeAsync(async db =>
+            await db.Orders
+                .Include(o => o.Table)
+                .Include(o => o.Waiter)
+                .Include(o => o.Items)
+                .ThenInclude(oi => oi.Article)
+                .FirstOrDefaultAsync(o => o.Id == order.Id));
+
+        if (loadedOrder == null)
+        {
+            await Application.Current.MainPage.DisplayAlert("Error", "No se pudo cargar la orden.", "OK");
+            return;
+        }
+
+        var displayInfo = DeviceDisplay.Current.MainDisplayInfo;
+        ContentPage targetPage = new RefundVisual(loadedOrder);
+
+        var window = new Window(targetPage)
+        {
+            Height = 700,
+            Width = 1000,
+            X = (displayInfo.Width / displayInfo.Density - 1000) / 2,
+            Y = ((displayInfo.Height / displayInfo.Density - 700) / 2) - 25
+        };
+
+        Application.Current?.OpenWindow(window);
+    }
+
     private async void OnCreateTableWindowClicked(User user)
     {
-        Order? order = null;
-
+        // Removed unused variable 'order'
         await AppDbContext.ExecuteSafeAsync(async db =>
         {
             var waiter = await AppDbContext.ExecuteSafeAsync(async db =>
-            await db.Users.FindAsync(user.Id));
+                await db.Users.FindAsync(user.Id));
 
             if (waiter == null)
             {
-                await Application.Current!.MainPage!.DisplayAlert("Error", "Mesero no encontrado.", "OK");
+                if (Application.Current?.MainPage != null)
+                    await Application.Current.MainPage.DisplayAlert("Error", "Mesero no encontrado.", "OK");
                 return;
             }
-            
+
             Table? table = null;
             int orderNumber = 0;
             await AppDbContext.ExecuteSafeAsync(async db =>
@@ -218,8 +262,8 @@ public partial class ListTableVisual : ContentView
                 }
 
                 orderNumber = await db.Orders
-                .Where(o => o.CashRegister != null && o.CashRegister.Id == cashRegister.Id)
-                .CountAsync();
+                    .Where(o => o.CashRegister != null && o.CashRegister.Id == cashRegister.Id)
+                    .CountAsync();
 
                 // ALL TABLES IN THE **OPEN** CASH REGISTER
                 var allTables = await db.Orders
@@ -227,7 +271,6 @@ public partial class ListTableVisual : ContentView
                     .Include(o => o.Waiter)
                     .Where(o => o.CashRegister != null && o.CashRegister.Id == cashRegister.Id && o.Table != null)
                     .Select(o => o.Table!)
-                    //.Distinct()
                     .ToListAsync();
 
                 // ALL TABLES FROM CURRENT WAITER
@@ -252,9 +295,7 @@ public partial class ListTableVisual : ContentView
 
                 db.Tables.Add(table);
                 await db.SaveChangesAsync();
-
             });
-
 
             await AppDbContext.ExecuteSafeAsync(async db =>
             {
@@ -265,7 +306,8 @@ public partial class ListTableVisual : ContentView
 
                 if (savedTable == null || cashRegister == null)
                 {
-                    await Application.Current!.MainPage!.DisplayAlert("Error", "Datos no válidos al crear la orden.", "OK");
+                    if (Application.Current?.MainPage != null)
+                        await Application.Current.MainPage.DisplayAlert("Error", "Datos no válidos al crear la orden.", "OK");
                     return;
                 }
 
@@ -273,7 +315,7 @@ public partial class ListTableVisual : ContentView
                     db.Attach(waiter);
                 db.Attach(cashRegister);
 
-                var order = new Order
+                var newOrder = new Order
                 {
                     OrderNumber = orderNumber + 1,
                     Date = DateTime.Now,
@@ -285,24 +327,11 @@ public partial class ListTableVisual : ContentView
                     IsBillRequested = false
                 };
 
-                db.Orders.Add(order);
+                db.Orders.Add(newOrder);
                 await db.SaveChangesAsync();
-                OnViewOrderClicked(order!);
+                OnViewOrderClicked(newOrder);
             });
             ReloadTM();
-
-            /*if (order != null)
-            {
-                order = await AppDbContext.ExecuteSafeAsync(async db =>
-                    await db.Orders
-                        //.Include(o => o.Table)
-                        //.Include(o => o.Waiter)
-                        //.Include(o => o.Items)
-                        //.ThenInclude(oi => oi.Article)
-                        .FirstOrDefaultAsync(o => o.Id == order.Id));
-
-                OnViewOrderClicked(order!);
-            }*/
         });
     }
 
@@ -366,7 +395,13 @@ private void LoadExistingTakeoutOrders()
         {
             var waiter = await db.Users.FirstOrDefaultAsync(u => u.Name == "TAKEOUT");
             var cashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
+            var cashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
 
+            if (cashRegister == null)
+            {
+                await Application.Current!.MainPage!.DisplayAlert("Error", "No hay una caja abierta.", "OK");
+                return;
+            }
             if (cashRegister == null)
             {
                 await Application.Current!.MainPage!.DisplayAlert("Error", "No hay una caja abierta.", "OK");
@@ -377,9 +412,21 @@ private void LoadExistingTakeoutOrders()
                 .Where(o => o.CashRegister!.Id == cashRegister.Id && o.Table != null && o.Table.IsTakeOut)
                 .Select(o => o.Table!)
                 .ToListAsync();
+            var existingTakeouts = await db.Orders
+                .Where(o => o.CashRegister!.Id == cashRegister.Id && o.Table != null && o.Table.IsTakeOut)
+                .Select(o => o.Table!)
+                .ToListAsync();
 
             int nextTakeoutNumber = -(existingTakeouts.Count + 1);
+            int nextTakeoutNumber = -(existingTakeouts.Count + 1);
 
+            var table = new Table
+            {
+                LocalNumber = nextTakeoutNumber,
+                IsTakeOut = true,
+                IsBillRequested = false,
+                IsPaid = false
+            };
             var table = new Table
             {
                 LocalNumber = nextTakeoutNumber,
@@ -390,11 +437,18 @@ private void LoadExistingTakeoutOrders()
 
             db.Tables.Add(table);
             await db.SaveChangesAsync();
+            db.Tables.Add(table);
+            await db.SaveChangesAsync();
 
             int orderNumber = await db.Orders
                 .Where(o => o.CashRegister!.Id == cashRegister.Id)
                 .CountAsync();
+            int orderNumber = await db.Orders
+                .Where(o => o.CashRegister!.Id == cashRegister.Id)
+                .CountAsync();
 
+            db.Attach(cashRegister);
+            if (waiter != null) db.Attach(waiter);
             db.Attach(cashRegister);
             if (waiter != null) db.Attach(waiter);
 
@@ -409,7 +463,20 @@ private void LoadExistingTakeoutOrders()
                 IsDuePaid = false,
                 IsBillRequested = false
             };
+            var order = new Order
+            {
+                OrderNumber = orderNumber + 1,
+                Date = DateTime.Now,
+                Waiter = waiter,
+                Table = table,
+                Items = null,
+                CashRegister = cashRegister,
+                IsDuePaid = false,
+                IsBillRequested = false
+            };
 
+            db.Orders.Add(order);
+            await db.SaveChangesAsync();
             db.Orders.Add(order);
             await db.SaveChangesAsync();
 
@@ -430,7 +497,8 @@ private void LoadExistingTakeoutOrders()
 
         if (loadedOrder == null)
         {
-            await Application.Current.MainPage.DisplayAlert("Error", "No se pudo cargar la orden.", "OK");
+            if (Application.Current?.MainPage != null)
+                await Application.Current.MainPage.DisplayAlert("Error", "No se pudo cargar la orden.", "OK");
             return;
         }
 
@@ -515,6 +583,11 @@ private void LoadExistingTakeoutOrders()
     {
         // Reset all frames to default appearance first
         ResetAllTableFrames();
+        
+        // Clear tracking collections
+        _matchingLocalFrames.Clear();
+        _matchingLocalTables.Clear();
+        _activeLocalFrameIndex = 0;
 
         // Clear highlighted table when search is cleared
         if (string.IsNullOrWhiteSpace(searchText))
@@ -533,10 +606,10 @@ private void LoadExistingTakeoutOrders()
             // First try to find by Global Number
             foundMatch = HighlightTableByGlobalNumber(searchNumber);
 
-            // If no global match found, try Local Number
+            // If no global match found, try Local Number and collect all matches
             if (!foundMatch)
             {
-                HighlightTableByLocalNumber(searchNumber);
+                CollectAndHighlightLocalMatches(searchNumber);
             }
         }
         else
@@ -585,8 +658,8 @@ private void LoadExistingTakeoutOrders()
             return await db.Orders
                 .Include(o => o.Table)
                 .Include(o => o.Waiter)
-                .Where(o => o.CashRegister != null && 
-                           o.CashRegister.Id == openCashRegister.Id && 
+                .Where(o => o.CashRegister != null &&
+                           o.CashRegister.Id == openCashRegister.Id &&
                            o.Table != null &&
                            !o.IsDuePaid)
                 .Select(o => o.Table!)
@@ -611,7 +684,7 @@ private void LoadExistingTakeoutOrders()
     private bool HighlightTableByLocalNumber(int localNumber)
     {
         bool foundMatch = false;
-        
+
         // Only clear if we haven't found a global match
         if (!_isGlobalSearchMatch)
         {
@@ -627,8 +700,8 @@ private void LoadExistingTakeoutOrders()
             return await db.Orders
                 .Include(o => o.Table)
                 .Include(o => o.Waiter)
-                .Where(o => o.CashRegister != null && 
-                           o.CashRegister.Id == openCashRegister.Id && 
+                .Where(o => o.CashRegister != null &&
+                           o.CashRegister.Id == openCashRegister.Id &&
                            o.Table != null &&
                            !o.IsDuePaid)
                 .Select(o => o.Table!)
@@ -673,8 +746,10 @@ private void LoadExistingTakeoutOrders()
                                 }
                             }
                         }
+                        if (foundMatch) break;
                     }
                 }
+                if (foundMatch) break;
             }
         }
 
@@ -709,7 +784,7 @@ private void LoadExistingTakeoutOrders()
                                         // For global search, we need to check if this displayed table
                                         // corresponds to our target table by comparing the actual table data
                                         // that's being displayed in this UI frame
-                                        
+
                                         // Get the table data that corresponds to this UI frame
                                         // We need to find which table from our loaded data matches this display
                                         if (isGlobalSearch)
@@ -722,12 +797,12 @@ private void LoadExistingTakeoutOrders()
                                                 // by checking if this waiter section contains our target table
                                                 var meseroNameLabel = meseroStack.Children.OfType<Label>()
                                                     .FirstOrDefault(l => l.FontAttributes == FontAttributes.Bold);
-                                                
+
                                                 if (meseroNameLabel != null)
                                                 {
                                                     // Get the waiter's tables to verify this is the correct table
                                                     var waiterName = meseroNameLabel.Text;
-                                                    
+
                                                     // Check if our target table belongs to this waiter by verifying
                                                     // that this waiter has a table with this LocalNumber AND GlobalNumber
                                                     if (DoesWaiterHaveTable(waiterName, targetTable))
@@ -777,8 +852,8 @@ private void LoadExistingTakeoutOrders()
             return await db.Orders
                 .Include(o => o.Table)
                 .Include(o => o.Waiter)
-                .Where(o => o.CashRegister != null && 
-                           o.CashRegister.Id == openCashRegister.Id && 
+                .Where(o => o.CashRegister != null &&
+                           o.CashRegister.Id == openCashRegister.Id &&
                            o.Table != null &&
                            o.Waiter != null &&
                            o.Waiter.Id == waiter.Id &&
@@ -789,8 +864,8 @@ private void LoadExistingTakeoutOrders()
         }).GetAwaiter().GetResult();
 
         // Check if any of this waiter's tables matches our target table
-        return waiterTables.Any(t => t.Id == targetTable.Id || 
-                                   (t.LocalNumber == targetTable.LocalNumber && 
+        return waiterTables.Any(t => t.Id == targetTable.Id ||
+                                   (t.LocalNumber == targetTable.LocalNumber &&
                                     t.GlobalNumber == targetTable.GlobalNumber));
     }
 
@@ -802,6 +877,7 @@ private void LoadExistingTakeoutOrders()
             tableFrame.BorderColor = Color.FromArgb("#FF5722"); // Orange-Red for global
             tableFrame.BackgroundColor = Color.FromArgb("#FFF3E0"); // Light orange background
             tableFrame.HasShadow = true;
+            tableFrame.CornerRadius = 10;
             tableFrame.Shadow = new Shadow
             {
                 Brush = new SolidColorBrush(Color.FromArgb("#FF5722")),
@@ -809,19 +885,19 @@ private void LoadExistingTakeoutOrders()
                 Radius = 5,
                 Opacity = 0.7f
             };
-
             // Add a small animation effect
             _ = AnimateHighlight(tableFrame);
         }
         else
         {
-            // Local search styling - less prominent
-            tableFrame.BorderColor = Color.FromArgb("#005F8C"); // Blue for local
-            tableFrame.BackgroundColor = Color.FromArgb("#E3F2FD"); // Light blue background
+            // highlight for non-active frames when cycling with Tab
+            tableFrame.BorderColor = Color.FromArgb("#F3F3F3"); //  for non-active
+            tableFrame.BackgroundColor = Color.FromArgb("#F3F3F3"); // Light  background
             tableFrame.HasShadow = true;
+            tableFrame.CornerRadius = 10;
             tableFrame.Shadow = new Shadow
             {
-                Brush = new SolidColorBrush(Color.FromArgb("#005F8C")),
+                Brush = new SolidColorBrush(Color.FromArgb("#F3F3F3")),
                 Offset = new Point(1, 1),
                 Radius = 3,
                 Opacity = 0.5f
@@ -834,5 +910,168 @@ private void LoadExistingTakeoutOrders()
         // Simple scale animation for global search results
         await frame.ScaleTo(1.05, 150, Easing.BounceOut);
         await frame.ScaleTo(1.0, 150, Easing.BounceOut);
+    }
+
+    private void CollectAndHighlightLocalMatches(int localNumber)
+    {
+        // Get all tables to find those with matching local number
+        var allTables = AppDbContext.ExecuteSafeAsync(async db =>
+        {
+            var openCashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
+            if (openCashRegister == null) return new List<Table>();
+
+            return await db.Orders
+                .Include(o => o.Table)
+                .Include(o => o.Waiter)
+                .Where(o => o.CashRegister != null && 
+                           o.CashRegister.Id == openCashRegister.Id && 
+                           o.Table != null &&
+                           !o.IsDuePaid)
+                .Select(o => o.Table!)
+                .Distinct()
+                .ToListAsync();
+        }).GetAwaiter().GetResult();
+
+        // Find all matching tables and frames
+        var matchingTables = allTables.Where(t => t.LocalNumber == localNumber).ToList();
+        
+        // Search through all visible table frames and collect matching ones
+        foreach (var meseroCard in MeseroContainer.Children.OfType<Frame>())
+        {
+            if (meseroCard.Content is VerticalStackLayout meseroStack)
+            {
+                foreach (var child in meseroStack.Children)
+                {
+                    if (child is VerticalStackLayout tableRow)
+                    {
+                        foreach (var tableFrame in tableRow.Children.OfType<Frame>())
+                        {
+                            if (tableFrame.Content is VerticalStackLayout tableContent)
+                            {
+                                var tableLabel = tableContent.Children.OfType<Label>()
+                                    .FirstOrDefault(l => l.Text != null && l.Text.StartsWith("Mesa #"));
+                                
+                                if (tableLabel != null)
+                                {
+                                    var labelText = tableLabel.Text.Replace("Mesa #", "");
+                                    if (int.TryParse(labelText, out int tableLocalNumber) && tableLocalNumber == localNumber)
+                                    {
+                                        // Find the corresponding table from database
+                                        var matchingTable = matchingTables.FirstOrDefault(t => 
+                                            DoesFrameMatchTable(tableFrame, t));
+                                        
+                                        if (matchingTable != null)
+                                        {
+                                            _matchingLocalFrames.Add(tableFrame);
+                                            _matchingLocalTables.Add(matchingTable);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Highlight all matching frames, with special highlight for the active one
+        for (int i = 0; i < _matchingLocalFrames.Count; i++)
+        {
+            if (i == _activeLocalFrameIndex)
+            {
+                ApplyActiveTabHighlight(_matchingLocalFrames[i]);
+            }
+            else
+            {
+                ApplyHighlightStyling(_matchingLocalFrames[i], false);
+            }
+        }
+
+        // Set the current highlighted table to the active one
+        if (_matchingLocalTables.Count > 0)
+        {
+            _currentHighlightedTable = _matchingLocalTables[_activeLocalFrameIndex];
+        }
+    }
+
+    private bool DoesFrameMatchTable(Frame frame, Table table)
+    {
+        // Get the waiter name from the frame's parent structure
+        var meseroCard = GetParentMeseroCard(frame);
+        if (meseroCard?.Content is VerticalStackLayout meseroStack)
+        {
+            var waiterLabel = meseroStack.Children.OfType<Label>().FirstOrDefault();
+            if (waiterLabel != null)
+            {
+                return DoesWaiterHaveTable(waiterLabel.Text, table);
+            }
+        }
+        return false;
+    }
+
+    private Frame? GetParentMeseroCard(Frame tableFrame)
+    {
+        // Navigate up the visual tree to find the mesero card
+        foreach (var meseroCard in MeseroContainer.Children.OfType<Frame>())
+        {
+            if (meseroCard.Content is VerticalStackLayout meseroStack)
+            {
+                foreach (var child in meseroStack.Children)
+                {
+                    if (child is VerticalStackLayout tableRow)
+                    {
+                        if (tableRow.Children.Contains(tableFrame))
+                        {
+                            return meseroCard;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public void MoveToNextMatchingTable()
+    {
+        if (_matchingLocalFrames.Count > 1)
+        {
+            _activeLocalFrameIndex = (_activeLocalFrameIndex + 1) % _matchingLocalFrames.Count;
+            
+            // Re-highlight all frames
+            for (int i = 0; i < _matchingLocalFrames.Count; i++)
+            {
+                if (i == _activeLocalFrameIndex)
+                {
+                    ApplyActiveTabHighlight(_matchingLocalFrames[i]);
+                }
+                else
+                {
+                    ApplyHighlightStyling(_matchingLocalFrames[i], false);
+                }
+            }
+            
+            // Update the current highlighted table
+            if (_activeLocalFrameIndex < _matchingLocalTables.Count)
+            {
+                _currentHighlightedTable = _matchingLocalTables[_activeLocalFrameIndex];
+            }
+        }
+    }
+
+    private void ApplyActiveTabHighlight(Frame tableFrame)
+    {
+        // Blue highlight for the active frame (the one that opens on Enter)
+        tableFrame.BorderColor = Color.FromArgb("#005F8C"); // Blue for active
+        tableFrame.BackgroundColor = Color.FromArgb("#E3F2FD"); // Light blue
+        tableFrame.HasShadow = true;
+        tableFrame.CornerRadius = 10;
+        tableFrame.Shadow = new Shadow
+        {
+            Brush = new SolidColorBrush(Color.FromArgb("#005F8C")),
+            Offset = new Point(2, 2),
+            Radius = 7,
+            Opacity = 0.8f
+        };
+        tableFrame.Scale = 1.08;
     }
 }

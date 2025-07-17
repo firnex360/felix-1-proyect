@@ -56,6 +56,18 @@
                               Clicked="OnCloseSesion"
                               HorizontalOptions="End"
                               Style="{StaticResource SidebarButtonStyle}"/>
+
+            <CheckBox x:Name="chkShowCompleted"
+                      VerticalOptions="Center"
+                      CheckedChanged="OnShowCompletedChanged"
+                      Color="#005F8C"/>
+
+            <Label Text="Mostrar Completas"
+                   VerticalOptions="Center"
+                   FontSize="14"
+                   TextColor="#005F8C"/>
+
+
         </HorizontalStackLayout>
 
         <!-- MAIN CONTENT -->

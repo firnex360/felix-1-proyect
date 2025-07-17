@@ -74,6 +74,12 @@
                             <Label Text="{Binding TaxWaiters, StringFormat=' ${0:F2}'}" HorizontalOptions="EndAndExpand" TextColor="#005F8C" />
                         </HorizontalStackLayout>
                         <HorizontalStackLayout>
+                            <Label Text="Descuento" TextColor="#005F8C" />
+                            <Label Text="{Binding Discount, StringFormat=' -${0:F2}'}" 
+                           HorizontalOptions="EndAndExpand" 
+                           TextColor="#005F8C"/>
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout>
                             <Label Text="Total" FontAttributes="Bold" TextColor="#005F8C" />
                             <Label Text="{Binding Total, StringFormat=' ${0:F2}'}" FontAttributes="Bold" HorizontalOptions="EndAndExpand" TextColor="#005F8C" />
                         </HorizontalStackLayout>
@@ -182,3 +188,4 @@
                 Clicked="OnChargeClicked" />
     </Grid>
 </ContentPage>
+    
