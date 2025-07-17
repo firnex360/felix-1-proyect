@@ -566,7 +566,7 @@ public partial class OrderVisual : ContentPage
     {
         if (OrderItems.Any(item => item.Quantity < 0))
         {
-            DisplayAlert("Cantidad inv�lida", "No se puede guardar una orden con cantidades negativas.", "OK");
+            DisplayAlert("Cantidad invalida", "No se puede guardar una orden con cantidades negativas.", "OK");
             return;
         }
 
@@ -652,7 +652,6 @@ public partial class OrderVisual : ContentPage
             db.SaveChanges();
         }
 
-        // TODO: Implement print receipt functionality (print the actual receipt)
         Console.WriteLine("Print receipt clicked");
         if (_currentOrder != null)
         {
@@ -707,7 +706,8 @@ public partial class OrderVisual : ContentPage
                     Console.WriteLine("Print failed: " + ex.Message);
                 }
 #else
-        Console.WriteLine("Printing is only supported on Windows.");
+        Console.WriteLine("Printing is only supported on Windows for now.");
+        await DisplayAlert("Error", $"No se pudo imprimir el recibo: La funcionalidad de impresión no está disponible en esta plataforma (solo Windows).", "OK");
 #endif
 
         OnExitSave(sender, e); // Save the order after printing and close the window
