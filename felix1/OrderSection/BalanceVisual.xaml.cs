@@ -80,7 +80,7 @@ public partial class BalanceVisual : ContentPage
 			{
 				total -= item.Refund?.RefundedItems?.Sum(ri => ri.TotalPrice) ?? 0;
 			}
-			total += _cashRegister.InitialMoney;
+			total += (decimal)_cashRegister.InitialMoney;
 		}
 		return total;
 	}
