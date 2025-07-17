@@ -30,7 +30,8 @@
                 BorderColor="White"
                 VerticalOptions="Fill"
                 WidthRequest="300">
-                    <VerticalStackLayout Spacing="12"
+                    <VerticalStackLayout x:Name="TakeoutContainer" 
+                                        Spacing="12"
                                         VerticalOptions="Fill">
                         <Label
                             Text="Takeout"
@@ -47,6 +48,10 @@
                             WidthRequest="120"
                             HorizontalOptions="Center" VerticalOptions="Start"
                             Clicked="OnCreateTakeoutOrderClicked" />
+                            
+                        <VerticalStackLayout x:Name="TakeoutOrdersContainer"
+                                            Spacing="5"
+                                            VerticalOptions="Start" />
                     </VerticalStackLayout>
                 </Frame>
 
