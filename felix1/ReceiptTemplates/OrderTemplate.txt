@@ -1,0 +1,16 @@
+Mesa: {{ order.Table.LocalNumber }} (Global: {{ order.Table.GlobalNumber }})
+Orden #: {{ order.OrderNumber }}
+Fecha: {{ order.Date}}
+Mesero: {{ order.Waiter.Name }}
+--------------------------------------------------
+Artículos:
+{{ for item in order.Items }}
+- {{ item.ArticleName }} x{{ item.Quantity }} @ {{ item.UnitPrice}} = {{ item.TotalPrice }}
+{{ end }}
+--------------------------------------------------
+
+{{ if order.IsDuePaid }}
+[Pendiente de pago]
+{{ else }}
+[Pagado]
+{{ end }}
