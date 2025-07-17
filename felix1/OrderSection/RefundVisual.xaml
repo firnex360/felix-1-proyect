@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:syncfusion="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
+             x:Class="felix1.OrderSection.RefundVisual"
+             BackgroundColor="White">
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto,Auto,Auto" ColumnDefinitions="*,*" 
+          Padding="20" RowSpacing="10" ColumnSpacing="10">
+
+        <Label Grid.Row="0" Grid.ColumnSpan="2"
+               Text="Devolución de Pedido"
+               TextColor="#005F8C"
+               FontSize="18" 
+               FontAttributes="Bold"
+               HorizontalOptions="Center"/>
+
+        <Label Grid.Row="1" Grid.Column="0"
+               TextColor="#005F8C"
+               Text="Artículos Originales"
+               FontAttributes="Bold"/>
+
+        <Label Grid.Row="1" Grid.Column="1"
+               TextColor="#005F8C"
+               Text="Artículos a Devolver"
+               FontAttributes="Bold"/>
+
+
+        <Frame Grid.Row="2" Grid.Column="0"
+               CornerRadius="10"
+               Padding="0"
+               Margin="0,5"
+               HasShadow="True"
+               HeightRequest="300"
+               VerticalOptions="FillAndExpand"
+               HorizontalOptions="FillAndExpand"
+               BackgroundColor="#F5F5F5"
+               BorderColor="#F5F5F5">
+
+            <syncfusion:SfDataGrid x:Name="originalItemsDataGrid"
+                                   ItemsSource="{Binding OriginalItems}"
+                                   HeaderRowHeight="60"
+                                   RowHeight="50"
+                                   AutoGenerateColumnsMode="None"
+                                   SelectionMode="Single"
+                                   NavigationMode="Cell"
+                                   SelectionChanged="OnOriginalItemSelected">
+
+                <syncfusion:SfDataGrid.EmptyView>
+                    <Label Text="No hay artículos"
+                           TextColor="#005F8C"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"/>
+                </syncfusion:SfDataGrid.EmptyView>
+
+                <syncfusion:SfDataGrid.DefaultStyle>
+                    <syncfusion:DataGridStyle HeaderRowBackground="#005F8C"
+                                              HeaderRowTextColor="#F5F5F5"
+                                              RowTextColor="Black"
+                                              HeaderRowFontAttributes="Bold"
+                                              SelectionBackground="#C7CFDD"
+                                              CurrentCellBorderColor="#C7CFDD"/>
+                </syncfusion:SfDataGrid.DefaultStyle>
+
+                <syncfusion:SfDataGrid.Columns>
+                    <syncfusion:DataGridTextColumn MappingName="ArticleName" HeaderText="Nombre"
+                                                   CellTextAlignment="Start" HeaderTextAlignment="Start"/>
+                    <syncfusion:DataGridNumericColumn MappingName="Quantity" HeaderText="Cantidad"
+                                                      Format="0" CellTextAlignment="Center" HeaderTextAlignment="Center"/>
+                    <syncfusion:DataGridNumericColumn MappingName="UnitPrice" HeaderText="Precio"
+                                                      Format="C2" CellTextAlignment="End" HeaderTextAlignment="End"/>
+                    <syncfusion:DataGridNumericColumn MappingName="TotalPrice" HeaderText="Total"
+                                                      Format="C2" CellTextAlignment="End" HeaderTextAlignment="End"/>
+                </syncfusion:SfDataGrid.Columns>
+            </syncfusion:SfDataGrid>
+        </Frame>
+
+        <Frame Grid.Row="2" Grid.Column="1"
+               CornerRadius="10"
+               Padding="0"
+               Margin="0,5"
+               HasShadow="True"
+               HeightRequest="300"
+               VerticalOptions="FillAndExpand"
+               HorizontalOptions="FillAndExpand"
+               BackgroundColor="#F3F3F3"
+               BorderColor="#F5F7FA">
+
+            <syncfusion:SfDataGrid x:Name="refundedItemsDataGrid"
+                                   ItemsSource="{Binding RefundedItems}"
+                                   HeaderRowHeight="60"
+                                   RowHeight="50"
+                                   AutoGenerateColumnsMode="None"
+                                   SelectionMode="Single"
+                                   NavigationMode="Cell"
+                                   SelectionChanged="OnRefundedItemSelected">
+
+                <syncfusion:SfDataGrid.EmptyView>
+                    <Label Text="No hay artículos"
+                           TextColor="#005F8C"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"/>
+                </syncfusion:SfDataGrid.EmptyView>
+
+                <syncfusion:SfDataGrid.DefaultStyle>
+                    <syncfusion:DataGridStyle HeaderRowBackground="#005F8C"
+                                              HeaderRowTextColor="#F5F5F5"
+                                              RowTextColor="Black"
+                                              HeaderRowFontAttributes="Bold"
+                                              SelectionBackground="#C7CFDD"
+                                              CurrentCellBorderColor="#C7CFDD"/>
+                </syncfusion:SfDataGrid.DefaultStyle>
+
+                <syncfusion:SfDataGrid.Columns>
+                    <syncfusion:DataGridTextColumn MappingName="ArticleName" HeaderText="Nombre"
+                                                   CellTextAlignment="Start" HeaderTextAlignment="Start"/>
+                    <syncfusion:DataGridNumericColumn MappingName="Quantity" HeaderText="Cantidad"
+                                                      Format="0" CellTextAlignment="Center" HeaderTextAlignment="Center"/>
+                    <syncfusion:DataGridNumericColumn MappingName="UnitPrice" HeaderText="Precio"
+                                                      Format="C2" CellTextAlignment="End" HeaderTextAlignment="End"/>
+                    <syncfusion:DataGridNumericColumn MappingName="TotalPrice" HeaderText="Total"
+                                                      Format="C2" CellTextAlignment="End" HeaderTextAlignment="End"/>
+                </syncfusion:SfDataGrid.Columns>
+            </syncfusion:SfDataGrid>
+        </Frame>
+
+        <StackLayout Grid.Row="3" Grid.Column="0" Orientation="Horizontal" Spacing="10">
+            <Button Text="Agregar a Devolución" 
+                    Clicked="OnAddToRefund"
+                    BackgroundColor="#005F8C"
+                    FontAttributes="Bold"
+                    TextColor="White"
+                    FontSize="14"
+                    WidthRequest="200"
+                    HeightRequest="40"
+                    CornerRadius="8"/>
+        </StackLayout>
+
+        <StackLayout Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="10">
+            <Button Text="Quitar de Devolución" 
+                    Clicked="OnRemoveFromRefund"
+                    BackgroundColor="#005F8C"
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    FontSize="14"
+                    WidthRequest="200"
+                    HeightRequest="40"
+                    CornerRadius="8"/>
+        </StackLayout>
+
+        <Grid Grid.Row="4" Grid.ColumnSpan="2"
+      ColumnDefinitions="Auto,*,Auto"
+      VerticalOptions="Center"
+      Padding="0,10"
+      ColumnSpacing="15">
+
+            <StackLayout Grid.Column="0" Orientation="Vertical" HorizontalOptions="FillAndExpand" Spacing="5">
+                <Label Text="Razón de la devolución"
+               FontAttributes="Bold"
+               FontSize="14"
+               TextColor="#005F8C"/>
+                <Frame BackgroundColor="White"
+               BorderColor="#E9ECEF"
+               CornerRadius="6"
+               HasShadow="True"
+               Padding="5,2">
+                    <Entry Text="{Binding Refund.Reason}"
+                   Placeholder="Ingrese el motivo de la devolución"
+                   FontSize="14"
+                   FontAttributes="None"
+                   BackgroundColor="Transparent"
+                   TextColor="#005F8C"/>
+                </Frame>
+            </StackLayout>
+
+            <Button Grid.Column="1"
+            Text="Descartar"
+            Command="{Binding DiscardCommand}"
+            BackgroundColor="Black"
+            TextColor="White"
+            WidthRequest="130"
+            HeightRequest="45"
+            FontAttributes="Bold"
+            CornerRadius="6"
+            HorizontalOptions="End"/>
+
+            <Button Grid.Column="2"
+            Text="Charge"
+            Command="{Binding ProcessRefundCommand}"
+            BackgroundColor="#005F8C"
+            TextColor="White"
+            WidthRequest="130"
+            HeightRequest="45"
+            FontAttributes="Bold"
+            CornerRadius="6"
+            HorizontalOptions="End"/>
+        </Grid>
+    </Grid>
+</ContentPage>

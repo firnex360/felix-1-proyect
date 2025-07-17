@@ -56,8 +56,6 @@
                               Clicked="OnCloseSesion"
                               HorizontalOptions="End"
                               Style="{StaticResource SidebarButtonStyle}"/>
-
-
         </HorizontalStackLayout>
 
         <!-- MAIN CONTENT -->
