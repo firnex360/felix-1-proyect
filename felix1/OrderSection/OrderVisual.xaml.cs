@@ -62,7 +62,7 @@ public partial class OrderVisual : ContentPage
             if (value is int quantity && quantity < 0)
             {
                 quantityProp.SetValue(item, 0); // Sobrescribir con 0
-                orderItemsDataGrid.View.Refresh(); // Refrescar el grid
+                orderItemsDataGrid.View?.Refresh(); // Refrescar el grid
                 UpdateOrderTotals();
             }
         };
