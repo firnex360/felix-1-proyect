@@ -6,11 +6,15 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using Scriban;
 
 #if WINDOWS
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml;
+using System.Drawing;
+using System.Drawing.Printing;
 #endif
 
 namespace felix1.OrderSection
@@ -117,7 +121,7 @@ namespace felix1.OrderSection
             _activePaymentFrames.Add(cardFrame);
         }
 
-        private string GetPaymentMethodName(Frame frame)
+        private string? GetPaymentMethodName(Frame frame)
         {
             if (frame.Content is VerticalStackLayout layout &&
                 layout.Children[0] is Grid header &&
@@ -132,8 +136,8 @@ namespace felix1.OrderSection
         {
             var frame = new Frame
             {
-                BackgroundColor = Color.FromArgb("#F5F5F5"),
-                BorderColor = Colors.White,
+                BackgroundColor = Microsoft.Maui.Graphics.Color.FromArgb("#F5F5F5"),
+                BorderColor = Microsoft.Maui.Graphics.Color.FromArgb("#FFFFFF"),
                 CornerRadius = 10,
                 Padding = 10,
                 HasShadow = true
@@ -153,7 +157,7 @@ namespace felix1.OrderSection
             {
                 Text = "Efectivo",
                 FontAttributes = FontAttributes.Bold,
-                TextColor = Color.FromArgb("#005F8C")
+                TextColor = Microsoft.Maui.Graphics.Color.FromArgb("#005F8C")
             };
             Grid.SetColumn(label, 0);
             header.Children.Add(label);
@@ -164,8 +168,8 @@ namespace felix1.OrderSection
             {
                 Placeholder = "$0.00",
                 Keyboard = Keyboard.Numeric,
-                BackgroundColor = Colors.White,
-                TextColor = Colors.Black
+                BackgroundColor = Microsoft.Maui.Graphics.Color.FromArgb("#FFFFFF"),
+                TextColor = Microsoft.Maui.Graphics.Color.FromArgb("#000000")
             };
 
             entry.TextChanged += (sender, e) =>
@@ -189,8 +193,8 @@ namespace felix1.OrderSection
         {
             var frame = new Frame
             {
-                BackgroundColor = Color.FromArgb("#F5F5F5"),
-                BorderColor = Colors.White,
+                BackgroundColor = Microsoft.Maui.Graphics.Color.FromArgb("#F5F5F5"),
+                BorderColor = Microsoft.Maui.Graphics.Color.FromArgb("#FFFFFF"),
                 CornerRadius = 10,
                 Padding = 10,
                 HasShadow = true
@@ -211,7 +215,7 @@ namespace felix1.OrderSection
             {
                 Text = "Tarjeta",
                 FontAttributes = FontAttributes.Bold,
-                TextColor = Color.FromArgb("#005F8C")
+                TextColor = Microsoft.Maui.Graphics.Color.FromArgb("#005F8C")
             };
             Grid.SetColumn(label, 0);
             header.Children.Add(label);
@@ -220,8 +224,8 @@ namespace felix1.OrderSection
             {
                 Text = "×",
                 FontSize = 20,
-                TextColor = Color.FromArgb("#FF0000"),
-                BackgroundColor = Colors.Transparent,
+                TextColor = Microsoft.Maui.Graphics.Color.FromArgb("#FF0000"),
+                BackgroundColor = Microsoft.Maui.Graphics.Color.FromArgb("#00000000"),
                 Padding = 0,
                 WidthRequest = 30,
                 HeightRequest = 30,
@@ -245,8 +249,8 @@ namespace felix1.OrderSection
             {
                 Placeholder = "$0.00",
                 Keyboard = Keyboard.Numeric,
-                BackgroundColor = Colors.White,
-                TextColor = Colors.Black
+                BackgroundColor = Microsoft.Maui.Graphics.Color.FromArgb("#FFFFFF"),
+                TextColor = Microsoft.Maui.Graphics.Color.FromArgb("#000000")
             };
 
             entry.TextChanged += (sender, e) =>
@@ -269,8 +273,8 @@ namespace felix1.OrderSection
         {
             var frame = new Frame
             {
-                BackgroundColor = Color.FromArgb("#F5F5F5"),
-                BorderColor = Colors.White,
+                BackgroundColor = Microsoft.Maui.Graphics.Color.FromArgb("#F5F5F5"),
+                BorderColor = Microsoft.Maui.Graphics.Color.FromArgb("#FFFFFF"),
                 CornerRadius = 10,
                 Padding = 10,
                 HasShadow = true
@@ -291,17 +295,17 @@ namespace felix1.OrderSection
             {
                 Text = "Transferencia",
                 FontAttributes = FontAttributes.Bold,
-                TextColor = Color.FromArgb("#005F8C")
+                TextColor = Microsoft.Maui.Graphics.Color.FromArgb("#005F8C")
             };
             Grid.SetColumn(label, 0);
             header.Children.Add(label);
 
             var removeButton = new Button
             {
-                Text = "×",
+                Text = "x",
                 FontSize = 20,
-                TextColor = Color.FromArgb("#FF0000"),
-                BackgroundColor = Colors.Transparent,
+                TextColor = Microsoft.Maui.Graphics.Color.FromArgb("#FF0000"),
+                BackgroundColor = Microsoft.Maui.Graphics.Color.FromArgb("#00000000"),
                 Padding = 0,
                 WidthRequest = 30,
                 HeightRequest = 30,
@@ -325,8 +329,8 @@ namespace felix1.OrderSection
             {
                 Placeholder = "$0.00",
                 Keyboard = Keyboard.Numeric,
-                BackgroundColor = Colors.White,
-                TextColor = Colors.Black
+                BackgroundColor = Microsoft.Maui.Graphics.Color.FromArgb("#FFFFFF"),
+                TextColor = Microsoft.Maui.Graphics.Color.FromArgb("#000000")
             };
 
             entry.TextChanged += (sender, e) =>
@@ -420,8 +424,9 @@ namespace felix1.OrderSection
                 message += $"\n\nDevuelta: ${_changeAmount:F2}";
             }
 
+            OnPrintReceipt(sender, e);
             OnExitSave();
-
+            
             ListOrderVisual.Instance?.ReloadTM();
         }
 
@@ -515,16 +520,63 @@ namespace felix1.OrderSection
             OnPropertyChanged(nameof(TaxWaiters));
             OnPropertyChanged(nameof(Total));
         }
+
+        // Print receipt method (for transaction)
+        private async void OnPrintReceipt(object sender, EventArgs e)
+        {
+            Console.WriteLine("Print transaction receipt clicked");
+            
+            // Create a transaction object for the receipt
+            var transaction = new Transaction
+            {
+                Date = DateTime.Now,
+                Order = Order,
+                TotalAmount = Total,
+                TaxAmountITBIS = TaxITBIS,
+                TaxAmountWaiters = TaxWaiters,
+                CashAmount = _cashAmount,
+                CardAmount = _cardAmount,
+                TransferAmount = _transferAmount
+            };
+
+            string templateText = File.ReadAllText(@"C:\Codes\github\felix-1-proyect\felix1\ReceiptTemplates\PaymentTemplate.txt");
+            var template = Template.Parse(templateText);
+            var scribanModel = new { transaction = transaction, ChangeAmount = _changeAmount };
+            string text = template.Render(scribanModel, member => member.Name);
+
+#if WINDOWS
+            try
+            {
+                System.Drawing.Printing.PrintDocument pd = new System.Drawing.Printing.PrintDocument();
+                pd.PrintPage += (sender, e) =>
+                {
+                    System.Drawing.Font font = new System.Drawing.Font("Consolas", 10);
+                    e.Graphics.DrawString(text, font, System.Drawing.Brushes.Black, new System.Drawing.PointF(10, 10));
+                };
+                pd.Print();
+                Console.WriteLine("Printed successfully.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Print failed: " + ex.Message);
+            }
+#else
+            Console.WriteLine("Printing is only supported on Windows for now.");
+            await DisplayAlert("Error", $"No se pudo imprimir el recibo: La funcionalidad de impresión no está disponible en esta plataforma (solo Windows).", "OK");
+#endif
+        }
     }
 
     public class BoolToColorConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            return (bool)value ? Color.FromArgb("#DFF6FF") : Color.FromArgb("#FFFFFF");
+            return (value is bool b && b)
+                ? Microsoft.Maui.Graphics.Color.FromArgb("#DFF6FF")
+                : Microsoft.Maui.Graphics.Color.FromArgb("#FFFFFF");
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

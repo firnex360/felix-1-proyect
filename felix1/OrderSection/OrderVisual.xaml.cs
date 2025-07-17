@@ -692,7 +692,7 @@ public partial class OrderVisual : ContentPage
                     //pd.PrinterSettings.PrinterName = "Star SP500 Cutter"; // or whatever name shows in Windows, but it should take the default one
                     pd.PrintPage += (sender, e) =>
                     {
-                        System.Drawing.Font font = new System.Drawing.Font("Consolas", 8); // Monospaced font recommended for POS printers
+                        System.Drawing.Font font = new System.Drawing.Font("Consolas", 10); // Monospaced font recommended for POS printers
                         e.Graphics.DrawString(text, font, Brushes.Black, new System.Drawing.PointF(10, 10));
                     };
                     
