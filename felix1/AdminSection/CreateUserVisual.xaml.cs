@@ -76,7 +76,7 @@ namespace felix1
                 var usernameExists = await AppDbContext.ExecuteSafeAsync<bool>(async db =>
                 {
                     return await db.Users.AnyAsync(u =>
-                        u.Username!.ToLower() == entryUsername.Text.Trim().ToLower() &&
+                        u.Username.ToLower() == entryUsername.Text.Trim().ToLower() &&
                         (usuario == null || u.Id != usuario.Id));
                 });
 

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Syncfusion.Maui.DataGrid;
 using Syncfusion.Maui.Core.Internals;
 using Syncfusion.Maui.DataGrid.Helper;
+using Microsoft.Maui.Controls;
 
 #if WINDOWS
 using Microsoft.UI.Xaml.Input;
@@ -563,12 +564,23 @@ public partial class OrderVisual : ContentPage
             orderItemsDataGrid.BeginEdit(rowIndex, quantityColumnIndex);
     }
 
-    private void OnExitSave(object sender, EventArgs e)
+
+    private async void OnExitSave(object sender, EventArgs e)
     {
         if (OrderItems.Any(item => item.Quantity < 0))
         {
-            DisplayAlert("Cantidad inválida", "No se puede guardar una orden con cantidades negativas.", "OK");
+            await DisplayAlert("Cantidad inválida", "No se puede guardar una orden con cantidades negativas.", "OK");
             return;
+        }
+
+        if (!OrderItems.Any())
+        {
+            var result = await DisplayAlert("Orden vacía",
+                "¿Desea cerrar esta orden sin artículos?",
+                "Sí, cerrar",
+                "No, cancelar");
+
+            if (!result) return;
         }
 
         if (_currentOrder != null)
@@ -579,41 +591,43 @@ public partial class OrderVisual : ContentPage
 
             try
             {
-                //this need to be wrapped in a try catch block to handle any potential database errors
                 using var db = new AppDbContext();
-                db.Orders.Update(_currentOrder);
-                db.SaveChanges();
+
+                if (_currentOrder.Id == 0)
+                    db.Orders.Add(_currentOrder);
+                else
+                    db.Orders.Update(_currentOrder);
+
+                await db.SaveChangesAsync();
             }
             catch (Exception ex)
             {
-                DisplayAlert("Error", $"No se pudo guardar la orden: {ex.Message}", "OK");
+                await DisplayAlert("Error", $"No se pudo guardar la orden: {ex.Message}", "OK");
                 return;
             }
         }
 
-        CloseThisWindow();
+        await CloseWindowAsync();
     }
 
-    private void CloseThisWindow()
+    private async Task CloseWindowAsync()
     {
-        var app = Microsoft.Maui.Controls.Application.Current;
-        if (app != null)
+        var window = GetParentWindow();
+        if (window != null)
         {
-            foreach (var window in app.Windows)
-            {
-                if (window.Page == this)
-                {
-                    app.CloseWindow(window);
-                    break;
-                }
-            }
+            await Task.Delay(100); // Pequeño delay para permitir que se complete cualquier operación pendiente
+            Microsoft.Maui.Controls.Application.Current.CloseWindow(window);
         }
     }
 
     private async void OnPrintReceipt(object sender, EventArgs e)
     {
-        // TODO: Implement print receipt functionality (print the actual receipt)
-        Console.WriteLine("Print receipt clicked");
+        if (!OrderItems.Any())
+        {
+            await DisplayAlert("Orden vacía", "No se puede imprimir una orden sin artículos.", "OK");
+            return;
+        }
+
         if (_currentOrder != null)
         {
             try
@@ -631,17 +645,14 @@ public partial class OrderVisual : ContentPage
                     });
                 }
 
-                await DisplayAlert("Éxito", "Se ha generado un recibo, ahora puede realizar una transacción.", "OK");
-
-                CloseThisWindow();
+                await DisplayAlert("Éxito", "Se ha generado un recibo.", "OK");
+                await CloseWindowAsync();
             }
             catch (Exception ex)
             {
                 await DisplayAlert("Error", $"No se pudo actualizar la orden: {ex.Message}", "OK");
             }
         }
-
-        OnExitSave(sender, e); // Save the order after printing and close the window
     }
 
     // Navigation methods for article grid

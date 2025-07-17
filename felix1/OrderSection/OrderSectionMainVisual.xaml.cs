@@ -144,4 +144,16 @@ public partial class OrderSectionMainVisual : ContentPage
             listOrderVisual.OpenHighlightedTable();
         }
     }
+
+    private void OnShowCompletedChanged(object sender, CheckedChangedEventArgs e)
+    {
+        if (RightPanel.Content is ListOrderVisual listOrderVisual)
+        {
+            listOrderVisual.ShowCompletedOrders = e.Value;
+            listOrderVisual.ReloadTM();
+        }
+    }
+
+
+
 }

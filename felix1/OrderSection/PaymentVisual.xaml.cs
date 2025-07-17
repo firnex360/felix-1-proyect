@@ -420,6 +420,10 @@ namespace felix1.OrderSection
 
         private void UpdateProperties()
         {
+            var totalPayment = _cashAmount + _cardAmount + _transferAmount;
+            _changeAmount = totalPayment > Total ? totalPayment - Total : 0;
+
+            OnPropertyChanged(nameof(ChangeAmount));
             OnPropertyChanged(nameof(AnyPaymentMethodUsed));
             OnPropertyChanged(nameof(IsCashUsed));
             OnPropertyChanged(nameof(IsCardUsed));
@@ -427,7 +431,6 @@ namespace felix1.OrderSection
             OnPropertyChanged(nameof(CashAmount));
             OnPropertyChanged(nameof(CardAmount));
             OnPropertyChanged(nameof(TransferAmount));
-            OnPropertyChanged(nameof(ChangeAmount));
             OnPropertyChanged(nameof(TotalPayment));
             OnPropertyChanged(nameof(ItemsCount));
             OnPropertyChanged(nameof(Subtotal));

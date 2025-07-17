@@ -9,10 +9,12 @@ public partial class ListOrderVisual : ContentView
 {
     public static ListOrderVisual? Instance { get; private set; }
     public ObservableCollection<Table> Tables { get; set; } = new();
-    
+
+
     // Add tracking for currently highlighted table
     private Table? _currentHighlightedTable = null;
     private bool _isGlobalSearchMatch = false;
+    public bool ShowCompletedOrders { get; set; } = false;
 
     public ListOrderVisual()
     {
@@ -56,7 +58,7 @@ public partial class ListOrderVisual : ContentView
                 .Where(o => o.Table != null &&
                            o.Waiter != null &&
                            o.CashRegister == openCashRegister &&
-                           !o.IsDuePaid) // Only show unpaid orders
+                           (ShowCompletedOrders ? o.IsDuePaid : !o.IsDuePaid)) // Modified condition
                 .ToListAsync();
 
             return orders;
@@ -136,7 +138,12 @@ public partial class ListOrderVisual : ContentView
                         TextColor = Colors.White,
                         CornerRadius = 5,
                         HorizontalOptions = LayoutOptions.Start,
-                        Command = new Command(() => OnViewOrderClicked(order))
+                        Command = new Command(() => {
+                            if (order.IsDuePaid)
+                                RefundVisual(order);
+                            else
+                                OnViewOrderClicked(order);
+                        })
                     };
                     tableContent.Children.Add(orderButton);
                 }
@@ -190,6 +197,37 @@ public partial class ListOrderVisual : ContentView
             MeseroContainer.Children.Add(card);
         }
     }
+
+    private async void RefundVisual(Order order)
+    {
+        var loadedOrder = await AppDbContext.ExecuteSafeAsync(async db =>
+            await db.Orders
+                .Include(o => o.Table)
+                .Include(o => o.Waiter)
+                .Include(o => o.Items)
+                .ThenInclude(oi => oi.Article)
+                .FirstOrDefaultAsync(o => o.Id == order.Id));
+
+        if (loadedOrder == null)
+        {
+            await Application.Current.MainPage.DisplayAlert("Error", "No se pudo cargar la orden.", "OK");
+            return;
+        }
+
+        var displayInfo = DeviceDisplay.Current.MainDisplayInfo;
+        ContentPage targetPage = new RefundVisual(loadedOrder);
+
+        var window = new Window(targetPage)
+        {
+            Height = 700,
+            Width = 1000,
+            X = (displayInfo.Width / displayInfo.Density - 1000) / 2,
+            Y = ((displayInfo.Height / displayInfo.Density - 700) / 2) - 25
+        };
+
+        Application.Current?.OpenWindow(window);
+    }
+
     private async void OnCreateTableWindowClicked(User user)
     {
         Order? order = null;
@@ -204,7 +242,7 @@ public partial class ListOrderVisual : ContentView
                 await Application.Current!.MainPage!.DisplayAlert("Error", "Mesero no encontrado.", "OK");
                 return;
             }
-            
+
             Table? table = null;
             int orderNumber = 0;
             await AppDbContext.ExecuteSafeAsync(async db =>
@@ -373,58 +411,58 @@ public partial class ListOrderVisual : ContentView
         await AppDbContext.ExecuteSafeAsync(async db =>
         {
             var waiter = await db.Users.FirstOrDefaultAsync(u => u.Name == "TAKEOUT");
-        var cashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
+            var cashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
 
-        if (cashRegister == null)
-        {
-            await Application.Current!.MainPage!.DisplayAlert("Error", "No hay una caja abierta.", "OK");
-            return;
-        }
+            if (cashRegister == null)
+            {
+                await Application.Current!.MainPage!.DisplayAlert("Error", "No hay una caja abierta.", "OK");
+                return;
+            }
 
-        var existingTakeouts = await db.Orders
-            .Where(o => o.CashRegister!.Id == cashRegister.Id && o.Table != null && o.Table.IsTakeOut)
-            .Select(o => o.Table!)
-            .ToListAsync();
+            var existingTakeouts = await db.Orders
+                .Where(o => o.CashRegister!.Id == cashRegister.Id && o.Table != null && o.Table.IsTakeOut)
+                .Select(o => o.Table!)
+                .ToListAsync();
 
-        int nextTakeoutNumber = -(existingTakeouts.Count + 1);
+            int nextTakeoutNumber = -(existingTakeouts.Count + 1);
 
-        var table = new Table
-        {
-            LocalNumber = nextTakeoutNumber,
-            IsTakeOut = true,
-            IsBillRequested = false,
-            IsPaid = false
-        };
+            var table = new Table
+            {
+                LocalNumber = nextTakeoutNumber,
+                IsTakeOut = true,
+                IsBillRequested = false,
+                IsPaid = false
+            };
 
-        db.Tables.Add(table);
-        await db.SaveChangesAsync();
+            db.Tables.Add(table);
+            await db.SaveChangesAsync();
 
-        int orderNumber = await db.Orders
-            .Where(o => o.CashRegister!.Id == cashRegister.Id)
-            .CountAsync();
+            int orderNumber = await db.Orders
+                .Where(o => o.CashRegister!.Id == cashRegister.Id)
+                .CountAsync();
 
-        db.Attach(cashRegister);
-        if (waiter != null) db.Attach(waiter);
+            db.Attach(cashRegister);
+            if (waiter != null) db.Attach(waiter);
 
-        var order = new Order
-        {
-            OrderNumber = orderNumber + 1,
-            Date = DateTime.Now,
-            Waiter = waiter,
-            Table = table,
-            Items = null,
-            CashRegister = cashRegister,
-            IsDuePaid = false,
-            IsBillRequested = false
-        };
+            var order = new Order
+            {
+                OrderNumber = orderNumber + 1,
+                Date = DateTime.Now,
+                Waiter = waiter,
+                Table = table,
+                Items = null,
+                CashRegister = cashRegister,
+                IsDuePaid = false,
+                IsBillRequested = false
+            };
 
-        db.Orders.Add(order);
-        await db.SaveChangesAsync();
+            db.Orders.Add(order);
+            await db.SaveChangesAsync();
 
-        AddTakeoutOrderToPanel(order); 
-        OnViewOrderClicked(order);
-    });
-}
+            AddTakeoutOrderToPanel(order);
+            OnViewOrderClicked(order);
+        });
+    }
 
     private async void OnViewOrderClicked(Order order)
     {
@@ -508,7 +546,7 @@ public partial class ListOrderVisual : ContentView
         {
             if (Application.Current?.MainPage != null)
             {
-                await Application.Current.MainPage.DisplayAlert("Info", 
+                await Application.Current.MainPage.DisplayAlert("Info",
                     $"No se encontró una orden activa para la Mesa #{_currentHighlightedTable.LocalNumber}", "OK");
             }
         }
@@ -589,8 +627,8 @@ public partial class ListOrderVisual : ContentView
             return await db.Orders
                 .Include(o => o.Table)
                 .Include(o => o.Waiter)
-                .Where(o => o.CashRegister != null && 
-                           o.CashRegister.Id == openCashRegister.Id && 
+                .Where(o => o.CashRegister != null &&
+                           o.CashRegister.Id == openCashRegister.Id &&
                            o.Table != null &&
                            !o.IsDuePaid)
                 .Select(o => o.Table!)
@@ -615,7 +653,7 @@ public partial class ListOrderVisual : ContentView
     private bool HighlightTableByLocalNumber(int localNumber)
     {
         bool foundMatch = false;
-        
+
         // Only clear if we haven't found a global match
         if (!_isGlobalSearchMatch)
         {
@@ -631,8 +669,8 @@ public partial class ListOrderVisual : ContentView
             return await db.Orders
                 .Include(o => o.Table)
                 .Include(o => o.Waiter)
-                .Where(o => o.CashRegister != null && 
-                           o.CashRegister.Id == openCashRegister.Id && 
+                .Where(o => o.CashRegister != null &&
+                           o.CashRegister.Id == openCashRegister.Id &&
                            o.Table != null &&
                            !o.IsDuePaid)
                 .Select(o => o.Table!)
@@ -713,7 +751,7 @@ public partial class ListOrderVisual : ContentView
                                         // For global search, we need to check if this displayed table
                                         // corresponds to our target table by comparing the actual table data
                                         // that's being displayed in this UI frame
-                                        
+
                                         // Get the table data that corresponds to this UI frame
                                         // We need to find which table from our loaded data matches this display
                                         if (isGlobalSearch)
@@ -726,12 +764,12 @@ public partial class ListOrderVisual : ContentView
                                                 // by checking if this waiter section contains our target table
                                                 var meseroNameLabel = meseroStack.Children.OfType<Label>()
                                                     .FirstOrDefault(l => l.FontAttributes == FontAttributes.Bold);
-                                                
+
                                                 if (meseroNameLabel != null)
                                                 {
                                                     // Get the waiter's tables to verify this is the correct table
                                                     var waiterName = meseroNameLabel.Text;
-                                                    
+
                                                     // Check if our target table belongs to this waiter by verifying
                                                     // that this waiter has a table with this LocalNumber AND GlobalNumber
                                                     if (DoesWaiterHaveTable(waiterName, targetTable))
@@ -781,8 +819,8 @@ public partial class ListOrderVisual : ContentView
             return await db.Orders
                 .Include(o => o.Table)
                 .Include(o => o.Waiter)
-                .Where(o => o.CashRegister != null && 
-                           o.CashRegister.Id == openCashRegister.Id && 
+                .Where(o => o.CashRegister != null &&
+                           o.CashRegister.Id == openCashRegister.Id &&
                            o.Table != null &&
                            o.Waiter != null &&
                            o.Waiter.Id == waiter.Id &&
@@ -793,8 +831,8 @@ public partial class ListOrderVisual : ContentView
         }).GetAwaiter().GetResult();
 
         // Check if any of this waiter's tables matches our target table
-        return waiterTables.Any(t => t.Id == targetTable.Id || 
-                                   (t.LocalNumber == targetTable.LocalNumber && 
+        return waiterTables.Any(t => t.Id == targetTable.Id ||
+                                   (t.LocalNumber == targetTable.LocalNumber &&
                                     t.GlobalNumber == targetTable.GlobalNumber));
     }
 
