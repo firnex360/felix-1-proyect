@@ -427,7 +427,7 @@ namespace felix1.OrderSection
             OnPrintReceipt(sender, e);
             OnExitSave();
             
-            ListOrderVisual.Instance?.ReloadTM();
+            ListTableVisual.Instance?.ReloadTM();
         }
 
         private void OnExitSave()

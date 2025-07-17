@@ -1,6 +1,7 @@
 using felix1.Data;
 using felix1.Logic;
 using Microsoft.Maui.ApplicationModel;
+using Application = Microsoft.Maui.Controls.Application;
 
 #if WINDOWS
 using Microsoft.UI.Xaml.Input;
@@ -66,7 +67,7 @@ public partial class OrderSectionMainVisual : ContentPage
             Dispatcher.Dispatch(() =>
             {
                 Navigation.PopAsync();
-                var balanceVisual = new BalanceVisual(register);
+                var balanceVisual = new BalanceVisual(register!);
                 Application.Current!.MainPage = new NavigationPage(balanceVisual);
             });
         });
@@ -180,9 +181,9 @@ public partial class OrderSectionMainVisual : ContentPage
     {
         if (e.Key == Windows.System.VirtualKey.Tab)
         {
-            if (RightPanel.Content is ListOrderVisual listOrderVisual)
+            if (RightPanel.Content is ListTableVisual ListTableVisual)
             {
-                listOrderVisual.MoveToNextMatchingTable();
+                ListTableVisual.MoveToNextMatchingTable();
                 e.Handled = true;
             }
         }
@@ -196,10 +197,10 @@ public partial class OrderSectionMainVisual : ContentPage
 
     private void OnShowCompletedChanged(object sender, CheckedChangedEventArgs e)
     {
-        if (RightPanel.Content is ListOrderVisual listOrderVisual)
+        if (RightPanel.Content is ListTableVisual ListTableVisual)
         {
-            listOrderVisual.ShowCompletedOrders = e.Value;
-            listOrderVisual.ReloadTM();
+            ListTableVisual.ShowCompletedOrders = e.Value;
+            ListTableVisual.ReloadTM();
         }
     }
 
