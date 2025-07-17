@@ -447,6 +447,10 @@ private void LoadExistingTakeoutOrders()
     {
         var loadedOrder = await AppDbContext.ExecuteSafeAsync(async db =>
             await db.Orders
+                .Include(o => o.Table)
+                .Include(o => o.Waiter)
+                .Include(o => o.Items)
+                .ThenInclude(oi => oi.Article)
                 .FirstOrDefaultAsync(o => o.Id == order.Id));
 
         if (loadedOrder == null)

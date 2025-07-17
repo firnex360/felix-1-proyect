@@ -672,16 +672,16 @@ public partial class OrderVisual : ContentPage
         //Set printer name if needed
         //pd.PrinterSettings.PrinterName = "SP500"; // or whatever name shows in Windows, but it should take the default one
 
-        string templateText = File.ReadAllText(@"C:\Codes\github\felix-1-proyect\felix1\ReceiptTemplates\OrderTemplate.txt");
-        var template = Template.Parse(templateText);
-        var scribanModel = new { order = _currentOrder };
-        string text = template.Render(scribanModel, member => member.Name);
-
-
 #if WINDOWS
 
                 try
                 {
+                    string templateText = File.ReadAllText(@"C:\Codes\github\felix-1-proyect\felix1\ReceiptTemplates\OrderTemplate.txt");
+                    var template = Template.Parse(templateText);
+                    var scribanModel = new { order = _currentOrder };
+                    string text = template.Render(scribanModel, member => member.Name);
+
+
                     PrintDocument pd = new PrintDocument();
                     pd.PrintPage += (sender, e) =>
                     {
