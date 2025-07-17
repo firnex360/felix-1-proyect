@@ -197,4 +197,14 @@ public partial class OrderSectionMainVisual : ContentPage
         }
     }
 #endif
+
+        private void OnShowCompletedChanged(object sender, CheckedChangedEventArgs e)
+    {
+        if (RightPanel.Content is ListOrderVisual listOrderVisual)
+        {
+            listOrderVisual.ShowCompletedOrders = e.Value;
+            listOrderVisual.ReloadTM();
+        }
+    }
+
 }
