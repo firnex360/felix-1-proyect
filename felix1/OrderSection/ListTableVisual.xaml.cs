@@ -197,16 +197,16 @@ public partial class ListOrderVisual : ContentView
     }
     private async void OnCreateTableWindowClicked(User user)
     {
-        Order? order = null;
-
+        // Removed unused variable 'order'
         await AppDbContext.ExecuteSafeAsync(async db =>
         {
             var waiter = await AppDbContext.ExecuteSafeAsync(async db =>
-            await db.Users.FindAsync(user.Id));
+                await db.Users.FindAsync(user.Id));
 
             if (waiter == null)
             {
-                await Application.Current!.MainPage!.DisplayAlert("Error", "Mesero no encontrado.", "OK");
+                if (Application.Current?.MainPage != null)
+                    await Application.Current.MainPage.DisplayAlert("Error", "Mesero no encontrado.", "OK");
                 return;
             }
             
@@ -223,8 +223,8 @@ public partial class ListOrderVisual : ContentView
                 }
 
                 orderNumber = await db.Orders
-                .Where(o => o.CashRegister != null && o.CashRegister.Id == cashRegister.Id)
-                .CountAsync();
+                    .Where(o => o.CashRegister != null && o.CashRegister.Id == cashRegister.Id)
+                    .CountAsync();
 
                 // ALL TABLES IN THE **OPEN** CASH REGISTER
                 var allTables = await db.Orders
@@ -232,7 +232,6 @@ public partial class ListOrderVisual : ContentView
                     .Include(o => o.Waiter)
                     .Where(o => o.CashRegister != null && o.CashRegister.Id == cashRegister.Id && o.Table != null)
                     .Select(o => o.Table!)
-                    //.Distinct()
                     .ToListAsync();
 
                 // ALL TABLES FROM CURRENT WAITER
@@ -257,9 +256,7 @@ public partial class ListOrderVisual : ContentView
 
                 db.Tables.Add(table);
                 await db.SaveChangesAsync();
-
             });
-
 
             await AppDbContext.ExecuteSafeAsync(async db =>
             {
@@ -270,7 +267,8 @@ public partial class ListOrderVisual : ContentView
 
                 if (savedTable == null || cashRegister == null)
                 {
-                    await Application.Current!.MainPage!.DisplayAlert("Error", "Datos no válidos al crear la orden.", "OK");
+                    if (Application.Current?.MainPage != null)
+                        await Application.Current.MainPage.DisplayAlert("Error", "Datos no válidos al crear la orden.", "OK");
                     return;
                 }
 
@@ -278,7 +276,7 @@ public partial class ListOrderVisual : ContentView
                     db.Attach(waiter);
                 db.Attach(cashRegister);
 
-                var order = new Order
+                var newOrder = new Order
                 {
                     OrderNumber = orderNumber + 1,
                     Date = DateTime.Now,
@@ -290,24 +288,11 @@ public partial class ListOrderVisual : ContentView
                     IsBillRequested = false
                 };
 
-                db.Orders.Add(order);
+                db.Orders.Add(newOrder);
                 await db.SaveChangesAsync();
-                OnViewOrderClicked(order!);
+                OnViewOrderClicked(newOrder);
             });
             ReloadTM();
-
-            /*if (order != null)
-            {
-                order = await AppDbContext.ExecuteSafeAsync(async db =>
-                    await db.Orders
-                        //.Include(o => o.Table)
-                        //.Include(o => o.Waiter)
-                        //.Include(o => o.Items)
-                        //.ThenInclude(oi => oi.Article)
-                        .FirstOrDefaultAsync(o => o.Id == order.Id));
-
-                OnViewOrderClicked(order!);
-            }*/
         });
     }
 
@@ -443,7 +428,8 @@ public partial class ListOrderVisual : ContentView
 
         if (loadedOrder == null)
         {
-            await Application.Current.MainPage.DisplayAlert("Error", "No se pudo cargar la orden.", "OK");
+            if (Application.Current?.MainPage != null)
+                await Application.Current.MainPage.DisplayAlert("Error", "No se pudo cargar la orden.", "OK");
             return;
         }
 
