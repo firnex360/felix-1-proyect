@@ -6,12 +6,17 @@
     <VerticalStackLayout>
         <Label Text="Balance de Caja"
                FontSize="24"
-                TextColor="#001722"
+               TextColor="#001722"
                FontAttributes="Bold"
                HorizontalOptions="Center"
                Margin="10"/>
-            <Label x:Name="lblCashRegisterInfo"
-                   TextColor="#001722"
-                   FontSize="18"/>
+        <Label x:Name="lblCashRegisterInfo"
+                TextColor="#001722"
+                FontSize="18"
+                HorizontalOptions="Center"/>
+        <Button Text="Volver"
+                BackgroundColor="#001722"
+                TextColor="White"
+                Clicked="OnGoToLogin"/>
     </VerticalStackLayout>
 </ContentPage>

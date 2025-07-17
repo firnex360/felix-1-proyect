@@ -15,15 +15,16 @@ public partial class BalanceVisual : ContentPage
 		lblCashRegisterInfo.Text = $"Caja #{_cashRegister.Number} " +
 			$"Abierta por: {_cashRegister.Cashier?.Name ?? "Desconocido"}\n" +
 			$"Hora de apertura: {_cashRegister.TimeStarted:dd/MM/yyyy HH:mm}\n" +
+			$"Hora de cierre: {(_cashRegister.TimeFinish.HasValue ? _cashRegister.TimeFinish.Value.ToString("dd/MM/yyyy HH:mm") : "No ha cerrado")}\n" +
 			$"Total de Ordenes: {GetTotalOrders()}\n" +
 			$"Dinero inicial: {_cashRegister.InitialMoney:C}\n" +
-			$" +++ En Efectivo: {GetTotalMoney(1):C}\n" +
-			$" +++ Con Tarjeta: {GetTotalMoney(2):C}\n" +
-			$" +++ Por Transferencia: {GetTotalMoney(3):C}\n" +
-			$" --- Descuentos: {GetTotalRefunds():C}\n" +
-			$"Dinero total: {GetTotalMoney(4):C}\n" +
-			//$"Ordenes por Mesero: {GetOrdersByWaiters()} \n" +
-			$"Hora de cierre: {(_cashRegister.TimeFinish.HasValue ? _cashRegister.TimeFinish.Value.ToString("dd/MM/yyyy HH:mm") : "No ha cerrado")}\n";
+			$"   +++ En Efectivo: {GetTotalMoney(1):C}\n" +
+			$"   +++ Con Tarjeta: {GetTotalMoney(2):C}\n" +
+			$"   +++ Por Transferencia: {GetTotalMoney(3):C}\n" +
+			$"   --- Descuentos: {GetTotalRefunds():C}\n" +
+			$"[Dinero total en caja: {GetTotalMoney(4):C}]\n" +
+			$"{GetOrdersByWaiters()}" +
+			$"{GetTaxesByWaiters()} \n";
 	}
 
 	private int GetTotalOrders()
@@ -75,6 +76,11 @@ public partial class BalanceVisual : ContentPage
 			{
 				total += item.TotalAmount;
 			}
+			foreach (var item in transactions)
+			{
+				total -= item.Refund?.RefundedItems?.Sum(ri => ri.TotalPrice) ?? 0;
+			}
+			total += _cashRegister.InitialMoney;
 		}
 		return total;
 	}
@@ -97,36 +103,71 @@ public partial class BalanceVisual : ContentPage
 		return total;
 	}
 
-	private void GetOrdersByWaiters()
+	private string GetOrdersByWaiters()
 	{
-		/*var orderItems = AppDbContext.ExecuteSafeAsync(async db =>
-			await db.OrderItems
-				.Include(oi => oi.Article)
-				.Include(oi => oi.Order)
-					.ThenInclude(o => o.Mesero)
-				.Where(oi => oi.Order.CashRegister == _cashRegister && oi.Article.Category == ArticleCategory.Principal)
+		var orderItems = AppDbContext.ExecuteSafeAsync(async db =>
+			await db.Orders
+				.Where(o => o.CashRegister == _cashRegister)
+				.Include(o => o.Items!)
+					.ThenInclude(i => i.Article)
+				.Include(o => o.Waiter)
 				.ToListAsync())
 			.GetAwaiter().GetResult();
 
 		var groupedByMesero = orderItems
-			.GroupBy(oi => oi.Order.Mesero)
+			.GroupBy(o => o.Waiter)
 			.Select(group => new
 			{
-				Mesero = group.Key?.Name ?? "Desconocido",
-				TotalPlatos = group.Sum(oi => oi.Quantity)
+				Mesero = group.Key?.Name ?? "Takeout",
+				TotalPlatos = group
+					.SelectMany(o => o.Items!)
+					.Count(i => i.Article.Category == ArticleCategory.Principal)
 			})
 			.ToList();
 
 		int totalGlobal = groupedByMesero.Sum(g => g.TotalPlatos);
-
-		string resumen = "\n--- Platos del Día (Principal) ---\n";
+		string resumen = "\n~~~ Platos del Día (Principal) ~~~\n";
 		foreach (var meseroGroup in groupedByMesero)
 		{
-			resumen += $"  {meseroGroup.Mesero}: {meseroGroup.TotalPlatos}\n";
+			resumen += $" ~ {meseroGroup.Mesero}: {meseroGroup.TotalPlatos}\n";
 		}
-
 		resumen += $"  Total platos del día: {totalGlobal}\n";
-		return resumen;*/
-	} 
+		return resumen;
+
+	}
+	private string GetTaxesByWaiters()
+	{
+		var transactions = AppDbContext.ExecuteSafeAsync(async db =>
+			await db.Transactions
+				.Where(t => t.Order!.CashRegister == _cashRegister)
+				.Include(t => t.Order!.Waiter)
+				.ToListAsync())
+			.GetAwaiter().GetResult();
+
+		decimal totalITBIS = transactions.Sum(t => t.TaxAmountITBIS);
+
+		var meseros = transactions
+			.Select(t => t.Order!.Waiter)
+			.Where(w => w != null)
+			.Distinct()
+			.ToList();
+
+		int meseroCount = meseros.Count;
+
+		decimal itbisPerMesero = meseroCount > 0 ? totalITBIS / meseroCount : 0;
+
+		string resumen = "\n~~~ Impuestos por Mesero ~~~\n";
+
+		resumen += $"Total ITBIS del día: {totalITBIS:C} \nDividido entre {meseroCount} mesero(s): {itbisPerMesero:C}\n";
+
+		return resumen;
+	}
+	
+	
+    private async void OnGoToLogin(object sender, EventArgs e)
+    {
+        await Navigation.PushAsync(new LoginPage());
+    }
+
 
 }

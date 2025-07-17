@@ -59,11 +59,8 @@ public partial class OrderSectionMainVisual : ContentPage
 
             Dispatcher.Dispatch(() =>
             {
-                /*Navigation.PopAsync();
-                var balanceVisual = new BalanceVisual(register);
-                Application.Current!.MainPage = new NavigationPage(balanceVisual);*/
                 Navigation.PopAsync();
-                var balanceVisual = new LoginPage();
+                var balanceVisual = new BalanceVisual(register);
                 Application.Current!.MainPage = new NavigationPage(balanceVisual);
             });
         });
