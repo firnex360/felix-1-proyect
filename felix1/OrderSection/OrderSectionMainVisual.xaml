@@ -57,13 +57,15 @@
                               HorizontalOptions="End"
                               Style="{StaticResource SidebarButtonStyle}"/>
 
-            <!-- Add this new button -->
-            <buttons:SfButton x:Name="btnTestRefund"
-                  Text="Test Refund"
-                  Clicked="OnTestRefundClicked"
-                  HorizontalOptions="End"
-                  Style="{StaticResource SidebarButtonStyle}"
-                  BackgroundColor="LightBlue"/>
+            <CheckBox x:Name="chkShowCompleted"
+                      VerticalOptions="Center"
+                      CheckedChanged="OnShowCompletedChanged"
+                      Color="#005F8C"/>
+
+            <Label Text="Mostrar Completas"
+                   VerticalOptions="Center"
+                   FontSize="14"
+                   TextColor="#005F8C"/>
 
 
         </HorizontalStackLayout>
