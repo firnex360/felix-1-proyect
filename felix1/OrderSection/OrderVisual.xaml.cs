@@ -564,22 +564,57 @@ public partial class OrderVisual : ContentPage
     }
 
 
-    private async void OnExitSave(object sender, EventArgs e)
+    // private async void OnExitSave(object sender, EventArgs e)
+    // {
+    //     if (OrderItems.Any(item => item.Quantity < 0))
+    //     {
+    //         DisplayAlert("Cantidad invalida", "No se puede guardar una orden con cantidades negativas.", "OK");
+    //         return;
+    //     }
+
+    //     if (!OrderItems.Any())
+    //     {
+    //         var result = await DisplayAlert("Orden vac�a",
+    //             "�Desea cerrar esta orden sin art�culos?",
+    //             "S�, cerrar",
+    //             "No, cancelar");
+
+    //         if (!result) return;
+    //     }
+
+    //     if (_currentOrder != null)
+    //     {
+    //         _currentOrder.Items = OrderItems.ToList();
+    //         _currentOrder.Discount = _discountAmount;
+    //         _currentOrder.IsDuePaid = dueToPayCheckBox.IsChecked;
+
+    //         try
+    //         {
+    //             using var db = new AppDbContext();
+
+    //             if (_currentOrder.Id == 0)
+    //                 db.Orders.Add(_currentOrder);
+    //             else
+    //                 db.Orders.Update(_currentOrder);
+
+    //             await db.SaveChangesAsync();
+    //         }
+    //         catch (Exception ex)
+    //         {
+    //             await DisplayAlert("Error", $"No se pudo guardar la orden: {ex.Message}", "OK");
+    //             return;
+    //         }
+    //     }
+
+    //     await CloseWindowAsync();
+    // }
+
+    private void OnExitSave(object sender, EventArgs e)
     {
         if (OrderItems.Any(item => item.Quantity < 0))
         {
             DisplayAlert("Cantidad invalida", "No se puede guardar una orden con cantidades negativas.", "OK");
             return;
-        }
-
-        if (!OrderItems.Any())
-        {
-            var result = await DisplayAlert("Orden vac�a",
-                "�Desea cerrar esta orden sin art�culos?",
-                "S�, cerrar",
-                "No, cancelar");
-
-            if (!result) return;
         }
 
         if (_currentOrder != null)
@@ -590,29 +625,25 @@ public partial class OrderVisual : ContentPage
 
             try
             {
+                //this need to be wrapped in a try catch block to handle any potential database errors
                 using var db = new AppDbContext();
-
-                if (_currentOrder.Id == 0)
-                    db.Orders.Add(_currentOrder);
-                else
-                    db.Orders.Update(_currentOrder);
-
-                await db.SaveChangesAsync();
+                db.Orders.Update(_currentOrder);
+                db.SaveChanges();
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Error", $"No se pudo guardar la orden: {ex.Message}", "OK");
+                DisplayAlert("Error", $"No se pudo guardar la orden: {ex.Message}", "OK");
                 return;
             }
         }
 
-        await CloseWindowAsync();
+        CloseThisWindow();
     }
 
-    private async Task CloseWindowAsync()
+    private void CloseThisWindow()
     {
-        var window = GetParentWindow();
-        if (window != null)
+        var app = Microsoft.Maui.Controls.Application.Current;
+        if (app != null)
         {
             foreach (var window in app.Windows)
             {
@@ -626,6 +657,9 @@ public partial class OrderVisual : ContentPage
         }
     }
 
+    
+
+
     private void FocusOrderSectionSearchBar()
     {
         var app = Microsoft.Maui.Controls.Application.Current;
@@ -633,7 +667,7 @@ public partial class OrderVisual : ContentPage
         {
             foreach (var window in app.Windows)
             {
-                
+
                 // Check if the page is directly OrderSectionMainVisual
                 if (window.Page is OrderSectionMainVisual orderSectionPage)
                 {
