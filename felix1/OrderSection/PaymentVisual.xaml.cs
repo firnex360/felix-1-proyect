@@ -8,6 +8,11 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 
+#if WINDOWS
+using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml;
+#endif
+
 namespace felix1.OrderSection
 {
     public partial class PaymentVisual : ContentPage
@@ -47,6 +52,37 @@ namespace felix1.OrderSection
             UpdatePaymentSummary();
             AddCashMethod();
         }
+
+        // This is for handling keyboard movements and events
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            this.HandlerChanged += OnHandlerChanged;
+            OnHandlerChanged(this, EventArgs.Empty);
+        }
+
+        private void OnHandlerChanged(object? sender, EventArgs e)
+        {
+#if WINDOWS
+            var platformView = this.Handler?.PlatformView as Microsoft.UI.Xaml.FrameworkElement;
+            if (platformView != null)
+            {
+                platformView.KeyDown -= PlatformView_KeyDown;
+                platformView.KeyDown += PlatformView_KeyDown;
+            }
+#endif
+        }
+
+#if WINDOWS
+        private void PlatformView_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
+        {
+            if (e.Key == Windows.System.VirtualKey.Escape)
+            {
+                OnExitSave();
+                e.Handled = true;
+            }
+        }
+#endif
 
         private void AddCashMethod()
         {
@@ -109,7 +145,7 @@ namespace felix1.OrderSection
             {
                 ColumnDefinitions = new ColumnDefinitionCollection
                 {
-                    new ColumnDefinition { Width = GridLength.Star }
+                    new ColumnDefinition { Width = Microsoft.Maui.GridLength.Star }
                 }
             };
 
@@ -166,8 +202,8 @@ namespace felix1.OrderSection
             {
                 ColumnDefinitions = new ColumnDefinitionCollection
                 {
-                    new ColumnDefinition { Width = GridLength.Star },
-                    new ColumnDefinition { Width = GridLength.Auto }
+                    new ColumnDefinition { Width = Microsoft.Maui.GridLength.Star },
+                    new ColumnDefinition { Width = Microsoft.Maui.GridLength.Auto }
                 }
             };
 
@@ -246,8 +282,8 @@ namespace felix1.OrderSection
             {
                 ColumnDefinitions = new ColumnDefinitionCollection
                 {
-                    new ColumnDefinition { Width = GridLength.Star },
-                    new ColumnDefinition { Width = GridLength.Auto }
+                    new ColumnDefinition { Width = Microsoft.Maui.GridLength.Star },
+                    new ColumnDefinition { Width = Microsoft.Maui.GridLength.Auto }
                 }
             };
 
@@ -384,15 +420,57 @@ namespace felix1.OrderSection
                 message += $"\n\nDevuelta: ${_changeAmount:F2}";
             }
 
-            await DisplayAlert("Pago realizado", message, "OK");
-
-            var window = this.GetParentWindow();
-            if (window != null)
-            {
-                Application.Current?.CloseWindow(window);
-            }
+            OnExitSave();
 
             ListOrderVisual.Instance?.ReloadTM();
+        }
+
+        private void OnExitSave()
+        {
+            CloseThisWindow();
+        }
+
+        private void CloseThisWindow()
+        {
+            var app = Microsoft.Maui.Controls.Application.Current;
+            if (app != null)
+            {
+                foreach (var window in app.Windows)
+                {
+                    if (window.Page == this)
+                    {
+                        app.CloseWindow(window);
+                        FocusOrderSectionSearchBar();
+                        break;
+                    }
+                }
+            }
+        }
+
+        private void FocusOrderSectionSearchBar()
+        {
+            var app = Microsoft.Maui.Controls.Application.Current;
+            if (app != null)
+            {
+                foreach (var window in app.Windows)
+                {
+                    // Check if the page is directly OrderSectionMainVisual
+                    if (window.Page is OrderSectionMainVisual orderSectionPage)
+                    {
+                        orderSectionPage.FocusSearchBar();
+                        Console.WriteLine("Focused search bar in OrderSectionMainVisual");
+                        break;
+                    }
+
+                    // Check if it's wrapped in a NavigationPage
+                    else if (window.Page is NavigationPage navPage && navPage.CurrentPage is OrderSectionMainVisual orderSectionMainPage)
+                    {
+                        orderSectionMainPage.FocusSearchBar();
+                        Console.WriteLine("Focused search bar in OrderSectionMainVisual (via NavigationPage)");
+                        break;
+                    }
+                }
+            }
         }
 
         private void UpdatePaymentSummary()
