@@ -67,10 +67,6 @@ public partial class OrderVisual : ContentPage
             }
         };
 
-
-
-
-
         OrderItems.CollectionChanged += (s, e) => UpdateOrderTotals();
 
         if (_currentOrder != null)
@@ -607,6 +603,24 @@ public partial class OrderVisual : ContentPage
                 if (window.Page == this)
                 {
                     app.CloseWindow(window);
+                    FocusOrderSectionSearchBar();
+                    break;
+                }
+            }
+        }
+    }
+
+    private void FocusOrderSectionSearchBar()
+    {
+        var app = Microsoft.Maui.Controls.Application.Current;
+        if (app != null)
+        {
+            foreach (var window in app.Windows)
+            {
+                if (window.Page is OrderSectionMainVisual orderSectionPage)
+                {
+                    orderSectionPage.FocusSearchBar();
+                    Console.WriteLine("Focused search bar in OrderSectionMainVisual");
                     break;
                 }
             }

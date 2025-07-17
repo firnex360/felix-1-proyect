@@ -15,6 +15,7 @@ public partial class OrderSectionMainVisual : ContentPage
         _cashRegister = cashRegister;
         DisplayCashRegisterInfo();
         RightPanel.Content = new ListOrderVisual();
+
 #if WINDOWS
         var window = Application.Current?.Windows.FirstOrDefault();
         if (window != null)
@@ -143,5 +144,15 @@ public partial class OrderSectionMainVisual : ContentPage
         {
             listOrderVisual.OpenHighlightedTable();
         }
+    }
+
+    public void FocusSearchBar()
+    {
+        MainThread.BeginInvokeOnMainThread(async () =>
+        {
+            await Task.Delay(100); // Give time for the window to close
+            searchBar?.Focus(); // Focus the search bar
+            searchBar?.ClearValue(Entry.TextProperty); // Clear the search bar text
+        });
     }
 }
