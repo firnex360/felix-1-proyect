@@ -678,9 +678,6 @@ public partial class OrderVisual : ContentPage
             }
         }
 
-        //Set printer name if needed
-        //pd.PrinterSettings.PrinterName = "SP500"; // or whatever name shows in Windows, but it should take the default one
-
         string templateText = File.ReadAllText(@"C:\Codes\github\felix-1-proyect\felix1\ReceiptTemplates\OrderTemplate.txt");
         var template = Template.Parse(templateText);
         var scribanModel = new { order = _currentOrder };
@@ -692,6 +689,7 @@ public partial class OrderVisual : ContentPage
                 try
                 {
                     PrintDocument pd = new PrintDocument();
+                    //pd.PrinterSettings.PrinterName = "Star SP500 Cutter"; // or whatever name shows in Windows, but it should take the default one
                     pd.PrintPage += (sender, e) =>
                     {
                         System.Drawing.Font font = new System.Drawing.Font("Consolas", 8); // Monospaced font recommended for POS printers
