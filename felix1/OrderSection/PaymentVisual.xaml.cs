@@ -427,7 +427,7 @@ namespace felix1.OrderSection
             OnPrintReceipt(sender, e);
             OnExitSave();
             
-            ListOrderVisual.Instance?.ReloadTM();
+            ListTableVisual.Instance?.ReloadTM();
         }
 
         private void OnExitSave()
@@ -542,14 +542,15 @@ namespace felix1.OrderSection
                 TransferAmount = _transferAmount
             };
 
-            string templateText = File.ReadAllText(@"C:\Codes\github\felix-1-proyect\felix1\ReceiptTemplates\PaymentTemplate.txt");
-            var template = Template.Parse(templateText);
-            var scribanModel = new { transaction = transaction, ChangeAmount = _changeAmount };
-            string text = template.Render(scribanModel, member => member.Name);
 
 #if WINDOWS
             try
             {
+
+                string templateText = File.ReadAllText(@"C:\Codes\github\felix-1-proyect\felix1\ReceiptTemplates\PaymentTemplate.txt");
+                var template = Template.Parse(templateText);
+                var scribanModel = new { transaction = transaction, ChangeAmount = _changeAmount };
+                string text = template.Render(scribanModel, member => member.Name);
                 System.Drawing.Printing.PrintDocument pd = new System.Drawing.Printing.PrintDocument();
                 pd.PrintPage += (sender, e) =>
                 {

@@ -22,11 +22,15 @@ public partial class RefundVisual : ContentPage
 
     private OrderItem _selectedOriginalItem;
     private OrderItem _selectedRefundedItem;
+    private bool _canExecuteCommands = true;
 
     public RefundVisual(Order order)
     {
         InitializeComponent();
-        BindingContext = this;
+
+        // Inicializar comandos primero
+        DiscardCommand = new Command(async () => await DiscardAsync(), () => _canExecuteCommands);
+        ProcessRefundCommand = new Command(async () => await ProcessRefundAsync(), () => _canExecuteCommands);
 
         Order = order;
         Refund = new Refund
@@ -40,8 +44,8 @@ public partial class RefundVisual : ContentPage
 
         LoadOrderItems();
 
-        DiscardCommand = new Command(async () => await DiscardAsync());
-        ProcessRefundCommand = new Command(async () => await ProcessRefundAsync());
+        // Establecer BindingContext después de inicializar todo
+        BindingContext = this;
     }
 
     private void LoadOrderItems()
@@ -141,67 +145,92 @@ public partial class RefundVisual : ContentPage
 
     private async Task DiscardAsync()
     {
-        bool confirm = await DisplayAlert("Confirmar", "¿Deseas descartar esta devolución?", "Sí", "No");
-        if (confirm)
+        if (!_canExecuteCommands) return;
+
+        _canExecuteCommands = false;
+        ((Command)DiscardCommand).ChangeCanExecute();
+
+        try
         {
+            bool confirm = await DisplayAlert("Confirmar", "¿Deseas descartar esta devolución?", "Sí", "No");
+            if (confirm)
+            {
+                var window = this.GetParentWindow();
+                if (window != null)
+                {
+                    Application.Current?.CloseWindow(window);
+                }
+            }
+        }
+        finally
+        {
+            _canExecuteCommands = true;
+            ((Command)DiscardCommand).ChangeCanExecute();
+        }
+    }
+
+    private async Task ProcessRefundAsync()
+    {
+        if (!_canExecuteCommands) return;
+
+        _canExecuteCommands = false;
+        ((Command)ProcessRefundCommand).ChangeCanExecute();
+
+        try
+        {
+            if (RefundedItems.Count == 0)
+            {
+                await DisplayAlert("Error", "Debe seleccionar al menos un artículo para devolver.", "OK");
+                return;
+            }
+
+            bool confirm = await DisplayAlert("Confirmar", "¿Deseas procesar la devolución?", "Sí", "No");
+            if (!confirm) return;
+
+            // Asignar artículos a devolver
+            Refund.RefundedItems = RefundedItems.ToList();
+
+            await AppDbContext.ExecuteSafeAsync(async db =>
+            {
+                // Adjuntar orden y usuario existentes
+                db.Orders.Attach(Refund.Order);
+                db.Users.Attach(Refund.User);
+
+                foreach (var item in Refund.RefundedItems)
+                {
+                    db.Articles.Attach(item.Article);
+                }
+
+                // Agregar la devolución
+                await db.Refunds.AddAsync(Refund);
+                await db.SaveChangesAsync();
+
+                // Crear la transacción
+                var transaction = new Transaction
+                {
+                    Date = DateTime.Now,
+                    CashAmount = RefundTotal,
+                    TotalAmount = RefundTotal,
+                    Refund = Refund
+                };
+
+                await db.Transactions.AddAsync(transaction);
+                await db.SaveChangesAsync();
+            },
+            async ex => await DisplayAlert("Error", "Ocurrió un error al guardar la devolución.", "OK"));
+
+            await DisplayAlert("Éxito", "La devolución fue procesada exitosamente.", "OK");
+
             var window = this.GetParentWindow();
             if (window != null)
             {
                 Application.Current?.CloseWindow(window);
             }
         }
-    }
-
-    private async Task ProcessRefundAsync()
-    {
-        if (RefundedItems.Count == 0)
+        finally
         {
-            await DisplayAlert("Error", "Debe seleccionar al menos un artículo para devolver.", "OK");
-            return;
-        }
-
-        bool confirm = await DisplayAlert("Confirmar", "¿Deseas procesar la devolución?", "Sí", "No");
-        if (!confirm) return;
-
-        // Assign refunded items to the refund object
-        Refund.RefundedItems = RefundedItems.ToList();
-
-        await AppDbContext.ExecuteSafeAsync(async db =>
-        {
-            // Attach the existing order and user from the context if necessary
-            db.Orders.Attach(Refund.Order);
-            db.Users.Attach(Refund.User);
-
-            foreach (var item in Refund.RefundedItems)
-            {
-                db.Articles.Attach(item.Article); // Needed for FK
-            }
-
-            // Add the refund with its items
-            await db.Refunds.AddAsync(Refund);
-            await db.SaveChangesAsync(); // Save to generate Refund.Id
-
-            // Create the transaction
-            var transaction = new Transaction
-            {
-                Date = DateTime.Now,
-                CashAmount = RefundTotal,
-                TotalAmount = RefundTotal,
-                Refund = Refund
-            };
-
-            await db.Transactions.AddAsync(transaction);
-            await db.SaveChangesAsync(); // Save everything
-        },
-        async ex => await DisplayAlert("Error", "Ocurrió un error al guardar la devolución.", "OK"));
-
-        await DisplayAlert("Éxito", "La devolución fue procesada exitosamente.", "OK");
-
-        var window = this.GetParentWindow();
-        if (window != null)
-        {
-            Application.Current?.CloseWindow(window);
+            _canExecuteCommands = true;
+            ((Command)ProcessRefundCommand).ChangeCanExecute();
         }
     }
-
 }

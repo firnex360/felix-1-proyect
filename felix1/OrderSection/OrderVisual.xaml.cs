@@ -563,8 +563,7 @@ public partial class OrderVisual : ContentPage
             orderItemsDataGrid.BeginEdit(rowIndex, quantityColumnIndex);
     }
 
-
-    // private async void OnExitSave(object sender, EventArgs e)
+    // private void OnExitSave(object sender, EventArgs e)
     // {
     //     if (OrderItems.Any(item => item.Quantity < 0))
     //     {
@@ -675,6 +674,7 @@ public partial class OrderVisual : ContentPage
                     Console.WriteLine("Focused search bar in OrderSectionMainVisual");
                     break;
                 }
+            }
 
                 // Check if it's wrapped in a NavigationPage
                 else if (window.Page is NavigationPage navPage && navPage.CurrentPage is OrderSectionMainVisual orderSectionMainPage)
@@ -712,11 +712,11 @@ public partial class OrderVisual : ContentPage
                 db.Orders.Update(_currentOrder);
                 await db.SaveChangesAsync();
 
-                if (ListOrderVisual.Instance != null)
+                if (ListTableVisual.Instance != null)
                 {
                     await MainThread.InvokeOnMainThreadAsync(() =>
                     {
-                        ListOrderVisual.Instance.ReloadTM();
+                        ListTableVisual.Instance.ReloadTM();
                     });
                 }
 
@@ -728,21 +728,23 @@ public partial class OrderVisual : ContentPage
             }
         }
 
-        string templateText = File.ReadAllText(@"C:\Codes\github\felix-1-proyect\felix1\ReceiptTemplates\OrderTemplate.txt");
-        var template = Template.Parse(templateText);
-        var scribanModel = new { order = _currentOrder };
-        string text = template.Render(scribanModel, member => member.Name);
-
+        //Set printer name if needed
+        //pd.PrinterSettings.PrinterName = "SP500"; // or whatever name shows in Windows, but it should take the default one
 
 #if WINDOWS
 
                 try
                 {
+                    string templateText = File.ReadAllText(@"C:\Codes\github\felix-1-proyect\felix1\ReceiptTemplates\OrderTemplate.txt");
+                    var template = Template.Parse(templateText);
+                    var scribanModel = new { order = _currentOrder };
+                    string text = template.Render(scribanModel, member => member.Name);
+
+
                     PrintDocument pd = new PrintDocument();
-                    //pd.PrinterSettings.PrinterName = "Star SP500 Cutter"; // or whatever name shows in Windows, but it should take the default one
                     pd.PrintPage += (sender, e) =>
                     {
-                        System.Drawing.Font font = new System.Drawing.Font("Consolas", 10); // Monospaced font recommended for POS printers
+                        System.Drawing.Font font = new System.Drawing.Font("Consolas", 8); // Monospaced font recommended for POS printers
                         e.Graphics.DrawString(text, font, Brushes.Black, new System.Drawing.PointF(10, 10));
                     };
                     
@@ -754,8 +756,7 @@ public partial class OrderVisual : ContentPage
                     Console.WriteLine("Print failed: " + ex.Message);
                 }
 #else
-        Console.WriteLine("Printing is only supported on Windows for now.");
-        await DisplayAlert("Error", $"No se pudo imprimir el recibo: La funcionalidad de impresión no está disponible en esta plataforma (solo Windows).", "OK");
+        Console.WriteLine("Printing is only supported on Windows.");
 #endif
 
         OnExitSave(sender, e); // Save the order after printing and close the window

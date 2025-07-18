@@ -60,6 +60,24 @@ public partial class MainPage : ContentPage
         await Navigation.PushAsync(new BalanceVisual(cashRegister));
     }
 
+    private async void OnUpdateCcr(object sender, EventArgs e)
+    {
+        using var db = new AppDbContext();
+        var cashRegister = await db.CashRegisters.FirstOrDefaultAsync(cr => cr.Id == 1);
+        if (cashRegister == null)
+        {
+            await DisplayAlert("Error", "bobo.", "OK");
+            return;
+        }
+
+        // Update the cash register details as needed
+        cashRegister.IsOpen = false;
+        db.CashRegisters.Update(cashRegister);
+        await db.SaveChangesAsync();
+
+        await Navigation.PushAsync(new BalanceVisual(cashRegister));
+    }
+
     private async void OnSaveOrderTest(object sender, EventArgs e)
     {
         using var db = new AppDbContext();

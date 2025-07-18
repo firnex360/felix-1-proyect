@@ -1,6 +1,7 @@
 using felix1.Data;
 using felix1.Logic;
 using Microsoft.Maui.ApplicationModel;
+using Application = Microsoft.Maui.Controls.Application;
 
 #if WINDOWS
 using Microsoft.UI.Xaml.Input;
@@ -19,7 +20,7 @@ public partial class OrderSectionMainVisual : ContentPage
         InitializeComponent();
         _cashRegister = cashRegister;
         DisplayCashRegisterInfo();
-        RightPanel.Content = new ListOrderVisual();
+        RightPanel.Content = new ListTableVisual();
 
 #if WINDOWS
         var window = Microsoft.Maui.Controls.Application.Current?.Windows.FirstOrDefault();
@@ -65,12 +66,9 @@ public partial class OrderSectionMainVisual : ContentPage
 
             Dispatcher.Dispatch(() =>
             {
-                /*Navigation.PopAsync();
-                var balanceVisual = new BalanceVisual(register);
-                Application.Current!.MainPage = new NavigationPage(balanceVisual);*/
                 Navigation.PopAsync();
-                var balanceVisual = new LoginPage();
-                Microsoft.Maui.Controls.Application.Current!.MainPage = new NavigationPage(balanceVisual);
+                var balanceVisual = new BalanceVisual(register!);
+                Application.Current!.MainPage = new NavigationPage(balanceVisual);
             });
         });
     }
@@ -92,7 +90,6 @@ public partial class OrderSectionMainVisual : ContentPage
         Microsoft.Maui.Controls.Application.Current!.MainPage = new NavigationPage(loginPage);
     }
 
-    [Obsolete("This method is obsolete, delete this if sure wont be of use in the future")]
     private async void OnPaymentButtonClicked(object sender, EventArgs e)
     {
         // Crear un pedido de prueba con artículos reales
@@ -134,20 +131,20 @@ public partial class OrderSectionMainVisual : ContentPage
     {
         var searchText = e.NewTextValue?.ToLower() ?? "";
 
-        // Get the ListOrderVisual instance and pass the search text to it
-        if (RightPanel.Content is ListOrderVisual listOrderVisual)
+        // Get the ListTableVisual instance and pass the search text to it
+        if (RightPanel.Content is ListTableVisual ListTableVisual)
         {
             // Call the filter method to highlight matching table numbers
-            listOrderVisual.FilterTablesByNumber(searchText);
+            ListTableVisual.FilterTablesByNumber(searchText);
         }
     }
 
     private void OnSearchBarSearchButtonPressed(object sender, EventArgs e)
     {
         // Handle search button press - open the highlighted table
-        if (RightPanel.Content is ListOrderVisual listOrderVisual)
+        if (RightPanel.Content is ListTableVisual ListTableVisual)
         {
-            listOrderVisual.OpenHighlightedTable();
+            ListTableVisual.OpenHighlightedTable();
         }
     }
 
@@ -184,9 +181,9 @@ public partial class OrderSectionMainVisual : ContentPage
     {
         if (e.Key == Windows.System.VirtualKey.Tab)
         {
-            if (RightPanel.Content is ListOrderVisual listOrderVisual)
+            if (RightPanel.Content is ListTableVisual ListTableVisual)
             {
-                listOrderVisual.MoveToNextMatchingTable();
+                ListTableVisual.MoveToNextMatchingTable();
                 e.Handled = true;
             }
         }
@@ -198,13 +195,15 @@ public partial class OrderSectionMainVisual : ContentPage
     }
 #endif
 
-        private void OnShowCompletedChanged(object sender, CheckedChangedEventArgs e)
+    private void OnShowCompletedChanged(object sender, CheckedChangedEventArgs e)
     {
-        if (RightPanel.Content is ListOrderVisual listOrderVisual)
+        if (RightPanel.Content is ListTableVisual ListTableVisual)
         {
-            listOrderVisual.ShowCompletedOrders = e.Value;
-            listOrderVisual.ReloadTM();
+            ListTableVisual.ShowCompletedOrders = e.Value;
+            ListTableVisual.ReloadTM();
         }
     }
+
+
 
 }
