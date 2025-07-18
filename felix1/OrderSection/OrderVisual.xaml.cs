@@ -674,7 +674,6 @@ public partial class OrderVisual : ContentPage
                     Console.WriteLine("Focused search bar in OrderSectionMainVisual");
                     break;
                 }
-            }
 
                 // Check if it's wrapped in a NavigationPage
                 else if (window.Page is NavigationPage navPage && navPage.CurrentPage is OrderSectionMainVisual orderSectionMainPage)
