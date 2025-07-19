@@ -33,7 +33,7 @@
                                 <DataTemplate>
                                     <Grid ColumnDefinitions="*, Auto" ColumnSpacing="10">
                                         <HorizontalStackLayout Grid.Column="0" Spacing="5">
-                                            <Label Text="{Binding ArticleName}" TextColor="#005F8C" />
+                                            <Label Text="{Binding Article.Name}" TextColor="#005F8C" />
                                             <Label Text="{Binding UnitPrice, StringFormat='${0:F2}'}" TextColor="#005F8C" />
                                         </HorizontalStackLayout>
                                         <Label Grid.Column="1" 
@@ -65,55 +65,44 @@
                                    HorizontalOptions="End"/>
                         </Grid>
 
-                        <HorizontalStackLayout>
-                            <Label Text="ITBIS (18%)" TextColor="#005F8C" />
-                            <Label Text="{Binding TaxITBIS, StringFormat=' ${0:F2}'}" HorizontalOptions="EndAndExpand" TextColor="#005F8C" />
-                        </HorizontalStackLayout>
-                        <HorizontalStackLayout>
-                            <Label Text="Propina (10%)" TextColor="#005F8C" />
-                            <Label Text="{Binding TaxWaiters, StringFormat=' ${0:F2}'}" HorizontalOptions="EndAndExpand" TextColor="#005F8C" />
-                        </HorizontalStackLayout>
-                        <HorizontalStackLayout>
-                            <Label Text="Descuento" TextColor="#005F8C" />
-                            <Label Text="{Binding Discount, StringFormat=' -${0:F2}'}" 
-                           HorizontalOptions="EndAndExpand" 
-                           TextColor="#005F8C"/>
-                        </HorizontalStackLayout>
-                        <HorizontalStackLayout>
-                            <Label Text="Total" FontAttributes="Bold" TextColor="#005F8C" />
-                            <Label Text="{Binding Total, StringFormat=' ${0:F2}'}" FontAttributes="Bold" HorizontalOptions="EndAndExpand" TextColor="#005F8C" />
-                        </HorizontalStackLayout>
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Label Grid.Column="0" Text="ITBIS (18%)" TextColor="#005F8C" />
+                            <Label Grid.Column="1" Text="{Binding TaxITBIS, StringFormat='${0:F2}'}" TextColor="#005F8C" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Label Grid.Column="0" Text="Propina (10%)" TextColor="#005F8C" />
+                            <Label Grid.Column="1" Text="{Binding TaxWaiters, StringFormat='${0:F2}'}" TextColor="#005F8C" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Label Grid.Column="0" Text="Descuento" TextColor="#005F8C" />
+                            <Label Grid.Column="1" Text="{Binding Discount, StringFormat='-${0:F2}'}" TextColor="#005F8C"/>
+                        </Grid>
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Label Grid.Column="0" Text="Total" FontAttributes="Bold" TextColor="#005F8C" />
+                            <Label Grid.Column="1" Text="{Binding Total, StringFormat='${0:F2}'}" FontAttributes="Bold" TextColor="#005F8C" />
+                        </Grid>
 
                         <BoxView HeightRequest="1" BackgroundColor="#005F8C" Margin="0,10" IsVisible="{Binding AnyPaymentMethodUsed}"/>
 
-                        <HorizontalStackLayout IsVisible="{Binding IsCashUsed}">
-                            <Label Text="Efectivo:" TextColor="#005F8C" />
-                            <Label Text="{Binding CashAmount, StringFormat=' ${0:F2}'}" 
-                                   HorizontalOptions="EndAndExpand" 
-                                   TextColor="#005F8C" />
-                        </HorizontalStackLayout>
+                        <Grid ColumnDefinitions="*, Auto" IsVisible="{Binding IsCashUsed}">
+                            <Label Grid.Column="0" Text="Efectivo:" TextColor="#005F8C" />
+                            <Label Grid.Column="1" Text="{Binding CashAmount, StringFormat='${0:F2}'}" TextColor="#005F8C" />
+                        </Grid>
 
-                        <HorizontalStackLayout IsVisible="{Binding IsCardUsed}">
-                            <Label Text="Tarjeta:" TextColor="#005F8C" />
-                            <Label Text="{Binding CardAmount, StringFormat=' ${0:F2}'}" 
-                                   HorizontalOptions="EndAndExpand" 
-                                   TextColor="#005F8C" />
-                        </HorizontalStackLayout>
+                        <Grid ColumnDefinitions="*, Auto" IsVisible="{Binding IsCardUsed}">
+                            <Label Grid.Column="0" Text="Tarjeta:" TextColor="#005F8C" />
+                            <Label Grid.Column="1" Text="{Binding CardAmount, StringFormat='${0:F2}'}" TextColor="#005F8C" />
+                        </Grid>
 
-                        <HorizontalStackLayout IsVisible="{Binding IsTransferUsed}">
-                            <Label Text="Transferencia:" TextColor="#005F8C" />
-                            <Label Text="{Binding TransferAmount, StringFormat=' ${0:F2}'}" 
-                                   HorizontalOptions="EndAndExpand" 
-                                   TextColor="#005F8C" />
-                        </HorizontalStackLayout>
+                        <Grid ColumnDefinitions="*, Auto" IsVisible="{Binding IsTransferUsed}">
+                            <Label Grid.Column="0" Text="Transferencia:" TextColor="#005F8C" />
+                            <Label Grid.Column="1" Text="{Binding TransferAmount, StringFormat='${0:F2}'}" TextColor="#005F8C" />
+                        </Grid>
 
-                        <HorizontalStackLayout IsVisible="{Binding AnyPaymentMethodUsed}">
-                            <Label Text="Total Pagado:" FontAttributes="Bold" TextColor="#005F8C" />
-                            <Label Text="{Binding TotalPayment, StringFormat=' ${0:F2}'}" 
-                                   FontAttributes="Bold" 
-                                   HorizontalOptions="EndAndExpand" 
-                                   TextColor="#005F8C" />
-                        </HorizontalStackLayout>
+                        <Grid ColumnDefinitions="*, Auto" IsVisible="{Binding AnyPaymentMethodUsed}">
+                            <Label Grid.Column="0" Text="Total Pagado:" FontAttributes="Bold" TextColor="#005F8C" />
+                            <Label Grid.Column="1" Text="{Binding TotalPayment, StringFormat='${0:F2}'}" FontAttributes="Bold" TextColor="#005F8C" />
+                        </Grid>
                     </VerticalStackLayout>
                 </ScrollView>
             </Frame>
@@ -125,14 +114,14 @@
                    HasShadow="True"
                    Padding="15">
                 <VerticalStackLayout Spacing="8">
-                    <HorizontalStackLayout>
-                        <Label Text="Total" FontAttributes="Bold" TextColor="#005F8C" FontSize="30" />
-                        <Label Text="{Binding Total, StringFormat=' ${0:F2}'}" FontAttributes="Bold" FontSize="30" HorizontalOptions="EndAndExpand" TextColor="#005F8C" />
-                    </HorizontalStackLayout>
-                    <HorizontalStackLayout>
-                        <Label Text="Devuelta" FontAttributes="Bold" TextColor="#005F8C" FontSize="30" />
-                        <Label Text="{Binding ChangeAmount, StringFormat=' ${0:F2}'}" FontAttributes="Bold" FontSize="30" HorizontalOptions="EndAndExpand" TextColor="#005F8C" />
-                    </HorizontalStackLayout>
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Grid.Column="0" Text="Total" FontAttributes="Bold" TextColor="#005F8C" FontSize="30" />
+                        <Label Grid.Column="1" Text="{Binding Total, StringFormat='${0:F2}'}" FontAttributes="Bold" FontSize="30" TextColor="#005F8C" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Grid.Column="0" Text="Devuelta" FontAttributes="Bold" TextColor="#005F8C" FontSize="30" />
+                        <Label Grid.Column="1" Text="{Binding ChangeAmount, StringFormat='${0:F2}'}" FontAttributes="Bold" FontSize="30" TextColor="#005F8C" />
+                    </Grid>
                 </VerticalStackLayout>
             </Frame>
         </VerticalStackLayout>
@@ -188,4 +177,3 @@
                 Clicked="OnChargeClicked" />
     </Grid>
 </ContentPage>
-    

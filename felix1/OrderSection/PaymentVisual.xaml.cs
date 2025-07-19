@@ -49,12 +49,14 @@ namespace felix1.OrderSection
 
         public PaymentVisual(Order order)
         {
+
             InitializeComponent();
             Order = order;
             BindingContext = this;
 
             UpdatePaymentSummary();
             AddCashMethod();
+
         }
 
         // This is for handling keyboard movements and events

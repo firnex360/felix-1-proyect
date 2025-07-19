@@ -445,35 +445,47 @@ private void LoadExistingTakeoutOrders()
 
     private async void OnViewOrderClicked(Order order)
     {
-        var loadedOrder = await AppDbContext.ExecuteSafeAsync(async db =>
-            await db.Orders
-                .Include(o => o.Table)
-                .Include(o => o.Waiter)
-                .Include(o => o.Items)
-                .ThenInclude(oi => oi.Article)
-                .FirstOrDefaultAsync(o => o.Id == order.Id));
 
-        if (loadedOrder == null)
+        try
         {
-            if (Application.Current?.MainPage != null)
-                await Application.Current.MainPage.DisplayAlert("Error", "No se pudo cargar la orden.", "OK");
-            return;
+            var loadedOrder = await AppDbContext.ExecuteSafeAsync(async db =>
+                await db.Orders
+                    .Include(o => o.Table)
+                    .Include(o => o.Waiter)
+                    .Include(o => o.Items)
+                    .ThenInclude(oi => oi.Article!)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(o => o.Id == order.Id));
+
+            if (loadedOrder == null)
+            {
+                if (Application.Current?.MainPage != null)
+                    await Application.Current.MainPage.DisplayAlert("Error", "No se pudo cargar la orden.", "OK");
+                return;
+            }
+
+            var displayInfo = DeviceDisplay.Current.MainDisplayInfo;
+            ContentPage targetPage = loadedOrder.IsBillRequested
+                ? new PaymentVisual(loadedOrder)
+                : new OrderVisual(loadedOrder);
+
+            var window = new Window(targetPage)
+            {
+                Height = 700,
+                Width = 1000,
+                X = (displayInfo.Width / displayInfo.Density - 1000) / 2,
+                Y = ((displayInfo.Height / displayInfo.Density - 700) / 2) - 25
+            };
+
+            Application.Current?.OpenWindow(window);
+            
         }
-
-        var displayInfo = DeviceDisplay.Current.MainDisplayInfo;
-        ContentPage targetPage = loadedOrder.IsBillRequested
-            ? new PaymentVisual(loadedOrder)
-            : new OrderVisual(loadedOrder);
-
-        var window = new Window(targetPage)
+        catch (Exception e)
         {
-            Height = 700,
-            Width = 1000,
-            X = (displayInfo.Width / displayInfo.Density - 1000) / 2,
-            Y = ((displayInfo.Height / displayInfo.Density - 700) / 2) - 25
-        };
 
-        Application.Current?.OpenWindow(window);
+            Console.WriteLine(e.Message);
+        }        
+
     }
 
     private void LoadTables()
@@ -494,9 +506,6 @@ private void LoadExistingTakeoutOrders()
         LoadExistingTakeoutOrders();
     }
     
-
-
-
 
     // Method to open the currently highlighted table's order
     public async void OpenHighlightedTable()
