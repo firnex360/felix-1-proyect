@@ -689,6 +689,13 @@ public partial class OrderVisual : ContentPage
     private async void OnPrintReceipt(object sender, EventArgs e)
     {
 
+        // Validar si no hay items en la orden
+        if (_currentOrder == null || _currentOrder.Items == null || _currentOrder.Items.Count == 0)
+        {
+            await DisplayAlert("Error", "No se puede imprimir una orden sin items.", "OK");
+            return;
+        }
+
         if (_currentOrder != null)
         {
             _currentOrder.Items = OrderItems.ToList();
