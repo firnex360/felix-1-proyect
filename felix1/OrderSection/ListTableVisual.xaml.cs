@@ -347,7 +347,12 @@ private void AddTakeoutOrderToPanel(Order order)
         TextColor = Colors.White,
         CornerRadius = 5,
         HorizontalOptions = LayoutOptions.Fill,
-        Command = new Command(() => OnViewOrderClicked(order))
+        Command = new Command(() =>{
+            if (order.IsDuePaid)
+                RefundVisual(order);
+            else
+                OnViewOrderClicked(order);
+        })
     };
 
     // Find the container in the visual tree

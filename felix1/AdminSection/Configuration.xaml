@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:numericEntry="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs"
+             xmlns:inputLayout="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="felix1.AdminSection.Configuration">
     <VerticalStackLayout Padding="32,48" Spacing="24" BackgroundColor="White">
@@ -12,23 +14,47 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="120"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Label Text="Teléfono:" Grid.Row="0" Grid.Column="0" VerticalOptions="Center" TextColor="Black"/>
-                    <Entry x:Name="txtPhone" Placeholder="Ingrese el teléfono" Grid.Row="0" Grid.Column="1" TextColor="Black" Keyboard="Telephone" BackgroundColor="#C7CFDD" Margin="0,0,0,4"/>
-
+            
+                    <Label Text="Nombre Empresa:" Grid.Row="0" Grid.Column="0" VerticalOptions="Center" TextColor="Black"/>
+                    <Entry x:Name="txtCompany" Placeholder="Ingrese el nombre de la empresa" Text="FELIX I" Grid.Row="0" Grid.Column="1" TextColor="Black" BackgroundColor="#C7CFDD" />
+                
                     <Label Text="Dirección:" Grid.Row="1" Grid.Column="0" VerticalOptions="Center" TextColor="Black"/>
-                    <Entry x:Name="txtAddress" Placeholder="Ingrese la dirección" Grid.Row="1" Grid.Column="1" TextColor="Black" BackgroundColor="#C7CFDD" Margin="0,0,0,4"/>
+                    <Entry x:Name="txtAddress" Text="AV. HISPANOAMERICA" Placeholder="Ingrese la dirección" Grid.Row="1" Grid.Column="1" TextColor="Black" BackgroundColor="#C7CFDD" />
+                    
+                    <!--<Entry x:Name="txtPhone" Placeholder="Ingrese el teléfono" Grid.Row="0" Grid.Column="1" TextColor="Black" Keyboard="Telephone" BackgroundColor="#C7CFDD" Margin="0,0,0,4"/>-->
+                    <Label Text="Teléfono:" Grid.Row="3" Grid.Column="0" VerticalOptions="Center" TextColor="Black"/>
+                    
+                    <inputLayout:SfTextInputLayout Grid.Row="3" Grid.Column="1" >
+                        <numericEntry:SfNumericEntry x:Name="txtPhone" CustomFormat="000-000-0000" Value="8095828134" ShowClearButton="True" />
+                    </inputLayout:SfTextInputLayout>
 
                     <Label Text="Email:" Grid.Row="2" Grid.Column="0" VerticalOptions="Center" TextColor="Black"/>
-                    <Entry x:Name="txtEmail" Placeholder="Ingrese el email" Grid.Row="2" Grid.Column="1" TextColor="Black" Keyboard="Email" BackgroundColor="#C7CFDD" Margin="0,0,0,4"/>
+                    <Entry x:Name="txtEmail" Placeholder="Ingrese el email" Grid.Row="2" Grid.Column="1" TextColor="Black" Keyboard="Email" BackgroundColor="#C7CFDD"/>
 
-                    <Label Text="Nombre Empresa:" Grid.Row="3" Grid.Column="0" VerticalOptions="Center" TextColor="Black"/>
-                    <Entry x:Name="txtCompany" Placeholder="Ingrese el nombre de la empresa" Grid.Row="3" Grid.Column="1" TextColor="Black" BackgroundColor="#C7CFDD" Margin="0,0,0,4"/>
+                    <Label Text="RNC:" Grid.Row="4" Grid.Column="0" VerticalOptions="Center" TextColor="Black"/>
+                    <Entry x:Name="txtRNC" Placeholder="Ingrese el RNC" Text="130622914" Grid.Row="4" Grid.Column="1" TextColor="Black" BackgroundColor="#C7CFDD"/>
+
+                    <Label Text="Impuesto Ley:" Grid.Row="0" Grid.Column="2" VerticalOptions="Center" TextColor="Black"/>
+                    <Entry x:Name="txtTax" Placeholder="Ingrese el impuesto" Text="18" Grid.Row="0" Grid.Column="3" TextColor="Black" BackgroundColor="#C7CFDD"/>
+
+                    <Label Text="Impuesto Delivery:" Grid.Row="1" Grid.Column="2" VerticalOptions="Center" TextColor="Black"/>
+                    <Entry x:Name="txtDeliveryTax" Placeholder="Ingrese el impuesto de delivery" Text="10" Grid.Row="1" Grid.Column="3" TextColor="Black" BackgroundColor="#C7CFDD"/>
+
+                    <Label Text="Impuesto Mesero:" Grid.Row="2" Grid.Column="2" VerticalOptions="Center" TextColor="Black"/>
+                    <Entry x:Name="txtWaiterTax" Placeholder="Ingrese el impuesto de mesero" Text="5" Grid.Row="2" Grid.Column="3" TextColor="Black" BackgroundColor="#C7CFDD"/>
+
+                    <Label Text="Comentario Al Pie De Factura:" Grid.Row="3" Grid.Column="2" VerticalOptions="Center" TextColor="Black"/>
+                    <Entry x:Name="txtComment" Placeholder="Ingrese el comentario" Text="GRACIAS POR PREFERIRNOS" Grid.Row="3" Grid.Column="3" TextColor="Black" BackgroundColor="#C7CFDD"/>
+
                 </Grid>
                 <Button Text="Guardar Cambios"
                         x:Name="btnSave"
