@@ -22,13 +22,10 @@
                    BorderColor="#FFE0E0E0"
                    HasShadow="True"
                    Padding="0">
-                <ScrollView Orientation="Vertical" 
-                            VerticalScrollBarVisibility="Always"
-                            Padding="20,20,30,20">
-                    <VerticalStackLayout Spacing="10">
+                    <VerticalStackLayout Spacing="10" Padding="15">
+                        
                         <Label Text="Detalles" FontAttributes="Bold" FontSize="20" TextColor="#005F8C" />
-
-                        <CollectionView x:Name="ItemsList" ItemsSource="{Binding Order.Items}">
+                        <CollectionView x:Name="ItemsList" ItemsSource="{Binding Order.Items}" MaximumHeightRequest="125">
                             <CollectionView.ItemTemplate>
                                 <DataTemplate>
                                     <Grid ColumnDefinitions="*, Auto" ColumnSpacing="10">
@@ -109,7 +106,6 @@
                                    TextColor="#005F8C" />
                         </HorizontalStackLayout>
                     </VerticalStackLayout>
-                </ScrollView>
             </Frame>
 
             <Frame IsVisible="{Binding IsCashUsed}"
@@ -125,7 +121,7 @@
                     </HorizontalStackLayout>
                     <HorizontalStackLayout>
                         <Label Text="Devuelta" FontAttributes="Bold" TextColor="#005F8C" FontSize="30" />
-                        <Label Text="{Binding ChangeAmount, StringFormat=' ${0:F2}'}" FontAttributes="Bold" FontSize="30" HorizontalOptions="EndAndExpand" TextColor="#005F8C" />
+                        <Label Text="{Binding ChangeAmount, StringFormat=' ${0:F2}'}" FontAttributes="Bold" FontSize="30" HorizontalOptions="End" TextColor="#005F8C" />
                     </HorizontalStackLayout>
                 </VerticalStackLayout>
             </Frame>
