@@ -563,11 +563,11 @@ public partial class OrderVisual : ContentPage
             orderItemsDataGrid.BeginEdit(rowIndex, quantityColumnIndex);
     }
 
-    private void OnExitSave(object sender, EventArgs e)
+    private async void OnExitSave(object sender, EventArgs e)
     {
         if (OrderItems.Any(item => item.Quantity < 0))
         {
-            DisplayAlert("Cantidad invalida", "No se puede guardar una orden con cantidades negativas.", "OK");
+            await DisplayAlert("Cantidad invalida", "No se puede guardar una orden con cantidades negativas.", "OK");
             return;
         }
 
@@ -578,12 +578,12 @@ public partial class OrderVisual : ContentPage
                 "Si, cerrar",
                 "No, cancelar");
 
-            if (!result) return;
+            if (result) return;
         }
 
         if (!SaveOrderChanges())
         {
-            DisplayAlert("Error", "No se pudo guardar la orden.", "OK");
+            await DisplayAlert("Error", "No se pudo guardar la orden.", "OK");
             return; // Error occurred, don't close
         }
 
@@ -643,10 +643,10 @@ public partial class OrderVisual : ContentPage
         }
     }
 
-    private async Task CloseWindowAsync()
+    private void CloseThisWindow()
     {
-        var window = GetParentWindow();
-        if (window != null)
+        var app = Microsoft.Maui.Controls.Application.Current;
+        if (app != null)
         {
             foreach (var window in app.Windows)
             {
