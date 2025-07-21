@@ -563,51 +563,6 @@ public partial class OrderVisual : ContentPage
             orderItemsDataGrid.BeginEdit(rowIndex, quantityColumnIndex);
     }
 
-    // private void OnExitSave(object sender, EventArgs e)
-    // {
-    //     if (OrderItems.Any(item => item.Quantity < 0))
-    //     {
-    //         DisplayAlert("Cantidad invalida", "No se puede guardar una orden con cantidades negativas.", "OK");
-    //         return;
-    //     }
-
-    //     if (!OrderItems.Any())
-    //     {
-    //         var result = await DisplayAlert("Orden vac�a",
-    //             "�Desea cerrar esta orden sin art�culos?",
-    //             "S�, cerrar",
-    //             "No, cancelar");
-
-    //         if (!result) return;
-    //     }
-
-    //     if (_currentOrder != null)
-    //     {
-    //         _currentOrder.Items = OrderItems.ToList();
-    //         _currentOrder.Discount = _discountAmount;
-    //         _currentOrder.IsDuePaid = dueToPayCheckBox.IsChecked;
-
-    //         try
-    //         {
-    //             using var db = new AppDbContext();
-
-    //             if (_currentOrder.Id == 0)
-    //                 db.Orders.Add(_currentOrder);
-    //             else
-    //                 db.Orders.Update(_currentOrder);
-
-    //             await db.SaveChangesAsync();
-    //         }
-    //         catch (Exception ex)
-    //         {
-    //             await DisplayAlert("Error", $"No se pudo guardar la orden: {ex.Message}", "OK");
-    //             return;
-    //         }
-    //     }
-
-    //     await CloseWindowAsync();
-    // }
-
     private void OnExitSave(object sender, EventArgs e)
     {
         if (OrderItems.Any(item => item.Quantity < 0))
@@ -626,27 +581,66 @@ public partial class OrderVisual : ContentPage
             if (!result) return;
         }
 
-        if (_currentOrder != null)
+        if (!SaveOrderChanges())
         {
-            _currentOrder.Items = OrderItems.ToList();
-            _currentOrder.Discount = _discountAmount;
-            _currentOrder.IsDuePaid = dueToPayCheckBox.IsChecked;
-
-            try
-            {
-                //this need to be wrapped in a try catch block to handle any potential database errors
-                using var db = new AppDbContext();
-                db.Orders.Update(_currentOrder);
-                db.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                DisplayAlert("Error", $"No se pudo guardar la orden: {ex.Message}", "OK");
-                return;
-            }
+            DisplayAlert("Error", "No se pudo guardar la orden.", "OK");
+            return; // Error occurred, don't close
         }
 
-        await CloseWindowAsync();
+        CloseThisWindow();
+    }
+
+    private bool SaveOrderChanges()
+    {
+        if (_currentOrder == null) return true;
+
+        try
+        {
+            using var db = new AppDbContext();
+
+            // Load the order with its items from the database
+            var orderFromDb = db.Orders
+                .Include(o => o.Items)
+                .FirstOrDefault(o => o.Id == _currentOrder.Id);
+
+            if (orderFromDb != null)
+            {
+                // Clear existing items (this will delete them from DB)
+                if (orderFromDb.Items != null)
+                {
+                    orderFromDb.Items.Clear();
+                }
+                else
+                {
+                    orderFromDb.Items = new List<OrderItem>();
+                }
+
+                // Add current items
+                foreach (var uiItem in OrderItems)
+                {
+                    // Create a new OrderItem for the database
+                    var dbItem = new OrderItem
+                    {
+                        Article = db.Articles.Find(uiItem.Article?.Id),
+                        Quantity = uiItem.Quantity,
+                        UnitPrice = uiItem.UnitPrice
+                    };
+                    orderFromDb.Items.Add(dbItem);
+                }
+
+                // Update order properties
+                orderFromDb.Discount = _discountAmount;
+                orderFromDb.IsDuePaid = dueToPayCheckBox.IsChecked;
+
+                db.SaveChanges();
+            }
+            return true;
+        }
+        catch (Exception ex)
+        {
+            DisplayAlert("Error", $"No se pudo guardar la orden: {ex.Message}", "OK");
+            return false;
+        }
     }
 
     private async Task CloseWindowAsync()
@@ -665,8 +659,6 @@ public partial class OrderVisual : ContentPage
             }
         }
     }
-
-    
 
 
     private void FocusOrderSectionSearchBar()
@@ -698,17 +690,10 @@ public partial class OrderVisual : ContentPage
 
     private async void OnPrintReceipt(object sender, EventArgs e)
     {
-
-        if (_currentOrder != null)
+        // Save order changes first
+        if (!SaveOrderChanges())
         {
-            _currentOrder.Items = OrderItems.ToList();
-            _currentOrder.Discount = _discountAmount;
-            _currentOrder.IsDuePaid = dueToPayCheckBox.IsChecked;
-
-            //this need to be wrapped in a try catch block to handle any potential database errors
-            using var db = new AppDbContext();
-            db.Orders.Update(_currentOrder);
-            db.SaveChanges();
+            return; // Error occurred during save, don't proceed with printing
         }
 
         Console.WriteLine("Print receipt clicked");
