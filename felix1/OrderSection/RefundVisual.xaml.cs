@@ -20,8 +20,8 @@ public partial class RefundVisual : ContentPage
     public ICommand DiscardCommand { get; }
     public ICommand ProcessRefundCommand { get; }
 
-    private OrderItem _selectedOriginalItem;
-    private OrderItem _selectedRefundedItem;
+    private OrderItem? _selectedOriginalItem = new OrderItem();
+    private OrderItem? _selectedRefundedItem = new OrderItem();
     private bool _canExecuteCommands = true;
 
     public RefundVisual(Order order)
@@ -69,7 +69,7 @@ public partial class RefundVisual : ContentPage
 
     private void OnOriginalItemSelected(object sender, DataGridSelectionChangedEventArgs e)
     {
-        if (e.AddedRows.Count > 0 && e.AddedRows[0] is OrderItem selectedItem)
+        if (e.AddedRows!.Count > 0 && e.AddedRows[0] is OrderItem selectedItem)
         {
             _selectedOriginalItem = selectedItem;
         }
@@ -77,7 +77,7 @@ public partial class RefundVisual : ContentPage
 
     private void OnRefundedItemSelected(object sender, DataGridSelectionChangedEventArgs e)
     {
-        if (e.AddedRows.Count > 0 && e.AddedRows[0] is OrderItem selectedItem)
+        if (e.AddedRows!.Count > 0 && e.AddedRows[0] is OrderItem selectedItem)
         {
             _selectedRefundedItem = selectedItem;
         }
@@ -193,12 +193,12 @@ public partial class RefundVisual : ContentPage
             await AppDbContext.ExecuteSafeAsync(async db =>
             {
                 // Adjuntar orden y usuario existentes
-                db.Orders.Attach(Refund.Order);
-                db.Users.Attach(Refund.User);
+                db.Orders.Attach(Refund.Order!);
+                db.Users.Attach(Refund.User!);
 
                 foreach (var item in Refund.RefundedItems)
                 {
-                    db.Articles.Attach(item.Article);
+                    db.Articles.Attach(item.Article!);
                 }
 
                 // Agregar la devolución

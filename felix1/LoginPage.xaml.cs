@@ -42,8 +42,8 @@ public partial class LoginPage : ContentPage, INotifyPropertyChanged
 
     public string ProgressText => $"{(int)(ProgressValue * 100)}%";
 
-    private string _username;
-    public string Username
+    private string? _username;
+    public string? Username
     {
         get => _username;
         set
@@ -56,8 +56,8 @@ public partial class LoginPage : ContentPage, INotifyPropertyChanged
         }
     }
 
-    private string _password;
-    public string Password
+    private string? _password;
+    public string? Password
     {
         get => _password;
         set
@@ -149,11 +149,11 @@ public partial class LoginPage : ContentPage, INotifyPropertyChanged
         }
     }
 
-    #region INotifyPropertyChanged
-    public event PropertyChangedEventHandler? PropertyChanged;
-    protected virtual void OnPropertyChanged(string propertyName)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-    #endregion
+        #region INotifyPropertyChanged
+        public new event PropertyChangedEventHandler? PropertyChanged;
+        protected new virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        #endregion
 }

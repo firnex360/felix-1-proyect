@@ -121,7 +121,7 @@ public partial class BalanceVisual : ContentPage
 				Mesero = group.Key?.Name ?? "Takeout",
 				TotalPlatos = group
 					.SelectMany(o => o.Items!)
-					.Count(i => i.Article.Category == ArticleCategory.Principal)
+					.Count(i => i.Article!.Category == ArticleCategory.Principal)
 			})
 			.ToList();
 

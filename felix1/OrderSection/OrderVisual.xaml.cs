@@ -739,7 +739,7 @@ public partial class OrderVisual : ContentPage
                     pd.PrintPage += (sender, e) =>
                     {
                         System.Drawing.Font font = new System.Drawing.Font("Consolas", 8); // Monospaced font recommended for POS printers
-                        e.Graphics.DrawString(text, font, Brushes.Black, new System.Drawing.PointF(10, 10));
+                        e.Graphics!.DrawString(text, font, Brushes.Black, new System.Drawing.PointF(10, 10));
                     };
                     
                     pd.Print();

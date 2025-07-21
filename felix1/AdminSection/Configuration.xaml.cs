@@ -37,11 +37,11 @@ public partial class Configuration : ContentView
             Preferences.Set("WaiterTaxRate", txtWaiterTax.Value.ToString());
             Preferences.Set("InvoiceComment", txtComment.Text);
 
-            await Application.Current.MainPage.DisplayAlert("Éxito", "Configuración guardada correctamente", "OK");
+            await Application.Current!.MainPage!.DisplayAlert("Éxito", "Configuración guardada correctamente", "OK");
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert("Error", $"No se pudo guardar: {ex.Message}", "OK");
+            await Application.Current!.MainPage!.DisplayAlert("Error", $"No se pudo guardar: {ex.Message}", "OK");
         }
     }
 }
