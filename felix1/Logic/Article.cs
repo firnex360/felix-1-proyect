@@ -30,6 +30,6 @@ namespace felix1.Logic
         public bool IsSideDish { get; set; } = false;
 
         // Self-referencing relationship for side dishes
-        public List<Article>? SideDishes { get; set; } = new();
+        public List<Article> SideDishes { get; set; } = new();
     }
 }

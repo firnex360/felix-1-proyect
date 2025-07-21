@@ -14,13 +14,12 @@ public partial class ListTableVisual : ContentView
     // Add tracking for currently highlighted table
     private Table? _currentHighlightedTable = null;
     private bool _isGlobalSearchMatch = false;
-    
+        public bool ShowCompletedOrders { get; set; } = false;
+
     // Add tracking for multiple matching tables (Tab navigation)
     private List<Frame> _matchingLocalFrames = new();
     private List<Table> _matchingLocalTables = new();
     private int _activeLocalFrameIndex = 0;
-
-    public bool ShowCompletedOrders { get; set; } = false;
 
     public ListTableVisual()
     {
@@ -232,7 +231,8 @@ public partial class ListTableVisual : ContentView
 
     private async void OnCreateTableWindowClicked(User user)
     {
-        // Removed unused variable 'order'
+        Order? order = null;
+
         await AppDbContext.ExecuteSafeAsync(async db =>
         {
             var waiter = await AppDbContext.ExecuteSafeAsync(async db =>
@@ -450,35 +450,47 @@ private void LoadExistingTakeoutOrders()
 
     private async void OnViewOrderClicked(Order order)
     {
-        var loadedOrder = await AppDbContext.ExecuteSafeAsync(async db =>
-            await db.Orders
-                .Include(o => o.Table)
-                .Include(o => o.Waiter)
-                .Include(o => o.Items)
-                .ThenInclude(oi => oi.Article)
-                .FirstOrDefaultAsync(o => o.Id == order.Id));
 
-        if (loadedOrder == null)
+        try
         {
-            if (Application.Current?.MainPage != null)
-                await Application.Current.MainPage.DisplayAlert("Error", "No se pudo cargar la orden.", "OK");
-            return;
+            var loadedOrder = await AppDbContext.ExecuteSafeAsync(async db =>
+                await db.Orders
+                    .Include(o => o.Table)
+                    .Include(o => o.Waiter)
+                    .Include(o => o.Items)
+                    .ThenInclude(oi => oi.Article!)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(o => o.Id == order.Id));
+
+            if (loadedOrder == null)
+            {
+                if (Application.Current?.MainPage != null)
+                    await Application.Current.MainPage.DisplayAlert("Error", "No se pudo cargar la orden.", "OK");
+                return;
+            }
+
+            var displayInfo = DeviceDisplay.Current.MainDisplayInfo;
+            ContentPage targetPage = loadedOrder.IsBillRequested
+                ? new PaymentVisual(loadedOrder)
+                : new OrderVisual(loadedOrder);
+
+            var window = new Window(targetPage)
+            {
+                Height = 700,
+                Width = 1000,
+                X = (displayInfo.Width / displayInfo.Density - 1000) / 2,
+                Y = ((displayInfo.Height / displayInfo.Density - 700) / 2) - 25
+            };
+
+            Application.Current?.OpenWindow(window);
+            
         }
-
-        var displayInfo = DeviceDisplay.Current.MainDisplayInfo;
-        ContentPage targetPage = loadedOrder.IsBillRequested
-            ? new PaymentVisual(loadedOrder)
-            : new OrderVisual(loadedOrder);
-
-        var window = new Window(targetPage)
+        catch (Exception e)
         {
-            Height = 700,
-            Width = 1000,
-            X = (displayInfo.Width / displayInfo.Density - 1000) / 2,
-            Y = ((displayInfo.Height / displayInfo.Density - 700) / 2) - 25
-        };
 
-        Application.Current?.OpenWindow(window);
+            Console.WriteLine(e.Message);
+        }        
+
     }
 
     private void LoadTables()
@@ -499,9 +511,6 @@ private void LoadExistingTakeoutOrders()
         LoadExistingTakeoutOrders();
     }
     
-
-
-
 
     // Method to open the currently highlighted table's order
     public async void OpenHighlightedTable()
