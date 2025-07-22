@@ -19,10 +19,18 @@ public partial class AdminSectionMainVisual : ContentPage
         #endif
     }
 
+    public void SetRightPanelContent(ContentView content)
+    {
+        RightPanel.Content = content;
+    }
+
+    public ContentView RightPanelView => RightPanel;
+
     private void SetButtonChecked(SfButton checkedButton)
     {
         btnShowArticle.IsChecked = checkedButton == btnShowArticle;
         btnShowUser.IsChecked = checkedButton == btnShowUser;
+        btnShowCuadre.IsChecked = checkedButton == btnShowCuadre;
         btnShowConfiguration.IsChecked = checkedButton == btnShowConfiguration;
     }
 
@@ -49,6 +57,19 @@ public partial class AdminSectionMainVisual : ContentPage
         catch (Exception ex)
         {
             await DisplayAlert("Error", $"No se pudo cargar la seccion de usuarios: {ex.Message}", "OK");
+        }
+    }
+
+    private async void OnShowCuadre(object sender, EventArgs e)
+    {
+        try
+        {
+            SetButtonChecked(btnShowCuadre);
+            RightPanel.Content = new ListCashRegisterVisual(); 
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"No se pudo cargar el historial de cuadre: {ex.Message}", "OK");
         }
     }
 
