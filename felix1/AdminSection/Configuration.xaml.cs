@@ -11,14 +11,14 @@ public partial class Configuration : ContentView
     private void LoadSavedData()
     {
         // Load all saved values (fall back to defaults if not found)
-        txtCompany.Text = Preferences.Get("CompanyName", "FELIX I");
-        txtAddress.Text = Preferences.Get("CompanyAddress", "AV. HISPANOAMERICA");
-        txtPhone.Value = double.Parse(Preferences.Get("CompanyPhone", "8095828134"));
+        txtCompany.Text = Preferences.Get("CompanyName", "Sin nombre");
+        txtAddress.Text = Preferences.Get("CompanyAddress", "Sin dirección");
+        txtPhone.Value = double.Parse(Preferences.Get("CompanyPhone", "0"));
         txtEmail.Text = Preferences.Get("CompanyEmail", "");
-        txtRNC.Value = double.Parse(Preferences.Get("CompanyRNC", "130622914"));
-        txtTax.Value = double.Parse(Preferences.Get("TaxRate", "18"));
-        txtDeliveryTax.Value = double.Parse(Preferences.Get("DeliveryTaxRate", "10"));
-        txtWaiterTax.Value = double.Parse(Preferences.Get("WaiterTaxRate", "5"));
+        txtRNC.Value = double.Parse(Preferences.Get("CompanyRNC", "0"));
+        txtTax.Value = double.Parse(Preferences.Get("TaxRate", "0"));
+        txtDeliveryTax.Value = double.Parse(Preferences.Get("DeliveryTaxRate", "0"));
+        txtWaiterTax.Value = double.Parse(Preferences.Get("WaiterTaxRate", "0"));
         txtComment.Text = Preferences.Get("InvoiceComment", "GRACIAS POR PREFERIRNOS");
     }
     
