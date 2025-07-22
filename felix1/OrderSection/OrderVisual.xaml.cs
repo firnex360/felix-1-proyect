@@ -58,7 +58,7 @@ public partial class OrderVisual : ContentPage
 
             var item = OrderItems[rowIndex - 1];
 
-            // Obtener el valor actual de Quantity por reflexi�n
+            // Obtener el valor actual de Quantity por reflexion
             var quantityProp = item.GetType().GetProperty("Quantity");
             if (quantityProp == null) return;
 
@@ -590,6 +590,23 @@ public partial class OrderVisual : ContentPage
         CloseThisWindow();
     }
 
+    private void CloseThisWindow()
+    {
+        var app = Microsoft.Maui.Controls.Application.Current;
+        if (app != null)
+        {
+            foreach (var window in app.Windows)
+            {
+                if (window.Page == this)
+                {
+                    app.CloseWindow(window);
+                    FocusOrderSectionSearchBar();
+                    break;
+                }
+            }
+        }
+    }
+
     private bool SaveOrderChanges()
     {
         if (_currentOrder == null) return true;
@@ -642,24 +659,6 @@ public partial class OrderVisual : ContentPage
             return false;
         }
     }
-
-    private void CloseThisWindow()
-    {
-        var app = Microsoft.Maui.Controls.Application.Current;
-        if (app != null)
-        {
-            foreach (var window in app.Windows)
-            {
-                if (window.Page == this)
-                {
-                    app.CloseWindow(window);
-                    FocusOrderSectionSearchBar();
-                    break;
-                }
-            }
-        }
-    }
-
 
     private void FocusOrderSectionSearchBar()
     {
@@ -803,10 +802,11 @@ public partial class OrderVisual : ContentPage
         MainThread.BeginInvokeOnMainThread(() =>
         {
             subtotalLabel.Text = subtotal.ToString("C2");
-            taxLabel.Text = $"{tax:C2} ({_taxRate:P0})";
-            taxWaiterLabel.Text = $"{waiterTax:C2} ({_waiterTaxRate:P0})";
+            taxLabelTitle.Text = $"Impuestos (ITBIS) ({_taxRate:P0}):";
+            taxLabel.Text = $"{tax:C2}";
+            taxWaiterLabelTitle.Text = $"Propina Mesero ({_waiterTaxRate:P0}):";
+            taxWaiterLabel.Text = $"{waiterTax:C2}";
             totalLabel.Text = total.ToString("C2");
-            //discountEntry.Text = _discountAmount.ToString("C2");
         });
     }
 
