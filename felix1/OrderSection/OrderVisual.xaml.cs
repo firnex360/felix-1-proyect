@@ -563,80 +563,84 @@ public partial class OrderVisual : ContentPage
             orderItemsDataGrid.BeginEdit(rowIndex, quantityColumnIndex);
     }
 
-    // private void OnExitSave(object sender, EventArgs e)
-    // {
-    //     if (OrderItems.Any(item => item.Quantity < 0))
-    //     {
-    //         DisplayAlert("Cantidad invalida", "No se puede guardar una orden con cantidades negativas.", "OK");
-    //         return;
-    //     }
-
-    //     if (!OrderItems.Any())
-    //     {
-    //         var result = await DisplayAlert("Orden vac�a",
-    //             "�Desea cerrar esta orden sin art�culos?",
-    //             "S�, cerrar",
-    //             "No, cancelar");
-
-    //         if (!result) return;
-    //     }
-
-    //     if (_currentOrder != null)
-    //     {
-    //         _currentOrder.Items = OrderItems.ToList();
-    //         _currentOrder.Discount = _discountAmount;
-    //         _currentOrder.IsDuePaid = dueToPayCheckBox.IsChecked;
-
-    //         try
-    //         {
-    //             using var db = new AppDbContext();
-
-    //             if (_currentOrder.Id == 0)
-    //                 db.Orders.Add(_currentOrder);
-    //             else
-    //                 db.Orders.Update(_currentOrder);
-
-    //             await db.SaveChangesAsync();
-    //         }
-    //         catch (Exception ex)
-    //         {
-    //             await DisplayAlert("Error", $"No se pudo guardar la orden: {ex.Message}", "OK");
-    //             return;
-    //         }
-    //     }
-
-    //     await CloseWindowAsync();
-    // }
-
-    private void OnExitSave(object sender, EventArgs e)
+    private async void OnExitSave(object sender, EventArgs e)
     {
         if (OrderItems.Any(item => item.Quantity < 0))
         {
-            DisplayAlert("Cantidad invalida", "No se puede guardar una orden con cantidades negativas.", "OK");
+            await DisplayAlert("Cantidad invalida", "No se puede guardar una orden con cantidades negativas.", "OK");
             return;
         }
 
-        if (_currentOrder != null)
+        if (!OrderItems.Any())
         {
-            _currentOrder.Items = OrderItems.ToList();
-            _currentOrder.Discount = _discountAmount;
-            _currentOrder.IsDuePaid = dueToPayCheckBox.IsChecked;
+            var result = await DisplayAlert("Orden vacia",
+                "¿Desea cerrar esta orden sin articulos?",
+                "Si, cerrar",
+                "No, cancelar");
 
-            try
-            {
-                //this need to be wrapped in a try catch block to handle any potential database errors
-                using var db = new AppDbContext();
-                db.Orders.Update(_currentOrder);
-                db.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                DisplayAlert("Error", $"No se pudo guardar la orden: {ex.Message}", "OK");
-                return;
-            }
+            if (result) return;
+        }
+
+        if (!SaveOrderChanges())
+        {
+            await DisplayAlert("Error", "No se pudo guardar la orden.", "OK");
+            return; // Error occurred, don't close
         }
 
         CloseThisWindow();
+    }
+
+    private bool SaveOrderChanges()
+    {
+        if (_currentOrder == null) return true;
+
+        try
+        {
+            using var db = new AppDbContext();
+
+            // Load the order with its items from the database
+            var orderFromDb = db.Orders
+                .Include(o => o.Items)
+                .FirstOrDefault(o => o.Id == _currentOrder.Id);
+
+            if (orderFromDb != null)
+            {
+                // Clear existing items (this will delete them from DB)
+                if (orderFromDb.Items != null)
+                {
+                    orderFromDb.Items.Clear();
+                }
+                else
+                {
+                    orderFromDb.Items = new List<OrderItem>();
+                }
+
+                // Add current items
+                foreach (var uiItem in OrderItems)
+                {
+                    // Create a new OrderItem for the database
+                    var dbItem = new OrderItem
+                    {
+                        Article = db.Articles.Find(uiItem.Article?.Id),
+                        Quantity = uiItem.Quantity,
+                        UnitPrice = uiItem.UnitPrice
+                    };
+                    orderFromDb.Items.Add(dbItem);
+                }
+
+                // Update order properties
+                orderFromDb.Discount = _discountAmount;
+                orderFromDb.IsDuePaid = dueToPayCheckBox.IsChecked;
+
+                db.SaveChanges();
+            }
+            return true;
+        }
+        catch (Exception ex)
+        {
+            DisplayAlert("Error", $"No se pudo guardar la orden: {ex.Message}", "OK");
+            return false;
+        }
     }
 
     private void CloseThisWindow()
@@ -655,8 +659,6 @@ public partial class OrderVisual : ContentPage
             }
         }
     }
-
-    
 
 
     private void FocusOrderSectionSearchBar()
@@ -688,6 +690,8 @@ public partial class OrderVisual : ContentPage
 
     private async void OnPrintReceipt(object sender, EventArgs e)
     {
+        // Save order changes first
+        if (!SaveOrderChanges())
 
         // Validar si no hay items en la orden
         if (_currentOrder == null || _currentOrder.Items == null || _currentOrder.Items.Count == 0)
@@ -698,14 +702,7 @@ public partial class OrderVisual : ContentPage
 
         if (_currentOrder != null)
         {
-            _currentOrder.Items = OrderItems.ToList();
-            _currentOrder.Discount = _discountAmount;
-            _currentOrder.IsDuePaid = dueToPayCheckBox.IsChecked;
-
-            //this need to be wrapped in a try catch block to handle any potential database errors
-            using var db = new AppDbContext();
-            db.Orders.Update(_currentOrder);
-            db.SaveChanges();
+            return; // Error occurred during save, don't proceed with printing
         }
 
         Console.WriteLine("Print receipt clicked");
@@ -751,7 +748,7 @@ public partial class OrderVisual : ContentPage
                     pd.PrintPage += (sender, e) =>
                     {
                         System.Drawing.Font font = new System.Drawing.Font("Consolas", 8); // Monospaced font recommended for POS printers
-                        e.Graphics.DrawString(text, font, Brushes.Black, new System.Drawing.PointF(10, 10));
+                        e.Graphics!.DrawString(text, font, Brushes.Black, new System.Drawing.PointF(10, 10));
                     };
                     
                     pd.Print();

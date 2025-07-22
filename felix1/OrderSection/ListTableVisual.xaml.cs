@@ -58,7 +58,7 @@ public partial class ListTableVisual : ContentView
             var orders = await db.Orders
                 .Include(o => o.Table)
                 .Include(o => o.Waiter)
-                .Include(o => o.Items)
+                .Include(o => o.Items!)
                     .ThenInclude(oi => oi.Article)
                 .Where(o => o.Table != null &&
                            o.Waiter != null &&
@@ -211,7 +211,7 @@ public partial class ListTableVisual : ContentView
 
         if (loadedOrder == null)
         {
-            await Application.Current.MainPage.DisplayAlert("Error", "No se pudo cargar la orden.", "OK");
+            await Application.Current!.MainPage!.DisplayAlert("Error", "No se pudo cargar la orden.", "OK");
             return;
         }
 
@@ -231,8 +231,6 @@ public partial class ListTableVisual : ContentView
 
     private async void OnCreateTableWindowClicked(User user)
     {
-        Order? order = null;
-
         await AppDbContext.ExecuteSafeAsync(async db =>
         {
             var waiter = await AppDbContext.ExecuteSafeAsync(async db =>
@@ -347,7 +345,12 @@ private void AddTakeoutOrderToPanel(Order order)
         TextColor = Colors.White,
         CornerRadius = 5,
         HorizontalOptions = LayoutOptions.Fill,
-        Command = new Command(() => OnViewOrderClicked(order))
+        Command = new Command(() =>{
+            if (order.IsDuePaid)
+                RefundVisual(order);
+            else
+                OnViewOrderClicked(order);
+        })
     };
 
     // Find the container in the visual tree
@@ -452,7 +455,7 @@ private void LoadExistingTakeoutOrders()
                 await db.Orders
                     .Include(o => o.Table)
                     .Include(o => o.Waiter)
-                    .Include(o => o.Items)
+                    .Include(o => o.Items!)
                     .ThenInclude(oi => oi.Article!)
                     .AsNoTracking()
                     .FirstOrDefaultAsync(o => o.Id == order.Id));

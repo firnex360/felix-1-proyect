@@ -527,7 +527,7 @@ namespace felix1.OrderSection
         }
 
         // Print receipt method (for transaction)
-        private async void OnPrintReceipt(object sender, EventArgs e)
+        private void OnPrintReceipt(object sender, EventArgs e)
         {
             Console.WriteLine("Print transaction receipt clicked");
             
@@ -557,7 +557,7 @@ namespace felix1.OrderSection
                 pd.PrintPage += (sender, e) =>
                 {
                     System.Drawing.Font font = new System.Drawing.Font("Consolas", 10);
-                    e.Graphics.DrawString(text, font, System.Drawing.Brushes.Black, new System.Drawing.PointF(10, 10));
+                    e.Graphics!.DrawString(text, font, System.Drawing.Brushes.Black, new System.Drawing.PointF(10, 10));
                 };
                 pd.Print();
                 Console.WriteLine("Printed successfully.");
