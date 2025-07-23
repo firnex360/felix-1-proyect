@@ -1,16 +1,35 @@
-Mesa: {{ order.Table.LocalNumber }} (Global: {{ order.Table.GlobalNumber }})
+╔══════════════════════════════════════════════╗
+║                   FELIX I                    ║
+║              AV. HISPANOAMERICA              ║
+║                Tel: 8095828134               ║
+║                RNC: 130622914                ║
+╚══════════════════════════════════════════════╝
+
+
+Mesa: {{ order.Table.LocalNumber }} [Global: {{ order.Table.GlobalNumber }}]
 Orden #: {{ order.OrderNumber }}
 Fecha: {{ order.Date}}
 Mesero: {{ order.Waiter.Name }}
---------------------------------------------------
+═══════════════════════════════════════════════
+
+{{ if order.Table.IsTakeOut }}
+═══════════════════════════════════════════════
+          *** PARA LLEVAR ***
+═══════════════════════════════════════════════
+{{end}}
+
 Artículos:
 {{ for item in order.Items }}
-- {{ item.ArticleName }} x{{ item.Quantity }} @ {{ item.UnitPrice}} = {{ item.TotalPrice }}
-{{ end }}
---------------------------------------------------
+- {{ item.ArticleName }}
+{{ item.Quantity }} x {{ item.UnitPrice | math.format "c" "en-US"}}  || {{ item.TotalPrice | math.format "c" "en-US"}}
 
-{{ if order.IsDuePaid }}
-[Pendiente de pago]
-{{ else }}
-[Pagado]
 {{ end }}
+
+═══════════════════════════════════════════════
+{{ if order.IsDuePaid }}
+          *** PENDIENTE DE PAGO ***
+{{ else }}
+          ***      PAGADO       ***
+{{ end }}
+
+GRACIAS POR PREFERIRNOS
