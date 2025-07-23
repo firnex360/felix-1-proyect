@@ -1,6 +1,8 @@
 using felix1.Data;
 using felix1.Logic;
 using Microsoft.Maui.ApplicationModel;
+using Microsoft.EntityFrameworkCore;
+using Syncfusion.Maui.Popup;
 using Application = Microsoft.Maui.Controls.Application;
 
 #if WINDOWS
@@ -92,6 +94,7 @@ public partial class OrderSectionMainVisual : ContentPage
 
     private async void OnPaymentButtonClicked(object sender, EventArgs e)
     {
+        // esto sigue siendo relevante?
         // Crear un pedido de prueba con artículos reales
         var testOrder = new Order
         {
@@ -139,8 +142,15 @@ public partial class OrderSectionMainVisual : ContentPage
         }
     }
 
-    private void OnSearchBarSearchButtonPressed(object sender, EventArgs e)
+    private async void OnSearchBarSearchButtonPressed(object sender, EventArgs e)
     {
+        if (string.IsNullOrWhiteSpace(searchBar.Text))
+        {
+            // Show popup with take-out section and available waiters
+            await ShowQuickAccessPopup();
+            return;
+        }
+
         // Handle search button press - open the highlighted table
         if (RightPanel.Content is ListTableVisual ListTableVisual)
         {
@@ -179,6 +189,19 @@ public partial class OrderSectionMainVisual : ContentPage
 #if WINDOWS
     private void SearchBarPlatformView_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
     {
+        // Handle keyboard shortcuts
+        switch (e.Key)
+        {
+            case Windows.System.VirtualKey.F1: // F1 for Takeout
+                CreateTakeoutOrder();
+                e.Handled = true;
+                return;
+            case Windows.System.VirtualKey.F2: // F2 for New Table
+                _ = ShowQuickAccessPopup();
+                e.Handled = true;
+                return;
+        }
+
         if (e.Key == Windows.System.VirtualKey.Tab)
         {
             if (RightPanel.Content is ListTableVisual ListTableVisual)
@@ -193,6 +216,20 @@ public partial class OrderSectionMainVisual : ContentPage
             e.Handled = true;
         }
     }
+
+    private void CreateTakeoutOrder()
+    {
+        if (RightPanel.Content is ListTableVisual listTableVisual)
+        {
+            // Call the create takeout order method directly
+            var method = typeof(ListTableVisual).GetMethod("OnCreateTakeoutOrderClicked", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (method != null)
+            {
+                method.Invoke(listTableVisual, new object[] { this, EventArgs.Empty });
+            }
+        }
+    }
 #endif
 
     private void OnShowCompletedChanged(object sender, CheckedChangedEventArgs e)
@@ -202,6 +239,195 @@ public partial class OrderSectionMainVisual : ContentPage
             ListTableVisual.ShowCompletedOrders = e.Value;
             ListTableVisual.ReloadTM();
         }
+    }
+
+    private async Task ShowQuickAccessPopup()
+    {
+        try
+        {
+            // Create the popup content
+            var popupContent = new StackLayout
+            {
+                Spacing = 15,
+                Padding = 20,
+                BackgroundColor = Colors.White,
+                WidthRequest = 400,
+                HeightRequest = 300
+            };
+
+            // Title
+            popupContent.Children.Add(new Label
+            {
+                Text = "🚀 Acceso Rápido",
+                FontSize = 20,
+                FontAttributes = FontAttributes.Bold,
+                TextColor = Color.FromArgb("#005F8C"),
+                HorizontalOptions = LayoutOptions.Center,
+                Margin = new Microsoft.Maui.Thickness(0, 0, 0, 15)
+            });
+
+            // Create Take-out Order button
+            var createTakeoutButton = new Button
+            {
+                Text = "🛍️ Crear Orden Para Llevar",
+                BackgroundColor = Color.FromArgb("#FF9800"),
+                TextColor = Colors.White,
+                CornerRadius = 8,
+                HeightRequest = 50,
+                FontSize = 16,
+                FontAttributes = FontAttributes.Bold,
+                HorizontalOptions = LayoutOptions.Fill,
+                Margin = new Microsoft.Maui.Thickness(0, 5, 0, 5)
+            };
+
+            // Available waiters section
+            await AddAvailableWaitersSection(popupContent);
+
+            // Create Syncfusion popup
+            var popup = new SfPopup
+            {
+                ContentTemplate = new Microsoft.Maui.Controls.DataTemplate(() => popupContent),
+                PopupStyle = new PopupStyle
+                {
+                    CornerRadius = 12,
+                    HasShadow = true,
+                    BlurRadius = 3
+                },
+                StaysOpen = false,
+                ShowCloseButton = true,
+                ShowFooter = false,
+                ShowHeader = false,
+                WidthRequest = 450,
+                HeightRequest = 350,
+                AutoSizeMode = PopupAutoSizeMode.None
+            };
+
+            // Wire up the takeout button
+            createTakeoutButton.Clicked += (s, e) =>
+            {
+                popup.Dismiss();
+                if (RightPanel.Content is ListTableVisual listTableVisual)
+                {
+                    // Call the create takeout order method
+                    var method = typeof(ListTableVisual).GetMethod("OnCreateTakeoutOrderClicked", 
+                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (method != null)
+                    {
+                        method.Invoke(listTableVisual, new object[] { s, e });
+                    }
+                }
+            };
+
+            // Show the popup
+            popup.Show();
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"Error al mostrar el popup: {ex.Message}", "OK");
+        }
+    }
+
+    private async Task AddAvailableWaitersSection(StackLayout parent)
+    {
+        // Available waiters section header
+        parent.Children.Add(new Label
+        {
+            Text = "� Crear Mesa para Mesero",
+            FontSize = 16,
+            FontAttributes = FontAttributes.Bold,
+            TextColor = Color.FromArgb("#005F8C"),
+            Margin = new Microsoft.Maui.Thickness(0, 10, 0, 10)
+        });
+
+        // Get available waiters
+        var availableWaiters = await AppDbContext.ExecuteSafeAsync(async db =>
+            await db.Users
+                .Where(u => u.Role == "Mesero" && !u.Deleted && u.Available)
+                .ToListAsync());
+
+        if (availableWaiters.Any())
+        {
+            var waitersGrid = new Grid
+            {
+                ColumnSpacing = 8,
+                RowSpacing = 8,
+                HorizontalOptions = LayoutOptions.Fill
+            };
+
+            // Set up columns (2 per row for waiters)
+            waitersGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new Microsoft.Maui.GridLength(1, Microsoft.Maui.GridUnitType.Star) });
+            waitersGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new Microsoft.Maui.GridLength(1, Microsoft.Maui.GridUnitType.Star) });
+
+            int row = 0, col = 0;
+            foreach (var waiter in availableWaiters)
+            {
+                // Add row definition if needed
+                if (col == 0)
+                    waitersGrid.RowDefinitions.Add(new RowDefinition { Height = Microsoft.Maui.GridLength.Auto });
+
+                var waiterButton = new Button
+                {
+                    Text = $"👤 {waiter.Name}",
+                    FontSize = 12,
+                    HeightRequest = 40,
+                    BackgroundColor = Color.FromArgb("#4CAF50"),
+                    TextColor = Colors.White,
+                    CornerRadius = 6,
+                    HorizontalOptions = LayoutOptions.Fill
+                };
+
+                waiterButton.Clicked += (s, e) =>
+                {
+                    // Find the parent popup and dismiss it
+                    var popup = FindParentPopup(waiterButton);
+                    popup?.Dismiss();
+                    
+                    if (RightPanel.Content is ListTableVisual listTableVisual)
+                    {
+                        // Call the create table method for this waiter
+                        var method = typeof(ListTableVisual).GetMethod("OnCreateTableWindowClicked", 
+                            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                        method?.Invoke(listTableVisual, new object[] { waiter });
+                    }
+                };
+
+                waitersGrid.Children.Add(waiterButton);
+                Grid.SetRow(waiterButton, row);
+                Grid.SetColumn(waiterButton, col);
+
+                col++;
+                if (col >= 2)
+                {
+                    col = 0;
+                    row++;
+                }
+            }
+
+            parent.Children.Add(waitersGrid);
+        }
+        else
+        {
+            parent.Children.Add(new Label
+            {
+                Text = "No hay meseros disponibles",
+                FontAttributes = FontAttributes.Italic,
+                TextColor = Colors.Gray,
+                HorizontalOptions = LayoutOptions.Center,
+                FontSize = 12
+            });
+        }
+    }
+
+    private SfPopup? FindParentPopup(Element element)
+    {
+        var parent = element.Parent;
+        while (parent != null)
+        {
+            if (parent is SfPopup popup)
+                return popup;
+            parent = parent.Parent;
+        }
+        return null;
     }
 
 
