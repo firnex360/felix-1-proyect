@@ -7,7 +7,7 @@
              BackgroundColor="White">
 
     <VerticalStackLayout Spacing="25"
-            Padding="20">
+                         Padding="20">
         <!-- Company Information Section -->
         <Frame BackgroundColor="#F8F9FA"
                CornerRadius="12"
@@ -22,7 +22,7 @@
                        Margin="0,0,0,10"/>
 
                 <Grid RowSpacing="15"
-                        ColumnSpacing="15">
+                      ColumnSpacing="15">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
@@ -35,8 +35,8 @@
 
                     <!-- Company Name -->
                     <VerticalStackLayout Grid.Row="0"
-                            Grid.Column="0"
-                            Spacing="5">
+                                         Grid.Column="0"
+                                         Spacing="5">
                         <Label Text="Nombre de la Empresa:"
                                FontSize="14"
                                FontAttributes="Bold"
@@ -56,8 +56,8 @@
 
                     <!-- Address -->
                     <VerticalStackLayout Grid.Row="0"
-                            Grid.Column="1"
-                            Spacing="5">
+                                         Grid.Column="1"
+                                         Spacing="5">
                         <Label Text="Dirección:"
                                FontSize="14"
                                FontAttributes="Bold"
@@ -77,8 +77,8 @@
 
                     <!-- Email -->
                     <VerticalStackLayout Grid.Row="1"
-                            Grid.Column="0"
-                            Spacing="5">
+                                         Grid.Column="0"
+                                         Spacing="5">
                         <Label Text="Email:"
                                FontSize="14"
                                FontAttributes="Bold"
@@ -99,56 +99,56 @@
 
                     <!-- Phone -->
                     <VerticalStackLayout Grid.Row="1"
-                            Grid.Column="1"
-                            Spacing="5">
+                                         Grid.Column="1"
+                                         Spacing="5">
                         <Label Text="Teléfono:"
                                FontSize="14"
                                FontAttributes="Bold"
                                TextColor="#005F8C"/>
                         <Frame BackgroundColor="White"
                                CornerRadius="8"
-                               Padding="0"
+                               Padding="5"
                                HasShadow="False"
                                BorderColor="#C7CFDD">
-                            <numericEntry:SfNumericEntry x:Name="txtPhone"
-                                                         CustomFormat="000-000-0000"
-                                                         Placeholder="000-000-0000"
-                                                         ShowClearButton="False"
-                                                         TextColor="#005F8C"
-                                                         FontSize="14"
-                                                         BackgroundColor="Transparent"
-                                                         Stroke="Transparent"/>
+                            <inputLayout:SfTextInputLayout>
+                                <numericEntry:SfNumericEntry x:Name="txtPhone"
+                                                             CustomFormat="000-000-0000"
+                                                             Placeholder="000-000-0000"
+                                                             ShowClearButton="True"
+                                                             TextColor="#005F8C"
+                                                             FontSize="14"/>
+                            </inputLayout:SfTextInputLayout>
                         </Frame>
                     </VerticalStackLayout>
 
                     <!-- RNC -->
                     <VerticalStackLayout Grid.Row="2"
-                            Grid.Column="0"
-                            Spacing="5">
+                                         Grid.Column="0"
+                                         Spacing="5">
                         <Label Text="RNC:"
                                FontSize="14"
                                FontAttributes="Bold"
                                TextColor="#005F8C"/>
                         <Frame BackgroundColor="White"
                                CornerRadius="8"
-                               Padding="0"
+                               Padding="5"
                                HasShadow="False"
                                BorderColor="#C7CFDD">
-                            <numericEntry:SfNumericEntry x:Name="txtRNC"
-                                                         CustomFormat="0"
-                                                         Value="130622914"
-                                                         ShowClearButton="False"
-                                                         TextColor="#005F8C"
-                                                         FontSize="14"
-                                                         BackgroundColor="Transparent"
-                                                         Stroke="Transparent"/>
+                            <inputLayout:SfTextInputLayout>
+                                <numericEntry:SfNumericEntry x:Name="txtRNC"
+                                                             CustomFormat="0"
+                                                             Value="130622914"
+                                                             ShowClearButton="True"
+                                                             TextColor="#005F8C"
+                                                             FontSize="14"/>
+                            </inputLayout:SfTextInputLayout>
                         </Frame>
                     </VerticalStackLayout>
 
                     <!-- Comment -->
                     <VerticalStackLayout Grid.Row="2"
-                            Grid.Column="1"
-                            Spacing="5">
+                                         Grid.Column="1"
+                                         Spacing="5">
                         <Label Text="Comentario Al Pie De Factura:"
                                FontSize="14"
                                FontAttributes="Bold"
@@ -184,7 +184,7 @@
                        Margin="0,0,0,10"/>
 
                 <Grid RowSpacing="15"
-                        ColumnSpacing="15">
+                      ColumnSpacing="15">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
@@ -196,73 +196,73 @@
 
                     <!-- ITBIS Tax -->
                     <VerticalStackLayout Grid.Row="0"
-                            Grid.Column="0"
-                            Spacing="5">
+                                         Grid.Column="0"
+                                         Spacing="5">
                         <Label Text="ITBIS (%)"
                                FontSize="14"
                                FontAttributes="Bold"
                                TextColor="#005F8C"/>
                         <Frame BackgroundColor="White"
                                CornerRadius="8"
-                               Padding="0"
+                               Padding="5"
                                HasShadow="False"
                                BorderColor="#C7CFDD">
-                            <numericEntry:SfNumericEntry x:Name="txtTax"
-                                                         CustomFormat="0"
-                                                         Value="18"
-                                                         ShowClearButton="False"
-                                                         TextColor="#005F8C"
-                                                         FontSize="14"
-                                                         BackgroundColor="Transparent"
-                                                         Stroke="Transparent"/>
-                        </Frame>
-                    </VerticalStackLayout>
-
-                    <!-- Delivery Tax -->
-                    <VerticalStackLayout Grid.Row="0"
-                            Grid.Column="1"
-                            Spacing="5">
-                        <Label Text="Impuesto Delivery (%)"
-                               FontSize="14"
-                               FontAttributes="Bold"
-                               TextColor="#005F8C"/>
-                        <Frame BackgroundColor="White"
-                               CornerRadius="8"
-                               Padding="0"
-                               HasShadow="False"
-                               BorderColor="#C7CFDD">
-                            <numericEntry:SfNumericEntry x:Name="txtDeliveryTax"
-                                                         CustomFormat="0"
-                                                         Value="10"
-                                                         ShowClearButton="False"
-                                                         TextColor="#005F8C"
-                                                         FontSize="14"
-                                                         BackgroundColor="Transparent"
-                                                         Stroke="Transparent"/>
+                            <inputLayout:SfTextInputLayout>
+                                <numericEntry:SfNumericEntry x:Name="txtTax"
+                                                             CustomFormat="0"
+                                                             Value="18"
+                                                             ShowClearButton="True"
+                                                             TextColor="#005F8C"
+                                                             FontSize="14"/>
+                            </inputLayout:SfTextInputLayout>
                         </Frame>
                     </VerticalStackLayout>
 
                     <!-- Waiter Tax -->
                     <VerticalStackLayout Grid.Row="0"
-                            Grid.Column="2"
-                            Spacing="5">
+                                         Grid.Column="1"
+                                         Spacing="5">
                         <Label Text="Propina Mesero (%)"
                                FontSize="14"
                                FontAttributes="Bold"
                                TextColor="#005F8C"/>
                         <Frame BackgroundColor="White"
                                CornerRadius="8"
-                               Padding="0"
+                               Padding="5"
                                HasShadow="False"
                                BorderColor="#C7CFDD">
-                            <numericEntry:SfNumericEntry x:Name="txtWaiterTax"
-                                                         CustomFormat="0"
-                                                         Value="10"
-                                                         ShowClearButton="False"
-                                                         TextColor="#005F8C"
-                                                         FontSize="14"
-                                                         BackgroundColor="Transparent"
-                                                         Stroke="Transparent"/>
+                            <inputLayout:SfTextInputLayout>
+                                <numericEntry:SfNumericEntry x:Name="txtWaiterTax"
+                                                             CustomFormat="0"
+                                                             Value="10"
+                                                             ShowClearButton="True"
+                                                             TextColor="#005F8C"
+                                                             FontSize="14"/>
+                            </inputLayout:SfTextInputLayout>
+                        </Frame>
+                    </VerticalStackLayout>
+
+                    <!-- Delivery Tax -->
+                    <VerticalStackLayout Grid.Row="0"
+                                         Grid.Column="2"
+                                         Spacing="5">
+                        <Label Text="Impuesto Delivery (%)"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#005F8C"/>
+                        <Frame BackgroundColor="White"
+                               CornerRadius="8"
+                               Padding="5"
+                               HasShadow="False"
+                               BorderColor="#C7CFDD">
+                            <inputLayout:SfTextInputLayout>
+                                <numericEntry:SfNumericEntry x:Name="txtDeliveryTax"
+                                                             CustomFormat="0"
+                                                             Value="10"
+                                                             ShowClearButton="True"
+                                                             TextColor="#005F8C"
+                                                             FontSize="14"/>
+                            </inputLayout:SfTextInputLayout>
                         </Frame>
                     </VerticalStackLayout>
                 </Grid>
