@@ -272,13 +272,35 @@ public partial class CreateArticleVisual : ContentPage
         }
     }
 
-    private void OnSideDishClicked(object sender, CheckedChangedEventArgs e)
+    private async void OnSideDishClicked(object? sender, CheckedChangedEventArgs e)
     {
+        
+        if (sender is not CheckBox txtSideDish || editingArticle == null)
+            return;
+
         // Handle the side dish checkbox click event
-        if (e.Value)
+        if (editingArticle == null) return;
+        if (e.Value == false)
         {
+            //search for all the side dishes that may have editingArticle as a side dish
+            bool isUsedAsSideDish = await AppDbContext.ExecuteSafeAsync(async db =>
+            {
+                return await db.Articles
+                    .Include(a => a.SideDishes)
+                    .Where(a => !a.IsDeleted)
+                    .AnyAsync(a => a.SideDishes.Any(sd => sd.Id == editingArticle.Id));
+            });
+
+            if (isUsedAsSideDish)
+            {
+                await DisplayAlert("Advertencia", "Este artículo ya es un acompañante de otro artículo. No se puede des-marcar como acompañante.", "OK");
+                txtSideDish.CheckedChanged -= OnSideDishClicked;
+                txtSideDish.IsChecked = true;
+                txtSideDish.CheckedChanged += OnSideDishClicked;
+            }
             RightPanelA.IsEnabled = false;
             foreach (var item in SideDishArticles) { item.IsSelected = false; }
+            
         }
         else
         {
