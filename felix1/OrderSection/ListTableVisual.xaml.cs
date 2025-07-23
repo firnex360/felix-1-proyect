@@ -472,12 +472,14 @@ private void LoadExistingTakeoutOrders()
                 ? new PaymentVisual(loadedOrder)
                 : new OrderVisual(loadedOrder);
 
+            int height = 800;
+            int width = 1000;
             var window = new Window(targetPage)
             {
-                Height = 800,
-                Width = 1000,
-                X = (displayInfo.Width / displayInfo.Density - 1000) / 2,
-                Y = ((displayInfo.Height / displayInfo.Density - 700) / 2) - 25
+                Height = height,
+                Width = width,
+                X = (displayInfo.Width / displayInfo.Density - width) / 2,
+                Y = ((displayInfo.Height / displayInfo.Density - height) / 2)
             };
 
             Application.Current?.OpenWindow(window);
