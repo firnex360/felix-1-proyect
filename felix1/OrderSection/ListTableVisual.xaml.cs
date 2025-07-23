@@ -474,7 +474,7 @@ private void LoadExistingTakeoutOrders()
 
             var window = new Window(targetPage)
             {
-                Height = 700,
+                Height = 800,
                 Width = 1000,
                 X = (displayInfo.Width / displayInfo.Density - 1000) / 2,
                 Y = ((displayInfo.Height / displayInfo.Density - 700) / 2) - 25
@@ -642,81 +642,6 @@ private void LoadExistingTakeoutOrders()
             _isGlobalSearchMatch = true;
             // Find and highlight the frame for this table
             foundMatch = HighlightTableFrame(targetTable, true); // true indicates global search
-        }
-
-        return foundMatch;
-    }
-
-    private bool HighlightTableByLocalNumber(int localNumber)
-    {
-        bool foundMatch = false;
-
-        // Only clear if we haven't found a global match
-        if (!_isGlobalSearchMatch)
-        {
-            _currentHighlightedTable = null;
-        }
-
-        // Get all tables to find the one with matching local number
-        var allTables = AppDbContext.ExecuteSafeAsync(async db =>
-        {
-            var openCashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
-            if (openCashRegister == null) return new List<Table>();
-
-            return await db.Orders
-                .Include(o => o.Table)
-                .Include(o => o.Waiter)
-                .Where(o => o.CashRegister != null &&
-                           o.CashRegister.Id == openCashRegister.Id &&
-                           o.Table != null &&
-                           !o.IsDuePaid)
-                .Select(o => o.Table!)
-                .Distinct()
-                .ToListAsync();
-        }).GetAwaiter().GetResult();
-
-        // Search through all visible table frames
-        foreach (var meseroCard in MeseroContainer.Children.OfType<Frame>())
-        {
-            if (meseroCard.Content is VerticalStackLayout meseroStack)
-            {
-                foreach (var child in meseroStack.Children)
-                {
-                    if (child is VerticalStackLayout tableRow)
-                    {
-                        foreach (var tableFrame in tableRow.Children.OfType<Frame>())
-                        {
-                            if (tableFrame.Content is VerticalStackLayout tableContent)
-                            {
-                                // Find the table number label
-                                var tableLabel = tableContent.Children.OfType<Label>()
-                                    .FirstOrDefault(l => l.Text != null && l.Text.StartsWith("Mesa #"));
-
-                                if (tableLabel != null)
-                                {
-                                    // Extract local table number from label text
-                                    var labelText = tableLabel.Text.Replace("Mesa #", "");
-                                    if (int.TryParse(labelText, out int tableLocalNumber) && tableLocalNumber == localNumber)
-                                    {
-                                        // Find the corresponding table object and track it if not global match
-                                        var matchingTable = allTables.FirstOrDefault(t => t.LocalNumber == localNumber);
-                                        if (matchingTable != null && !_isGlobalSearchMatch)
-                                        {
-                                            _currentHighlightedTable = matchingTable;
-                                        }
-
-                                        // Highlight this frame with local search styling
-                                        ApplyHighlightStyling(tableFrame, false); // false indicates local search
-                                        foundMatch = true;
-                                    }
-                                }
-                            }
-                        }
-                        if (foundMatch) break;
-                    }
-                }
-                if (foundMatch) break;
-            }
         }
 
         return foundMatch;
