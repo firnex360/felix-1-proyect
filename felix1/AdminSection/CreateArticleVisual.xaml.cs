@@ -328,7 +328,7 @@ public partial class CreateArticleVisual : ContentView
 
             if (isUsedAsSideDish)
             {
-                await DisplayAlert("Advertencia", "Este artículo ya es un acompañante de otro artículo. No se puede des-marcar como acompañante.", "OK");
+                await ShowAlert("Advertencia", "Este artículo ya es un acompañante de otro artículo. No se puede des-marcar como acompañante.", "OK");
                 txtSideDish.CheckedChanged -= OnSideDishClicked;
                 txtSideDish.IsChecked = true;
                 txtSideDish.CheckedChanged += OnSideDishClicked;
