@@ -12,26 +12,26 @@ public partial class MainPage : ContentPage
     {
         InitializeComponent();
     }
-    private void OnCreateUserClicked(object sender, EventArgs e)
-    {
-        if (Application.Current != null)
-        {
-            //is this important? or just for testing
-            var newUser = new User
-            {
-                Id = 1,
-                Name = "a",
-                Username = "a",
-                Password = "a",
-                Role = "Admin"
-            };
+    // private void OnCreateUserClicked(object sender, EventArgs e)
+    // {
+    //     if (Application.Current != null)
+    //     {
+    //         //is this important? or just for testing
+    //         var newUser = new User
+    //         {
+    //             Id = 1,
+    //             Name = "a",
+    //             Username = "a",
+    //             Password = "a",
+    //             Role = "Admin"
+    //         };
 
-            //newUser = null;
+    //         //newUser = null;
 
-            var createUserWindow = new Window(new CreateUserVisual(newUser));
-            Application.Current.OpenWindow(createUserWindow);
-        }
-    }
+    //         var createUserWindow = new Window(new CreateUserVisual(newUser));
+    //         Application.Current.OpenWindow(createUserWindow);
+    //     }
+    // }
 
 
     private async void OnGoToPageBClicked(object sender, EventArgs e)
