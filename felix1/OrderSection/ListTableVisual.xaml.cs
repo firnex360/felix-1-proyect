@@ -393,33 +393,47 @@ private void AddTakeoutOrderToPanel(Order order)
 
 private void LoadExistingTakeoutOrders()
 {
-    // Find the container in the visual tree
-    if (this.FindByName("TakeoutOrdersContainer") is VerticalStackLayout container)
-    {
-        container.Children.Clear();
-
-        var takeoutOrders = AppDbContext.ExecuteSafeAsync(async db =>
+        // Find the container in the visual tree
+        if (this.FindByName("TakeoutOrdersContainer") is VerticalStackLayout container)
         {
-            var openCashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
-            if (openCashRegister == null) return new List<Order>();
+            container.Children.Clear();
 
-            return await db.Orders
-                .Include(o => o.Table)
-                .Where(o => o.Table != null &&
-                           o.Table.IsTakeOut &&
-                           o.CashRegister == openCashRegister &&
-                           !o.IsDuePaid)
-                .OrderBy(o => o.OrderNumber)
-                .ToListAsync();
-        }).GetAwaiter().GetResult();
+            var takeoutOrders = AppDbContext.ExecuteSafeAsync(async db =>
+            {
+                var openCashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
+                if (openCashRegister == null) return new List<Order>();
 
-        foreach (var order in takeoutOrders)
-        {
-            AddTakeoutOrderToPanel(order);
+                return await db.Orders
+                    .Include(o => o.Table)
+                    .Where(o => o.Table != null &&
+                               o.Table.IsTakeOut &&
+                               o.CashRegister == openCashRegister &&
+                               !o.IsDuePaid)
+                    .OrderBy(o => o.OrderNumber)
+                    .ToListAsync();
+            }).GetAwaiter().GetResult();
+
+            foreach (var order in takeoutOrders)
+            {
+                AddTakeoutOrderToPanel(order);
+            }
+
+            var createButton = new Button
+            {
+                Text = "Crear Pedido",
+                BackgroundColor = Color.FromArgb("#005F8C"),
+                TextColor = Colors.White,
+                CornerRadius = 8,
+                HeightRequest = 40,
+                WidthRequest = 120,
+                HorizontalOptions = LayoutOptions.Center,
+                Command = new Command(() => OnCreateTakeoutOrderClicked())
+            };
+            container.Children.Add(createButton);
         }
     }
-}
-    private async void OnCreateTakeoutOrderClicked(object sender, EventArgs e)
+
+    private async void OnCreateTakeoutOrderClicked()
     {
         await AppDbContext.ExecuteSafeAsync(async db =>
         {
