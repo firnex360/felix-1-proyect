@@ -350,7 +350,7 @@ public partial class OrderSectionMainVisual : ContentPage
                         System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                     if (method != null)
                     {
-                        method.Invoke(listTableVisual, new object[] { s, e });
+                        method.Invoke(listTableVisual, new object[] { s!, e });
                     }
                 }
             };
@@ -362,12 +362,12 @@ public partial class OrderSectionMainVisual : ContentPage
             waiterSearchBar.SearchButtonPressed += (s, e) =>
             {
                 var searchText = waiterSearchBar.Text?.Trim() ?? "";
-                User selectedWaiter = null;
+                User selectedWaiter = null!;
 
                 if (string.IsNullOrWhiteSpace(searchText))
                 {
                     // If no search text, select the first waiter
-                    selectedWaiter = availableWaiters.FirstOrDefault();
+                    selectedWaiter = availableWaiters.FirstOrDefault()!;
                 }
                 else if (int.TryParse(searchText, out int waiterNumber) && waiterNumber >= 1 && waiterNumber <= availableWaiters.Count)
                 {
@@ -379,7 +379,7 @@ public partial class OrderSectionMainVisual : ContentPage
                 {
                     // Otherwise, search by name
                     selectedWaiter = availableWaiters.FirstOrDefault(w => 
-                        w.Name.ToLower().Contains(searchText.ToLower()));
+                        w.Name!.ToLower().Contains(searchText.ToLower()))!;
                 }
 
                 if (selectedWaiter != null)
