@@ -248,11 +248,10 @@ public partial class OrderSectionMainVisual : ContentPage
             // Create the popup content
             var popupContent = new StackLayout
             {
-                Spacing = 15,
-                Padding = 20,
+                Spacing = 5,
+                Padding = 5,
                 BackgroundColor = Colors.White,
-                WidthRequest = 400,
-                HeightRequest = 300
+                WidthRequest = 400
             };
 
             // Title
@@ -269,7 +268,7 @@ public partial class OrderSectionMainVisual : ContentPage
             // Create Take-out Order button
             var createTakeoutButton = new Button
             {
-                Text = "🛍️ Crear Orden Para Llevar",
+                Text = "Crear Orden Para Llevar",
                 BackgroundColor = Color.FromArgb("#FF9800"),
                 TextColor = Colors.White,
                 CornerRadius = 8,
@@ -279,6 +278,18 @@ public partial class OrderSectionMainVisual : ContentPage
                 HorizontalOptions = LayoutOptions.Fill,
                 Margin = new Microsoft.Maui.Thickness(0, 5, 0, 5)
             };
+
+            // Add search bar for waiter selection
+            var waiterSearchBar = new SearchBar
+            {
+                Placeholder = "Buscar mesero o escribe número...",
+                HorizontalOptions = LayoutOptions.Fill,
+                Margin = new Microsoft.Maui.Thickness(0, 10, 0, 10),
+                BackgroundColor = Color.FromArgb("#f5f7fa"),
+                TextColor = Colors.Black
+            };
+
+            popupContent.Children.Add(waiterSearchBar);
 
             // Available waiters section
             var availableWaiters = await AddAvailableWaitersSection(popupContent);
@@ -319,12 +330,12 @@ public partial class OrderSectionMainVisual : ContentPage
                     PopupBackground = Colors.White
                 },
                 StaysOpen = false,
-                ShowCloseButton = false,
-                ShowFooter = true,
+                ShowCloseButton = true,
+                ShowFooter = false,
                 ShowHeader = false,
                 WidthRequest = 450,
-                HeightRequest = 380,
-                AutoSizeMode = PopupAutoSizeMode.None
+                AnimationDuration = 100,
+                AutoSizeMode = PopupAutoSizeMode.Height
             };
 
             // Wire up the takeout button
@@ -346,68 +357,93 @@ public partial class OrderSectionMainVisual : ContentPage
             // Wire up the close button
             closeButton.Clicked += (s, e) => popup.Dismiss();
 
-#if WINDOWS
-            // Handle ESC key to close popup and number keys for waiter selection
-            KeyEventHandler keyHandler = null;
-            var window = Microsoft.Maui.Controls.Application.Current?.Windows.FirstOrDefault();
-            if (window?.Handler?.PlatformView is Microsoft.UI.Xaml.Window winUIWindow)
+            // Wire up the search button pressed event for waiter search bar
+            waiterSearchBar.SearchButtonPressed += (s, e) =>
             {
-                keyHandler = (sender, e) =>
-                {
-                    if (e.Key == Windows.System.VirtualKey.Escape)
-                    {
-                        popup.Dismiss();
-                        e.Handled = true;
-                    }
-                    else if (e.Key >= Windows.System.VirtualKey.Number1 && e.Key <= Windows.System.VirtualKey.Number6)
-                    {
-                        int index = (int)(e.Key - Windows.System.VirtualKey.Number1);
-                        if (index < availableWaiters.Count)
-                        {
-                            popup.Dismiss();
-                            var selectedWaiter = availableWaiters[index];
-                            
-                            if (RightPanel.Content is ListTableVisual listTableVisual)
-                            {
-                                // Call the create table method for this waiter
-                                var method = typeof(ListTableVisual).GetMethod("OnCreateTableWindowClicked", 
-                                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                                method?.Invoke(listTableVisual, new object[] { selectedWaiter });
-                            }
-                            e.Handled = true;
-                        }
-                    }
-                };
+                var searchText = waiterSearchBar.Text?.Trim() ?? "";
+                User selectedWaiter = null;
 
-                if (winUIWindow.Content is Microsoft.UI.Xaml.FrameworkElement rootElement)
+                if (string.IsNullOrWhiteSpace(searchText))
                 {
-                    rootElement.KeyDown += keyHandler;
+                    // If no search text, select the first waiter
+                    selectedWaiter = availableWaiters.FirstOrDefault();
+                }
+                else if (int.TryParse(searchText, out int waiterNumber) && waiterNumber >= 1 && waiterNumber <= availableWaiters.Count)
+                {
+                    // If it's a valid waiter number, select that waiter by index
+                    int index = waiterNumber - 1;
+                    selectedWaiter = availableWaiters[index];
+                }
+                else
+                {
+                    // Otherwise, search by name
+                    selectedWaiter = availableWaiters.FirstOrDefault(w => 
+                        w.Name.ToLower().Contains(searchText.ToLower()));
                 }
 
-            }
-            
-            // Remove event handler when popup is closed to avoid memory leaks
-            popup.Closed += (s, e) =>
-            {
-                if (keyHandler != null)
+                if (selectedWaiter != null)
                 {
-                    var win = Microsoft.Maui.Controls.Application.Current?.Windows.FirstOrDefault();
-                    if (win?.Handler?.PlatformView is Microsoft.UI.Xaml.Window winUI)
+                    popup.Dismiss();
+                    if (RightPanel.Content is ListTableVisual listTableVisual)
                     {
-                        if (winUI.Content is Microsoft.UI.Xaml.FrameworkElement rootElement)
-                        {
-                            rootElement.KeyDown -= keyHandler;
-                        }
-
+                        var method = typeof(ListTableVisual).GetMethod("OnCreateTableWindowClicked",
+                            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                        method?.Invoke(listTableVisual, new object[] { selectedWaiter });
                     }
                 }
             };
+
+            // Set up key handler for waiter search bar (exact same pattern as OrderVisual)
+            waiterSearchBar.HandlerChanged += (s, e) =>
+            {
+#if WINDOWS
+                if (waiterSearchBar?.Handler?.PlatformView is Microsoft.UI.Xaml.Controls.AutoSuggestBox waiterAutoSuggestBox)
+                {
+                    waiterAutoSuggestBox.KeyDown -= WaiterSearchBarPlatformView_KeyDown;
+                    waiterAutoSuggestBox.KeyDown += WaiterSearchBarPlatformView_KeyDown;
+                    waiterAutoSuggestBox.KeyUp -= WaiterSearchBarPlatformView_KeyUp;
+                    waiterAutoSuggestBox.KeyUp += WaiterSearchBarPlatformView_KeyUp;
+                }
+#endif
+            };
+
+#if WINDOWS
+            void WaiterSearchBarPlatformView_KeyUp(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
+            {
+                if (e.Key == Windows.System.VirtualKey.Escape)
+                {
+                    popup.Dismiss();
+                    e.Handled = true;
+                }
+            }
+
+            void WaiterSearchBarPlatformView_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
+            {
+                if (e.Key == Windows.System.VirtualKey.Escape)
+                {
+                    popup.Dismiss();
+                    e.Handled = true;
+                }
+                else if (e.Key == Windows.System.VirtualKey.Enter)
+                {
+                    // Trigger the SearchButtonPressed event (same as OrderVisual pattern)
+                    waiterSearchBar.OnSearchButtonPressed();
+                    e.Handled = true;
+                }
+            }
 #endif
 
+            popup.Opened += (s, e) =>
+            {
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    await Task.Delay(100); // make sure it's rendered
+                    waiterSearchBar?.Focus();
+                });
+            };
+
             // Show the popup
-            popup.Show();
-            await Task.Delay(50);
-            closeButton.Focus(); 
+            popup.Show(); 
         }
         catch (Exception ex)
         {
@@ -455,12 +491,12 @@ public partial class OrderSectionMainVisual : ContentPage
                 if (col == 0)
                     waitersGrid.RowDefinitions.Add(new RowDefinition { Height = Microsoft.Maui.GridLength.Auto });
 
-                // Add hotkey indicator for first 6 waiters
-                var hotkeyText = i < 6 ? $" ({i + 1})" : "";
+                // Add number indicator for all waiters
+                var numberText = $"({i + 1})";
                 
                 var waiterButton = new Button
                 {
-                    Text = $"👤 {waiter.Name}{hotkeyText}",
+                    Text = $"👤 {numberText} {waiter.Name}",
                     FontSize = 12,
                     HeightRequest = 40,
                     BackgroundColor = Color.FromArgb("#005f8c"),
