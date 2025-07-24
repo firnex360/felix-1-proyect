@@ -33,13 +33,17 @@ public partial class ListTableVisual : ContentView
     {
         if (order.IsBillRequested)
         {
-            return Color.FromArgb("#4CAF50"); // CUANDO YA IMPRIMES  COLOR TEMPORAL
+            return Color.FromArgb("#4CAF50"); // CUANDO YA IMPRIMES COLOR TEMPORAL
+        }
+        else if (order.IsDuePaid)
+        {
+            return Color.FromArgb("#FD2D2D"); // COLOR ROJO PARA REFUND
         }
         else
         {
-            return Color.FromArgb("#2196F3"); // CUANDO ACABAS DE GENERAR LA ORDEN  COLOR TEMPORAL
+            return Color.FromArgb("#005F8C"); // CUANDO ACABAS DE GENERAR LA ORDEN COLOR TEMPORAL
         }
-    }
+        }
 
     private void LoadMeseros()
     {
@@ -137,9 +141,7 @@ public partial class ListTableVisual : ContentView
                         FontSize = 12,
                         HeightRequest = 30,
                         WidthRequest = 90,
-                        BackgroundColor = order.IsBillRequested ?
-                            Color.FromArgb("#4CAF50") : // Green for printed orders
-                            Color.FromArgb("#2196F3"),  // Blue for regular orders
+                        BackgroundColor = GetOrderButtonColor(order),
                         TextColor = Colors.White,
                         CornerRadius = 5,
                         HorizontalOptions = LayoutOptions.Start,
@@ -155,10 +157,8 @@ public partial class ListTableVisual : ContentView
 
                 // Determine frame border color based on orders
                 Color frameBorderColor = ordersForTable.Any() ?
-                    (ordersForTable.First().IsBillRequested ?
-                        Color.FromArgb("#4CAF50") :
-                        Color.FromArgb("#2196F3")) :
-                    Color.FromArgb("#C7CFDD"); // Default color if no orders
+                GetOrderButtonColor(ordersForTable.First()) : 
+                Color.FromArgb("#C7CFDD"); 
 
                 var tableFrame = new Frame
                 {
@@ -358,9 +358,7 @@ private void AddTakeoutOrderToPanel(Order order)
         FontSize = 12,
         HeightRequest = 30,
         //WidthRequest = 90,
-        BackgroundColor = order.IsBillRequested ? 
-            Color.FromArgb("#4CAF50") : // Green for printed orders
-            Color.FromArgb("#2196F3"),  // Blue for regular orders
+        BackgroundColor = GetOrderButtonColor(order),
         TextColor = Colors.White,
         CornerRadius = 5,
         HorizontalOptions = LayoutOptions.Fill,
