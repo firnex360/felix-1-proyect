@@ -11,6 +11,7 @@ public class OrderReceipt
     public string CompanyPhone { get; set; } = string.Empty;
     public string CompanyRNC { get; set; } = string.Empty;
 
+
     // Order Information (actual Order object)
     public Order? Order { get; set; } = null;
 
@@ -21,6 +22,10 @@ public class OrderReceipt
     public decimal CashAmount { get; set; }
     public decimal CardAmount { get; set; }
     public decimal TransferAmount { get; set; }
+
+    // Tax Percentages
+    public decimal TaxRateITBIS { get; set; } // ITBIS tax rate (e.g., 0.18 for 18%)
+    public decimal TaxRateWaiters { get; set; } // Waiter tax rate (e.g., 0.10 for 10%)
 
     // Receipt Metadata
     public DateTime PrintDate { get; set; } = DateTime.Now;
