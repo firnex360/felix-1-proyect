@@ -249,7 +249,7 @@ public partial class OrderSectionMainVisual : ContentPage
             var popupContent = new StackLayout
             {
                 Spacing = 5,
-                Padding = 5,
+                Padding = 20,
                 BackgroundColor = Colors.White,
                 WidthRequest = 400
             };
@@ -262,7 +262,7 @@ public partial class OrderSectionMainVisual : ContentPage
                 FontAttributes = FontAttributes.Bold,
                 TextColor = Color.FromArgb("#005F8C"),
                 HorizontalOptions = LayoutOptions.Center,
-                Margin = new Microsoft.Maui.Thickness(0, 0, 0, 15)
+                Margin = new Microsoft.Maui.Thickness(0, 0, 0, 10)
             });
 
             // Create Take-out Order button
@@ -284,15 +284,16 @@ public partial class OrderSectionMainVisual : ContentPage
             {
                 Placeholder = "Buscar mesero o escribe número...",
                 HorizontalOptions = LayoutOptions.Fill,
-                Margin = new Microsoft.Maui.Thickness(0, 10, 0, 10),
+                Margin = new Microsoft.Maui.Thickness(0, 20, 0, 0),
                 BackgroundColor = Color.FromArgb("#f5f7fa"),
                 TextColor = Colors.Black
             };
 
-            popupContent.Children.Add(waiterSearchBar);
 
             // Available waiters section
             var availableWaiters = await AddAvailableWaitersSection(popupContent);
+
+            popupContent.Children.Add(waiterSearchBar);
 
             // Create footer with close button
             var footerContent = new StackLayout
