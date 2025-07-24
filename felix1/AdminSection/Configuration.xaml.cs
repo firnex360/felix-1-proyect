@@ -13,12 +13,25 @@ public partial class Configuration : ContentView
         // Load all saved values (fall back to defaults if not found)
         txtCompany.Text = Preferences.Get("CompanyName", "Sin nombre");
         txtAddress.Text = Preferences.Get("CompanyAddress", "Sin dirección");
-        txtPhone.Value = double.Parse(Preferences.Get("CompanyPhone", "0"));
+        
+        // Use TryParse to handle invalid string formats safely
+        var phoneStr = Preferences.Get("CompanyPhone", "0");
+        txtPhone.Value = double.TryParse(phoneStr, out double phone) ? phone : 0;
+        
         txtEmail.Text = Preferences.Get("CompanyEmail", "");
-        txtRNC.Value = double.Parse(Preferences.Get("CompanyRNC", "0"));
-        txtTax.Value = double.Parse(Preferences.Get("TaxRate", "0"));
-        txtDeliveryTax.Value = double.Parse(Preferences.Get("DeliveryTaxRate", "0"));
-        txtWaiterTax.Value = double.Parse(Preferences.Get("WaiterTaxRate", "0"));
+        
+        var rncStr = Preferences.Get("CompanyRNC", "0");
+        txtRNC.Value = double.TryParse(rncStr, out double rnc) ? rnc : 0;
+        
+        var taxStr = Preferences.Get("TaxRate", "18");
+        txtTax.Value = double.TryParse(taxStr, out double tax) ? tax : 18;
+        
+        var deliveryTaxStr = Preferences.Get("DeliveryTaxRate", "0");
+        txtDeliveryTax.Value = double.TryParse(deliveryTaxStr, out double deliveryTax) ? deliveryTax : 0;
+        
+        var waiterTaxStr = Preferences.Get("WaiterTaxRate", "10");
+        txtWaiterTax.Value = double.TryParse(waiterTaxStr, out double waiterTax) ? waiterTax : 10;
+        
         txtComment.Text = Preferences.Get("InvoiceComment", "GRACIAS POR PREFERIRNOS");
     }
     

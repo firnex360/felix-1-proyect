@@ -4,7 +4,7 @@
              x:Class="felix1.OrderSection.ListTableVisual"
              NavigationPage.HasNavigationBar="False">
              
-    <Grid ColumnDefinitions="*, Auto" BackgroundColor="White">
+    <Grid x:Name="MainGrid" ColumnDefinitions="*, Auto" BackgroundColor="White">
         
         <!--    SCROLLABLE MESERO   -->
         <ScrollView Grid.Column="0" Orientation="Horizontal" VerticalOptions="Fill">
@@ -17,7 +17,7 @@
         
         <!--    STATIC TAKEOUT   -->
         <Grid Grid.Column="1"
-            WidthRequest="{Binding Source={x:Reference MainGrid}, Path=Width, Converter={StaticResource WidthTo30PercentConverter}}"
+            WidthRequest="300"
             x:Name="TakeoutPanel" 
             Padding="10" 
             VerticalOptions="Fill"
