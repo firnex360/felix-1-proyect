@@ -3,6 +3,9 @@ using felix1.Data;
 using felix1.Logic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Maui.Controls;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using Syncfusion.Maui.DataGrid;
 
 namespace felix1.AdminSection
 {
@@ -12,6 +15,24 @@ namespace felix1.AdminSection
         private Order _currentOrder;
         public ObservableCollection<OrderItem> OrderItems { get; } = new();
         public ObservableCollection<OrderItem> RefundedItems { get; } = new();
+        public ObservableCollection<OrderItemDifference> DifferenceItems { get; } = new();
+
+        public class OrderItemDifference : INotifyPropertyChanged
+        {
+            public string ArticleName { get; set; } = "";
+            public int OriginalQuantity { get; set; }
+            public int RefundedQuantity { get; set; }
+            public int NewQuantity => OriginalQuantity - RefundedQuantity;
+            public decimal UnitPrice { get; set; }
+            public decimal Difference => RefundedQuantity * UnitPrice;
+
+            public event PropertyChangedEventHandler? PropertyChanged;
+
+            protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
 
         public OrderDetailsVisual(int orderId)
         {
@@ -91,14 +112,58 @@ namespace felix1.AdminSection
                                     RefundedItems.Add(item);
                                 }
                             }
+
+                            CalculateDifferences();
                         }
                         else
                         {
                             refundSection.IsVisible = false;
+                            differenceSection.IsVisible = false;
                         }
                     });
                 }
             });
+        }
+
+        private void CalculateDifferences()
+        {
+            differenceSection.IsVisible = true;
+            DifferenceItems.Clear();
+
+            decimal originalTotal = 0;
+            decimal refundedTotal = 0;
+
+            foreach (var item in OrderItems)
+            {
+                originalTotal += item.TotalPrice;
+            }
+
+            foreach (var originalItem in OrderItems)
+            {
+                var refundedItem = RefundedItems.FirstOrDefault(ri => ri.Article?.Id == originalItem.Article?.Id);
+                int refundedQty = refundedItem?.Quantity ?? 0;
+
+                if (refundedQty > 0)
+                {
+                    var difference = new OrderItemDifference
+                    {
+                        ArticleName = originalItem.ArticleName,
+                        OriginalQuantity = originalItem.Quantity,
+                        RefundedQuantity = refundedQty,
+                        UnitPrice = originalItem.UnitPrice
+                    };
+
+                    DifferenceItems.Add(difference);
+                    refundedTotal += difference.Difference;
+                }
+            }
+
+            decimal newTotal = originalTotal - refundedTotal;
+
+            originalTotalLabel.Text = originalTotal.ToString("C");
+            refundedTotalLabel.Text = refundedTotal.ToString("C");
+            newTotalLabel.Text = newTotal.ToString("C");
+            differenceLabel.Text = refundedTotal.ToString("C");
         }
 
         private void OnBackButtonClicked(object sender, EventArgs e)
