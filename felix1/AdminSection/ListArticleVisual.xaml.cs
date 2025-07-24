@@ -3,6 +3,7 @@ using felix1.Data;
 using felix1.Logic;
 using Microsoft.EntityFrameworkCore;
 using Syncfusion.Maui.DataGrid;
+using Syncfusion.Maui.Popup;
 
 namespace felix1;
 
@@ -40,19 +41,59 @@ public partial class ListArticleVisual : ContentView
 
     private void OnCreateArticleWindowClicked(object sender, EventArgs e)
     {
-        // Get display size
-        var displayInfo = DeviceDisplay.Current.MainDisplayInfo;
+        // Create the popup
+        var popup = new SfPopup
+        {
+            WidthRequest = 1000,
+            HeightRequest = 700,
+            ShowFooter = false,
+            ShowCloseButton = true,
+            ShowHeader = false,
+            StaysOpen = true,
+            PopupStyle = new PopupStyle
+            {
+                MessageBackground = Colors.White,
+                HeaderBackground = Colors.Transparent,
+                HeaderTextColor = Colors.Black,
+                CornerRadius = new CornerRadius(10)
+            }
+        };
 
-        var window = new Window(new CreateArticleVisual());
+        // Use the converted CreateArticleVisual (now a ContentView)
+        var createArticleView = new CreateArticleVisual();
+        
+        // Try setting content directly without DataTemplate first
+        try 
+        {
+            // Some versions of Syncfusion popup support direct content assignment
+            var contentProperty = popup.GetType().GetProperty("Content");
+            if (contentProperty != null && contentProperty.CanWrite)
+            {
+                contentProperty.SetValue(popup, createArticleView);
+                createArticleView.SetPopupReference(popup);
+            }
+            else
+            {
+                // Fallback to ContentTemplate
+                createArticleView.SetPopupReference(popup);
+                popup.ContentTemplate = new DataTemplate(() => createArticleView);
+            }
+        }
+        catch
+        {
+            // Fallback to ContentTemplate
+            createArticleView.SetPopupReference(popup);
+            popup.ContentTemplate = new DataTemplate(() => createArticleView);
+        }
 
-        window.Height = 700;
-        window.Width = 800;
+        // Handle when popup is closed to reload articles
+        popup.Closed += (s, args) =>
+        {
+            ReloadArticles();
+        };
 
-        // Center the window
-        window.X = (displayInfo.Width / displayInfo.Density - window.Width) / 2;
-        window.Y = (displayInfo.Height / displayInfo.Density - window.Height) / 2;
-
-        Application.Current?.OpenWindow(window);
+        // Show the popup
+        popup.Show();
     }
 
     private void OnEditClicked(object sender, EventArgs e)
@@ -60,16 +101,39 @@ public partial class ListArticleVisual : ContentView
         var button = (ImageButton)sender;
         var article = (Article)button.BindingContext;
 
-        var displayInfo = DeviceDisplay.Current.MainDisplayInfo;
-        var window = new Window(new CreateArticleVisual(article))
+        // Create the popup for editing
+        var popup = new SfPopup
         {
-            Height = 700,
-            Width = 800,
-            X = (displayInfo.Width / displayInfo.Density - 800) / 2,
-            Y = (displayInfo.Height / displayInfo.Density - 700) / 2
+            WidthRequest = 1000,
+            HeightRequest = 700,
+            ShowFooter = false,
+            ShowHeader = false,
+            ShowCloseButton = true,
+            StaysOpen = true,
+            PopupStyle = new PopupStyle
+            {
+                MessageBackground = Colors.White,
+                HeaderBackground = Colors.Transparent,
+                HeaderTextColor = Colors.Black,
+                CornerRadius = new CornerRadius(10)
+            }
         };
 
-        Application.Current?.OpenWindow(window);
+        // Use the converted CreateArticleVisual (now a ContentView) with the article to edit
+        var createArticleView = new CreateArticleVisual(article);
+        createArticleView.SetPopupReference(popup);
+        
+        // Set the ContentView directly as content
+        popup.ContentTemplate = new DataTemplate(() => createArticleView);
+
+        // Handle when popup is closed to reload articles
+        popup.Closed += (s, args) =>
+        {
+            ReloadArticles();
+        };
+
+        // Show the popup
+        popup.Show();
     }
 
     private async void OnDeleteClicked(object sender, EventArgs e)

@@ -10,6 +10,7 @@ using Microsoft.Maui.Controls;
 using System.Drawing;
 using System.Drawing.Printing;
 using Scriban;
+using Microsoft.Maui.Storage; // For Preferences
 
 #if WINDOWS
 using Microsoft.UI.Xaml.Input;
@@ -26,8 +27,9 @@ public partial class OrderVisual : ContentPage
     private bool _isEditing = false;
     private bool _useSecondaryPrice = false; // Cache for cash register setting
 
-    // Constants for testing
-    private const decimal TAX_RATE = 0.18m; // 18% tax rate
+    // Tax rates from configuration
+    private decimal _taxRate = 0.0m;
+    private decimal _waiterTaxRate = 0.0m;
     private decimal _discountAmount = 0m;
 
 
@@ -36,6 +38,7 @@ public partial class OrderVisual : ContentPage
         InitializeComponent();
         BindingContext = this;
         _currentOrder = order;
+        LoadTaxRatesFromConfiguration(); // Load tax rates from preferences
         LoadCashRegisterSettings(); // Load cash register settings first
         LoadArticles();
         orderItemsDataGrid.CurrentCellBeginEdit += (s, e) => _isEditing = true;
@@ -55,7 +58,7 @@ public partial class OrderVisual : ContentPage
 
             var item = OrderItems[rowIndex - 1];
 
-            // Obtener el valor actual de Quantity por reflexi�n
+            // Obtener el valor actual de Quantity por reflexion
             var quantityProp = item.GetType().GetProperty("Quantity");
             if (quantityProp == null) return;
 
@@ -79,6 +82,13 @@ public partial class OrderVisual : ContentPage
             dueToPayCheckBox.IsChecked = order.IsDuePaid;
         }
 
+    }
+
+    private void LoadTaxRatesFromConfiguration()
+    {
+        // Load tax rates from preferences (convert from percentage to decimal)
+        _taxRate = decimal.Parse(Preferences.Get("TaxRate", "18")) / 100m;
+        _waiterTaxRate = decimal.Parse(Preferences.Get("WaiterTaxRate", "10")) / 100m;
     }
 
     private void LoadCashRegisterSettings()
@@ -563,31 +573,38 @@ public partial class OrderVisual : ContentPage
             orderItemsDataGrid.BeginEdit(rowIndex, quantityColumnIndex);
     }
 
-    private async void OnExitSave(object sender, EventArgs e)
+    private void OnExitSave(object sender, EventArgs e)
     {
         if (OrderItems.Any(item => item.Quantity < 0))
         {
-            await DisplayAlert("Cantidad invalida", "No se puede guardar una orden con cantidades negativas.", "OK");
+            DisplayAlert("Cantidad invalida", "No se puede guardar una orden con cantidades negativas.", "OK");
             return;
-        }
-
-        if (!OrderItems.Any())
-        {
-            var result = await DisplayAlert("Orden vacia",
-                "¿Desea cerrar esta orden sin articulos?",
-                "Si, cerrar",
-                "No, cancelar");
-
-            if (result) return;
         }
 
         if (!SaveOrderChanges())
         {
-            await DisplayAlert("Error", "No se pudo guardar la orden.", "OK");
+            DisplayAlert("Error", "No se pudo guardar la orden.", "OK");
             return; // Error occurred, don't close
         }
 
         CloseThisWindow();
+    }
+
+    private void CloseThisWindow()
+    {
+        var app = Microsoft.Maui.Controls.Application.Current;
+        if (app != null)
+        {
+            foreach (var window in app.Windows)
+            {
+                if (window.Page == this)
+                {
+                    app.CloseWindow(window);
+                    FocusOrderSectionSearchBar();
+                    break;
+                }
+            }
+        }
     }
 
     private bool SaveOrderChanges()
@@ -642,24 +659,6 @@ public partial class OrderVisual : ContentPage
             return false;
         }
     }
-
-    private void CloseThisWindow()
-    {
-        var app = Microsoft.Maui.Controls.Application.Current;
-        if (app != null)
-        {
-            foreach (var window in app.Windows)
-            {
-                if (window.Page == this)
-                {
-                    app.CloseWindow(window);
-                    FocusOrderSectionSearchBar();
-                    break;
-                }
-            }
-        }
-    }
-
 
     private void FocusOrderSectionSearchBar()
     {
@@ -739,7 +738,7 @@ public partial class OrderVisual : ContentPage
                     pd.PrintPage += (sender, e) =>
                     {
                         System.Drawing.Font font = new System.Drawing.Font("Consolas", 8); // Monospaced font recommended for POS printers
-                        e.Graphics!.DrawString(text, font, Brushes.Black, new System.Drawing.PointF(10, 10));
+                        e.Graphics.DrawString(text, font, Brushes.Black, new System.Drawing.PointF(10, 10));
                     };
                     
                     pd.Print();
@@ -797,14 +796,17 @@ public partial class OrderVisual : ContentPage
     {
         decimal subtotal = CalculateSubtotal();
         decimal tax = CalculateTax(subtotal);
-        decimal total = subtotal + tax - _discountAmount;
+        decimal waiterTax = CalculateWaiterTax(subtotal);
+        decimal total = subtotal + tax + waiterTax - _discountAmount;
 
         MainThread.BeginInvokeOnMainThread(() =>
         {
             subtotalLabel.Text = subtotal.ToString("C2");
-            taxLabel.Text = tax.ToString("C2");
+            taxLabelTitle.Text = $"Impuestos (ITBIS) ({_taxRate:P0}):";
+            taxLabel.Text = $"{tax:C2}";
+            taxWaiterLabelTitle.Text = $"Propina Mesero ({_waiterTaxRate:P0}):";
+            taxWaiterLabel.Text = $"{waiterTax:C2}";
             totalLabel.Text = total.ToString("C2");
-            //discountEntry.Text = _discountAmount.ToString("C2");
         });
     }
 
@@ -815,7 +817,12 @@ public partial class OrderVisual : ContentPage
 
     private decimal CalculateTax(decimal subtotal)
     {
-        return subtotal * TAX_RATE;
+        return subtotal * _taxRate;
+    }
+
+    private decimal CalculateWaiterTax(decimal subtotal)
+    {
+        return subtotal * _waiterTaxRate;
     }
 
     private void OnDiscountChanged(object sender, TextChangedEventArgs e)

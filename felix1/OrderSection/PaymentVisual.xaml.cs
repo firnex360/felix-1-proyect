@@ -2,6 +2,7 @@
 using felix1.Logic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Maui.Controls;
+using Microsoft.Maui.Storage; // For Preferences
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -21,15 +22,23 @@ namespace felix1.OrderSection
 {
     public partial class PaymentVisual : ContentPage
     {
+        // Tax rates from configuration
+        private decimal _taxRate = 0.18m;
+        private decimal _waiterTaxRate = 0.10m;
+        
         public Order Order { get; set; }
         public decimal Subtotal => Order.Items?.Sum(i => i.TotalPrice) ?? 0;
         public decimal Discount => Order.Discount;
         public decimal TaxableAmount => Subtotal - Discount;
-        public decimal TaxITBIS => Subtotal * 0.18m;
-        public decimal TaxWaiters => TaxableAmount * 0.10m; //No se usa aún no sé por qué!!!!11
-        public decimal Total => (Subtotal + TaxITBIS) - Discount;
+        public decimal TaxITBIS => Subtotal * _taxRate;
+        public decimal TaxWaiters => Subtotal * _waiterTaxRate;
+        public decimal Total => (Subtotal + TaxITBIS + TaxWaiters) - Discount;
         public decimal TotalPayment => _cashAmount + _cardAmount + _transferAmount;
         public int ItemsCount => Order.Items?.Sum(i => i.Quantity) ?? 0;
+
+        // Tax label properties with dynamic percentages
+        public string TaxITBISLabel => $"ITBIS ({_taxRate:P0})";
+        public string TaxWaitersLabel => $"Propina ({_waiterTaxRate:P0})";
 
         public bool AnyPaymentMethodUsed => _cashAmount > 0 || _cardAmount > 0 || _transferAmount > 0;
         public bool IsCashUsed => _cashAmount > 0;
@@ -49,7 +58,7 @@ namespace felix1.OrderSection
 
         public PaymentVisual(Order order)
         {
-
+            LoadTaxRatesFromConfiguration(); // Load tax rates from preferences
             InitializeComponent();
             Order = order;
             BindingContext = this;
@@ -57,6 +66,13 @@ namespace felix1.OrderSection
             UpdatePaymentSummary();
             AddCashMethod();
 
+        }
+
+        private void LoadTaxRatesFromConfiguration()
+        {
+            // Load tax rates from preferences (convert from percentage to decimal)
+            _taxRate = decimal.Parse(Preferences.Get("TaxRate", "18")) / 100m;
+            _waiterTaxRate = decimal.Parse(Preferences.Get("WaiterTaxRate", "10")) / 100m;
         }
 
         // This is for handling keyboard movements and events
@@ -432,6 +448,7 @@ namespace felix1.OrderSection
             ListTableVisual.Instance?.ReloadTM();
         }
 
+        // what?? the only purpose of this function is to call another function and thats it?
         private void OnExitSave()
         {
             CloseThisWindow();
@@ -523,6 +540,8 @@ namespace felix1.OrderSection
             OnPropertyChanged(nameof(TaxableAmount));
             OnPropertyChanged(nameof(TaxITBIS));
             OnPropertyChanged(nameof(TaxWaiters));
+            OnPropertyChanged(nameof(TaxITBISLabel));
+            OnPropertyChanged(nameof(TaxWaitersLabel));
             OnPropertyChanged(nameof(Total));
         }
 
@@ -568,7 +587,7 @@ namespace felix1.OrderSection
             }
 #else
             Console.WriteLine("Printing is only supported on Windows for now.");
-            await DisplayAlert("Error", $"No se pudo imprimir el recibo: La funcionalidad de impresión no está disponible en esta plataforma (solo Windows).", "OK");
+            DisplayAlert("Error", $"No se pudo imprimir el recibo: La funcionalidad de impresión no está disponible en esta plataforma (solo Windows).", "OK");
 #endif
         }
     }

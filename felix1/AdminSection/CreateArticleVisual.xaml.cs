@@ -4,14 +4,23 @@ using System.Text.RegularExpressions;
 using felix1.Data;
 using felix1.Logic;
 using Microsoft.EntityFrameworkCore;
+using Syncfusion.Maui.Popup;
 
 namespace felix1;
 
-public partial class CreateArticleVisual : ContentPage
+public partial class CreateArticleVisual : ContentView
 {
     private Article? editingArticle = null;
     public ObservableCollection<SideDishSelectable> SideDishArticles { get; set; } = new();
     //public ObservableCollection<Article> SideDishes { get; set; } = new();
+    
+    // Property to hold popup reference when used in popup mode
+    private SfPopup? _parentPopup = null;
+
+    public void SetPopupReference(SfPopup popup)
+    {
+        _parentPopup = popup;
+    }
 
     public class SideDishSelectable : INotifyPropertyChanged
     {
@@ -120,24 +129,24 @@ public partial class CreateArticleVisual : ContentPage
         // VALIDATION
         if (string.IsNullOrWhiteSpace(txtName.Text))
         {
-            await DisplayAlert("Error", "El campo 'Nombre' es obligatorio.", "OK");
+            await ShowAlert("Error", "El campo 'Nombre' es obligatorio.", "OK");
             return;
         }
 
         if (string.IsNullOrWhiteSpace(txtPrice.Text))
         {
-            await DisplayAlert("Error", "El campo 'Precio' es obligatorio.", "OK");
+            await ShowAlert("Error", "El campo 'Precio' es obligatorio.", "OK");
             return;
         }
 
         if (pckCategory.SelectedItem == null)
         {
-            await DisplayAlert("Error", "Debe seleccionar una categoría.", "OK");
+            await ShowAlert("Error", "Debe seleccionar una categoría.", "OK");
             return;
         }
 
         // POPUP CONFIRMATION
-        bool confirm = await DisplayAlert(
+        bool confirm = await ShowConfirmation(
             "Confirmación",
             editingArticle == null ? "¿Crear este artículo?" : "¿Actualizar este artículo?",
             "Sí",
@@ -226,31 +235,57 @@ public partial class CreateArticleVisual : ContentPage
             }
 
             ListArticleVisual.Instance?.ReloadArticles();
+            
+            // Show success message
+            await ShowAlert("Éxito", 
+                editingArticle == null ? "Artículo creado correctamente" : "Artículo actualizado correctamente", 
+                "OK");
+            
             CloseThisWindow();
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"Ocurrió un error al guardar: {ex.Message}", "OK");
+            await ShowAlert("Error", $"Ocurrió un error al guardar: {ex.Message}", "OK");
         }
+    }
+
+    // Helper methods for displaying alerts since ContentView doesn't have DisplayAlert
+    private async Task ShowAlert(string title, string message, string cancel)
+    {
+        if (Application.Current?.MainPage != null)
+        {
+            await Application.Current.MainPage.DisplayAlert(title, message, cancel);
+        }
+    }
+
+    private async Task<bool> ShowConfirmation(string title, string message, string accept, string cancel)
+    {
+        if (Application.Current?.MainPage != null)
+        {
+            return await Application.Current.MainPage.DisplayAlert(title, message, accept, cancel);
+        }
+        return false;
     }
 
     private void CloseThisWindow()
     {
-        if (Application.Current != null)
+        // If we're in popup mode, close the popup
+        if (_parentPopup != null)
         {
-            foreach (var window in Application.Current.Windows)
+            try
             {
-                if (window.Page == this)
-                {
-                    Application.Current.CloseWindow(window);
-                    break;
-                }
+                _parentPopup.IsOpen = false;
+                _parentPopup.Dismiss();
+                Console.WriteLine("Popup dismissed successfully");
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error dismissing popup: {ex.Message}");
+            }
+            return;
         }
-        else
-        {
-
-        }
+        
+        Console.WriteLine("No popup reference found - popup was not closed");
     }
 
     //for the search bar logic

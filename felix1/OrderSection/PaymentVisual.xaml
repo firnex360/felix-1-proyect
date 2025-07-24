@@ -63,11 +63,11 @@
                         </Grid>
 
                         <HorizontalStackLayout>
-                            <Label Text="ITBIS (18%)" TextColor="#005F8C" />
+                            <Label Text="{Binding TaxITBISLabel}" TextColor="#005F8C" />
                             <Label Text="{Binding TaxITBIS, StringFormat=' ${0:F2}'}" HorizontalOptions="End" TextColor="#005F8C" />
                         </HorizontalStackLayout>
                         <HorizontalStackLayout>
-                            <Label Text="Propina (10%)" TextColor="#005F8C" />
+                            <Label Text="{Binding TaxWaitersLabel}" TextColor="#005F8C" />
                             <Label Text="{Binding TaxWaiters, StringFormat=' ${0:F2}'}" HorizontalOptions="End" TextColor="#005F8C" />
                         </HorizontalStackLayout>
                         <HorizontalStackLayout>
