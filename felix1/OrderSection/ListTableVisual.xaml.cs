@@ -118,14 +118,14 @@ public partial class ListTableVisual : ContentView
                 var tableContent = new VerticalStackLayout
                 {
                     Spacing = 5,
-                    HorizontalOptions = LayoutOptions.Start,
+                    HorizontalOptions = LayoutOptions.Center,
                     VerticalOptions = LayoutOptions.Start
                 };
 
                 // Table number label
                 tableContent.Children.Add(new Label
                 {
-                    Text = $"Mesa #{table.LocalNumber}",
+                    Text = $"Mesa #{table.LocalNumber} - Global #{table.GlobalNumber}",
                     FontAttributes = FontAttributes.Bold,
                     FontSize = 14,
                     HorizontalOptions = LayoutOptions.Center,
@@ -137,14 +137,13 @@ public partial class ListTableVisual : ContentView
                 {
                     var orderButton = new Button
                     {
-                        Text = $"Orden #{order.OrderNumber}",
+                        Text = $"Orden #{order.OrderNumber} || Precio: {findOrderTotal(order):C}",
                         FontSize = 12,
                         HeightRequest = 30,
-                        WidthRequest = 90,
                         BackgroundColor = GetOrderButtonColor(order),
                         TextColor = Colors.White,
                         CornerRadius = 5,
-                        HorizontalOptions = LayoutOptions.Start,
+                        HorizontalOptions = LayoutOptions.Fill,
                         Command = new Command(() => {
                             if (order.IsDuePaid)
                                 RefundVisual(order);
@@ -201,6 +200,11 @@ public partial class ListTableVisual : ContentView
 
             MeseroContainer.Children.Add(card);
         }
+    }
+
+    private decimal findOrderTotal(Order order)
+    {
+        return order.Items!.Sum(item => item.Quantity * item.TotalPrice);
     }
 
     private async void RefundVisual(Order order)

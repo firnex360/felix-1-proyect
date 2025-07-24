@@ -586,9 +586,9 @@ public partial class OrderVisual : ContentPage
             DisplayAlert("Error", "No se pudo guardar la orden.", "OK");
             return; // Error occurred, don't close
         }
-
-            if (result) return;
-        }
+        ListTableVisual.Instance?.ReloadTM();
+        CloseThisWindow();
+    }
 
     private void CloseThisWindow()
     {
