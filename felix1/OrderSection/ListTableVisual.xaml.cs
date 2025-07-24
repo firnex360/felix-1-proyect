@@ -204,7 +204,10 @@ public partial class ListTableVisual : ContentView
 
     private decimal findOrderTotal(Order order)
     {
-        return order.Items!.Sum(item => item.Quantity * item.TotalPrice);
+        return order.Items!
+            .GroupBy(item => item.Id) // Group by unique ID
+            .Select(group => group.First()) // Take first instance of each
+            .Sum(item => item.Quantity * item.UnitPrice); // Sum distinct items
     }
 
     private async void RefundVisual(Order order)
