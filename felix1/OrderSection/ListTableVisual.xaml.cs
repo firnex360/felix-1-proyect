@@ -205,28 +205,47 @@ public partial class ListTableVisual : ContentView
 
     private async void RefundVisual(Order order)
     {
-        var loadedOrder = await AppDbContext.ExecuteSafeAsync(async db =>
-            await db.Orders
-                .FirstOrDefaultAsync(o => o.Id == order.Id));
-
-        if (loadedOrder == null)
+        try
         {
-            await Application.Current!.MainPage!.DisplayAlert("Error", "No se pudo cargar la orden.", "OK");
-            return;
+            var loadedOrder = await AppDbContext.ExecuteSafeAsync(async db =>
+            {
+                return await db.Orders
+                    .AsNoTracking()
+                    .Include(o => o.Table)
+                    .Include(o => o.Waiter)
+                    .Include(o => o.CashRegister)
+                    .Include(o => o.Items!)
+                        .ThenInclude(oi => oi.Article)
+                    .FirstOrDefaultAsync(o => o.Id == order.Id);
+            });
+
+            if (loadedOrder == null)
+            {
+                await Application.Current!.MainPage!.DisplayAlert("Error", "No se pudo cargar la orden.", "OK");
+                return;
+            }
+
+            // Verificar que los Items no sean null
+            loadedOrder.Items ??= new List<OrderItem>();
+
+            var displayInfo = DeviceDisplay.Current.MainDisplayInfo;
+            ContentPage targetPage = new RefundVisual(loadedOrder);
+
+            var window = new Window(targetPage)
+            {
+                Height = 700,
+                Width = 1000,
+                X = (displayInfo.Width / displayInfo.Density - 1000) / 2,
+                Y = ((displayInfo.Height / displayInfo.Density - 700) / 2) - 25
+            };
+
+            Application.Current?.OpenWindow(window);
         }
-
-        var displayInfo = DeviceDisplay.Current.MainDisplayInfo;
-        ContentPage targetPage = new RefundVisual(loadedOrder);
-
-        var window = new Window(targetPage)
+        catch (Exception ex)
         {
-            Height = 700,
-            Width = 1000,
-            X = (displayInfo.Width / displayInfo.Density - 1000) / 2,
-            Y = ((displayInfo.Height / displayInfo.Density - 700) / 2) - 25
-        };
-
-        Application.Current?.OpenWindow(window);
+            Console.WriteLine($"Error en RefundVisual: {ex.Message}");
+            await Application.Current!.MainPage!.DisplayAlert("Error", "Ocurrió un error al cargar la orden.", "OK");
+        }
     }
 
     private async void OnCreateTableWindowClicked(User user)
@@ -1023,6 +1042,7 @@ private void LoadExistingTakeoutOrders()
             }
         }
     }
+
 
     private void ApplyActiveTabHighlight(Frame tableFrame)
     {

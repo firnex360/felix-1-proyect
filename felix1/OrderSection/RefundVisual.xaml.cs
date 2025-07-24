@@ -20,15 +20,15 @@ public partial class RefundVisual : ContentPage
     public ICommand DiscardCommand { get; }
     public ICommand ProcessRefundCommand { get; }
 
-    private OrderItem? _selectedOriginalItem = new OrderItem();
-    private OrderItem? _selectedRefundedItem = new OrderItem();
+    private List<OrderItem> _selectedOriginalItems = new();
+    private List<OrderItem> _selectedRefundedItems = new();
     private bool _canExecuteCommands = true;
 
     public RefundVisual(Order order)
     {
         InitializeComponent();
 
-        // Inicializar comandos primero
+        // Initialize commands first
         DiscardCommand = new Command(async () => await DiscardAsync(), () => _canExecuteCommands);
         ProcessRefundCommand = new Command(async () => await ProcessRefundAsync(), () => _canExecuteCommands);
 
@@ -44,7 +44,7 @@ public partial class RefundVisual : ContentPage
 
         LoadOrderItems();
 
-        // Establecer BindingContext después de inicializar todo
+        // Set BindingContext after initializing everything
         BindingContext = this;
     }
 
@@ -69,78 +69,152 @@ public partial class RefundVisual : ContentPage
 
     private void OnOriginalItemSelected(object sender, DataGridSelectionChangedEventArgs e)
     {
-        if (e.AddedRows!.Count > 0 && e.AddedRows[0] is OrderItem selectedItem)
-        {
-            _selectedOriginalItem = selectedItem;
-        }
+        _selectedOriginalItems = e.AddedRows.Cast<OrderItem>().ToList();
     }
 
     private void OnRefundedItemSelected(object sender, DataGridSelectionChangedEventArgs e)
     {
-        if (e.AddedRows!.Count > 0 && e.AddedRows[0] is OrderItem selectedItem)
-        {
-            _selectedRefundedItem = selectedItem;
-        }
+        _selectedRefundedItems = e.AddedRows.Cast<OrderItem>().ToList();
     }
 
-    private void OnAddToRefund(object sender, EventArgs e)
+    private void OnAddSelectedToRefund(object sender, EventArgs e)
     {
-        if (_selectedOriginalItem != null && _selectedOriginalItem.Quantity > 0)
+        if (_selectedOriginalItems == null || _selectedOriginalItems.Count == 0)
         {
-            _selectedOriginalItem.Quantity -= 1;
+            DisplayAlert("Advertencia", "Por favor seleccione al menos un artículo para devolver.", "OK");
+            return;
+        }
 
-            var existingItem = RefundedItems.FirstOrDefault(i => i.Article?.Id == _selectedOriginalItem.Article?.Id);
+        foreach (var selectedItem in _selectedOriginalItems.ToList())
+        {
+            if (selectedItem.Quantity > 0)
+            {
+                var existingItem = RefundedItems.FirstOrDefault(i => i.Article?.Id == selectedItem.Article?.Id);
+
+                if (existingItem != null)
+                {
+                    existingItem.Quantity += 1;
+                }
+                else
+                {
+                    RefundedItems.Add(new OrderItem
+                    {
+                        Article = selectedItem.Article,
+                        Quantity = 1,
+                        UnitPrice = selectedItem.UnitPrice
+                    });
+                }
+
+                selectedItem.Quantity -= 1;
+
+                if (selectedItem.Quantity <= 0)
+                {
+                    OriginalItems.Remove(selectedItem);
+                }
+            }
+        }
+
+        OnPropertyChanged(nameof(OrderTotal));
+        OnPropertyChanged(nameof(RefundTotal));
+    }
+
+    private void OnAddAllToRefund(object sender, EventArgs e)
+    {
+        if (OriginalItems.Count == 0)
+        {
+            DisplayAlert("Advertencia", "No hay artículos para devolver.", "OK");
+            return;
+        }
+
+        foreach (var item in OriginalItems.ToList())
+        {
+            var existingItem = RefundedItems.FirstOrDefault(i => i.Article?.Id == item.Article?.Id);
 
             if (existingItem != null)
             {
-                existingItem.Quantity += 1;
+                existingItem.Quantity += item.Quantity;
             }
             else
             {
                 RefundedItems.Add(new OrderItem
                 {
-                    Article = _selectedOriginalItem.Article,
-                    Quantity = 1,
-                    UnitPrice = _selectedOriginalItem.UnitPrice
+                    Article = item.Article,
+                    Quantity = item.Quantity,
+                    UnitPrice = item.UnitPrice
                 });
             }
 
-            if (_selectedOriginalItem.Quantity <= 0)
-            {
-                OriginalItems.Remove(_selectedOriginalItem);
-                _selectedOriginalItem = null;
-            }
-
-            OnPropertyChanged(nameof(OrderTotal));
-            OnPropertyChanged(nameof(RefundTotal));
+            OriginalItems.Remove(item);
         }
+
+        OnPropertyChanged(nameof(OrderTotal));
+        OnPropertyChanged(nameof(RefundTotal));
     }
 
-    private void OnRemoveFromRefund(object sender, EventArgs e)
+    private void OnRemoveSelectedFromRefund(object sender, EventArgs e)
     {
-        if (_selectedRefundedItem != null)
+        if (_selectedRefundedItems == null || _selectedRefundedItems.Count == 0)
         {
-            var existingItem = OriginalItems.FirstOrDefault(i => i.Article?.Id == _selectedRefundedItem.Article?.Id);
+            DisplayAlert("Advertencia", "Por favor seleccione al menos un artículo para quitar de la devolución.", "OK");
+            return;
+        }
+
+        foreach (var selectedItem in _selectedRefundedItems.ToList())
+        {
+            var existingItem = OriginalItems.FirstOrDefault(i => i.Article?.Id == selectedItem.Article?.Id);
 
             if (existingItem != null)
             {
-                existingItem.Quantity += _selectedRefundedItem.Quantity;
+                existingItem.Quantity += selectedItem.Quantity;
             }
             else
             {
                 OriginalItems.Add(new OrderItem
                 {
-                    Article = _selectedRefundedItem.Article,
-                    Quantity = _selectedRefundedItem.Quantity,
-                    UnitPrice = _selectedRefundedItem.UnitPrice
+                    Article = selectedItem.Article,
+                    Quantity = selectedItem.Quantity,
+                    UnitPrice = selectedItem.UnitPrice
                 });
             }
 
-            RefundedItems.Remove(_selectedRefundedItem);
-            _selectedRefundedItem = null;
-            OnPropertyChanged(nameof(OrderTotal));
-            OnPropertyChanged(nameof(RefundTotal));
+            RefundedItems.Remove(selectedItem);
         }
+
+        OnPropertyChanged(nameof(OrderTotal));
+        OnPropertyChanged(nameof(RefundTotal));
+    }
+
+    private void OnRemoveAllFromRefund(object sender, EventArgs e)
+    {
+        if (RefundedItems.Count == 0)
+        {
+            DisplayAlert("Advertencia", "No hay artículos en la lista de devolución.", "OK");
+            return;
+        }
+
+        foreach (var item in RefundedItems.ToList())
+        {
+            var existingItem = OriginalItems.FirstOrDefault(i => i.Article?.Id == item.Article?.Id);
+
+            if (existingItem != null)
+            {
+                existingItem.Quantity += item.Quantity;
+            }
+            else
+            {
+                OriginalItems.Add(new OrderItem
+                {
+                    Article = item.Article,
+                    Quantity = item.Quantity,
+                    UnitPrice = item.UnitPrice
+                });
+            }
+
+            RefundedItems.Remove(item);
+        }
+
+        OnPropertyChanged(nameof(OrderTotal));
+        OnPropertyChanged(nameof(RefundTotal));
     }
 
     private async Task DiscardAsync()
@@ -184,15 +258,21 @@ public partial class RefundVisual : ContentPage
                 return;
             }
 
+            if (string.IsNullOrWhiteSpace(Refund.Reason))
+            {
+                await DisplayAlert("Error", "Debe ingresar un motivo para la devolución.", "OK");
+                return;
+            }
+
             bool confirm = await DisplayAlert("Confirmar", "¿Deseas procesar la devolución?", "Sí", "No");
             if (!confirm) return;
 
-            // Asignar artículos a devolver
+            // Assign items to refund
             Refund.RefundedItems = RefundedItems.ToList();
 
             await AppDbContext.ExecuteSafeAsync(async db =>
             {
-                // Adjuntar orden y usuario existentes
+                // Attach existing order and user
                 db.Orders.Attach(Refund.Order!);
                 db.Users.Attach(Refund.User!);
 
@@ -201,11 +281,11 @@ public partial class RefundVisual : ContentPage
                     db.Articles.Attach(item.Article!);
                 }
 
-                // Agregar la devolución
+                // Add the refund
                 await db.Refunds.AddAsync(Refund);
                 await db.SaveChangesAsync();
 
-                // Crear la transacción
+                // Create the transaction
                 var transaction = new Transaction
                 {
                     Date = DateTime.Now,
