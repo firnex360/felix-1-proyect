@@ -33,8 +33,8 @@ namespace felix1.AdminSection
 
                 var transactions = await db.Transactions
                     .Include(t => t.Order)
-                    .Where(t => t.Order != null && 
-                               t.Order.CashRegister != null && 
+                    .Where(t => t.Order != null &&
+                               t.Order.CashRegister != null &&
                                t.Order.CashRegister.Id == _cashRegisterId)
                     .ToListAsync();
 
@@ -43,7 +43,7 @@ namespace felix1.AdminSection
                 foreach (var order in orders)
                 {
                     var transaction = transactions.FirstOrDefault(t => t.Order?.Id == order.Id);
-                    
+
                     var item = new CombinedOrderPayment
                     {
                         Id = order.Id,
@@ -81,6 +81,27 @@ namespace felix1.AdminSection
 
         private async void OnDetailsClicked(object sender, EventArgs e)
         {
+            if (sender is Button button && button.BindingContext is CombinedOrderPayment item)
+            {
+                if (Application.Current?.MainPage is NavigationPage navPage &&
+                    navPage.CurrentPage is AdminSectionMainVisual adminPage)
+                {
+                    await AppDbContext.ExecuteSafeAsync(async db =>
+                    {
+                        var order = await db.Orders
+                            .Include(o => o.CashRegister)
+                            .FirstOrDefaultAsync(o => o.Id == item.OrderId);
+
+                        if (order != null)
+                        {
+                            MainThread.BeginInvokeOnMainThread(() =>
+                            {
+                                adminPage.SetRightPanelContent(new OrderDetailsVisual(item.OrderId));
+                            });
+                        }
+                    });
+                }
+            }
         }
 
         private async void OnPayClicked(object sender, EventArgs e)
@@ -120,7 +141,7 @@ namespace felix1.AdminSection
 
             var filtered = CombinedItems.Where(p =>
                 p.Id.ToString().Contains(searchText) ||
-                p.Time.Contains(searchText) || 
+                p.Time.Contains(searchText) ||
                 p.OrderNumber.ToString().Contains(searchText) ||
                 p.TotalAmount.ToString(CultureInfo.InvariantCulture).Contains(searchText) ||
                 (p.IsPaid ? "pagado" : "sin pagar").Contains(searchText) ||

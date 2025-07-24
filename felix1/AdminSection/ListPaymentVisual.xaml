@@ -17,7 +17,7 @@
         <Frame Grid.Row="1" Grid.Column="0" BackgroundColor="#F3F3F3" CornerRadius="10" Padding="0"
                HasShadow="False" VerticalOptions="Start" HeightRequest="40" HorizontalOptions="Start"
                BorderColor="#FFE0E0E0" WidthRequest="340" Margin="20,10,20,0">
-            
+
             <SearchBar x:Name="searchBar" Placeholder="Buscar pagos..." TextChanged="OnSearchBarTextChanged"
                       TextColor="#22223B" PlaceholderColor="#A0AEC0" BackgroundColor="Transparent"
                       CancelButtonColor="#4F8FCB" FontSize="16" Margin="8,0" HeightRequest="40"/>
@@ -48,34 +48,34 @@
                                     CellTextAlignment="Start" 
                                     ColumnWidthMode="FitByHeader"
                                     Width="80"/>
-                    
+
                     <syncfusion:DataGridTextColumn MappingName="Time" HeaderText="Hora"
                                   CellTextAlignment="Start"
                                   ColumnWidthMode="FitByHeader"
                                   Width="80"/>
-                    
+
                     <syncfusion:DataGridNumericColumn MappingName="OrderNumber" HeaderText="Orden #" Format="0000"
                                     ColumnWidthMode="FitByHeader"
                                     Width="100"/>
-                    
+
                     <syncfusion:DataGridTextColumn MappingName="TotalAmount" HeaderText="Total"
                                  CellTextAlignment="End"
                                  ValueBinding="{Binding TotalAmount, StringFormat='{0:C}'}"
                                  ColumnWidthMode="FitByHeader"
                                  Width="120"/>
-                    
+
                     <syncfusion:DataGridTextColumn MappingName="PaymentStatus" HeaderText="Estado"
                              ColumnWidthMode="FitByHeader"
                              Width="120"/>
-                    
+
                     <syncfusion:DataGridTextColumn MappingName="PaymentMethods" HeaderText="Método"
                                  ColumnWidthMode="Fill"
                                  MinimumWidth="150"/>
-                    
+
                     <syncfusion:DataGridTemplateColumn HeaderText="Acciones" 
                                      ColumnWidthMode="FitByHeader"
                                      Width="220">
-                        
+
                         <syncfusion:DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <HorizontalStackLayout Spacing="10" HorizontalOptions="Start">
