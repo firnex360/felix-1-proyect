@@ -258,7 +258,7 @@ public partial class OrderSectionMainVisual : ContentPage
             // Title
             popupContent.Children.Add(new Label
             {
-                Text = "🚀 Acceso Rápido",
+                Text = "Crear Orden",
                 FontSize = 20,
                 FontAttributes = FontAttributes.Bold,
                 TextColor = Color.FromArgb("#005F8C"),
@@ -281,24 +281,49 @@ public partial class OrderSectionMainVisual : ContentPage
             };
 
             // Available waiters section
-            await AddAvailableWaitersSection(popupContent);
+            var availableWaiters = await AddAvailableWaitersSection(popupContent);
+
+            // Create footer with close button
+            var footerContent = new StackLayout
+            {
+                Orientation = StackOrientation.Horizontal,
+                HorizontalOptions = LayoutOptions.Center,
+                Spacing = 10,
+                Padding = new Microsoft.Maui.Thickness(15, 10)
+            };
+
+            var closeButton = new Button
+            {
+                Text = "Cerrar",
+                BackgroundColor = Color.FromArgb("#757575"),
+                TextColor = Colors.White,
+                CornerRadius = 6,
+                WidthRequest = 100,
+                HeightRequest = 35,
+                FontSize = 14,
+                HorizontalOptions = LayoutOptions.End
+            };
+
+            footerContent.Children.Add(closeButton);
 
             // Create Syncfusion popup
             var popup = new SfPopup
             {
                 ContentTemplate = new Microsoft.Maui.Controls.DataTemplate(() => popupContent),
+                FooterTemplate = new Microsoft.Maui.Controls.DataTemplate(() => footerContent),
                 PopupStyle = new PopupStyle
                 {
-                    CornerRadius = 12,
+                    CornerRadius = 10,
                     HasShadow = true,
-                    BlurRadius = 3
+                    BlurRadius = 3,
+                    PopupBackground = Colors.White
                 },
                 StaysOpen = false,
-                ShowCloseButton = true,
-                ShowFooter = false,
+                ShowCloseButton = false,
+                ShowFooter = true,
                 ShowHeader = false,
                 WidthRequest = 450,
-                HeightRequest = 350,
+                HeightRequest = 380,
                 AutoSizeMode = PopupAutoSizeMode.None
             };
 
@@ -318,8 +343,71 @@ public partial class OrderSectionMainVisual : ContentPage
                 }
             };
 
+            // Wire up the close button
+            closeButton.Clicked += (s, e) => popup.Dismiss();
+
+#if WINDOWS
+            // Handle ESC key to close popup and number keys for waiter selection
+            KeyEventHandler keyHandler = null;
+            var window = Microsoft.Maui.Controls.Application.Current?.Windows.FirstOrDefault();
+            if (window?.Handler?.PlatformView is Microsoft.UI.Xaml.Window winUIWindow)
+            {
+                keyHandler = (sender, e) =>
+                {
+                    if (e.Key == Windows.System.VirtualKey.Escape)
+                    {
+                        popup.Dismiss();
+                        e.Handled = true;
+                    }
+                    else if (e.Key >= Windows.System.VirtualKey.Number1 && e.Key <= Windows.System.VirtualKey.Number6)
+                    {
+                        int index = (int)(e.Key - Windows.System.VirtualKey.Number1);
+                        if (index < availableWaiters.Count)
+                        {
+                            popup.Dismiss();
+                            var selectedWaiter = availableWaiters[index];
+                            
+                            if (RightPanel.Content is ListTableVisual listTableVisual)
+                            {
+                                // Call the create table method for this waiter
+                                var method = typeof(ListTableVisual).GetMethod("OnCreateTableWindowClicked", 
+                                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                                method?.Invoke(listTableVisual, new object[] { selectedWaiter });
+                            }
+                            e.Handled = true;
+                        }
+                    }
+                };
+
+                if (winUIWindow.Content is Microsoft.UI.Xaml.FrameworkElement rootElement)
+                {
+                    rootElement.KeyDown += keyHandler;
+                }
+
+            }
+            
+            // Remove event handler when popup is closed to avoid memory leaks
+            popup.Closed += (s, e) =>
+            {
+                if (keyHandler != null)
+                {
+                    var win = Microsoft.Maui.Controls.Application.Current?.Windows.FirstOrDefault();
+                    if (win?.Handler?.PlatformView is Microsoft.UI.Xaml.Window winUI)
+                    {
+                        if (winUI.Content is Microsoft.UI.Xaml.FrameworkElement rootElement)
+                        {
+                            rootElement.KeyDown -= keyHandler;
+                        }
+
+                    }
+                }
+            };
+#endif
+
             // Show the popup
             popup.Show();
+            await Task.Delay(50);
+            closeButton.Focus(); 
         }
         catch (Exception ex)
         {
@@ -327,12 +415,12 @@ public partial class OrderSectionMainVisual : ContentPage
         }
     }
 
-    private async Task AddAvailableWaitersSection(StackLayout parent)
+    private async Task<List<User>> AddAvailableWaitersSection(StackLayout parent)
     {
         // Available waiters section header
         parent.Children.Add(new Label
         {
-            Text = "� Crear Mesa para Mesero",
+            Text = "",
             FontSize = 16,
             FontAttributes = FontAttributes.Bold,
             TextColor = Color.FromArgb("#005F8C"),
@@ -359,18 +447,23 @@ public partial class OrderSectionMainVisual : ContentPage
             waitersGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new Microsoft.Maui.GridLength(1, Microsoft.Maui.GridUnitType.Star) });
 
             int row = 0, col = 0;
-            foreach (var waiter in availableWaiters)
+            for (int i = 0; i < availableWaiters.Count; i++)
             {
+                var waiter = availableWaiters[i];
+                
                 // Add row definition if needed
                 if (col == 0)
                     waitersGrid.RowDefinitions.Add(new RowDefinition { Height = Microsoft.Maui.GridLength.Auto });
 
+                // Add hotkey indicator for first 6 waiters
+                var hotkeyText = i < 6 ? $" ({i + 1})" : "";
+                
                 var waiterButton = new Button
                 {
-                    Text = $"👤 {waiter.Name}",
+                    Text = $"👤 {waiter.Name}{hotkeyText}",
                     FontSize = 12,
                     HeightRequest = 40,
-                    BackgroundColor = Color.FromArgb("#4CAF50"),
+                    BackgroundColor = Color.FromArgb("#005f8c"),
                     TextColor = Colors.White,
                     CornerRadius = 6,
                     HorizontalOptions = LayoutOptions.Fill
@@ -416,6 +509,8 @@ public partial class OrderSectionMainVisual : ContentPage
                 FontSize = 12
             });
         }
+
+        return availableWaiters;
     }
 
     private SfPopup? FindParentPopup(Element element)
