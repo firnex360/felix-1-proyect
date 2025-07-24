@@ -32,6 +32,8 @@ public partial class OrderVisual : ContentPage
     private decimal _waiterTaxRate = 0.0m;
     private decimal _discountAmount = 0m;
 
+    private bool _isSearchBarFocused = false;
+    private System.Timers.Timer? _focusTimer;
 
     public OrderVisual(Order order)
     {
@@ -189,7 +191,11 @@ public partial class OrderVisual : ContentPage
         MainThread.BeginInvokeOnMainThread(async () =>
         {
             await Task.Delay(50);
-            searchBar.Focus();
+            if (searchBar != null)
+            {
+                searchBar.Focus();
+                _isSearchBarFocused = searchBar.IsFocused;
+            }
         });
     }
 
@@ -288,27 +294,75 @@ public partial class OrderVisual : ContentPage
         orderItemsDataGrid.SelectionController = new CustomRowSelectionController(orderItemsDataGrid, this);
         listArticleDataGrid.SelectionController = new CustomArticleSelectionController(listArticleDataGrid, this);
 
+        // Set up search bar handler using the same pattern as popup
+        searchBar.HandlerChanged += OnSearchBarHandlerChanged;
+
         OnHandlerChanged(this, EventArgs.Empty);
 
         searchBar.Text = string.Empty;
+        // Start periodic focus checking
+        StartPeriodicFocusCheck();
+    }
+
+    private void StartPeriodicFocusCheck()
+    {
+        _focusTimer = new System.Timers.Timer(500); // Check every 500ms
+        _focusTimer.Elapsed += (s, e) =>
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                if (!_isSearchBarFocused && searchBar != null)
+                {
+                    searchBar.Focus();
+                    _isSearchBarFocused = searchBar.IsFocused;
+                    
+                    // Stop timer once focused
+                    if (_isSearchBarFocused && _focusTimer != null)
+                    {
+                        _focusTimer.Stop();
+                        _focusTimer.Dispose();
+                        _focusTimer = null;
+                    }
+                }
+            });
+        };
+        _focusTimer.Start();
+        
+        // Safety: Stop timer after 10 seconds to prevent infinite checking
         MainThread.BeginInvokeOnMainThread(async () =>
         {
-            await Task.Delay(100); // Give MAUI/WinUI time to fully render the searchBar
-
-#if WINDOWS
-            var autoSuggestBox = searchBar.Handler?.PlatformView as Microsoft.UI.Xaml.Controls.AutoSuggestBox;
-            if (autoSuggestBox != null)
+            await Task.Delay(10000);
+            if (_focusTimer != null)
             {
-                autoSuggestBox.KeyDown -= SearchBarPlatformView_KeyDown;
-                autoSuggestBox.KeyDown += SearchBarPlatformView_KeyDown;
-                autoSuggestBox.KeyUp -= SearchBarPlatformView_KeyUp;
-                autoSuggestBox.KeyUp += SearchBarPlatformView_KeyUp;
+                _focusTimer.Stop();
+                _focusTimer.Dispose();
+                _focusTimer = null;
             }
-#endif
-
-            searchBar.Focus();
         });
+    }
 
+    private void OnSearchBarHandlerChanged(object? sender, EventArgs e)
+    {
+#if WINDOWS
+        if (searchBar?.Handler?.PlatformView is Microsoft.UI.Xaml.Controls.AutoSuggestBox autoSuggestBox)
+        {
+            autoSuggestBox.KeyDown -= SearchBarPlatformView_KeyDown;
+            autoSuggestBox.KeyDown += SearchBarPlatformView_KeyDown;
+            autoSuggestBox.KeyUp -= SearchBarPlatformView_KeyUp;
+            autoSuggestBox.KeyUp += SearchBarPlatformView_KeyUp;
+        }
+#endif
+        
+        // Try to focus immediately when handler is ready
+        MainThread.BeginInvokeOnMainThread(async () =>
+        {
+            await Task.Delay(100);
+            if (searchBar != null && !_isSearchBarFocused)
+            {
+                searchBar.Focus();
+                _isSearchBarFocused = searchBar.IsFocused;
+            }
+        });
     }
 
 
@@ -592,6 +646,14 @@ public partial class OrderVisual : ContentPage
 
     private void CloseThisWindow()
     {
+        // Clean up the focus timer
+        if (_focusTimer != null)
+        {
+            _focusTimer.Stop();
+            _focusTimer.Dispose();
+            _focusTimer = null;
+        }
+
         var app = Microsoft.Maui.Controls.Application.Current;
         if (app != null)
         {
