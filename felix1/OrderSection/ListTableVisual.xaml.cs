@@ -27,6 +27,7 @@ public partial class ListTableVisual : ContentView
         BindingContext = this;
         Instance = this;
         LoadMeseros();
+        LoadExistingTakeoutOrders();
     }
 
     private Color GetOrderButtonColor(Order order)
