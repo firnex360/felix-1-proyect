@@ -2,17 +2,22 @@ using System.Collections.ObjectModel;
 using felix1.Data;
 using felix1.Logic;
 using Microsoft.EntityFrameworkCore;
+using Syncfusion.Maui.DataGrid;
+using Syncfusion.Maui.Popup;
 
 namespace felix1;
 
 public partial class ListUserVisual : ContentView
 {
+    public static ListUserVisual? Instance { get; private set; }
+
     public ObservableCollection<User> Users { get; set; } = new();
 
     public ListUserVisual()
     {
         InitializeComponent();
         BindingContext = this;
+        Instance = this;
         LoadUsers();
     }
 
@@ -29,28 +34,66 @@ public partial class ListUserVisual : ContentView
             Users.Add(user);
     }
 
+    public void ReloadUsers() // PUBLIC method to allow external refresh
+    {
+        LoadUsers();
+    }
+
     private void OnCreateUserWindowClicked(object sender, EventArgs e)
     {
-        // Get display size
-        var displayInfo = DeviceDisplay.Current.MainDisplayInfo;
-
-        var window = new Window(new CreateUserVisual());
-
-        window.Height = 700;
-        window.Width = 800;
-
-        // Center the window
-        window.X = (displayInfo.Width / displayInfo.Density - window.Width) / 2;
-        window.Y = (displayInfo.Height / displayInfo.Density - window.Height) / 2;
-
-        // Revisa cuando se cierra la ventana, es como un Sniper Monkey
-        window.Destroying += (s, args) =>
+        // Create the popup
+        var popup = new SfPopup
         {
-            LoadUsers();
-            // POP!
+            WidthRequest = 800,
+            HeightRequest = 700,
+            ShowFooter = false,
+            ShowCloseButton = true,
+            ShowHeader = false,
+            StaysOpen = true,
+            PopupStyle = new PopupStyle
+            {
+                MessageBackground = Colors.White,
+                HeaderBackground = Colors.Transparent,
+                HeaderTextColor = Colors.Black,
+                CornerRadius = new CornerRadius(10)
+            }
         };
 
-        Application.Current?.OpenWindow(window);
+        // Use the converted CreateUserVisual (now a ContentView)
+        var createUserView = new CreateUserVisual();
+        
+        // Try setting content directly without DataTemplate first
+        try 
+        {
+            // Some versions of Syncfusion popup support direct content assignment
+            var contentProperty = popup.GetType().GetProperty("Content");
+            if (contentProperty != null && contentProperty.CanWrite)
+            {
+                contentProperty.SetValue(popup, createUserView);
+                createUserView.SetPopupReference(popup);
+            }
+            else
+            {
+                // Fallback to ContentTemplate
+                createUserView.SetPopupReference(popup);
+                popup.ContentTemplate = new DataTemplate(() => createUserView);
+            }
+        }
+        catch
+        {
+            // Fallback to ContentTemplate
+            createUserView.SetPopupReference(popup);
+            popup.ContentTemplate = new DataTemplate(() => createUserView);
+        }
+
+        // Handle when popup is closed to reload users
+        popup.Closed += (s, args) =>
+        {
+            ReloadUsers();
+        };
+
+        // Show the popup
+        popup.Show();
     }
 
     private void OnEditClicked(object sender, EventArgs e)
@@ -70,26 +113,39 @@ public partial class ListUserVisual : ContentView
                 Deleted = user.Deleted
             };
 
-            // Open edit window with the user object
-            var editWindow = new Window(new CreateUserVisual(userToEdit))
+            // Create the popup for editing
+            var popup = new SfPopup
             {
-                Height = 700,
-                Width = 800
+                WidthRequest = 800,
+                HeightRequest = 700,
+                ShowFooter = false,
+                ShowHeader = false,
+                ShowCloseButton = true,
+                StaysOpen = true,
+                PopupStyle = new PopupStyle
+                {
+                    MessageBackground = Colors.White,
+                    HeaderBackground = Colors.Transparent,
+                    HeaderTextColor = Colors.Black,
+                    CornerRadius = new CornerRadius(10)
+                }
             };
 
-            // Center the window
-            var displayInfo = DeviceDisplay.Current.MainDisplayInfo;
-            editWindow.X = (displayInfo.Width / displayInfo.Density - editWindow.Width) / 2;
-            editWindow.Y = (displayInfo.Height / displayInfo.Density - editWindow.Height) / 2;
+            // Use the converted CreateUserVisual (now a ContentView) with the user to edit
+            var createUserView = new CreateUserVisual(userToEdit);
+            createUserView.SetPopupReference(popup);
+            
+            // Set the ContentView directly as content
+            popup.ContentTemplate = new DataTemplate(() => createUserView);
 
-            // Revisa cuando se cierra la ventana, es como un Sniper Monkey (Creo que ya dije eso)
-            editWindow.Destroying += (s, args) =>
+            // Handle when popup is closed to reload users
+            popup.Closed += (s, args) =>
             {
-                LoadUsers();
-                // POP!
+                ReloadUsers();
             };
 
-            Application.Current?.OpenWindow(editWindow);
+            // Show the popup
+            popup.Show();
         }
     }
 
