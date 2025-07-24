@@ -8,30 +8,25 @@
     <Grid RowDefinitions="Auto,Auto,*,Auto,Auto,Auto" ColumnDefinitions="*,*" 
           Padding="20" RowSpacing="10" ColumnSpacing="10">
 
-        <Label Grid.Row="0" Grid.ColumnSpan="2"
-               Text="Devolución de Pedido"
-               TextColor="#005F8C"
-               FontSize="18" 
-               FontAttributes="Bold"
-               HorizontalOptions="Center"/>
-
-        <Label Grid.Row="1" Grid.Column="0"
+        <!-- Títulos -->
+        <Label Grid.Row="0" Grid.Column="0"
                TextColor="#005F8C"
                Text="Artículos Originales"
-               FontAttributes="Bold"/>
+               FontAttributes="Bold"
+               FontSize="16"/>
 
-        <Label Grid.Row="1" Grid.Column="1"
+        <Label Grid.Row="0" Grid.Column="1"
                TextColor="#005F8C"
                Text="Artículos a Devolver"
-               FontAttributes="Bold"/>
+               FontAttributes="Bold"
+               FontSize="16"/>
 
-
-        <Frame Grid.Row="2" Grid.Column="0"
+        <!-- Tablas de artículos -->
+        <Frame Grid.Row="1" Grid.Column="0" Grid.RowSpan="2"
                CornerRadius="10"
                Padding="0"
                Margin="0,5"
                HasShadow="True"
-               HeightRequest="300"
                VerticalOptions="FillAndExpand"
                HorizontalOptions="FillAndExpand"
                BackgroundColor="#F5F5F5"
@@ -42,7 +37,7 @@
                                    HeaderRowHeight="60"
                                    RowHeight="50"
                                    AutoGenerateColumnsMode="None"
-                                   SelectionMode="Single"
+                                   SelectionMode="Multiple"
                                    NavigationMode="Cell"
                                    SelectionChanged="OnOriginalItemSelected">
 
@@ -70,17 +65,16 @@
                     <syncfusion:DataGridNumericColumn MappingName="UnitPrice" HeaderText="Precio"
                                                       Format="C2" CellTextAlignment="End" HeaderTextAlignment="End"/>
                     <syncfusion:DataGridNumericColumn MappingName="TotalPrice" HeaderText="Total"
-                                                      Format="C2" CellTextAlignment="End" HeaderTextAlignment="End"/>
+                                                      Format="C2" CellTextAlignment="Start" HeaderTextAlignment="Start" ColumnWidthMode="Fill"/>
                 </syncfusion:SfDataGrid.Columns>
             </syncfusion:SfDataGrid>
         </Frame>
 
-        <Frame Grid.Row="2" Grid.Column="1"
+        <Frame Grid.Row="1" Grid.Column="1" Grid.RowSpan="2"
                CornerRadius="10"
                Padding="0"
                Margin="0,5"
                HasShadow="True"
-               HeightRequest="300"
                VerticalOptions="FillAndExpand"
                HorizontalOptions="FillAndExpand"
                BackgroundColor="#F3F3F3"
@@ -91,7 +85,7 @@
                                    HeaderRowHeight="60"
                                    RowHeight="50"
                                    AutoGenerateColumnsMode="None"
-                                   SelectionMode="Single"
+                                   SelectionMode="Multiple"
                                    NavigationMode="Cell"
                                    SelectionChanged="OnRefundedItemSelected">
 
@@ -119,14 +113,15 @@
                     <syncfusion:DataGridNumericColumn MappingName="UnitPrice" HeaderText="Precio"
                                                       Format="C2" CellTextAlignment="End" HeaderTextAlignment="End"/>
                     <syncfusion:DataGridNumericColumn MappingName="TotalPrice" HeaderText="Total"
-                                                      Format="C2" CellTextAlignment="End" HeaderTextAlignment="End"/>
+                                                      Format="C2" CellTextAlignment="Start" HeaderTextAlignment="Start" ColumnWidthMode="Fill"/>
                 </syncfusion:SfDataGrid.Columns>
             </syncfusion:SfDataGrid>
         </Frame>
 
-        <StackLayout Grid.Row="3" Grid.Column="0" Orientation="Horizontal" Spacing="10">
-            <Button Text="Agregar a Devolución" 
-                    Clicked="OnAddToRefund"
+        <!-- Botones de transferencia -->
+        <StackLayout Grid.Row="3" Grid.Column="0" Orientation="Horizontal" Spacing="10" HorizontalOptions="Center">
+            <Button Text="Agregar Seleccionados" 
+                    Clicked="OnAddSelectedToRefund"
                     BackgroundColor="#005F8C"
                     FontAttributes="Bold"
                     TextColor="White"
@@ -134,11 +129,21 @@
                     WidthRequest="200"
                     HeightRequest="40"
                     CornerRadius="8"/>
+
+            <Button Text="Agregar Todo" 
+                    Clicked="OnAddAllToRefund"
+                    BackgroundColor="#005F8C"
+                    FontAttributes="Bold"
+                    TextColor="White"
+                    FontSize="14"
+                    WidthRequest="150"
+                    HeightRequest="40"
+                    CornerRadius="8"/>
         </StackLayout>
 
-        <StackLayout Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="10">
-            <Button Text="Quitar de Devolución" 
-                    Clicked="OnRemoveFromRefund"
+        <StackLayout Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="10" HorizontalOptions="Center">
+            <Button Text="Quitar Seleccionados" 
+                    Clicked="OnRemoveSelectedFromRefund"
                     BackgroundColor="#005F8C"
                     TextColor="White"
                     FontAttributes="Bold"
@@ -146,88 +151,98 @@
                     WidthRequest="200"
                     HeightRequest="40"
                     CornerRadius="8"/>
+
+            <Button Text="Quitar Todo" 
+                    Clicked="OnRemoveAllFromRefund"
+                    BackgroundColor="#005F8C"
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    FontSize="14"
+                    WidthRequest="150"
+                    HeightRequest="40"
+                    CornerRadius="8"/>
         </StackLayout>
 
-        <!-- Reemplaza esta parte -->
-        <Grid Grid.Row="4" Grid.ColumnSpan="2"
-      ColumnDefinitions="Auto,*,Auto"
-      VerticalOptions="Center"
-      Padding="0,10"
-      ColumnSpacing="15">
+        <!-- Totales -->
+        <StackLayout Grid.Row="4" Grid.Column="0" Orientation="Horizontal" Spacing="10" HorizontalOptions="End">
+            <Label Text="Total Orden:" 
+                   TextColor="#005F8C"
+                   FontFamily="Inter"
+                   FontAttributes="Bold"
+                   FontSize="14"/>
+            <Label Text="{Binding OrderTotal, StringFormat='{0:C2}'}" 
+                   TextColor="#005F8C"
+                   FontFamily="Inter"
+                   FontAttributes="Bold"
+                   FontSize="14"/>
+        </StackLayout>
 
-            <Button Grid.Column="1"
-            Text="Descartar"
-            Command="{Binding DiscardCommand}"
-            BackgroundColor="Black"
-            TextColor="White"
-            WidthRequest="130"
-            HeightRequest="45"
-            FontAttributes="Bold"
-            CornerRadius="6"
-            HorizontalOptions="End"/>
+        <StackLayout Grid.Row="4" Grid.Column="1" Orientation="Horizontal" Spacing="10" HorizontalOptions="End">
+            <Label Text="Total Devolución:" 
+                   TextColor="#005F8C"
+                   FontFamily="Inter"
+                   FontAttributes="Bold"
+                   FontSize="14"/>
+            <Label Text="{Binding RefundTotal, StringFormat='{0:C2}'}" 
+                   TextColor="#005F8C"
+                   FontAttributes="Bold"
+                   FontFamily="Inter"
+                   FontSize="14"/>
+        </StackLayout>
 
-            <Button Grid.Column="2"
-            Text="Charge"
-            Command="{Binding ProcessRefundCommand}"
-            BackgroundColor="#005F8C"
-            TextColor="White"
-            WidthRequest="130"
-            HeightRequest="45"
-            FontAttributes="Bold"
-            CornerRadius="6"
-            HorizontalOptions="End"/>
-        </Grid>
+        <!-- Botones inferiores -->
+        <Grid Grid.Row="5" Grid.ColumnSpan="2"
+              ColumnDefinitions="*,Auto,Auto"
+              VerticalOptions="Center"
+              Padding="0,10"
+              ColumnSpacing="15">
 
-        <!-- Por esta versión mejorada: -->
-        <Grid Grid.Row="4" Grid.ColumnSpan="2"
-      ColumnDefinitions="*,Auto,Auto"
-      VerticalOptions="Center"
-      Padding="20,10"
-      ColumnSpacing="15"
-      RowSpacing="0">
-
-            <!-- Razón de devolución (ocupará el espacio sobrante) -->
+            <!-- Razón de devolución -->
             <Frame Grid.Column="0"
-           BackgroundColor="White"
-           BorderColor="#E9ECEF"
-           CornerRadius="6"
-           HasShadow="True"
-           Padding="5,2"
-           VerticalOptions="Center"
-           HorizontalOptions="FillAndExpand">
+                   BackgroundColor="White"
+                   BorderColor="#E9ECEF"
+                   CornerRadius="6"
+                   HasShadow="True"
+                   Padding="5,2"
+                   VerticalOptions="Center"
+                   HorizontalOptions="FillAndExpand">
                 <Entry Text="{Binding Refund.Reason}"
-               Placeholder="Ingrese el motivo de la devolución"
-               FontSize="14"
-               FontAttributes="None"
-               BackgroundColor="Transparent"
-               TextColor="#005F8C"/>
+                       Placeholder="Ingrese el motivo de la devolución"
+                       FontSize="14"
+                       FontFamily="Inter"
+                       FontAttributes="None"
+                       BackgroundColor="Transparent"
+                       TextColor="#005F8C"/>
             </Frame>
 
             <!-- Botón Descartar -->
             <Button Grid.Column="1"
-            Text="Descartar"
-            Command="{Binding DiscardCommand}"
-            BackgroundColor="Black"
-            TextColor="White"
-            MinimumWidthRequest="130"
-            HeightRequest="45"
-            FontAttributes="Bold"
-            CornerRadius="6"
-            HorizontalOptions="End"
-            VerticalOptions="Center"/>
+                    Text="Descartar"
+                    Command="{Binding DiscardCommand}"
+                    BackgroundColor="Black"
+                    TextColor="White"
+                    FontFamily="Inter"
+                    MinimumWidthRequest="130"
+                    HeightRequest="45"
+                    FontAttributes="Bold"
+                    CornerRadius="6"
+                    Margin="0,0,10,0"
+                    HorizontalOptions="End"
+                    VerticalOptions="Center"/>
 
             <!-- Botón Charge -->
             <Button Grid.Column="2"
-            Text="Charge"
-            Command="{Binding ProcessRefundCommand}"
-            BackgroundColor="#005F8C"
-            TextColor="White"
-            MinimumWidthRequest="130"
-            HeightRequest="45"
-            FontAttributes="Bold"
-            CornerRadius="6"
-            HorizontalOptions="End"
-            VerticalOptions="Center"/>
+                    Text="Procesar"
+                    Command="{Binding ProcessRefundCommand}"
+                    BackgroundColor="#005F8C"
+                    FontFamily="Inter"
+                    TextColor="White"
+                    MinimumWidthRequest="130"
+                    HeightRequest="45"
+                    FontAttributes="Bold"
+                    CornerRadius="6"
+                    HorizontalOptions="End"
+                    VerticalOptions="Center"/>
         </Grid>
     </Grid>
 </ContentPage>
