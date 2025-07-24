@@ -406,11 +406,19 @@ private void LoadExistingTakeoutOrders()
                 .Select(o => o.Table!)
                 .ToListAsync();
 
-            int nextTakeoutNumber = -(existingTakeouts.Count + 1);
+            var allTables = await db.Orders
+                .Include(o => o.Table)
+                .Include(o => o.Waiter)
+                .Where(o => o.CashRegister != null && o.CashRegister.Id == cashRegister.Id && o.Table != null)
+                .Select(o => o.Table!)
+                .ToListAsync();
+
+            int nextTakeoutNumber = (existingTakeouts.Count + 1);
 
             var table = new Table
             {
                 LocalNumber = nextTakeoutNumber,
+                GlobalNumber = allTables.Count + 101, // global numbers start from 100
                 IsTakeOut = true,
                 IsBillRequested = false,
                 IsPaid = false
