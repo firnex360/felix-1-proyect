@@ -30,7 +30,7 @@ Artículos:
 {{ ("ITBIS (" + (receipt.TaxRateITBIS | math.times 100 | math.format "0") + "%):") | string.pad_right 18 }}{{ receipt.TaxAmountITBIS | math.format "c" "en-US" | string.pad_left 16 }}
 {{ ("Propina (" + (receipt.TaxRateWaiters | math.times 100 | math.format "0") + "%):") | string.pad_right 18 }}{{ receipt.TaxAmountWaiters | math.format "c" "en-US" | string.pad_left 16 }}
 ───────────────────────────────────────────────
-{{ "TOTAL:" | string.pad_right 18 }}{{ receipt.TotalAmount | math.format "c" "en-US" | string.pad_left 3 }}
+{{ "TOTAL:" | string.pad_right 18 }}{{ receipt.TotalAmount | math.format "c" "en-US" | string.pad_left 5 }}
 ═══════════════════════════════════════════════
 
 {{ if receipt.Order.IsDuePaid }}
