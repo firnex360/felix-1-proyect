@@ -125,7 +125,7 @@ public partial class ListTableVisual : ContentView
                 // Table number label
                 tableContent.Children.Add(new Label
                 {
-                    Text = $"Mesa #{table.LocalNumber} - Global #{table.GlobalNumber}",
+                    Text = $"Mesa #{table.LocalNumber} - #{table.GlobalNumber}",
                     FontAttributes = FontAttributes.Bold,
                     FontSize = 14,
                     HorizontalOptions = LayoutOptions.Center,
@@ -137,7 +137,7 @@ public partial class ListTableVisual : ContentView
                 {
                     var orderButton = new Button
                     {
-                        Text = $"Orden #{order.OrderNumber} || Precio: {findOrderTotal(order):C}",
+                        Text = $"Orden #{order.OrderNumber} || Total: {findOrderTotal(order):C}",
                         FontSize = 12,
                         HeightRequest = 30,
                         BackgroundColor = GetOrderButtonColor(order),
