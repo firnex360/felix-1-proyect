@@ -587,8 +587,8 @@ public partial class OrderVisual : ContentPage
             return; // Error occurred, don't close
         }
 
-        CloseThisWindow();
-    }
+            if (result) return;
+        }
 
     private void CloseThisWindow()
     {
@@ -691,8 +691,25 @@ public partial class OrderVisual : ContentPage
     {
         // Save order changes first
         if (!SaveOrderChanges())
+
+
+        if (_currentOrder != null)
         {
             return; // Error occurred during save, don't proceed with printing
+        }
+
+        // Validar si no hay items en la orden
+        if (OrderItems == null || OrderItems.Count == 0)
+        {
+            await DisplayAlert("Error", "No se puede imprimir una orden sin items.", "OK");
+            return;
+        }
+
+        //Validar si no hay items con cantidad negativa, muy original mi código
+        if (OrderItems.Any(item => item.Quantity < 0))
+        {
+            await DisplayAlert("Cantidad invalida", "No se puede guardar una orden con cantidades negativas.", "OK");
+            return;
         }
 
         Console.WriteLine("Print receipt clicked");

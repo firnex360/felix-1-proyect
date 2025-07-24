@@ -111,6 +111,55 @@
                 </VisualStateManager.VisualStateGroups>
             </buttons:SfButton>
 
+            <buttons:SfButton x:Name="btnShowCuadre"
+                              Text="Historial Cuadre"
+                              TextColor="Black"
+                              CornerRadius="5"
+                              Clicked="OnShowCuadre"
+                              IsCheckable="True"
+                              Margin="0,0,0,0"
+                              BackgroundColor="#F3F3F3"
+                              ImageSource="user.png"
+                              ImageAlignment="Start"
+                              ShowIcon="True">
+
+                <VisualStateManager.VisualStateGroups>
+                    <VisualStateGroup x:Name="CommonStates">
+
+                        <!-- Default State -->
+                        <VisualState x:Name="Normal">
+                            <VisualState.Setters>
+                                <Setter Property="Background" Value="#F3F3F3"/>
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <!-- Hovered State -->
+                        <VisualState x:Name="Hovered">
+                            <VisualState.Setters>
+                                <Setter Property="Background" Value="#C7CFDD"/>
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <!-- Pressed State -->
+                        <VisualState x:Name="Pressed">
+                            <VisualState.Setters>
+                                <Setter Property="Background" Value="#005F8C"/>
+                                <Setter Property="TextColor" Value="#F3F3F3"/>
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <!-- Checked State -->
+                        <VisualState x:Name="Checked">
+                            <VisualState.Setters>
+                                <Setter Property="Background" Value="#005F8C"/>
+                                <Setter Property="TextColor" Value="#F3F3F3"/>
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateManager.VisualStateGroups>
+            </buttons:SfButton>
+
+
             <buttons:SfButton x:Name="btnShowConfiguration"
                               Text="Configuraciones"
                               TextColor="Black"
