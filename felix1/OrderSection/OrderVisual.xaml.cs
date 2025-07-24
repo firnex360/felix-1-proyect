@@ -32,6 +32,8 @@ public partial class OrderVisual : ContentPage
     private decimal _waiterTaxRate = 0.0m;
     private decimal _discountAmount = 0m;
 
+    private bool _isSearchBarFocused = false;
+    private System.Timers.Timer? _focusTimer;
 
     public OrderVisual(Order order)
     {
@@ -189,7 +191,11 @@ public partial class OrderVisual : ContentPage
         MainThread.BeginInvokeOnMainThread(async () =>
         {
             await Task.Delay(50);
-            searchBar.Focus();
+            if (searchBar != null)
+            {
+                searchBar.Focus();
+                _isSearchBarFocused = searchBar.IsFocused;
+            }
         });
     }
 
@@ -288,27 +294,75 @@ public partial class OrderVisual : ContentPage
         orderItemsDataGrid.SelectionController = new CustomRowSelectionController(orderItemsDataGrid, this);
         listArticleDataGrid.SelectionController = new CustomArticleSelectionController(listArticleDataGrid, this);
 
+        // Set up search bar handler using the same pattern as popup
+        searchBar.HandlerChanged += OnSearchBarHandlerChanged;
+
         OnHandlerChanged(this, EventArgs.Empty);
 
         searchBar.Text = string.Empty;
+        // Start periodic focus checking
+        StartPeriodicFocusCheck();
+    }
+
+    private void StartPeriodicFocusCheck()
+    {
+        _focusTimer = new System.Timers.Timer(500); // Check every 500ms
+        _focusTimer.Elapsed += (s, e) =>
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                if (!_isSearchBarFocused && searchBar != null)
+                {
+                    searchBar.Focus();
+                    _isSearchBarFocused = searchBar.IsFocused;
+
+                    // Stop timer once focused
+                    if (_isSearchBarFocused && _focusTimer != null)
+                    {
+                        _focusTimer.Stop();
+                        _focusTimer.Dispose();
+                        _focusTimer = null;
+                    }
+                }
+            });
+        };
+        _focusTimer.Start();
+
+        // Safety: Stop timer after 10 seconds to prevent infinite checking
         MainThread.BeginInvokeOnMainThread(async () =>
         {
-            await Task.Delay(100); // Give MAUI/WinUI time to fully render the searchBar
-
-#if WINDOWS
-            var autoSuggestBox = searchBar.Handler?.PlatformView as Microsoft.UI.Xaml.Controls.AutoSuggestBox;
-            if (autoSuggestBox != null)
+            await Task.Delay(10000);
+            if (_focusTimer != null)
             {
-                autoSuggestBox.KeyDown -= SearchBarPlatformView_KeyDown;
-                autoSuggestBox.KeyDown += SearchBarPlatformView_KeyDown;
-                autoSuggestBox.KeyUp -= SearchBarPlatformView_KeyUp;
-                autoSuggestBox.KeyUp += SearchBarPlatformView_KeyUp;
+                _focusTimer.Stop();
+                _focusTimer.Dispose();
+                _focusTimer = null;
             }
+        });
+    }
+
+    private void OnSearchBarHandlerChanged(object? sender, EventArgs e)
+    {
+#if WINDOWS
+        if (searchBar?.Handler?.PlatformView is Microsoft.UI.Xaml.Controls.AutoSuggestBox autoSuggestBox)
+        {
+            autoSuggestBox.KeyDown -= SearchBarPlatformView_KeyDown;
+            autoSuggestBox.KeyDown += SearchBarPlatformView_KeyDown;
+            autoSuggestBox.KeyUp -= SearchBarPlatformView_KeyUp;
+            autoSuggestBox.KeyUp += SearchBarPlatformView_KeyUp;
+        }
 #endif
 
-            searchBar.Focus();
+        // Try to focus immediately when handler is ready
+        MainThread.BeginInvokeOnMainThread(async () =>
+        {
+            await Task.Delay(100);
+            if (searchBar != null && !_isSearchBarFocused)
+            {
+                searchBar.Focus();
+                _isSearchBarFocused = searchBar.IsFocused;
+            }
         });
-
     }
 
 
@@ -592,6 +646,14 @@ public partial class OrderVisual : ContentPage
 
     private void CloseThisWindow()
     {
+        // Clean up the focus timer
+        if (_focusTimer != null)
+        {
+            _focusTimer.Stop();
+            _focusTimer.Dispose();
+            _focusTimer = null;
+        }
+
         var app = Microsoft.Maui.Controls.Application.Current;
         if (app != null)
         {
@@ -691,10 +753,8 @@ public partial class OrderVisual : ContentPage
     {
         // Save order changes first
         if (!SaveOrderChanges())
-
-
-        if (_currentOrder != null)
         {
+            await DisplayAlert("Error", "No se pudo guardar la orden.", "OK");
             return; // Error occurred during save, don't proceed with printing
         }
 
@@ -718,6 +778,25 @@ public partial class OrderVisual : ContentPage
             try
             {
                 using var db = new AppDbContext();
+
+                // Reload the order with all its items from database to ensure we have the latest saved data
+                var orderFromDb = await db.Orders
+                    .Include(o => o.Items!)
+                    .ThenInclude(i => i.Article)
+                    .Include(o => o.Waiter)
+                    .Include(o => o.Table)
+                    .Include(o => o.CashRegister)
+                    .FirstOrDefaultAsync(o => o.Id == _currentOrder.Id);
+
+                if (orderFromDb == null)
+                {
+                    await DisplayAlert("Error", "No se pudo encontrar la orden en la base de datos.", "OK");
+                    return;
+                }
+
+                // Update the current order reference with the database version
+                _currentOrder = orderFromDb;
+
                 _currentOrder.IsBillRequested = true;
                 db.Orders.Update(_currentOrder);
                 await db.SaveChangesAsync();
@@ -735,27 +814,70 @@ public partial class OrderVisual : ContentPage
             catch (Exception ex)
             {
                 await DisplayAlert("Error", $"No se pudo actualizar la orden: {ex.Message}", "OK");
+                return;
             }
         }
 
-        //Set printer name if needed
-        //pd.PrinterSettings.PrinterName = "SP500"; // or whatever name shows in Windows, but it should take the default one
 
 #if WINDOWS
 
                 try
                 {
-                    string templateText = File.ReadAllText(@"C:\Codes\github\felix-1-proyect\felix1\ReceiptTemplates\OrderTemplate.txt");
+                    // Create OrderReceipt object with all necessary data
+                    var orderReceipt = new OrderReceipt
+                    {
+                        // Company Information (loaded from configuration/settings)
+                        CompanyName = Preferences.Get("CompanyName", "Sin nombre"),
+                        CompanyAddress = Preferences.Get("CompanyAddress", "Sin dirección"),
+                        CompanyPhone = Preferences.Get("CompanyPhone", "0"),
+                        CompanyRNC = Preferences.Get("CompanyRNC", "0"),
+                        
+                        // Order Information
+                        Order = _currentOrder,
+                        
+                        // Transaction Financial Information
+                        TotalAmount = CalculateSubtotal() + CalculateTax(CalculateSubtotal()) + CalculateWaiterTax(CalculateSubtotal()) - _discountAmount,
+                        TaxAmountITBIS = CalculateTax(CalculateSubtotal()),
+                        TaxAmountWaiters = CalculateWaiterTax(CalculateSubtotal()),
+                        CashAmount = 0, // TODO: Set based on payment method
+                        CardAmount = 0, // TODO: Set based on payment method
+                        TransferAmount = 0, // TODO: Set based on payment method
+                        
+                        // Tax Percentages
+                        TaxRateITBIS = _taxRate, // Store the actual tax rate (e.g., 0.18 for 18%)
+                        TaxRateWaiters = _waiterTaxRate, // Store the actual waiter tax rate (e.g., 0.10 for 10%)
+                        
+                        PrintDate = DateTime.Now
+                    };
+
+                    string templateText = File.ReadAllText(@"felix1\ReceiptTemplates\OrderTemplate.txt");
                     var template = Template.Parse(templateText);
-                    var scribanModel = new { order = _currentOrder };
+                    var scribanModel = new { receipt = orderReceipt };
                     string text = template.Render(scribanModel, member => member.Name);
 
-
                     PrintDocument pd = new PrintDocument();
+                    pd.PrinterSettings.PrinterName = "Star SP500 Cutter"; // or whatever name shows in Windows, but it should take the default one
                     pd.PrintPage += (sender, e) =>
                     {
-                        System.Drawing.Font font = new System.Drawing.Font("Consolas", 8); // Monospaced font recommended for POS printers
-                        e.Graphics.DrawString(text, font, Brushes.Black, new System.Drawing.PointF(10, 10));
+                        System.Drawing.Font font = new System.Drawing.Font("Consolas", 9); // Monospaced font recommended for POS printers
+                        var lines = text.Split('\n');
+                        float yPos = 0;
+                        float lineHeight = font.GetHeight(e.Graphics);
+
+                        foreach (string line in lines)
+                        {
+                            if (line.Contains("TOTAL"))
+                            {
+                                var bigFont = new System.Drawing.Font("Consolas", 12, FontStyle.Bold);
+                                e.Graphics.DrawString(line.TrimEnd(), bigFont, Brushes.Black, new System.Drawing.PointF(0, yPos));
+                            }
+                            else
+                            {
+                                e.Graphics.DrawString(line.TrimEnd(), font, Brushes.Black, new System.Drawing.PointF(0, yPos));
+                            }
+                            yPos += lineHeight;
+                        }
+
                     };
                     
                     pd.Print();

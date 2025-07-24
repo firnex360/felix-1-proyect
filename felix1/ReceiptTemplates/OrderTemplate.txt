@@ -1,35 +1,42 @@
-╔══════════════════════════════════════════════╗
-║                   FELIX I                    ║
-║              AV. HISPANOAMERICA              ║
-║                Tel: 8095828134               ║
-║                RNC: 130622914                ║
-╚══════════════════════════════════════════════╝
+═════════════════════════════════════════
+      {{ receipt.CompanyName }}
+    {{ receipt.CompanyAddress }}
+     Tel: {{ receipt.CompanyPhone }}
+     RNC: {{ receipt.CompanyRNC }}
+═════════════════════════════════════════
 
-
-Mesa: {{ order.Table.LocalNumber }} [Global: {{ order.Table.GlobalNumber }}]
-Orden #: {{ order.OrderNumber }}
-Fecha: {{ order.Date}}
-Mesero: {{ order.Waiter.Name }}
+Mesa: {{ receipt.Order.Table.LocalNumber }} [{{ receipt.Order.Table.GlobalNumber }}]
+Orden: #{{ receipt.Order.OrderNumber }}
+Fecha: {{ receipt.PrintDate | date.to_string "%d/%m/%Y %H:%M" }}
+Mesero: {{ receipt.Order.Waiter.Name }}
 ═══════════════════════════════════════════════
+{{- if receipt.Order.Table.IsTakeOut }}
 
-{{ if order.Table.IsTakeOut }}
 ═══════════════════════════════════════════════
           *** PARA LLEVAR ***
 ═══════════════════════════════════════════════
-{{end}}
 
+{{- end }}
 Artículos:
-{{ for item in order.Items }}
-- {{ item.ArticleName }}
-{{ item.Quantity }} x {{ item.UnitPrice | math.format "c" "en-US"}}  || {{ item.TotalPrice | math.format "c" "en-US"}}
-
+{{ for item in receipt.Order.Items }}
+{{ item.Article.Name }} 
+- {{ item.Quantity }} x {{ item.UnitPrice | math.format "c" "en-US"}} {{ item.TotalPrice | math.format "c" "en-US"}}
 {{ end }}
-
 ═══════════════════════════════════════════════
-{{ if order.IsDuePaid }}
-          *** PENDIENTE DE PAGO ***
+{{ "Subtotal:" | string.pad_right 18 }}{{ (receipt.TotalAmount - receipt.TaxAmountITBIS - receipt.TaxAmountWaiters + receipt.Order.Discount) | math.format "c" "en-US" | string.pad_left 16 }}
+{{ if receipt.Order.Discount > 0 }}
+{{ "Descuento:" | string.pad_right 18 }}{{ receipt.Order.Discount | math.format "c" "en-US" | string.prepend "-" | string.pad_left 16 }}
+{{end}}
+{{ ("ITBIS (" + (receipt.TaxRateITBIS | math.times 100 | math.format "0") + "%):") | string.pad_right 18 }}{{ receipt.TaxAmountITBIS | math.format "c" "en-US" | string.pad_left 16 }}
+{{ ("Propina (" + (receipt.TaxRateWaiters | math.times 100 | math.format "0") + "%):") | string.pad_right 18 }}{{ receipt.TaxAmountWaiters | math.format "c" "en-US" | string.pad_left 16 }}
+───────────────────────────────────────────────
+{{ "TOTAL:" | string.pad_right 18 }}{{ receipt.TotalAmount | math.format "c" "en-US" | string.pad_left 3 }}
+═══════════════════════════════════════════════
+
+{{ if receipt.Order.IsDuePaid }}
+     *** PENDIENTE DE PAGO ***
 {{ else }}
-          ***      PAGADO       ***
+         ***  PAGADO  ***
 {{ end }}
 
-GRACIAS POR PREFERIRNOS
+    GRACIAS POR PREFERIRNOS
