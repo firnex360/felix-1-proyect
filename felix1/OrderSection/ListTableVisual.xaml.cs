@@ -204,10 +204,16 @@ public partial class ListTableVisual : ContentView
 
     private decimal findOrderTotal(Order order)
     {
-        return order.Items!
+
+        var subtotal = order.Items!
             .GroupBy(item => item.Id) // Group by unique ID
             .Select(group => group.First()) // Take first instance of each
             .Sum(item => item.Quantity * item.UnitPrice); // Sum distinct items
+
+        var taxRate = decimal.Parse(Preferences.Get("TaxRate", "18")) / 100m * subtotal;
+        var waiterTaxRate = decimal.Parse(Preferences.Get("WaiterTaxRate", "10")) / 100m * subtotal;
+
+        return subtotal + waiterTaxRate + taxRate;
     }
 
     private async void RefundVisual(Order order)
