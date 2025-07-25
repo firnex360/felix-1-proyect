@@ -120,7 +120,7 @@ public partial class LoginPage : ContentPage, INotifyPropertyChanged
                 {
                     "Cajero" => new CreateCashRegisterVisual(),
                     "Admin" => new AdminSectionMainVisual(),
-                    "Mesero" => new MainPage(), //Cuando tengamos algo se remplaza este MainPage
+                    "Mesero" => new OrderSectionMainVisual(null, AppSession.CurrentUser),
                     _ => new MainPage()
                 };
 
@@ -140,7 +140,7 @@ public partial class LoginPage : ContentPage, INotifyPropertyChanged
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"Ocurrió un error: {ex.Message}", "OK");
+            await DisplayAlert("Error iniciando sesión", $"Ocurrió un error: {ex.Message}", "OK");
         }
         finally
         {
