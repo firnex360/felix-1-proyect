@@ -175,7 +175,8 @@ namespace felix1.OrderSection
             {
                 Text = "Efectivo",
                 FontAttributes = FontAttributes.Bold,
-                TextColor = Microsoft.Maui.Graphics.Color.FromArgb("#005F8C")
+                TextColor = Microsoft.Maui.Graphics.Color.FromArgb("#005F8C"),
+                FontFamily = "Inter"
             };
             Grid.SetColumn(label, 0);
             header.Children.Add(label);
@@ -187,7 +188,8 @@ namespace felix1.OrderSection
                 Placeholder = "$0.00",
                 Keyboard = Keyboard.Numeric,
                 BackgroundColor = Microsoft.Maui.Graphics.Color.FromArgb("#FFFFFF"),
-                TextColor = Microsoft.Maui.Graphics.Color.FromArgb("#000000")
+                TextColor = Microsoft.Maui.Graphics.Color.FromArgb("#000000"),
+                FontFamily = "Inter"
             };
 
             entry.TextChanged += (sender, e) =>
@@ -233,18 +235,20 @@ namespace felix1.OrderSection
             {
                 Text = "Tarjeta",
                 FontAttributes = FontAttributes.Bold,
-                TextColor = Microsoft.Maui.Graphics.Color.FromArgb("#005F8C")
+                TextColor = Microsoft.Maui.Graphics.Color.FromArgb("#005F8C"),
+                FontFamily = "Inter"
             };
             Grid.SetColumn(label, 0);
             header.Children.Add(label);
 
             var removeButton = new Button
             {
-                Text = "×",
+                Text = "x",
                 FontSize = 20,
-                TextColor = Microsoft.Maui.Graphics.Color.FromArgb("#FF0000"),
+                TextColor = Microsoft.Maui.Graphics.Color.FromArgb("#FD2D2D"),
                 BackgroundColor = Microsoft.Maui.Graphics.Color.FromArgb("#00000000"),
                 Padding = 0,
+                FontFamily = "Inter",
                 WidthRequest = 30,
                 HeightRequest = 30,
                 CornerRadius = 15
@@ -268,7 +272,8 @@ namespace felix1.OrderSection
                 Placeholder = "$0.00",
                 Keyboard = Keyboard.Numeric,
                 BackgroundColor = Microsoft.Maui.Graphics.Color.FromArgb("#FFFFFF"),
-                TextColor = Microsoft.Maui.Graphics.Color.FromArgb("#000000")
+                TextColor = Microsoft.Maui.Graphics.Color.FromArgb("#000000"),
+                FontFamily = "Inter"
             };
 
             entry.TextChanged += (sender, e) =>
@@ -313,7 +318,9 @@ namespace felix1.OrderSection
             {
                 Text = "Transferencia",
                 FontAttributes = FontAttributes.Bold,
-                TextColor = Microsoft.Maui.Graphics.Color.FromArgb("#005F8C")
+                TextColor = Microsoft.Maui.Graphics.Color.FromArgb("#005F8C"),
+                FontFamily = "Inter"
+
             };
             Grid.SetColumn(label, 0);
             header.Children.Add(label);
@@ -322,8 +329,9 @@ namespace felix1.OrderSection
             {
                 Text = "x",
                 FontSize = 20,
-                TextColor = Microsoft.Maui.Graphics.Color.FromArgb("#FF0000"),
+                TextColor = Microsoft.Maui.Graphics.Color.FromArgb("#FD2D2D"),
                 BackgroundColor = Microsoft.Maui.Graphics.Color.FromArgb("#00000000"),
+                FontFamily = "Inter",
                 Padding = 0,
                 WidthRequest = 30,
                 HeightRequest = 30,
@@ -348,7 +356,8 @@ namespace felix1.OrderSection
                 Placeholder = "$0.00",
                 Keyboard = Keyboard.Numeric,
                 BackgroundColor = Microsoft.Maui.Graphics.Color.FromArgb("#FFFFFF"),
-                TextColor = Microsoft.Maui.Graphics.Color.FromArgb("#000000")
+                TextColor = Microsoft.Maui.Graphics.Color.FromArgb("#000000"),
+                FontFamily = "Inter"
             };
 
             entry.TextChanged += (sender, e) =>
@@ -373,7 +382,7 @@ namespace felix1.OrderSection
 
             if (totalPayment < Total)
             {
-                await DisplayAlert("Error", $"El total pagado (${totalPayment:F2}) es menor que el total de la orden (${Total:F2})", "OK");
+                await DisplayAlert("Error", $"El total pagado (${totalPayment:N2}) es menor que el total de la orden (${Total:N2})", "OK");
                 return;
             }
 
@@ -429,17 +438,17 @@ namespace felix1.OrderSection
                 return;
             }
 
-            string message = $"Efectivo: ${_cashAmount:F2}\n" +
-               $"Tarjeta: ${_cardAmount:F2}\n" +
-               $"Transferencia: ${_transferAmount:F2}\n" +
-               $"Subtotal: ${Subtotal:F2}\n" +
-               $"ITBIS (18%): ${TaxITBIS:F2}\n" +
-               $"Descuento: ${Discount:F2}\n" +
-               $"Total: ${Total:F2}";
+            string message = $"Efectivo: ${_cashAmount:N2}\n" +
+               $"Tarjeta: ${_cardAmount:N2}\n" +
+               $"Transferencia: ${_transferAmount:N2}\n" +
+               $"Subtotal: ${Subtotal:N2}\n" +
+               $"ITBIS (18%): ${TaxITBIS:N2}\n" +
+               $"Descuento: ${Discount:N2}\n" +
+               $"Total: ${Total:N2}";
 
             if (_changeAmount > 0)
             {
-                message += $"\n\nDevuelta: ${_changeAmount:F2}";
+                message += $"\n\nDevuelta: ${_changeAmount:N2}";
             }
 
             OnPrintReceipt(sender, e);
@@ -449,6 +458,7 @@ namespace felix1.OrderSection
         }
 
         // what?? the only purpose of this function is to call another function and thats it?
+        // Sip
         private void OnExitSave()
         {
             CloseThisWindow();
@@ -478,15 +488,13 @@ namespace felix1.OrderSection
             {
                 foreach (var window in app.Windows)
                 {
-                    // Check if the page is directly OrderSectionMainVisual
                     if (window.Page is OrderSectionMainVisual orderSectionPage)
                     {
                         orderSectionPage.FocusSearchBar();
                         Console.WriteLine("Focused search bar in OrderSectionMainVisual");
                         break;
                     }
-
-                    // Check if it's wrapped in a NavigationPage
+                    
                     else if (window.Page is NavigationPage navPage && navPage.CurrentPage is OrderSectionMainVisual orderSectionMainPage)
                     {
                         orderSectionMainPage.FocusSearchBar();
@@ -500,7 +508,7 @@ namespace felix1.OrderSection
         private void UpdatePaymentSummary()
         {
             var totalPayment = _cashAmount + _cardAmount + _transferAmount;
-            PaymentSummaryLabel.Text = $"Pagado: ${totalPayment:F2} / ${Total:F2}";
+            PaymentSummaryLabel.Text = $"Pagado: ${totalPayment:N2} / ${Total:N2}";
 
             if (totalPayment >= Total)
             {
@@ -509,7 +517,7 @@ namespace felix1.OrderSection
                 if (totalPayment > Total)
                 {
                     var change = totalPayment - Total;
-                    PaymentSummaryLabel.Text += $" (Devuelta: ${change:F2})";
+                    PaymentSummaryLabel.Text += $" (Devuelta: ${change:N2})";
                     _changeAmount = change;
                     OnPropertyChanged(nameof(ChangeAmount));
                 }
