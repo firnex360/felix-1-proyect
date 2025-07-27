@@ -24,7 +24,9 @@ public partial class ListCashRegisterVisual : ContentView
     private void LoadCashRegisters()
     {
         var registers = AppDbContext.ExecuteSafeAsync(async db =>
-            await db.CashRegisters.ToListAsync()).GetAwaiter().GetResult();
+            await db.CashRegisters
+                .Include(cr => cr.Cashier) 
+                .ToListAsync()).GetAwaiter().GetResult();
 
         CashRegisters.Clear();
         foreach (var reg in registers)
