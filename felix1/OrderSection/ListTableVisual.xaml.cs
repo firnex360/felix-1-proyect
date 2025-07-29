@@ -483,13 +483,13 @@ public partial class ListTableVisual : ContentView
                 HeightRequest = 40,
                 WidthRequest = 120,
                 HorizontalOptions = LayoutOptions.Center,
-                Command = new Command(() => OnCreateTakeoutOrderClicked())
+                Command = new Command(() => OnCreateTakeoutOrderClicked(this, EventArgs.Empty))
             };
             container.Children.Add(createButton);
         }
     }
 
-    private async void OnCreateTakeoutOrderClicked()
+    private async void OnCreateTakeoutOrderClicked(object sender, EventArgs e)
     {
         await AppDbContext.ExecuteSafeAsync(async db =>
         {
