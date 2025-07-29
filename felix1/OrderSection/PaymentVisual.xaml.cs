@@ -63,6 +63,8 @@ namespace felix1.OrderSection
             Order = order;
             BindingContext = this;
 
+            dueToPayCheckBox.IsChecked = order.IsDuePaid;
+
             UpdatePaymentSummary();
             AddCashMethod();
 
@@ -378,6 +380,45 @@ namespace felix1.OrderSection
 
         private async void OnChargeClicked(object sender, EventArgs e)
         {
+            if (dueToPayCheckBox.IsChecked)
+            {
+                bool proceed = await DisplayAlert("Cuenta por cobrar",
+                    "Esta orden quedará como pendiente de pago. El cliente deberá pagarla posteriormente.",
+                    "Aceptar", "Cancelar");
+
+                if (!proceed) return;
+
+                bool success = await AppDbContext.ExecuteSafeAsync(async db =>
+                {
+                    var orderToUpdate = await db.Orders
+                        .Include(o => o.Table)
+                        .FirstOrDefaultAsync(o => o.Id == Order.Id);
+
+                    if (orderToUpdate == null) return false;
+
+                    orderToUpdate.IsDuePaid = true;
+
+                    if (orderToUpdate.Table != null)
+                    {
+                        orderToUpdate.Table.IsPaid = true;
+                        orderToUpdate.Table.IsBillRequested = false;
+                    }
+
+                    await db.SaveChangesAsync();
+                    return true;
+                });
+
+                if (!success)
+                {
+                    await DisplayAlert("Error", "No se pudo marcar como cuenta por cobrar", "OK");
+                    return;
+                }
+
+                OnExitSave();
+                ListTableVisual.Instance?.ReloadTM();
+                return;
+            }
+
             var totalPayment = _cashAmount + _cardAmount + _transferAmount;
 
             if (totalPayment < Total)
@@ -389,7 +430,7 @@ namespace felix1.OrderSection
             _changeAmount = totalPayment > Total ? totalPayment - Total : 0;
             UpdateProperties();
 
-            bool success = await AppDbContext.ExecuteSafeAsync(async db =>
+            bool transactionSuccess = await AppDbContext.ExecuteSafeAsync(async db =>
             {
                 var orderToUpdate = await db.Orders
                     .Include(o => o.Table)
@@ -404,56 +445,40 @@ namespace felix1.OrderSection
                     Order = orderToUpdate,
                     TotalAmount = Total,
                     TaxAmountITBIS = TaxITBIS,
+                    TaxAmountWaiters = TaxWaiters,
                     CashAmount = _cashAmount,
                     CardAmount = _cardAmount,
                     TransferAmount = _transferAmount
                 };
 
-                orderToUpdate.IsDuePaid = true;
-                orderToUpdate.IsBillRequested = false;
-
                 if (orderToUpdate.Table != null)
                 {
                     orderToUpdate.Table.IsPaid = true;
                     orderToUpdate.Table.IsBillRequested = false;
+                    orderToUpdate.IsDuePaid = false;
                 }
 
                 db.Transactions.Add(transaction);
                 await db.SaveChangesAsync();
 
-                Order.IsDuePaid = orderToUpdate.IsDuePaid;
-                Order.IsBillRequested = orderToUpdate.IsBillRequested;
                 if (Order.Table != null)
                 {
                     Order.Table.IsPaid = orderToUpdate.Table?.IsPaid ?? false;
                     Order.Table.IsBillRequested = orderToUpdate.Table?.IsBillRequested ?? false;
+                    Order.IsDuePaid = false;
                 }
 
                 return true;
             });
 
-            if (!success)
+            if (!transactionSuccess)
             {
                 await DisplayAlert("Error", "No se pudo guardar la transacción", "OK");
                 return;
             }
 
-            string message = $"Efectivo: ${_cashAmount:N2}\n" +
-               $"Tarjeta: ${_cardAmount:N2}\n" +
-               $"Transferencia: ${_transferAmount:N2}\n" +
-               $"Subtotal: ${Subtotal:N2}\n" +
-               $"ITBIS (18%): ${TaxITBIS:N2}\n" +
-               $"Descuento: ${Discount:N2}\n" +
-               $"Total: ${Total:N2}";
-
-            if (_changeAmount > 0)
-            {
-                message += $"\n\nDevuelta: ${_changeAmount:N2}";
-            }
-
             OnPrintReceipt(sender, e);
             OnExitSave();
-            
             ListTableVisual.Instance?.ReloadTM();
         }
 

@@ -258,17 +258,38 @@
                    FontFamily="Inter"/>
         </VerticalStackLayout>
 
-        <Button Grid.Row="1" Grid.Column="2"
-                Text="Charge"
-                BackgroundColor="#005F8C"
-                TextColor="White"
-                FontAttributes="Bold"
-                CornerRadius="8"
-                WidthRequest="150"
-                HeightRequest="40"
-                HorizontalOptions="End"
-                VerticalOptions="End"
-                FontFamily="Inter"
-                Clicked="OnChargeClicked"/>
+        <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
+      ColumnDefinitions="Auto, *, Auto"
+      HorizontalOptions="Fill"
+      VerticalOptions="Center"
+      Margin="0,0,20,0">
+
+            <HorizontalStackLayout Grid.Column="0"
+                           HorizontalOptions="Start"
+                           VerticalOptions="Center"
+                           Spacing="5">
+                <CheckBox x:Name="dueToPayCheckBox"
+                  VerticalOptions="Center"
+                  Color="#005F8C"/>
+
+                <Label Text="Por cobrar"
+               FontSize="14"
+               TextColor="#005F8C"
+               VerticalOptions="Center"/>
+            </HorizontalStackLayout>
+
+            <Button Grid.Column="2"
+            Text="Charge"
+            BackgroundColor="#005F8C"
+            TextColor="White"
+            FontAttributes="Bold"
+            CornerRadius="8"
+            WidthRequest="150"
+            HeightRequest="40"
+            HorizontalOptions="End"
+            VerticalOptions="Center"
+            FontFamily="Inter"
+            Clicked="OnChargeClicked"/>
+        </Grid>
     </Grid>
 </ContentPage>
