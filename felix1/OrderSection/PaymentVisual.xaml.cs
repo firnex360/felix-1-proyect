@@ -2,7 +2,7 @@
 using felix1.Logic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Maui.Controls;
-using Microsoft.Maui.Storage; // For Preferences
+using Microsoft.Maui.Storage;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -22,10 +22,9 @@ namespace felix1.OrderSection
 {
     public partial class PaymentVisual : ContentPage
     {
-        // Tax rates from configuration
         private decimal _taxRate = 0.18m;
         private decimal _waiterTaxRate = 0.10m;
-        
+
         public Order Order { get; set; }
         public decimal Subtotal => Order.Items?.Sum(i => i.TotalPrice) ?? 0;
         public decimal Discount => Order.Discount;
@@ -36,7 +35,6 @@ namespace felix1.OrderSection
         public decimal TotalPayment => _cashAmount + _cardAmount + _transferAmount;
         public int ItemsCount => Order.Items?.Sum(i => i.Quantity) ?? 0;
 
-        // Tax label properties with dynamic percentages
         public string TaxITBISLabel => $"ITBIS ({_taxRate:P0})";
         public string TaxWaitersLabel => $"Propina ({_waiterTaxRate:P0})";
 
@@ -56,9 +54,13 @@ namespace felix1.OrderSection
         private decimal _changeAmount;
         private List<Frame> _activePaymentFrames = new List<Frame>();
 
+        private int _currentPaymentIndex = 0;
+        private bool _isPaymentFocused = false;
+        private Entry _currentFocusedEntry;
+
         public PaymentVisual(Order order)
         {
-            LoadTaxRatesFromConfiguration(); // Load tax rates from preferences
+            LoadTaxRatesFromConfiguration();
             InitializeComponent();
             Order = order;
             BindingContext = this;
@@ -67,22 +69,20 @@ namespace felix1.OrderSection
 
             UpdatePaymentSummary();
             AddCashMethod();
-
         }
 
         private void LoadTaxRatesFromConfiguration()
         {
-            // Load tax rates from preferences (convert from percentage to decimal)
             _taxRate = decimal.Parse(Preferences.Get("TaxRate", "18")) / 100m;
             _waiterTaxRate = decimal.Parse(Preferences.Get("WaiterTaxRate", "10")) / 100m;
         }
 
-        // This is for handling keyboard movements and events
         protected override void OnAppearing()
         {
             base.OnAppearing();
             this.HandlerChanged += OnHandlerChanged;
             OnHandlerChanged(this, EventArgs.Empty);
+            FocusFirstPaymentEntry();
         }
 
         private void OnHandlerChanged(object? sender, EventArgs e)
@@ -91,7 +91,6 @@ namespace felix1.OrderSection
             var platformView = this.Handler?.PlatformView as Microsoft.UI.Xaml.FrameworkElement;
             if (platformView != null)
             {
-                platformView.KeyDown -= PlatformView_KeyDown;
                 platformView.KeyDown += PlatformView_KeyDown;
             }
 #endif
@@ -100,13 +99,79 @@ namespace felix1.OrderSection
 #if WINDOWS
         private void PlatformView_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
         {
-            if (e.Key == Windows.System.VirtualKey.Escape)
-            {
-                OnExitSave();
-                e.Handled = true;
+            switch (e.Key)
+            {                    
+                case Windows.System.VirtualKey.Enter:
+                    if (_currentFocusedEntry != null)
+                    {
+                        NavigateToNextControl();
+                    }
+                    else
+                    {
+                        OnChargeClicked(sender, null);
+                    }
+                    e.Handled = true;
+                    break;
+                    
+                case Windows.System.VirtualKey.Tab:
+                    NavigateToNextControl();
+                    e.Handled = true;
+                    break;
+                    
+                case Windows.System.VirtualKey.F1:
+                    OnAddCardClicked(sender, null);
+                    e.Handled = true;
+                    break;
+                    
+                case Windows.System.VirtualKey.F2:
+                    OnAddTransferClicked(sender, null);
+                    e.Handled = true;
+                    break;
             }
         }
 #endif
+
+        private void FocusFirstPaymentEntry()
+        {
+            if (ActivePaymentMethodsContainer.Children.Count > 0)
+            {
+                if (ActivePaymentMethodsContainer.Children[0] is Frame frame &&
+                    frame.Content is VerticalStackLayout layout &&
+                    layout.Children[1] is Entry entry)
+                {
+                    entry.Focus();
+                    _currentFocusedEntry = entry;
+                    _isPaymentFocused = true;
+                    _currentPaymentIndex = 0;
+                }
+            }
+        }
+
+        private void NavigateToNextControl()
+        {
+            if (!_isPaymentFocused || ActivePaymentMethodsContainer.Children.Count == 0)
+            {
+                FocusFirstPaymentEntry();
+                return;
+            }
+
+            _currentPaymentIndex++;
+            if (_currentPaymentIndex >= ActivePaymentMethodsContainer.Children.Count)
+            {
+                _isPaymentFocused = false;
+                _currentFocusedEntry = null;
+                chargeButton.Focus();
+                return;
+            }
+
+            if (ActivePaymentMethodsContainer.Children[_currentPaymentIndex] is Frame frame &&
+                frame.Content is VerticalStackLayout layout &&
+                layout.Children[1] is Entry entry)
+            {
+                entry.Focus();
+                _currentFocusedEntry = entry;
+            }
+        }
 
         private void AddCashMethod()
         {
@@ -126,6 +191,13 @@ namespace felix1.OrderSection
             var transferFrame = CreateTransferFrame();
             ActivePaymentMethodsContainer.Children.Add(transferFrame);
             _activePaymentFrames.Add(transferFrame);
+
+            if (transferFrame.Content is VerticalStackLayout layout && layout.Children[1] is Entry entry)
+            {
+                entry.Focus();
+                _currentFocusedEntry = entry;
+                _currentPaymentIndex = ActivePaymentMethodsContainer.Children.Count - 1;
+            }
         }
 
         private void OnAddCardClicked(object sender, EventArgs e)
@@ -139,6 +211,13 @@ namespace felix1.OrderSection
             var cardFrame = CreateCardFrame();
             ActivePaymentMethodsContainer.Children.Add(cardFrame);
             _activePaymentFrames.Add(cardFrame);
+
+            if (cardFrame.Content is VerticalStackLayout layout && layout.Children[1] is Entry entry)
+            {
+                entry.Focus();
+                _currentFocusedEntry = entry;
+                _currentPaymentIndex = ActivePaymentMethodsContainer.Children.Count - 1;
+            }
         }
 
         private string? GetPaymentMethodName(Frame frame)
@@ -205,6 +284,12 @@ namespace felix1.OrderSection
                 UpdateProperties();
             };
 
+            entry.Focused += (sender, e) =>
+            {
+                _currentFocusedEntry = entry;
+                _isPaymentFocused = true;
+            };
+
             layout.Children.Add(entry);
             frame.Content = layout;
 
@@ -263,6 +348,12 @@ namespace felix1.OrderSection
                 _cardAmount = 0;
                 UpdatePaymentSummary();
                 UpdateProperties();
+
+                if (_currentFocusedEntry != null && _currentFocusedEntry == (layout.Children[1] as Entry))
+                {
+                    _currentFocusedEntry = null;
+                    FocusFirstPaymentEntry();
+                }
             };
 
             Grid.SetColumn(removeButton, 1);
@@ -286,6 +377,12 @@ namespace felix1.OrderSection
                     _cardAmount = 0;
                 UpdatePaymentSummary();
                 UpdateProperties();
+            };
+
+            entry.Focused += (sender, e) =>
+            {
+                _currentFocusedEntry = entry;
+                _isPaymentFocused = true;
             };
 
             layout.Children.Add(entry);
@@ -322,7 +419,6 @@ namespace felix1.OrderSection
                 FontAttributes = FontAttributes.Bold,
                 TextColor = Microsoft.Maui.Graphics.Color.FromArgb("#005F8C"),
                 FontFamily = "Inter"
-
             };
             Grid.SetColumn(label, 0);
             header.Children.Add(label);
@@ -347,6 +443,12 @@ namespace felix1.OrderSection
                 _transferAmount = 0;
                 UpdatePaymentSummary();
                 UpdateProperties();
+
+                if (_currentFocusedEntry != null && _currentFocusedEntry == (layout.Children[1] as Entry))
+                {
+                    _currentFocusedEntry = null;
+                    FocusFirstPaymentEntry();
+                }
             };
 
             Grid.SetColumn(removeButton, 1);
@@ -372,6 +474,12 @@ namespace felix1.OrderSection
                 UpdateProperties();
             };
 
+            entry.Focused += (sender, e) =>
+            {
+                _currentFocusedEntry = entry;
+                _isPaymentFocused = true;
+            };
+
             layout.Children.Add(entry);
             frame.Content = layout;
 
@@ -380,6 +488,8 @@ namespace felix1.OrderSection
 
         private async void OnChargeClicked(object sender, EventArgs e)
         {
+            bool fromKeyboard = sender == null || sender is not Button;
+
             if (dueToPayCheckBox.IsChecked)
             {
                 bool proceed = await DisplayAlert("Cuenta por cobrar",
@@ -414,7 +524,7 @@ namespace felix1.OrderSection
                     return;
                 }
 
-                OnExitSave();
+                CloseThisWindow();
                 ListTableVisual.Instance?.ReloadTM();
                 return;
             }
@@ -477,16 +587,8 @@ namespace felix1.OrderSection
                 return;
             }
 
-            OnPrintReceipt(sender, e);
-            OnExitSave();
-            ListTableVisual.Instance?.ReloadTM();
-        }
-
-        // what?? the only purpose of this function is to call another function and thats it?
-        // Sip
-        private void OnExitSave()
-        {
             CloseThisWindow();
+            ListTableVisual.Instance?.ReloadTM();
         }
 
         private void CloseThisWindow()
@@ -516,14 +618,11 @@ namespace felix1.OrderSection
                     if (window.Page is OrderSectionMainVisual orderSectionPage)
                     {
                         orderSectionPage.FocusSearchBar();
-                        Console.WriteLine("Focused search bar in OrderSectionMainVisual");
                         break;
                     }
-                    
                     else if (window.Page is NavigationPage navPage && navPage.CurrentPage is OrderSectionMainVisual orderSectionMainPage)
                     {
                         orderSectionMainPage.FocusSearchBar();
-                        Console.WriteLine("Focused search bar in OrderSectionMainVisual (via NavigationPage)");
                         break;
                     }
                 }
@@ -576,52 +675,6 @@ namespace felix1.OrderSection
             OnPropertyChanged(nameof(TaxITBISLabel));
             OnPropertyChanged(nameof(TaxWaitersLabel));
             OnPropertyChanged(nameof(Total));
-        }
-
-        // Print receipt method (for transaction)
-        private void OnPrintReceipt(object sender, EventArgs e)
-        {
-            Console.WriteLine("Print transaction receipt clicked");
-            
-            // Create a transaction object for the receipt
-            var transaction = new Transaction
-            {
-                Date = DateTime.Now,
-                Order = Order,
-                TotalAmount = Total,
-                TaxAmountITBIS = TaxITBIS,
-                TaxAmountWaiters = TaxWaiters,
-                CashAmount = _cashAmount,
-                CardAmount = _cardAmount,
-                TransferAmount = _transferAmount
-            };
-
-
-#if WINDOWS
-            try
-            {
-
-                string templateText = File.ReadAllText(@"C:\Codes\github\felix-1-proyect\felix1\ReceiptTemplates\PaymentTemplate.txt");
-                var template = Template.Parse(templateText);
-                var scribanModel = new { transaction = transaction, ChangeAmount = _changeAmount };
-                string text = template.Render(scribanModel, member => member.Name);
-                System.Drawing.Printing.PrintDocument pd = new System.Drawing.Printing.PrintDocument();
-                pd.PrintPage += (sender, e) =>
-                {
-                    System.Drawing.Font font = new System.Drawing.Font("Consolas", 10);
-                    e.Graphics!.DrawString(text, font, System.Drawing.Brushes.Black, new System.Drawing.PointF(10, 10));
-                };
-                pd.Print();
-                Console.WriteLine("Printed successfully.");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Print failed: " + ex.Message);
-            }
-#else
-            Console.WriteLine("Printing is only supported on Windows for now.");
-            DisplayAlert("Error", $"No se pudo imprimir el recibo: La funcionalidad de impresión no está disponible en esta plataforma (solo Windows).", "OK");
-#endif
         }
     }
 
