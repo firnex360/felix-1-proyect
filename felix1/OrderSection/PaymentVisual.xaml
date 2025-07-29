@@ -223,8 +223,8 @@
             <ScrollView Orientation="Vertical" VerticalScrollBarVisibility="Always">
                 <VerticalStackLayout Spacing="15">
                     <HorizontalStackLayout Spacing="10">
-                        <Button Text="Transferencia" 
-                                WidthRequest="120"
+                        <Button Text="Transferencia (F6)" 
+                                WidthRequest="150"
                                 HeightRequest="40" 
                                 CornerRadius="8" 
                                 FontSize="14" 
@@ -234,8 +234,8 @@
                                 FontFamily="Inter"
                                 Clicked="OnAddTransferClicked"/>
 
-                        <Button Text="Tarjeta" 
-                                WidthRequest="120"
+                        <Button Text="Tarjeta (F7)" 
+                                WidthRequest="150"
                                 HeightRequest="40" 
                                 CornerRadius="8" 
                                 FontSize="14" 
@@ -259,27 +259,13 @@
         </VerticalStackLayout>
 
         <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
-      ColumnDefinitions="Auto, *, Auto"
+      ColumnDefinitions="*, Auto"
       HorizontalOptions="Fill"
       VerticalOptions="Center"
       Margin="0,0,20,0">
 
-            <HorizontalStackLayout Grid.Column="0"
-                           HorizontalOptions="Start"
-                           VerticalOptions="Center"
-                           Spacing="5">
-                <CheckBox x:Name="dueToPayCheckBox"
-                  VerticalOptions="Center"
-                  Color="#005F8C"/>
-
-                <Label Text="Por cobrar"
-               FontSize="14"
-               TextColor="#005F8C"
-               VerticalOptions="Center"/>
-            </HorizontalStackLayout>
-
             <Button 
-            Grid.Column="2" 
+            Grid.Column="1" 
             x:Name="chargeButton"
             Text="Charge"
             BackgroundColor="#005F8C"

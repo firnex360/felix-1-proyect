@@ -65,8 +65,6 @@ namespace felix1.OrderSection
             Order = order;
             BindingContext = this;
 
-            dueToPayCheckBox.IsChecked = order.IsDuePaid;
-
             UpdatePaymentSummary();
             AddCashMethod();
         }
@@ -118,13 +116,18 @@ namespace felix1.OrderSection
                     e.Handled = true;
                     break;
                     
-                case Windows.System.VirtualKey.F1:
+                case Windows.System.VirtualKey.F7:
                     OnAddCardClicked(sender, null);
                     e.Handled = true;
                     break;
                     
-                case Windows.System.VirtualKey.F2:
+                case Windows.System.VirtualKey.F6:
                     OnAddTransferClicked(sender, null);
+                    e.Handled = true;
+                    break;
+
+                case Windows.System.VirtualKey.Escape:
+                    CloseThisWindow();
                     e.Handled = true;
                     break;
             }
@@ -490,45 +493,6 @@ namespace felix1.OrderSection
         {
             bool fromKeyboard = sender == null || sender is not Button;
 
-            if (dueToPayCheckBox.IsChecked)
-            {
-                bool proceed = await DisplayAlert("Cuenta por cobrar",
-                    "Esta orden quedará como pendiente de pago. El cliente deberá pagarla posteriormente.",
-                    "Aceptar", "Cancelar");
-
-                if (!proceed) return;
-
-                bool success = await AppDbContext.ExecuteSafeAsync(async db =>
-                {
-                    var orderToUpdate = await db.Orders
-                        .Include(o => o.Table)
-                        .FirstOrDefaultAsync(o => o.Id == Order.Id);
-
-                    if (orderToUpdate == null) return false;
-
-                    orderToUpdate.IsDuePaid = true;
-
-                    if (orderToUpdate.Table != null)
-                    {
-                        orderToUpdate.Table.IsPaid = true;
-                        orderToUpdate.Table.IsBillRequested = false;
-                    }
-
-                    await db.SaveChangesAsync();
-                    return true;
-                });
-
-                if (!success)
-                {
-                    await DisplayAlert("Error", "No se pudo marcar como cuenta por cobrar", "OK");
-                    return;
-                }
-
-                CloseThisWindow();
-                ListTableVisual.Instance?.ReloadTM();
-                return;
-            }
-
             var totalPayment = _cashAmount + _cardAmount + _transferAmount;
 
             if (totalPayment < Total)
@@ -565,7 +529,6 @@ namespace felix1.OrderSection
                 {
                     orderToUpdate.Table.IsPaid = true;
                     orderToUpdate.Table.IsBillRequested = false;
-                    orderToUpdate.IsDuePaid = false;
                 }
 
                 db.Transactions.Add(transaction);
@@ -575,7 +538,6 @@ namespace felix1.OrderSection
                 {
                     Order.Table.IsPaid = orderToUpdate.Table?.IsPaid ?? false;
                     Order.Table.IsBillRequested = orderToUpdate.Table?.IsBillRequested ?? false;
-                    Order.IsDuePaid = false;
                 }
 
                 return true;
