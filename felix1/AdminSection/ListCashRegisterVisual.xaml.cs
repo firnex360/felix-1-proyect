@@ -42,7 +42,7 @@ public partial class ListCashRegisterVisual : ContentView
 
     private void OnDetailsClicked(object sender, EventArgs e)
     {
-        if (sender is Button button && button.BindingContext is CashRegister cashRegister)
+        if (sender is ImageButton imageButton && imageButton.BindingContext is CashRegister cashRegister)
         {
             if (Application.Current?.MainPage is NavigationPage navPage &&
                 navPage.CurrentPage is AdminSectionMainVisual adminPage)

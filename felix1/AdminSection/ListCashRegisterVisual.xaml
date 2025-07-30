@@ -102,22 +102,40 @@
                         HeaderTextAlignment="Start"
                         ColumnWidthMode="FitByHeader"/>
 
-                    <syncfusion:DataGridTemplateColumn HeaderText="Acciones"
+                    <syncfusion:DataGridTemplateColumn HeaderText="Acción"
                                                        ColumnWidthMode="LastColumnFill">
                         <syncfusion:DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <HorizontalStackLayout Spacing="10"
                                                        HorizontalOptions="Center">
-                                    <Button
-                                        Text="Detalles"
+                                    <ImageButton
+                                        Source="editing.png"
                                         CornerRadius="10"
                                         Padding="10"
-                                        WidthRequest="100"
-                                        HeightRequest="30"
-                                        BackgroundColor="#005F8C"
-                                        TextColor="White"
+                                        WidthRequest="28"
+                                        HeightRequest="28"
+                                        BackgroundColor="#F3F3F3"
                                         Clicked="OnDetailsClicked"
-                                        VerticalOptions="Center"/>
+                                        VerticalOptions="Center">
+                                        <VisualStateManager.VisualStateGroups>
+                                            <VisualStateGroupList>
+                                                <VisualStateGroup x:Name="CommonStates">
+                                                    <VisualState x:Name="Normal">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="BackgroundColor"
+                                                                    Value="Transparent"/>
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                    <VisualState x:Name="PointerOver">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="BackgroundColor"
+                                                                    Value="#FFD6D7DA"/>
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                </VisualStateGroup>
+                                            </VisualStateGroupList>
+                                        </VisualStateManager.VisualStateGroups>
+                                    </ImageButton>
                                 </HorizontalStackLayout>
                             </DataTemplate>
                         </syncfusion:DataGridTemplateColumn.CellTemplate>
