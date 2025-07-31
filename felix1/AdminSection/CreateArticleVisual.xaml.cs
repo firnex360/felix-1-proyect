@@ -267,6 +267,11 @@ public partial class CreateArticleVisual : ContentView
         return false;
     }
 
+    private void OnCancelButtonClicked(object sender, EventArgs e)
+    {
+        CloseThisWindow();
+    }
+    
     private void CloseThisWindow()
     {
         // If we're in popup mode, close the popup
@@ -284,7 +289,7 @@ public partial class CreateArticleVisual : ContentView
             }
             return;
         }
-        
+
         Console.WriteLine("No popup reference found - popup was not closed");
     }
 

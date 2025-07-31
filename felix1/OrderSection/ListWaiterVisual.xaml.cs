@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace felix1.OrderSection;
 
-public partial class ListTableVisual : ContentView
+public partial class ListWaiterVisual : ContentView
 {
-    public static ListTableVisual? Instance { get; private set; }
+    public static ListWaiterVisual? Instance { get; private set; }
     public ObservableCollection<Table> Tables { get; set; } = new();
 
 
@@ -21,7 +21,7 @@ public partial class ListTableVisual : ContentView
     private List<Table> _matchingLocalTables = new();
     private int _activeLocalFrameIndex = 0;
 
-    public ListTableVisual()
+    public ListWaiterVisual()
     {
         InitializeComponent();
         BindingContext = this;
@@ -77,8 +77,9 @@ public partial class ListTableVisual : ContentView
 
         MeseroContainer.Children.Clear();
 
-        foreach (var user in meseros)
-        {
+        //foreach (var user in meseros)
+        //{
+        var user = AppSession.CurrentUser;
             var userTables = tableOrders
                 .Where(o => o.Waiter?.Id == user.Id && o.Table != null)
                 .Select(o => o.Table!)
@@ -89,6 +90,7 @@ public partial class ListTableVisual : ContentView
             {
                 Spacing = 12,
                 VerticalOptions = LayoutOptions.Start,
+                HorizontalOptions = LayoutOptions.Fill,
             };
 
             // Mesero's name
@@ -200,7 +202,7 @@ public partial class ListTableVisual : ContentView
             };
 
             MeseroContainer.Children.Add(card);
-        }
+        //}
     }
 
     private decimal findOrderTotal(Order order)

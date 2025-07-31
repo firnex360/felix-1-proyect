@@ -113,12 +113,22 @@
 
             <!-- CREAR -->
             <HorizontalStackLayout HorizontalOptions="End"
-                    VerticalOptions="End">
-                <Button Text="Crear Artículo"
-                        Clicked="OnSaveArticle"
-                        WidthRequest="250"
-                        BackgroundColor="#005F8C"
-                        TextColor="#F3F3F3"/>
+                    VerticalOptions="End" Padding="10, 0, 10, 0" Spacing="10">
+                        
+                <buttons:SfButton x:Name="btnCreateArticle"
+                                Text="Crear Artículo"
+                                Clicked="OnSaveArticle"
+                                HorizontalOptions="Fill"
+                                BackgroundColor="#005F8C"
+                                TextColor="#F3F3F3"
+                                Style="{StaticResource ButtonStyle}"/>
+
+                <buttons:SfButton x:Name="btnCancel"
+                                Text="Cancelar"
+                                Clicked="OnCancelButtonClicked"
+                                HorizontalOptions="Fill"
+                                Style="{StaticResource CancelButtonStyle}"/>
+
             </HorizontalStackLayout>
         </VerticalStackLayout>
 
@@ -221,4 +231,100 @@
             </VerticalStackLayout>
         </Grid>
     </Grid>
+    
+
+    <ContentView.Resources>
+        <ResourceDictionary>
+
+            <Style x:Key="CancelButtonStyle"
+                    TargetType="buttons:SfButton">
+                <Setter Property="TextColor"
+                        Value="Black"/>
+                <Setter Property="CornerRadius"
+                        Value="5"/>
+                <Setter Property="IsCheckable"
+                        Value="True"/>
+                <Setter Property="Margin"
+                        Value="0"/>
+                <Setter Property="BackgroundColor"
+                        Value="#F5F7FA"/>
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="Transparent"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Hovered">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#AFFF1D1D"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#FD2D2D"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Checked">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#C7CFDD"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+
+            
+            <Style x:Key="ButtonStyle"
+                    TargetType="buttons:SfButton">
+                <Setter Property="TextColor"
+                        Value="Black"/>
+                <Setter Property="CornerRadius"
+                        Value="5"/>
+                <Setter Property="IsCheckable"
+                        Value="True"/>
+                <Setter Property="Margin"
+                        Value="0"/>
+                <Setter Property="BackgroundColor"
+                        Value="#F5F7FA"/>
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#005F8C"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Hovered">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#C7CFDD"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#FFA5AAB3"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Checked">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#005F8C"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+
+        </ResourceDictionary>
+    </ContentView.Resources>
 </ContentView>

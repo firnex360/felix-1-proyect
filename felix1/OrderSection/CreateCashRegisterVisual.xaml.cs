@@ -143,7 +143,7 @@ public partial class CreateCashRegisterVisual : ContentPage
 
     private async Task OpenOrderSectionMain(CashRegister cashRegister)
     {
-        var orderSectionMain = new OrderSectionMainVisual(cashRegister);
+        var orderSectionMain = new OrderSectionMainVisual(cashRegister, null);
         await Navigation.PushAsync(orderSectionMain);
         Navigation.RemovePage(this);
     }
