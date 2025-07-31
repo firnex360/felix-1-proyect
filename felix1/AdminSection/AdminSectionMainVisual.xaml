@@ -119,7 +119,7 @@
                               IsCheckable="True"
                               Margin="0,0,0,0"
                               BackgroundColor="#F3F3F3"
-                              ImageSource="user.png"
+                              ImageSource="history.png"
                               ImageAlignment="Start"
                               ShowIcon="True">
 
