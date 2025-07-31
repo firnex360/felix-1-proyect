@@ -96,8 +96,7 @@
                         HeaderText="Nombre"
                         CellTextAlignment="Start"
                         HeaderTextAlignment="Start"
-                        ColumnWidthMode="FitByCell"
-                        MaximumWidth="300"/>
+                        ColumnWidthMode="FitByCell"/>
 
                     <!-- Primary Price -->
                     <syncfusion:DataGridNumericColumn
