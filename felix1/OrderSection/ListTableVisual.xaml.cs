@@ -724,7 +724,7 @@ private void LoadExistingTakeoutOrders()
 
                                 if (tableLabel != null)
                                 {
-                                    var labelText = tableLabel.Text.Replace("Mesa #", "");
+                                    var labelText = tableLabel.Text.Replace("Mesa #", "").Split(" - ")[0];
                                     if (int.TryParse(labelText, out int displayedLocalNumber))
                                     {
                                         // For global search, we need to check if this displayed table
@@ -899,13 +899,14 @@ private void LoadExistingTakeoutOrders()
                                 
                                 if (tableLabel != null)
                                 {
-                                    var labelText = tableLabel.Text.Replace("Mesa #", "");
+                                    var labelText = tableLabel.Text.Replace("Mesa #", "").Split(" - ")[0];
+                                    
                                     if (int.TryParse(labelText, out int tableLocalNumber) && tableLocalNumber == localNumber)
                                     {
                                         // Find the corresponding table from database
-                                        var matchingTable = matchingTables.FirstOrDefault(t => 
+                                        var matchingTable = matchingTables.FirstOrDefault(t =>
                                             DoesFrameMatchTable(tableFrame, t));
-                                        
+
                                         if (matchingTable != null)
                                         {
                                             _matchingLocalFrames.Add(tableFrame);

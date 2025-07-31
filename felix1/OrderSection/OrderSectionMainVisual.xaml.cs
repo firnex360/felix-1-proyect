@@ -16,7 +16,7 @@ namespace felix1.OrderSection;
 public partial class OrderSectionMainVisual : ContentPage
 {
     private CashRegister _cashRegister;
-    private User _waiter;
+    private User? _waiter;
 
     public OrderSectionMainVisual(CashRegister cashRegister, User waiter)
     {

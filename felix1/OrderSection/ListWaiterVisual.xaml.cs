@@ -726,7 +726,7 @@ private void LoadExistingTakeoutOrders()
 
                                 if (tableLabel != null)
                                 {
-                                    var labelText = tableLabel.Text.Replace("Mesa #", "");
+                                    var labelText = tableLabel.Text.Replace("Mesa #", "").Split(" - ")[0];
                                     if (int.TryParse(labelText, out int displayedLocalNumber))
                                     {
                                         // For global search, we need to check if this displayed table
