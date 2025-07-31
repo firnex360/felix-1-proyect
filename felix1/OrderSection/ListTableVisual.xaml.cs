@@ -652,11 +652,11 @@ private void LoadExistingTakeoutOrders()
                     {
                         foreach (var tableFrame in tableRow.Children.OfType<Frame>())
                         {
-                            // Reset to default appearance
                             tableFrame.BorderColor = Color.FromArgb("#C7CFDD");
                             tableFrame.BackgroundColor = Colors.White;
                             tableFrame.HasShadow = false;
                             tableFrame.Scale = 1.0; // Reset any scaling from animations
+                            tableFrame.CornerRadius = 10; // Preserve the corner radius
                         }
                     }
                 }
@@ -837,16 +837,16 @@ private void LoadExistingTakeoutOrders()
         else
         {
             // highlight for non-active frames when cycling with Tab
-            tableFrame.BorderColor = Color.FromArgb("#F3F3F3"); //  for non-active
-            tableFrame.BackgroundColor = Color.FromArgb("#F3F3F3"); // Light  background
+            tableFrame.BorderColor = Color.FromArgb("#2196F3"); // Blue for local search
+            tableFrame.BackgroundColor = Color.FromArgb("#E3F2FD"); // Light blue background
             tableFrame.HasShadow = true;
             tableFrame.CornerRadius = 10;
             tableFrame.Shadow = new Shadow
             {
-                Brush = new SolidColorBrush(Color.FromArgb("#F3F3F3")),
-                Offset = new Point(1, 1),
-                Radius = 3,
-                Opacity = 0.5f
+                Brush = new SolidColorBrush(Color.FromArgb("#2196F3")),
+                Offset = new Point(2, 2),
+                Radius = 5,
+                Opacity = 0.7f
             };
         }
     }
@@ -930,7 +930,7 @@ private void LoadExistingTakeoutOrders()
             }
             else
             {
-                ApplyHighlightStyling(_matchingLocalFrames[i], false);
+                ApplyInactiveTabHighlight(_matchingLocalFrames[i]);
             }
         }
 
@@ -993,7 +993,7 @@ private void LoadExistingTakeoutOrders()
                 }
                 else
                 {
-                    ApplyHighlightStyling(_matchingLocalFrames[i], false);
+                    ApplyInactiveTabHighlight(_matchingLocalFrames[i]);
                 }
             }
             
@@ -1010,16 +1010,33 @@ private void LoadExistingTakeoutOrders()
     {
         // Blue highlight for the active frame (the one that opens on Enter)
         tableFrame.BorderColor = Color.FromArgb("#005F8C"); // Blue for active
-        tableFrame.BackgroundColor = Color.FromArgb("#E3F2FD"); // Light blue
+        tableFrame.BackgroundColor = Color.FromArgb("#d2e8f8ff"); // Light blue
         tableFrame.HasShadow = true;
         tableFrame.CornerRadius = 10;
         tableFrame.Shadow = new Shadow
         {
             Brush = new SolidColorBrush(Color.FromArgb("#005F8C")),
             Offset = new Point(2, 2),
-            Radius = 7,
+            Radius = 3,
             Opacity = 0.8f
         };
         tableFrame.Scale = 1.08;
+    }
+
+    private void ApplyInactiveTabHighlight(Frame tableFrame)
+    {
+        // Gray highlight for non-active frames when cycling with Tab
+        tableFrame.BorderColor = Color.FromArgb("#9E9E9E"); // Gray for inactive
+        tableFrame.BackgroundColor = Color.FromArgb("#F5F5F5"); // Light gray background
+        tableFrame.HasShadow = true;
+        tableFrame.CornerRadius = 10;
+        tableFrame.Shadow = new Shadow
+        {
+            Brush = new SolidColorBrush(Color.FromArgb("#9E9E9E")),
+            Offset = new Point(1, 1),
+            Radius = 3,
+            Opacity = 0.5f
+        };
+        tableFrame.Scale = 1.0; // No scaling for inactive frames
     }
 }
