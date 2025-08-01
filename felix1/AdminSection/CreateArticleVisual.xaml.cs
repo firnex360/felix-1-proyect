@@ -237,9 +237,9 @@ public partial class CreateArticleVisual : ContentView
             ListArticleVisual.Instance?.ReloadArticles();
             
             // Show success message
-            await ShowAlert("Éxito", 
-                editingArticle == null ? "Artículo creado correctamente" : "Artículo actualizado correctamente", 
-                "OK");
+            // await ShowAlert("Éxito", 
+            //     editingArticle == null ? "Artículo creado correctamente" : "Artículo actualizado correctamente", 
+            //     "OK");
             
             CloseThisWindow();
         }
