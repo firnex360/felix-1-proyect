@@ -587,10 +587,10 @@ public partial class OrderSectionMainVisual : ContentPage
         // Available takeout orders section header
         parent.Children.Add(new Label
         {
-            Text = "Órdenes Para Llevar Activas",
+            Text = "",
             FontSize = 16,
             FontAttributes = FontAttributes.Bold,
-            TextColor = Color.FromArgb("#FF9800"),
+            TextColor = Color.FromArgb("#005F8C"),
             Margin = new Microsoft.Maui.Thickness(0, 10, 0, 10)
         });
 
@@ -640,14 +640,14 @@ public partial class OrderSectionMainVisual : ContentPage
                     takeoutGrid.RowDefinitions.Add(new RowDefinition { Height = Microsoft.Maui.GridLength.Auto });
 
                 // Add number indicator for all takeout orders
-                var numberText = $"({i + 1})";
+                //var numberText = $"({i + 1})";
                 
                 var takeoutButton = new Button
                 {
                     Text = $"🥡 Para Llevar #{takeoutOrder.LocalNumber}",
                     FontSize = 12,
                     HeightRequest = 40,
-                    BackgroundColor = Color.FromArgb("#FF9800"),
+                    BackgroundColor = Color.FromArgb("#005f8c"),
                     TextColor = Colors.White,
                     CornerRadius = 6,
                     HorizontalOptions = LayoutOptions.Fill
@@ -754,53 +754,52 @@ public partial class OrderSectionMainVisual : ContentPage
             // Create the popup content
             var popupContent = new StackLayout
             {
-                Spacing = 15,
-                Padding = 20,
+                Spacing = 5,
+                Padding = 10,
                 BackgroundColor = Colors.White,
-                WidthRequest = 500
+                WidthRequest = 400
             };
 
             // Title
             popupContent.Children.Add(new Label
             {
-                Text = "Órdenes Para Llevar",
+                Text = "Ordenes Para Llevar",
                 FontSize = 20,
                 FontAttributes = FontAttributes.Bold,
-                TextColor = Color.FromArgb("#FF9800"),
+                TextColor = Color.FromArgb("#005F8C"),
                 HorizontalOptions = LayoutOptions.Center,
-                Margin = new Microsoft.Maui.Thickness(0, 0, 0, 10)
+                Margin = new Microsoft.Maui.Thickness(0, 0, 0, 0)
             });
-
-            // Create Take-out Order button
-            var createTakeoutButton = new Button
-            {
-                Text = "Crear Nueva Orden Para Llevar",
-                BackgroundColor = Color.FromArgb("#FF9800"),
-                TextColor = Colors.White,
-                CornerRadius = 8,
-                HeightRequest = 50,
-                FontSize = 16,
-                FontAttributes = FontAttributes.Bold,
-                HorizontalOptions = LayoutOptions.Fill,
-                Margin = new Microsoft.Maui.Thickness(0, 0, 0, 15)
-            };
-
-            popupContent.Children.Add(createTakeoutButton);
 
             // Add search bar for takeout order selection
             var takeoutSearchBar = new SearchBar
             {
                 Placeholder = "Buscar orden para llevar o escribe número...",
                 HorizontalOptions = LayoutOptions.Fill,
-                Margin = new Microsoft.Maui.Thickness(0, 0, 0, 10),
+                Margin = new Microsoft.Maui.Thickness(0, 20, 0, 0),
                 BackgroundColor = Color.FromArgb("#f5f7fa"),
                 TextColor = Colors.Black
             };
 
-            popupContent.Children.Add(takeoutSearchBar);
-
             // Available takeout orders section
             var activeTakeoutOrders = await AddActiveTakeoutOrdersSection(popupContent);
+
+            popupContent.Children.Add(takeoutSearchBar);
+
+            // Create Take-out Order button
+            var createTakeoutButton = new Button
+            {
+                Text = "Crear Nueva Orden (F1)",
+                BackgroundColor = Color.FromArgb("#005f8c"),
+                TextColor = Colors.White,
+                CornerRadius = 6,
+                HeightRequest = 40,
+                FontSize = 14,
+                HorizontalOptions = LayoutOptions.Fill,
+                Margin = new Microsoft.Maui.Thickness(0, 10, 0, 0)
+            };
+
+            popupContent.Children.Add(createTakeoutButton);
 
             // Create footer with close button
             var footerContent = new StackLayout
@@ -813,7 +812,7 @@ public partial class OrderSectionMainVisual : ContentPage
 
             var closeButton = new Button
             {
-                Text = "Cancelar",
+                Text = "Cerrar",
                 BackgroundColor = Color.FromArgb("#757575"),
                 TextColor = Colors.White,
                 CornerRadius = 6,
@@ -841,7 +840,7 @@ public partial class OrderSectionMainVisual : ContentPage
                 ShowCloseButton = true,
                 ShowFooter = false,
                 ShowHeader = false,
-                WidthRequest = 550,
+                WidthRequest = 450,
                 AnimationDuration = 100,
                 AutoSizeMode = PopupAutoSizeMode.Height
             };
