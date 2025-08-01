@@ -8,7 +8,6 @@
     <Grid RowDefinitions="Auto,Auto,*,Auto,Auto,Auto" ColumnDefinitions="*,*" 
           Padding="20" RowSpacing="10" ColumnSpacing="10">
 
-        <!-- Títulos -->
         <Label Grid.Row="0" Grid.Column="0"
                TextColor="#005F8C"
                Text="Artículos Originales"
@@ -21,7 +20,6 @@
                FontAttributes="Bold"
                FontSize="16"/>
 
-        <!-- Tablas de artículos -->
         <Frame Grid.Row="1" Grid.Column="0" Grid.RowSpan="2"
                CornerRadius="10"
                Padding="0"
@@ -37,7 +35,7 @@
                                    HeaderRowHeight="60"
                                    RowHeight="50"
                                    AutoGenerateColumnsMode="None"
-                                   SelectionMode="Multiple"
+                                   SelectionMode="Single"
                                    NavigationMode="Cell"
                                    SelectionChanged="OnOriginalItemSelected">
 
@@ -85,7 +83,7 @@
                                    HeaderRowHeight="60"
                                    RowHeight="50"
                                    AutoGenerateColumnsMode="None"
-                                   SelectionMode="Multiple"
+                                   SelectionMode="Single"
                                    NavigationMode="Cell"
                                    SelectionChanged="OnRefundedItemSelected">
 
@@ -118,7 +116,6 @@
             </syncfusion:SfDataGrid>
         </Frame>
 
-        <!-- Botones de transferencia -->
         <StackLayout Grid.Row="3" Grid.Column="0" Orientation="Horizontal" Spacing="10" HorizontalOptions="Center">
             <Button Text="Agregar Seleccionados" 
                     Clicked="OnAddSelectedToRefund"
@@ -163,7 +160,6 @@
                     CornerRadius="8"/>
         </StackLayout>
 
-        <!-- Totales -->
         <StackLayout Grid.Row="4" Grid.Column="0" Orientation="Horizontal" Spacing="10" HorizontalOptions="End">
             <Label Text="Total Orden:" 
                    TextColor="#005F8C"
@@ -190,14 +186,12 @@
                    FontSize="14"/>
         </StackLayout>
 
-        <!-- Botones inferiores -->
         <Grid Grid.Row="5" Grid.ColumnSpan="2"
               ColumnDefinitions="*,Auto,Auto"
               VerticalOptions="Center"
               Padding="0,10"
               ColumnSpacing="15">
 
-            <!-- Razón de devolución -->
             <Frame Grid.Column="0"
                    BackgroundColor="White"
                    BorderColor="#E9ECEF"
@@ -215,7 +209,6 @@
                        TextColor="#005F8C"/>
             </Frame>
 
-            <!-- Botón Descartar -->
             <Button Grid.Column="1"
                     Text="Descartar"
                     Command="{Binding DiscardCommand}"
@@ -230,7 +223,6 @@
                     HorizontalOptions="End"
                     VerticalOptions="Center"/>
 
-            <!-- Botón Charge -->
             <Button Grid.Column="2"
                     Text="Procesar"
                     Command="{Binding ProcessRefundCommand}"
