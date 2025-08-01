@@ -19,13 +19,71 @@ namespace felix1.Data
 
         //this is for storing de DB on a temporary location
         //private string TempDBPath = "C:\\Codes\\github\\felix-1-proyect\\felix1\\tempDBStorage";
-        private string TempDBPath = "C:\\Users\\HP\\Desktop\\mita\\FELIX1PROY\\felix-1-proyect\\felix1\\tempDBStorage"; //for maria
+        //private string TempDBPath = "C:\\Users\\HP\\Desktop\\mita\\FELIX1PROY\\felix-1-proyect\\felix1\\tempDBStorage"; //for maria
         //private string TempDBPath = "C:\\Users\\dell\\Source\\Repos\\felix-1-proyect\\felix1\\tempDBStorage\\"; //ChenFan
 
         public AppDbContext()
         {
-            _dbPath = Path.Combine(TempDBPath, "appdata.db");
-            Database.EnsureCreated();
+
+            try
+            {
+
+                //on production the lines of code below should be uncommented
+                var folder = FileSystem.AppDataDirectory;
+                _dbPath = Path.Combine(folder, "appdata.db");
+
+                bool isFirstRun = !File.Exists(_dbPath);
+                Database.EnsureCreated();
+
+                // Create default user only on first run
+                if (isFirstRun)
+                {
+                    CreateDefaultUser();
+                }
+
+                // Uncomment the lines below if you want to use a temporary storage path
+                // if (!Directory.Exists(TempDBPath))
+                // {
+                //     Directory.CreateDirectory(TempDBPath);
+                // }
+
+                // _dbPath = Path.Combine(TempDBPath, "appdata.db");
+                // Database.EnsureCreated();
+            }
+            catch (System.Exception e)
+            {
+                Console.WriteLine($"Error initializing database: {e.Message}");
+                throw;
+            }
+
+        }
+
+        private void CreateDefaultUser()
+        {
+            try
+            {
+                // Check if any users already exist (extra safety check)
+                if (!Users.Any())
+                {
+                    var defaultUser = new User
+                    {
+                        Name = "Default Admin",
+                        Username = "admin",
+                        Password = "admin", // You might want to hash this
+                        Role = "Admin",
+                        Available = true,
+                        Deleted = false
+                    };
+
+                    Users.Add(defaultUser);
+                    SaveChanges();
+                    Console.WriteLine("Default admin user created successfully.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error creating default user: {ex.Message}");
+            }
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
