@@ -68,6 +68,16 @@ namespace felix1.OrderSection
             UpdatePaymentSummary();
             AddCashMethod();
             FocusFirstPaymentEntry();
+
+            btnCancel.Focused += (s, e) => {
+                _isPaymentFocused = false;
+                _currentFocusedEntry = null;
+            };
+
+            btnProcessPayment.Focused += (s, e) => {
+                _isPaymentFocused = false;
+                _currentFocusedEntry = null;
+            };
         }
 
         private void LoadTaxRatesFromConfiguration()
@@ -116,14 +126,20 @@ namespace felix1.OrderSection
                     NavigateToNextControl();
                     e.Handled = true;
                     break;
-                    
-                case Windows.System.VirtualKey.F7:
-                    OnAddCardClicked(sender, null);
+
+                
+                case Windows.System.VirtualKey.F3:
+                    ShowRemainingAmount();
                     e.Handled = true;
                     break;
                     
                 case Windows.System.VirtualKey.F6:
                     OnAddTransferClicked(sender, null);
+                    e.Handled = true;
+                    break;
+                
+                case Windows.System.VirtualKey.F7:
+                    OnAddCardClicked(sender, null);
                     e.Handled = true;
                     break;
 
@@ -157,30 +173,75 @@ namespace felix1.OrderSection
             }
         }
 
+        private void ShowRemainingAmount()
+        {
+            if (_currentFocusedEntry == null) return;
+
+            decimal remaining = Total - TotalPayment;
+            if (remaining > 0)
+            {
+                _currentFocusedEntry.Text = remaining.ToString("N2");
+                _currentFocusedEntry.CursorPosition = 0;
+                _currentFocusedEntry.SelectionLength = _currentFocusedEntry.Text.Length;
+
+                if (_currentFocusedEntry.Parent.Parent is Frame frame)
+                {
+                    string method = GetPaymentMethodName(frame);
+                    switch (method)
+                    {
+                        case "Efectivo":
+                            _cashAmount = remaining;
+                            break;
+                        case "Tarjeta":
+                            _cardAmount = remaining;
+                            break;
+                        case "Transferencia":
+                            _transferAmount = remaining;
+                            break;
+                    }
+                    UpdatePaymentSummary();
+                    UpdateProperties();
+                }
+            }
+            else
+            {
+                DisplayAlert("Información", "La orden ya está completamente pagada", "OK");
+            }
+        }
+
 
         private void NavigateToNextControl()
         {
-            if (!_isPaymentFocused || ActivePaymentMethodsContainer.Children.Count == 0)
+            if (_isPaymentFocused && _currentFocusedEntry != null)
+            {
+                _currentPaymentIndex++;
+                if (_currentPaymentIndex >= ActivePaymentMethodsContainer.Children.Count)
+                {
+                    _isPaymentFocused = false;
+                    _currentFocusedEntry = null;
+                    btnCancel.Focus();
+                    return;
+                }
+
+                if (ActivePaymentMethodsContainer.Children[_currentPaymentIndex] is Frame frame &&
+                    frame.Content is VerticalStackLayout layout &&
+                    layout.Children[1] is Entry entry)
+                {
+                    entry.Focus();
+                    _currentFocusedEntry = entry;
+                }
+            }
+            else if (btnCancel.IsFocused)
+            {
+                btnProcessPayment.Focus();
+            }
+            else if (btnProcessPayment.IsFocused)
             {
                 FocusFirstPaymentEntry();
-                return;
             }
-
-            _currentPaymentIndex++;
-            if (_currentPaymentIndex >= ActivePaymentMethodsContainer.Children.Count)
+            else
             {
-                _isPaymentFocused = false;
-                _currentFocusedEntry = null;
-                chargeButton.Focus();
-                return;
-            }
-
-            if (ActivePaymentMethodsContainer.Children[_currentPaymentIndex] is Frame frame &&
-                frame.Content is VerticalStackLayout layout &&
-                layout.Children[1] is Entry entry)
-            {
-                entry.Focus();
-                _currentFocusedEntry = entry;
+                FocusFirstPaymentEntry();
             }
         }
 
@@ -512,7 +573,7 @@ namespace felix1.OrderSection
                 return true;
             });
 
-            OnExitSave();
+            CloseThisWindow();
             ListTableVisual.Instance?.ReloadTM();
         }
 
