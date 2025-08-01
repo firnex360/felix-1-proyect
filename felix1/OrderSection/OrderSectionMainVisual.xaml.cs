@@ -16,13 +16,21 @@ namespace felix1.OrderSection;
 public partial class OrderSectionMainVisual : ContentPage
 {
     private CashRegister _cashRegister;
+    private User _waiter;
 
-    public OrderSectionMainVisual(CashRegister cashRegister)
+    public OrderSectionMainVisual(CashRegister cashRegister, User waiter)
     {
         InitializeComponent();
         _cashRegister = cashRegister;
-        DisplayCashRegisterInfo();
-        RightPanel.Content = new ListTableVisual();
+        _waiter = waiter;
+        if (_waiter != null)
+        {
+            btnCloseRegister.IsVisible = false;
+            RightPanel.Content = new ListWaiterVisual();
+        } else {
+            DisplayCashRegisterInfo();
+            RightPanel.Content = new ListTableVisual();
+        }
 
 #if WINDOWS
         var window = Microsoft.Maui.Controls.Application.Current?.Windows.FirstOrDefault();
@@ -43,36 +51,40 @@ public partial class OrderSectionMainVisual : ContentPage
 
     private async void OnCloseRegister(object sender, EventArgs e)
     {
-        bool confirm = await DisplayAlert(
-            "Confirmación",
-            $"¿Cerrar la caja?",
-            "Sí",
-            "No");
-
-        if (!confirm)
-            return;
-
-        await AppDbContext.ExecuteSafeAsync(async db =>
+        if (_cashRegister != null)
         {
-            var user = await db.Users.FindAsync(AppSession.CurrentUser.Id);
-            var register = await db.CashRegisters.FindAsync(_cashRegister.Id);
 
-            if (register != null)
-            {
-                register.Cashier = user;
-                register.IsOpen = false;
-                register.TimeFinish = DateTime.Now;
-                db.CashRegisters.Update(register);
-                await db.SaveChangesAsync();
-            }
+            bool confirm = await DisplayAlert(
+                "Confirmación",
+                $"¿Cerrar la caja?",
+                "Sí",
+                "No");
 
-            Dispatcher.Dispatch(() =>
+            if (!confirm)
+                return;
+
+            await AppDbContext.ExecuteSafeAsync(async db =>
             {
-                Navigation.PopAsync();
-                var balanceVisual = new BalanceVisual(register!);
-                Application.Current!.MainPage = new NavigationPage(balanceVisual);
+                var user = await db.Users.FindAsync(AppSession.CurrentUser.Id);
+                var register = await db.CashRegisters.FindAsync(_cashRegister.Id);
+
+                if (register != null)
+                {
+                    register.Cashier = user;
+                    register.IsOpen = false;
+                    register.TimeFinish = DateTime.Now;
+                    db.CashRegisters.Update(register);
+                    await db.SaveChangesAsync();
+                }
+
+                Dispatcher.Dispatch(() =>
+                {
+                    Navigation.PopAsync();
+                    var balanceVisual = new BalanceVisual(register!);
+                    Application.Current!.MainPage = new NavigationPage(balanceVisual);
+                });
             });
-        });
+        }
     }
 
     private async void OnCloseSesion(object sender, EventArgs e)
@@ -133,12 +145,24 @@ public partial class OrderSectionMainVisual : ContentPage
     private void OnSearchBarTextChanged(object sender, TextChangedEventArgs e)
     {
         var searchText = e.NewTextValue?.ToLower() ?? "";
-
-        // Get the ListTableVisual instance and pass the search text to it
-        if (RightPanel.Content is ListTableVisual ListTableVisual)
+        if (_waiter != null)
         {
-            // Call the filter method to highlight matching table numbers
-            ListTableVisual.FilterTablesByNumber(searchText);
+            // Get the ListWaiterVisual instance and pass the search text to it
+            if (RightPanel.Content is ListWaiterVisual ListWaiterVisual)
+            {
+                // Call the filter method to highlight matching table numbers
+                ListWaiterVisual.FilterTablesByNumber(searchText);
+            }
+
+        }
+        else
+        {
+            // Get the ListTableVisual instance and pass the search text to it
+            if (RightPanel.Content is ListTableVisual ListTableVisual)
+            {
+                // Call the filter method to highlight matching table numbers
+                ListTableVisual.FilterTablesByNumber(searchText);
+            }
         }
     }
 
@@ -151,10 +175,19 @@ public partial class OrderSectionMainVisual : ContentPage
             return;
         }
 
-        // Handle search button press - open the highlighted table
-        if (RightPanel.Content is ListTableVisual ListTableVisual)
+        if (_waiter != null)
         {
-            ListTableVisual.OpenHighlightedTable();
+            // Handle search button press - open the highlighted table
+            if (RightPanel.Content is ListWaiterVisual ListWaiterVisual)
+            {
+                ListWaiterVisual.OpenHighlightedTable();
+            }
+        } else { 
+            // Handle search button press - open the highlighted table
+            if (RightPanel.Content is ListTableVisual ListTableVisual)
+            {
+                ListTableVisual.OpenHighlightedTable();
+            }
         }
     }
 
@@ -209,6 +242,11 @@ public partial class OrderSectionMainVisual : ContentPage
                 ListTableVisual.MoveToNextMatchingTable();
                 e.Handled = true;
             }
+            else if (RightPanel.Content is ListWaiterVisual ListWaiterVisual)
+            {
+                ListWaiterVisual.MoveToNextMatchingTable();
+                e.Handled = true;
+            }
         }
         else if (e.Key == Windows.System.VirtualKey.Enter)
         {
@@ -228,6 +266,15 @@ public partial class OrderSectionMainVisual : ContentPage
             {
                 method.Invoke(listTableVisual, new object[] { this, EventArgs.Empty });
             }
+        } else if (RightPanel.Content is ListWaiterVisual listWaiterVisual)
+        {
+            // Call the create takeout order method directly
+            var method = typeof(ListWaiterVisual).GetMethod("OnCreateTakeoutOrderClicked", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (method != null)
+            {
+                method.Invoke(listWaiterVisual, new object[] { this, EventArgs.Empty });
+            }
         }
     }
 #endif
@@ -238,6 +285,10 @@ public partial class OrderSectionMainVisual : ContentPage
         {
             ListTableVisual.ShowCompletedOrders = e.Value;
             ListTableVisual.ReloadTM();
+        } else if (RightPanel.Content is ListWaiterVisual ListWaiterVisual)
+        {
+            ListWaiterVisual.ShowCompletedOrders = e.Value;
+            ListWaiterVisual.ReloadTM();
         }
     }
 
@@ -352,6 +403,15 @@ public partial class OrderSectionMainVisual : ContentPage
                     {
                         method.Invoke(listTableVisual, new object[] { s!, e });
                     }
+                } else if (RightPanel.Content is ListWaiterVisual listWaiterVisual)
+                {
+                    // Call the create takeout order method
+                    var method = typeof(ListWaiterVisual).GetMethod("OnCreateTakeoutOrderClicked", 
+                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (method != null)
+                    {
+                        method.Invoke(listWaiterVisual, new object[] { s!, e });
+                    }
                 }
             };
 
@@ -390,6 +450,11 @@ public partial class OrderSectionMainVisual : ContentPage
                         var method = typeof(ListTableVisual).GetMethod("OnCreateTableWindowClicked",
                             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                         method?.Invoke(listTableVisual, new object[] { selectedWaiter });
+                    } else if (RightPanel.Content is ListWaiterVisual listWaiterVisual)
+                    {
+                        var method = typeof(ListWaiterVisual).GetMethod("OnCreateTableWindowClicked",
+                            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                        method?.Invoke(listWaiterVisual, new object[] { selectedWaiter });
                     }
                 }
             };
@@ -518,6 +583,12 @@ public partial class OrderSectionMainVisual : ContentPage
                         var method = typeof(ListTableVisual).GetMethod("OnCreateTableWindowClicked", 
                             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                         method?.Invoke(listTableVisual, new object[] { waiter });
+                    } else if (RightPanel.Content is ListWaiterVisual listWaiterVisual)
+                    {
+                        // Call the create table method for this waiter
+                        var method = typeof(ListWaiterVisual).GetMethod("OnCreateTableWindowClicked", 
+                            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                        method?.Invoke(listWaiterVisual, new object[] { waiter });
                     }
                 };
 

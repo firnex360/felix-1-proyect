@@ -496,6 +496,25 @@ namespace felix1.OrderSection
 
             return frame;
         }
+        
+        private async void OnCancelButtonClicked(object sender, EventArgs e)
+        {
+            Order.IsBillRequested = false;
+
+            await AppDbContext.ExecuteSafeAsync(async db =>
+            {
+                var orderToUpdate = await db.Orders.FirstOrDefaultAsync(o => o.Id == Order.Id);
+                if (orderToUpdate != null)
+                {
+                    orderToUpdate.IsBillRequested = false;
+                    await db.SaveChangesAsync();
+                }
+                return true;
+            });
+
+            OnExitSave();
+            ListTableVisual.Instance?.ReloadTM();
+        }
 
         private async void OnChargeClicked(object sender, EventArgs e)
         {

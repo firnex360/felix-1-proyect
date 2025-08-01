@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
+             xmlns:numericEntry="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs"
+             xmlns:inputLayout="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
+             xmlns:syncfusion="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:felix1.OrderSection"
              x:Class="felix1.OrderSection.PaymentVisual"
@@ -8,6 +12,90 @@
     <ContentPage.Resources>
         <ResourceDictionary>
             <local:BoolToColorConverter x:Key="BoolToColorConverter" />
+            <Style x:Key="CancelButtonStyle"
+                    TargetType="Button">
+                <Setter Property="TextColor"
+                        Value="Black"/>
+                <Setter Property="CornerRadius"
+                        Value="5"/>
+                <Setter Property="Margin"
+                        Value="0"/>
+                <Setter Property="BackgroundColor"
+                        Value="#F5F7FA"/>
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="Transparent"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Hovered">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#AFFF1D1D"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#FD2D2D"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Checked">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#C7CFDD"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+
+            
+            <Style x:Key="ButtonStyle"
+                    TargetType="Button">
+                <Setter Property="TextColor"
+                        Value="Black"/>
+                <Setter Property="CornerRadius"
+                        Value="5"/>
+                <Setter Property="Margin"
+                        Value="0"/>
+                <Setter Property="BackgroundColor"
+                        Value="#F5F7FA"/>
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#005F8C"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Hovered">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#C7CFDD"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#FFA5AAB3"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Checked">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#005F8C"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
         </ResourceDictionary>
     </ContentPage.Resources>
 
@@ -265,26 +353,32 @@
                    FontFamily="Inter"/>
         </VerticalStackLayout>
 
-        <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
-      ColumnDefinitions="*, Auto"
-      HorizontalOptions="Fill"
-      VerticalOptions="Center"
-      Margin="0,0,20,0">
 
-            <Button 
-            Grid.Column="1" 
-            x:Name="chargeButton"
-            Text="Charge"
-            BackgroundColor="#005F8C"
-            TextColor="White"
-            FontAttributes="Bold"
-            CornerRadius="8"
-            WidthRequest="150"
-            HeightRequest="40"
-            HorizontalOptions="End"
-            VerticalOptions="Center"
-            FontFamily="Inter"
-            Clicked="OnChargeClicked"/>
-        </Grid>
+        
+        <HorizontalStackLayout HorizontalOptions="End" 
+                               VerticalOptions="End" 
+                               Spacing="10" 
+                               Grid.Row="1" 
+                               Grid.ColumnSpan="3"
+                               Padding="10">
+
+            <Button x:Name="btnCancel"
+                    Text="Cancelar"
+                    WidthRequest="150"
+                    HorizontalOptions="End"
+                    VerticalOptions="End"
+                    Clicked="OnCancelButtonClicked"
+                    Style="{StaticResource CancelButtonStyle}" />
+
+            <Button x:Name="btnProcessPayment"
+                    Text="Procesar Pago"
+                    BackgroundColor="#005F8C"
+                    TextColor="#F3F3F3"
+                    WidthRequest="150"
+                    HorizontalOptions="End"
+                    VerticalOptions="End"
+                    Clicked="OnChargeClicked" 
+                    Style="{StaticResource ButtonStyle}"/>
+        </HorizontalStackLayout>
     </Grid>
 </ContentPage>
