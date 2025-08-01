@@ -67,6 +67,7 @@ namespace felix1.OrderSection
 
             UpdatePaymentSummary();
             AddCashMethod();
+            FocusFirstPaymentEntry();
         }
 
         private void LoadTaxRatesFromConfiguration()
@@ -142,13 +143,20 @@ namespace felix1.OrderSection
                     frame.Content is VerticalStackLayout layout &&
                     layout.Children[1] is Entry entry)
                 {
-                    entry.Focus();
-                    _currentFocusedEntry = entry;
-                    _isPaymentFocused = true;
-                    _currentPaymentIndex = 0;
+                    Dispatcher.Dispatch(async () =>
+                    {
+                        await Task.Delay(300); 
+                        entry.Focus();
+                        entry.CursorPosition = 0;
+                        entry.SelectionLength = entry.Text?.Length ?? 0;
+                        _currentFocusedEntry = entry;
+                        _isPaymentFocused = true;
+                        _currentPaymentIndex = 0;
+                    });
                 }
             }
         }
+
 
         private void NavigateToNextControl()
         {
@@ -495,7 +503,7 @@ namespace felix1.OrderSection
 
             var totalPayment = _cashAmount + _cardAmount + _transferAmount;
 
-            if (totalPayment < Total)
+            if (!Order.IsDuePaid && totalPayment < Total)
             {
                 await DisplayAlert("Error", $"El total pagado (${totalPayment:N2}) es menor que el total de la orden (${Total:N2})", "OK");
                 return;
@@ -525,10 +533,30 @@ namespace felix1.OrderSection
                     TransferAmount = _transferAmount
                 };
 
-                if (orderToUpdate.Table != null)
+                if (Order.IsDuePaid)
                 {
-                    orderToUpdate.Table.IsPaid = true;
-                    orderToUpdate.Table.IsBillRequested = false;
+                    orderToUpdate.IsDuePaid = true;
+
+                    if (orderToUpdate.Table != null)
+                    {
+                        orderToUpdate.Table.IsPaid = true;
+                        orderToUpdate.Table.IsBillRequested = false;
+                    }
+
+                    if (totalPayment < Total)
+                    {
+                        await DisplayAlert("Información",
+                            $"Orden marcada como pagada con pago parcial (${totalPayment:N2} de ${Total:N2})",
+                            "OK");
+                    }
+                }
+                else
+                {
+                    if (totalPayment >= Total && orderToUpdate.Table != null)
+                    {
+                        orderToUpdate.Table.IsPaid = true;
+                        orderToUpdate.Table.IsBillRequested = false;
+                    }
                 }
 
                 db.Transactions.Add(transaction);
@@ -539,6 +567,8 @@ namespace felix1.OrderSection
                     Order.Table.IsPaid = orderToUpdate.Table?.IsPaid ?? false;
                     Order.Table.IsBillRequested = orderToUpdate.Table?.IsBillRequested ?? false;
                 }
+
+                Order.IsDuePaid = orderToUpdate.IsDuePaid;
 
                 return true;
             });

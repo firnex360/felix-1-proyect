@@ -13,7 +13,6 @@ namespace felix1.AdminSection
 {
     public partial class ListPaymentVisual : ContentView
     {
-
         private bool _unpaidOnly = false;
         public ObservableCollection<CombinedTransaction> CombinedItems { get; } = new();
         private readonly int _cashRegisterId;
@@ -55,7 +54,6 @@ namespace felix1.AdminSection
 
                 foreach (var order in orders)
                 {
-                    // Aplicar filtro de no pagados si está activo
                     if (_unpaidOnly && order.IsDuePaid)
                         continue;
 
@@ -88,7 +86,6 @@ namespace felix1.AdminSection
 
                 foreach (var refund in refunds)
                 {
-                    // Excluir reembolsos cuando está activo el filtro
                     if (_unpaidOnly)
                         continue;
 
@@ -121,18 +118,12 @@ namespace felix1.AdminSection
             });
         }
 
-
         private async void OnFilterButtonClicked(object sender, EventArgs e)
         {
             if (sender is Button button)
             {
-                // Cambiar el estado del filtro
                 _showOnlyUnpaid = !_showOnlyUnpaid;
-
-                // Actualizar el texto del botón
                 button.Text = _showOnlyUnpaid ? "Mostrar Todos" : "Filtrar";
-
-                // Aplicar el filtro
                 await ApplyFilters();
             }
         }
@@ -248,11 +239,10 @@ namespace felix1.AdminSection
         }
 
         private void OnUnpaidOnlySwitchToggled(object sender, ToggledEventArgs e)
-{
-    _unpaidOnly = e.Value;
-    LoadCombinedData();
-}
-
+        {
+            _unpaidOnly = e.Value;
+            LoadCombinedData();
+        }
 
         private async void OnTogglePaymentStatusClicked(object sender, EventArgs e)
         {
@@ -304,6 +294,7 @@ namespace felix1.AdminSection
             public bool IsRefund { get; set; }
             public bool HasPayment { get; set; }
             public decimal DisplayAmount => IsRefund ? TotalAmount * -1 : TotalAmount;
+            public string DisplayId => IsRefund ? $"{Id} ({OrderId})" : Id.ToString("0000");
         }
     }
 

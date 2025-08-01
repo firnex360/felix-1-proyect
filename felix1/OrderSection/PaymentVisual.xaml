@@ -214,6 +214,13 @@
         </VerticalStackLayout>
 
         <VerticalStackLayout Grid.Row="0" Grid.Column="2" Spacing="15">
+            <Label Text="PAGO PENDIENTE" 
+                   IsVisible="{Binding Order.IsDuePaid}"
+                   FontAttributes="Bold" 
+                   FontSize="16" 
+                   TextColor="Red"
+                   HorizontalOptions="Center"
+                   FontFamily="Inter"/>
             <Label Text="Métodos de pago" 
                    FontAttributes="Bold" 
                    FontSize="20" 

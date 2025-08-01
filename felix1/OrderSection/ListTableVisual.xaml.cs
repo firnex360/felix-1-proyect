@@ -32,17 +32,20 @@ public partial class ListTableVisual : ContentView
 
     private Color GetOrderButtonColor(Order order)
     {
-        if (order.IsBillRequested)
+        if (ShowCompletedOrders)
         {
-            return Color.FromArgb("#4CAF50"); // CUANDO YA IMPRIMES COLOR TEMPORAL
-        }
-        else if (order.IsDuePaid)
-        {
-            return Color.FromArgb("#FD2D2D"); // COLOR ROJO PARA REFUND
+            return Color.FromArgb("#FD2D2D"); //CUANDO QUIERES REALIZAR REFUND
         }
         else
         {
-            return Color.FromArgb("#005F8C"); // CUANDO ACABAS DE GENERAR LA ORDEN COLOR TEMPORAL
+            if (order.IsBillRequested)
+            {
+                return Color.FromArgb("#4CAF50"); // CUANDO YA IMPRIMES  
+            }
+            else
+            {
+                return Color.FromArgb("#005F8C"); // CUANDO ACABAS DE GENERAR LA ORDEN
+            }
         }
     }
 

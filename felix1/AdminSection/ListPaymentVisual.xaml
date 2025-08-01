@@ -98,11 +98,21 @@
                 </syncfusion:SfDataGrid.DefaultStyle>
 
                 <syncfusion:SfDataGrid.Columns>
-                    <syncfusion:DataGridNumericColumn MappingName="Id" HeaderText="ID" Format="0000"
-                                    CellTextAlignment="Start" 
+                    <syncfusion:DataGridTemplateColumn MappingName="Id" HeaderText="ID"
                                     ColumnWidthMode="FitByHeader"
-                                    Width="80"/>
+                                    Width="120">
+                        <syncfusion:DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Label Text="{Binding DisplayId}" 
+                                       TextColor="#005F8C"
+                                       VerticalOptions="Center"
+                                       HorizontalOptions="Start"
+                                       Margin="10,0,0,0"/>
+                            </DataTemplate>
+                        </syncfusion:DataGridTemplateColumn.CellTemplate>
+                    </syncfusion:DataGridTemplateColumn>
 
+                    <!-- Resto de las columnas permanecen igual -->
                     <syncfusion:DataGridTextColumn MappingName="Time" HeaderText="Hora"
                                   CellTextAlignment="Start"
                                   ColumnWidthMode="FitByHeader"
