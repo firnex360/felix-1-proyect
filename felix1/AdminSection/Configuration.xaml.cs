@@ -35,13 +35,6 @@ public partial class Configuration : ContentView
         txtWaiterTax.Value = double.TryParse(waiterTaxStr, out double waiterTax) ? waiterTax : 10;
         
         txtComment.Text = Preferences.Get("InvoiceComment", "GRACIAS POR PREFERIRNOS");
-        
-        // Load selected printer
-        var savedPrinter = Preferences.Get("SelectedPrinter", "");
-        if (!string.IsNullOrEmpty(savedPrinter))
-        {
-            pickerPrinter.SelectedItem = savedPrinter;
-        }
     }
 
     private void LoadAvailablePrinters()
@@ -62,6 +55,13 @@ public partial class Configuration : ContentView
             {
                 pickerPrinter.Items.Add("No hay impresoras disponibles");
             }
+            
+            // Load selected printer AFTER printers are loaded
+            var savedPrinter = Preferences.Get("SelectedPrinter", "");
+            if (!string.IsNullOrEmpty(savedPrinter) && pickerPrinter.Items.Contains(savedPrinter))
+            {
+                pickerPrinter.SelectedItem = savedPrinter;
+            }
 #else
             // For other platforms, show a message
             pickerPrinter.Items.Clear();
@@ -79,7 +79,17 @@ public partial class Configuration : ContentView
     {
         try
         {
+            // Store current selection before refreshing
+            var currentSelection = pickerPrinter.SelectedItem?.ToString();
+            
             LoadAvailablePrinters();
+            
+            // Try to restore the selection if it still exists
+            if (!string.IsNullOrEmpty(currentSelection) && pickerPrinter.Items.Contains(currentSelection))
+            {
+                pickerPrinter.SelectedItem = currentSelection;
+            }
+            
             await Application.Current!.MainPage!.DisplayAlert("Éxito", "Lista de impresoras actualizada", "OK");
         }
         catch (Exception ex)

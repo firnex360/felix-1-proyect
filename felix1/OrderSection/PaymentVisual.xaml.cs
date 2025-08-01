@@ -25,7 +25,7 @@ namespace felix1.OrderSection
         // Tax rates from configuration
         private decimal _taxRate = 0.18m;
         private decimal _waiterTaxRate = 0.10m;
-        
+
         public Order Order { get; set; }
         public decimal Subtotal => Order.Items?.Sum(i => i.TotalPrice) ?? 0;
         public decimal Discount => Order.Discount;
@@ -366,7 +366,7 @@ namespace felix1.OrderSection
 
             return frame;
         }
-        
+
         private async void OnCancelButtonClicked(object sender, EventArgs e)
         {
             Order.IsBillRequested = false;
@@ -568,7 +568,7 @@ namespace felix1.OrderSection
         private void OnPrintReceipt(object sender, EventArgs e)
         {
             Console.WriteLine("Print transaction receipt clicked");
-            
+
             // Create a transaction object for the receipt
             var transaction = new Transaction
             {
@@ -592,6 +592,11 @@ namespace felix1.OrderSection
                 var scribanModel = new { transaction = transaction, ChangeAmount = _changeAmount };
                 string text = template.Render(scribanModel, member => member.Name);
                 System.Drawing.Printing.PrintDocument pd = new System.Drawing.Printing.PrintDocument();
+                var savedPrinter = Preferences.Get("SelectedPrinter", "");
+                if (!string.IsNullOrEmpty(savedPrinter))
+                {
+                    pd.PrinterSettings.PrinterName = savedPrinter; // or whatever name shows in Windows, but it should take the default one
+                }
                 pd.PrintPage += (sender, e) =>
                 {
                     System.Drawing.Font font = new System.Drawing.Font("Consolas", 10);

@@ -821,72 +821,81 @@ public partial class OrderVisual : ContentPage
 
 #if WINDOWS
 
-                try
+        try
+        {
+            // Create OrderReceipt object with all necessary data
+            var orderReceipt = new OrderReceipt
+            {
+                // Company Information (loaded from configuration/settings)
+                CompanyName = Preferences.Get("CompanyName", "Sin nombre"),
+                CompanyAddress = Preferences.Get("CompanyAddress", "Sin dirección"),
+                CompanyPhone = Preferences.Get("CompanyPhone", "0"),
+                CompanyRNC = Preferences.Get("CompanyRNC", "0"),
+
+                // Order Information
+                Order = _currentOrder,
+
+                // Transaction Financial Information
+                TotalAmount = CalculateSubtotal() + CalculateTax(CalculateSubtotal()) + CalculateWaiterTax(CalculateSubtotal()) - _discountAmount,
+                TaxAmountITBIS = CalculateTax(CalculateSubtotal()),
+                TaxAmountWaiters = CalculateWaiterTax(CalculateSubtotal()),
+                CashAmount = 0, // TODO: Set based on payment method
+                CardAmount = 0, // TODO: Set based on payment method
+                TransferAmount = 0, // TODO: Set based on payment method
+
+                // Tax Percentages
+                TaxRateITBIS = _taxRate, // Store the actual tax rate (e.g., 0.18 for 18%)
+                TaxRateWaiters = _waiterTaxRate, // Store the actual waiter tax rate (e.g., 0.10 for 10%)
+
+                PrintDate = DateTime.Now
+            };
+
+            string templateText = File.ReadAllText(@"felix1\ReceiptTemplates\OrderTemplate.txt");
+            var template = Template.Parse(templateText);
+            var scribanModel = new { receipt = orderReceipt };
+            string text = template.Render(scribanModel, member => member.Name);
+
+            PrintDocument pd = new PrintDocument();
+            var savedPrinter = Preferences.Get("SelectedPrinter", "");
+            if (!string.IsNullOrEmpty(savedPrinter))
+            {
+                pd.PrinterSettings.PrinterName = savedPrinter; // or whatever name shows in Windows, but it should take the default one
+            }
+            pd.PrintPage += (sender, e) =>
+            {
+                System.Drawing.Font font = new System.Drawing.Font("Consolas", 9); // Monospaced font recommended for POS printers
+                var lines = text.Split('\n');
+                float yPos = 0;
+                float lineHeight = 0;
+                if (e.Graphics != null)
                 {
-                    // Create OrderReceipt object with all necessary data
-                    var orderReceipt = new OrderReceipt
+                    lineHeight = font.GetHeight(e.Graphics);
+
+                    foreach (string line in lines)
                     {
-                        // Company Information (loaded from configuration/settings)
-                        CompanyName = Preferences.Get("CompanyName", "Sin nombre"),
-                        CompanyAddress = Preferences.Get("CompanyAddress", "Sin dirección"),
-                        CompanyPhone = Preferences.Get("CompanyPhone", "0"),
-                        CompanyRNC = Preferences.Get("CompanyRNC", "0"),
-                        
-                        // Order Information
-                        Order = _currentOrder,
-                        
-                        // Transaction Financial Information
-                        TotalAmount = CalculateSubtotal() + CalculateTax(CalculateSubtotal()) + CalculateWaiterTax(CalculateSubtotal()) - _discountAmount,
-                        TaxAmountITBIS = CalculateTax(CalculateSubtotal()),
-                        TaxAmountWaiters = CalculateWaiterTax(CalculateSubtotal()),
-                        CashAmount = 0, // TODO: Set based on payment method
-                        CardAmount = 0, // TODO: Set based on payment method
-                        TransferAmount = 0, // TODO: Set based on payment method
-                        
-                        // Tax Percentages
-                        TaxRateITBIS = _taxRate, // Store the actual tax rate (e.g., 0.18 for 18%)
-                        TaxRateWaiters = _waiterTaxRate, // Store the actual waiter tax rate (e.g., 0.10 for 10%)
-                        
-                        PrintDate = DateTime.Now
-                    };
-
-                    string templateText = File.ReadAllText(@"felix1\ReceiptTemplates\OrderTemplate.txt");
-                    var template = Template.Parse(templateText);
-                    var scribanModel = new { receipt = orderReceipt };
-                    string text = template.Render(scribanModel, member => member.Name);
-
-                    PrintDocument pd = new PrintDocument();
-                    pd.PrinterSettings.PrinterName = "Star SP500 Cutter"; // or whatever name shows in Windows, but it should take the default one
-                    pd.PrintPage += (sender, e) =>
-                    {
-                        System.Drawing.Font font = new System.Drawing.Font("Consolas", 9); // Monospaced font recommended for POS printers
-                        var lines = text.Split('\n');
-                        float yPos = 0;
-                        float lineHeight = font.GetHeight(e.Graphics);
-
-                        foreach (string line in lines)
+                        if (line.Contains("TOTAL"))
                         {
-                            if (line.Contains("TOTAL"))
-                            {
-                                var bigFont = new System.Drawing.Font("Consolas", 12, FontStyle.Bold);
-                                e.Graphics.DrawString(line.TrimEnd(), bigFont, Brushes.Black, new System.Drawing.PointF(0, yPos));
-                            }
-                            else
-                            {
-                                e.Graphics.DrawString(line.TrimEnd(), font, Brushes.Black, new System.Drawing.PointF(0, yPos));
-                            }
-                            yPos += lineHeight;
+                            var bigFont = new System.Drawing.Font("Consolas", 12, FontStyle.Bold);
+                            e.Graphics.DrawString(line.TrimEnd(), bigFont, Brushes.Black, new System.Drawing.PointF(0, yPos));
                         }
+                        else
+                        {
+                            e.Graphics.DrawString(line.TrimEnd(), font, Brushes.Black, new System.Drawing.PointF(0, yPos));
+                        }
+                        yPos += lineHeight;
+                    }
+                }
 
-                    };
-                    
-                    pd.Print();
-                    Console.WriteLine("Printed successfully.");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Print failed: " + ex.Message);
-                }
+            };
+
+            pd.Print();
+            Console.WriteLine("Printed successfully.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Print failed: " + ex.Message);
+            DisplayAlert("Error", $"No se pudo imprimir la orden: {ex.Message}", "OK").GetAwaiter().GetResult();
+        }
 #else
         Console.WriteLine("Printing is only supported on Windows.");
 #endif
