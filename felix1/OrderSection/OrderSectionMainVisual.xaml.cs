@@ -300,7 +300,7 @@ public partial class OrderSectionMainVisual : ContentPage
             var popupContent = new StackLayout
             {
                 Spacing = 5,
-                Padding = 20,
+                Padding = 10,
                 BackgroundColor = Colors.White,
                 WidthRequest = 400
             };
@@ -319,7 +319,7 @@ public partial class OrderSectionMainVisual : ContentPage
             // Add search bar for waiter selection
             var waiterSearchBar = new SearchBar
             {
-                Placeholder = "Buscar mesero o escribe número...",
+                Placeholder = "Selecciona un mesero...",
                 HorizontalOptions = LayoutOptions.Fill,
                 Margin = new Microsoft.Maui.Thickness(0, 20, 0, 0),
                 BackgroundColor = Color.FromArgb("#f5f7fa"),
@@ -644,7 +644,7 @@ public partial class OrderSectionMainVisual : ContentPage
                 
                 var takeoutButton = new Button
                 {
-                    Text = $"🥡 {numberText} Para Llevar #{takeoutOrder.LocalNumber}",
+                    Text = $"🥡 Para Llevar #{takeoutOrder.LocalNumber}",
                     FontSize = 12,
                     HeightRequest = 40,
                     BackgroundColor = Color.FromArgb("#FF9800"),
@@ -691,37 +691,58 @@ public partial class OrderSectionMainVisual : ContentPage
         return activeTakeoutOrders;
     }
 
-    private void OpenTakeoutOrder(Table takeoutTable)
+    private async void OpenTakeoutOrder(Table takeoutTable)
     {
+        // First, find the order associated with this table
+        var order = await AppDbContext.ExecuteSafeAsync(async db =>
+        {
+            var openCashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
+            if (openCashRegister == null) return null;
+
+            return await db.Orders
+                .Include(o => o.Table)
+                .Include(o => o.Waiter)
+                .Include(o => o.Items!)
+                    .ThenInclude(oi => oi.Article!)
+                .FirstOrDefaultAsync(o => o.CashRegister != null &&
+                                         o.CashRegister.Id == openCashRegister.Id &&
+                                         o.Table != null &&
+                                         o.Table.Id == takeoutTable.Id &&
+                                         !o.IsDuePaid);
+        });
+
+        if (order == null)
+        {
+            await DisplayAlert("Error", $"No se encontró una orden activa para la mesa para llevar #{takeoutTable.LocalNumber}", "OK");
+            return;
+        }
+
         if (RightPanel.Content is ListTableVisual listTableVisual)
         {
-            // Call the method to open a specific table/order
-            var method = typeof(ListTableVisual).GetMethod("OpenSpecificTable",
+            // Call the method to open a specific order (not table)
+            var method = typeof(ListTableVisual).GetMethod("OnViewOrderClicked",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             if (method != null)
             {
-                method.Invoke(listTableVisual, new object[] { takeoutTable });
+                method.Invoke(listTableVisual, new object[] { order });
             }
             else
             {
-                // If that method doesn't exist, try to open it differently
-                // You might need to check what methods are available in ListTableVisual for opening tables
-                DisplayAlert("Info", $"Abriendo orden para llevar #{takeoutTable.LocalNumber}", "OK");
+                await DisplayAlert("Info", $"Abriendo orden para llevar #{takeoutTable.LocalNumber}", "OK");
             }
         }
         else if (RightPanel.Content is ListWaiterVisual listWaiterVisual)
         {
-            // Call the method to open a specific table/order
-            var method = typeof(ListWaiterVisual).GetMethod("OpenSpecificTable",
+            // Call the method to open a specific order
+            var method = typeof(ListWaiterVisual).GetMethod("OnViewOrderClicked",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             if (method != null)
             {
-                method.Invoke(listWaiterVisual, new object[] { takeoutTable });
+                method.Invoke(listWaiterVisual, new object[] { order });
             }
             else
             {
-                // If that method doesn't exist, try to open it differently
-                DisplayAlert("Info", $"Abriendo orden para llevar #{takeoutTable.LocalNumber}", "OK");
+                await DisplayAlert("Info", $"Abriendo orden para llevar #{takeoutTable.LocalNumber}", "OK");
             }
         }
     }
@@ -911,15 +932,42 @@ public partial class OrderSectionMainVisual : ContentPage
 
             void TakeoutSearchBarPlatformView_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
             {
-                if (e.Key == Windows.System.VirtualKey.Escape)
+                if (e.Key == Windows.System.VirtualKey.F1)
+                {
+                    // F1 to create new takeout order
+                    popup.Dismiss();
+                    if (RightPanel.Content is ListTableVisual listTableVisual)
+                    {
+                        var method = typeof(ListTableVisual).GetMethod("OnCreateTakeoutOrderClicked", 
+                            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                        if (method != null)
+                        {
+                            method.Invoke(listTableVisual, new object[] { });
+                        }
+                    } else if (RightPanel.Content is ListWaiterVisual listWaiterVisual)
+                    {
+                        var method = typeof(ListWaiterVisual).GetMethod("OnCreateTakeoutOrderClicked", 
+                            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                        if (method != null)
+                        {
+                            method.Invoke(listWaiterVisual, new object[] { });
+                        }
+                    }
+                    e.Handled = true;
+                }
+                else if (e.Key == Windows.System.VirtualKey.Escape)
                 {
                     popup.Dismiss();
                     e.Handled = true;
                 }
                 else if (e.Key == Windows.System.VirtualKey.Enter)
                 {
-                    // Trigger the SearchButtonPressed event (same as OrderVisual pattern)
-                    takeoutSearchBar.OnSearchButtonPressed();
+                    // Only proceed if there's content in the search bar
+                    if (!string.IsNullOrWhiteSpace(takeoutSearchBar.Text))
+                    {
+                        // Trigger the SearchButtonPressed event (same as OrderVisual pattern)
+                        takeoutSearchBar.OnSearchButtonPressed();
+                    }
                     e.Handled = true;
                 }
             }
