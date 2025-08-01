@@ -264,7 +264,7 @@ public partial class OrderSectionMainVisual : ContentPage
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             if (method != null)
             {
-                method.Invoke(listTableVisual, new object[] { this, EventArgs.Empty });
+                method.Invoke(listTableVisual, new object[] { });
             }
         } else if (RightPanel.Content is ListWaiterVisual listWaiterVisual)
         {
@@ -273,7 +273,7 @@ public partial class OrderSectionMainVisual : ContentPage
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             if (method != null)
             {
-                method.Invoke(listWaiterVisual, new object[] { this, EventArgs.Empty });
+                method.Invoke(listWaiterVisual, new object[] { });
             }
         }
     }
