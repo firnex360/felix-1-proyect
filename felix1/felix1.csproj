@@ -105,4 +105,12 @@
 	  <Folder Include="tempDBStorage\" />
 	</ItemGroup>
 
+    <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows' and '$(Configuration)' == 'Release'">
+        <AppxPackageSigningEnabled>true</AppxPackageSigningEnabled>
+        <PackageCertificateThumbprint>DE663039DA7EAD1B190A0B59CFD98BDB99AE2C0A</PackageCertificateThumbprint>
+    </PropertyGroup>
+    <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows' and '$(RuntimeIdentifierOverride)' != ''">
+        <RuntimeIdentifier>$(RuntimeIdentifierOverride)</RuntimeIdentifier>
+    </PropertyGroup>
+
 </Project>
