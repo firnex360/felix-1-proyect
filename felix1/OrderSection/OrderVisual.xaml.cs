@@ -96,7 +96,9 @@ public partial class OrderVisual : ContentPage
     private void LoadCashRegisterSettings()
     {
         var cashRegister = AppDbContext.ExecuteSafeAsync(async db =>
-            await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen))
+            await db.CashRegisters
+                .Include(c => c.Cashier)  // Include the Cashier relationship
+                .FirstOrDefaultAsync(c => c.IsOpen))
             .GetAwaiter().GetResult();
 
         _useSecondaryPrice = cashRegister?.IsSecPrice ?? false;
@@ -786,6 +788,7 @@ public partial class OrderVisual : ContentPage
                     .Include(o => o.Waiter)
                     .Include(o => o.Table)
                     .Include(o => o.CashRegister)
+                    .ThenInclude(c => c!.Cashier)
                     .FirstOrDefaultAsync(o => o.Id == _currentOrder.Id);
 
                 if (orderFromDb == null)
@@ -849,6 +852,11 @@ public partial class OrderVisual : ContentPage
 
                 PrintDate = DateTime.Now
             };
+
+            if (orderReceipt.Order!.Table!.IsTakeOut)
+            {
+                orderReceipt.Order.Waiter = orderReceipt.Order!.CashRegister!.Cashier;
+            }
 
             string templateText = File.ReadAllText(@"felix1\ReceiptTemplates\OrderTemplate.txt");
             var template = Template.Parse(templateText);
