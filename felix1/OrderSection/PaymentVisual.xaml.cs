@@ -52,11 +52,13 @@ namespace felix1.OrderSection
         private decimal _cardAmount;
         private decimal _transferAmount;
         private decimal _changeAmount;
+        private Order? _order;
+        private Transaction? _transaction;
         private List<Frame> _activePaymentFrames = new List<Frame>();
 
         private int _currentPaymentIndex = 0;
         private bool _isPaymentFocused = false;
-        private Entry _currentFocusedEntry;
+        private Entry? _currentFocusedEntry;
 
         public PaymentVisual(Order order)
         {
@@ -71,12 +73,12 @@ namespace felix1.OrderSection
 
             btnCancel.Focused += (s, e) => {
                 _isPaymentFocused = false;
-                _currentFocusedEntry = null;
+                _currentFocusedEntry = null!;
             };
 
             btnProcessPayment.Focused += (s, e) => {
                 _isPaymentFocused = false;
-                _currentFocusedEntry = null;
+                _currentFocusedEntry = null!;
             };
         }
 
@@ -186,7 +188,7 @@ namespace felix1.OrderSection
 
                 if (_currentFocusedEntry.Parent.Parent is Frame frame)
                 {
-                    string method = GetPaymentMethodName(frame);
+                    string? method = GetPaymentMethodName(frame);
                     switch (method)
                     {
                         case "Efectivo":
@@ -218,7 +220,7 @@ namespace felix1.OrderSection
                 if (_currentPaymentIndex >= ActivePaymentMethodsContainer.Children.Count)
                 {
                     _isPaymentFocused = false;
-                    _currentFocusedEntry = null;
+                    _currentFocusedEntry = null!;
                     btnCancel.Focus();
                     return;
                 }
@@ -423,7 +425,7 @@ namespace felix1.OrderSection
 
                 if (_currentFocusedEntry != null && _currentFocusedEntry == (layout.Children[1] as Entry))
                 {
-                    _currentFocusedEntry = null;
+                    _currentFocusedEntry = null!;
                     FocusFirstPaymentEntry();
                 }
             };
@@ -518,7 +520,7 @@ namespace felix1.OrderSection
 
                 if (_currentFocusedEntry != null && _currentFocusedEntry == (layout.Children[1] as Entry))
                 {
-                    _currentFocusedEntry = null;
+                    _currentFocusedEntry = null!;
                     FocusFirstPaymentEntry();
                 }
             };
@@ -771,6 +773,41 @@ namespace felix1.OrderSection
 #if WINDOWS
             try
             {
+
+                                var orderReceiptLocal = new OrderReceipt
+                {
+                    // Company Information (loaded from configuration/settings)
+                    CompanyName = Preferences.Get("CompanyName", "Sin nombre"),
+                    CompanyAddress = Preferences.Get("CompanyAddress", "Sin dirección"),
+                    CompanyPhone = Preferences.Get("CompanyPhone", "0"),
+                    CompanyRNC = Preferences.Get("CompanyRNC", "0"),
+
+                    // Order Information
+                    Order = _order,
+
+                    // Transaction Financial Information
+                    TotalAmount = 0,
+                    TaxAmountITBIS = 0,
+                    TaxAmountWaiters = 0,
+                    CashAmount = 0, // TODO: Set based on payment method
+                    CardAmount = 0, // TODO: Set based on payment method
+                    TransferAmount = 0, // TODO: Set based on payment method
+
+                    // Tax Percentages
+                    TaxRateITBIS = _taxRate, // Store the actual tax rate (e.g., 0.18 for 18%)
+                    TaxRateWaiters = _waiterTaxRate, // Store the actual waiter tax rate (e.g., 0.10 for 10%)
+
+                    PrintDate = DateTime.Now
+                };
+
+                // Create PaymentReceipt object with all necessary data
+                var paymentReceipt = new PaymentReceipt
+                {
+                    
+                    orderReceipt = orderReceiptLocal,
+                    transaction = _transaction,
+                    PrintDate = DateTime.Now
+                };
 
                 string templateText = File.ReadAllText(@"C:\Codes\github\felix-1-proyect\felix1\ReceiptTemplates\PaymentTemplate.txt");
                 var template = Template.Parse(templateText);
