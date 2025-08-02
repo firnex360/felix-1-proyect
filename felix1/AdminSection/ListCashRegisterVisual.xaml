@@ -7,36 +7,47 @@
              x:Class="felix1.ListCashRegisterVisual"
              NavigationPage.HasNavigationBar="False">
 
-    <Grid RowDefinitions="Auto,*" ColumnDefinitions="*" >
+    <Grid RowDefinitions="Auto,*">
 
-        <Frame
-            Grid.Row="0"
-            BackgroundColor="#F3F3F3"
-            CornerRadius="10"
-            Padding="0"
-            HasShadow="False"
-            VerticalOptions="Center"
-            HeightRequest="40"
-            HorizontalOptions="Start"
-            BorderColor="#FFE0E0E0"
-            WidthRequest="340"
-            Margin="20,10,20,0">
+        <HorizontalStackLayout Grid.Row="0"
+                               Spacing="20">
 
-            <SearchBar x:Name="searchBar"
-                       Placeholder="Buscar registros de caja..."
-                       TextChanged="OnSearchBarTextChanged"
-                       TextColor="#22223B"
-                       PlaceholderColor="#A0AEC0"
-                       BackgroundColor="Transparent"
-                       CancelButtonColor="#4F8FCB"
-                       FontSize="16"
-                       Margin="8,0"
-                       HeightRequest="40"
-                       HorizontalOptions="Fill"/>
-        </Frame>
+            <Frame
+                BackgroundColor="#F5F7FA"
+                CornerRadius="10"
+                Padding="0"
+                HasShadow="False"
+                VerticalOptions="Center"
+                HeightRequest="40"
+                BorderColor="#F5F7FA"
+                WidthRequest="340"
+                Margin="20,10,0,0">
 
-        <Frame Grid.Row="1" Grid.ColumnSpan="2" CornerRadius="10" Padding="0" HasShadow="True"
-       BackgroundColor="#F3F3F3" BorderColor="#FFE0E0E0" Margin="20,10,0,0">
+                <SearchBar x:Name="searchBar"
+                           Placeholder="Buscar cajas..."
+                           TextChanged="OnSearchBarTextChanged"
+                           TextColor="#22223B"
+                           PlaceholderColor="#A0AEC0"
+                           BackgroundColor="Transparent"
+                           CancelButtonColor="#005F8C"
+                           FontSize="16"
+                           Margin="8,0"
+                           HeightRequest="40"
+                           HorizontalOptions="Fill"/>
+            </Frame>
+
+        </HorizontalStackLayout>
+
+        <!-- Fullscreen DataGrid -->
+        <Frame Grid.Row="1"
+               CornerRadius="10"
+               Padding="0"
+               HasShadow="True"
+               BackgroundColor="#F3F3F3"
+               BorderColor="#F5F7FA"
+               Margin="20"
+               VerticalOptions="Fill"
+               HorizontalOptions="Start">
 
             <syncfusion:SfDataGrid x:Name="dataGrid"
                                    ItemsSource="{Binding CashRegisters}"
@@ -61,7 +72,7 @@
 
                     <syncfusion:DataGridNumericColumn
                         MappingName="Id"
-                        HeaderText="Código"
+                        HeaderText="Codigo"
                         Format="0000"
                         CellTextAlignment="Start"
                         HeaderTextAlignment="Start"
@@ -80,31 +91,51 @@
                         HeaderText="Fecha"
                         CellTextAlignment="Start"
                         HeaderTextAlignment="Start"
-                        ColumnWidthMode="FitByHeader"
+                        ColumnWidthMode="None"
+                        Width="180"
                         ValueBinding="{Binding TimeStarted, StringFormat='{0:dd/MM/yyyy HH:mm}'}"/>
 
                     <syncfusion:DataGridTextColumn
-                        MappingName="CashierName"
+                        MappingName="Cashier.Name"
                         HeaderText="Cajero"
                         CellTextAlignment="Start"
                         HeaderTextAlignment="Start"
                         ColumnWidthMode="FitByHeader"/>
 
-                    <syncfusion:DataGridTemplateColumn HeaderText="Acciones"
+                    <syncfusion:DataGridTemplateColumn HeaderText="Acción"
                                                        ColumnWidthMode="LastColumnFill">
                         <syncfusion:DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <HorizontalStackLayout Spacing="10"
                                                        HorizontalOptions="Center">
-                                    <Button
-                                        Text="Ver Detalles"
+                                    <ImageButton
+                                        Source="editing.png"
                                         CornerRadius="10"
                                         Padding="10"
-                                        BackgroundColor="#005F8C"
-                                        TextColor="White"
-                                        
+                                        WidthRequest="28"
+                                        HeightRequest="28"
+                                        BackgroundColor="#F3F3F3"
                                         Clicked="OnDetailsClicked"
-                                        VerticalOptions="Center"/>
+                                        VerticalOptions="Center">
+                                        <VisualStateManager.VisualStateGroups>
+                                            <VisualStateGroupList>
+                                                <VisualStateGroup x:Name="CommonStates">
+                                                    <VisualState x:Name="Normal">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="BackgroundColor"
+                                                                    Value="Transparent"/>
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                    <VisualState x:Name="PointerOver">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="BackgroundColor"
+                                                                    Value="#FFD6D7DA"/>
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                </VisualStateGroup>
+                                            </VisualStateGroupList>
+                                        </VisualStateManager.VisualStateGroups>
+                                    </ImageButton>
                                 </HorizontalStackLayout>
                             </DataTemplate>
                         </syncfusion:DataGridTemplateColumn.CellTemplate>

@@ -270,7 +270,7 @@ public partial class RefundVisual : ContentPage
             // Assign items to refund
             Refund.RefundedItems = RefundedItems.ToList();
 
-            await AppDbContext.ExecuteSafeAsync(async db =>
+            bool success = await AppDbContext.ExecuteSafeAsync(async db =>
             {
                 // Attach existing order and user
                 db.Orders.Attach(Refund.Order!);
@@ -285,26 +285,41 @@ public partial class RefundVisual : ContentPage
                 await db.Refunds.AddAsync(Refund);
                 await db.SaveChangesAsync();
 
-                // Create the transaction
+                // Create the transaction with negative amount
                 var transaction = new Transaction
                 {
                     Date = DateTime.Now,
-                    CashAmount = RefundTotal,
-                    TotalAmount = RefundTotal,
-                    Refund = Refund
+                    CashAmount = -RefundTotal,  // Negative amount for refund
+                    TotalAmount = -RefundTotal, // Negative amount for refund
+                    Refund = Refund,
+                    Order = null, // Explicitly set to null to ensure it's not related to original order
+                    CardAmount = 0,
+                    TransferAmount = 0,
+                    TaxAmountITBIS = 0,
+                    TaxAmountWaiters = 0
                 };
 
                 await db.Transactions.AddAsync(transaction);
                 await db.SaveChangesAsync();
+
+                return true;
             },
             async ex => await DisplayAlert("Error", "Ocurrió un error al guardar la devolución.", "OK"));
 
-            await DisplayAlert("Éxito", "La devolución fue procesada exitosamente.", "OK");
-
-            var window = this.GetParentWindow();
-            if (window != null)
+            if (success)
             {
-                Application.Current?.CloseWindow(window);
+
+                // Update the main order list after successful refund
+                if (ListTableVisual.Instance != null)
+                {
+                    ListTableVisual.Instance.ReloadTM();
+                }
+
+                var window = this.GetParentWindow();
+                if (window != null)
+                {
+                    Application.Current?.CloseWindow(window);
+                }
             }
         }
         finally

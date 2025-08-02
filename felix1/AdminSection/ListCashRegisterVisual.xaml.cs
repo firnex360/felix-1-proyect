@@ -24,7 +24,9 @@ public partial class ListCashRegisterVisual : ContentView
     private void LoadCashRegisters()
     {
         var registers = AppDbContext.ExecuteSafeAsync(async db =>
-            await db.CashRegisters.ToListAsync()).GetAwaiter().GetResult();
+            await db.CashRegisters
+                .Include(cr => cr.Cashier) 
+                .ToListAsync()).GetAwaiter().GetResult();
 
         CashRegisters.Clear();
         foreach (var reg in registers)
@@ -40,7 +42,7 @@ public partial class ListCashRegisterVisual : ContentView
 
     private void OnDetailsClicked(object sender, EventArgs e)
     {
-        if (sender is Button button && button.BindingContext is CashRegister cashRegister)
+        if (sender is ImageButton imageButton && imageButton.BindingContext is CashRegister cashRegister)
         {
             if (Application.Current?.MainPage is NavigationPage navPage &&
                 navPage.CurrentPage is AdminSectionMainVisual adminPage)

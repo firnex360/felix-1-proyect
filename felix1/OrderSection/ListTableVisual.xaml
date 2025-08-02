@@ -33,13 +33,14 @@
                     <VerticalStackLayout x:Name="TakeoutContainer" 
                                         Spacing="12"
                                         VerticalOptions="Fill">
-                        <Label
+                    <Label
                             Text="Takeout"
                             FontSize="18"
                             FontAttributes="Bold"
                             TextColor="Black"
                             HorizontalOptions="Center" />
-                        <VerticalStackLayout x:Name="TakeoutOrdersContainer"
+
+                    <VerticalStackLayout x:Name="TakeoutOrdersContainer"
                                             Spacing="5"
                                             VerticalOptions="Start" />
                     </VerticalStackLayout>

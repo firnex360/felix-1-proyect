@@ -9,84 +9,97 @@
     <ScrollView HorizontalScrollBarVisibility="Never" 
                VerticalScrollBarVisibility="Always"
                Orientation="Vertical">
-        <Grid RowDefinitions="Auto,Auto,Auto,Auto,*" 
+        <Grid RowDefinitions="Auto,Auto,Auto,*" 
              ColumnDefinitions="*" 
              Padding="20" 
              RowSpacing="10">
 
-            <!-- Sección de cabecera -->
-            <Frame Grid.Row="0" BackgroundColor="#005F8C" CornerRadius="10" Padding="15" HasShadow="True" BorderColor="#005F8C">
-                <Grid ColumnDefinitions="*,Auto">
-                    <VerticalStackLayout>
-                        <Label x:Name="orderNumberLabel" Text="Orden #0000" 
-                               TextColor="White" FontSize="20" FontAttributes="Bold"/>
-                        <Label x:Name="dateLabel" Text="Fecha: --/--/---- --:--" 
-                               TextColor="White" FontSize="14"/>
-                    </VerticalStackLayout>
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
+                <Label x:Name="orderNumberLabel" Text="Orden #0000" 
+           Grid.Row="0" Grid.Column="0"
+           TextColor="#005F8C" FontSize="20" FontAttributes="Bold"/>
 
-                    <Button Grid.Column="1" Text="Volver" 
-                            BackgroundColor="Transparent" TextColor="White"
-                            Clicked="OnBackButtonClicked"/>
+                <Label x:Name="dateLabel" Text="Fecha: --/--/---- --:--" 
+           Grid.Row="1" Grid.Column="0"
+           TextColor="#005F8C" FontSize="14"/>
+
+                <Grid Grid.Row="2" Grid.Column="0" ColumnDefinitions="Auto,Auto" ColumnSpacing="5">
+                    <Label Text="Mesa:" 
+               TextColor="#005F8C" FontAttributes="Bold"/>
+                    <Label x:Name="tableLabel" Grid.Column="1"
+               Text="-" TextColor="#005F8C"/>
                 </Grid>
-            </Frame>
 
-            <!-- Sección de información de la orden -->
-            <Frame Grid.Row="1" BackgroundColor="#F3F3F3" CornerRadius="10" Padding="15" HasShadow="False" BorderColor="#FFE0E0E0">
-                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto" >
-                    <Label Grid.Row="0" Grid.Column="0" Text="Mesa:" TextColor="#005F8C" FontAttributes="Bold"/>
-                    <Label x:Name="tableLabel" Grid.Row="0" Grid.Column="1" Text="-" TextColor="#005F8C"/>
-
-                    <Label Grid.Row="1" Grid.Column="0" Text="Mesero:" TextColor="#005F8C" FontAttributes="Bold"/>
-                    <Label x:Name="waiterLabel" Grid.Row="1" Grid.Column="1" Text="-" TextColor="#005F8C"/>
-
-                    <Label Grid.Row="2" Grid.Column="0" Text="Estado:" TextColor="#005F8C" FontAttributes="Bold"/>
-                    <Label x:Name="statusLabel" Grid.Row="2" Grid.Column="1" Text="-" TextColor="#005F8C"/>
-
-                    <Label Grid.Row="3" Grid.Column="0" Text="Descuento:" TextColor="#005F8C" FontAttributes="Bold"/>
-                    <Label x:Name="discountLabel" Grid.Row="3" Grid.Column="1" Text="$0.00" TextColor="#005F8C"/>
+                <Grid Grid.Row="3" Grid.Column="0" ColumnDefinitions="Auto,Auto" ColumnSpacing="5">
+                    <Label Text="Mesero:" 
+               TextColor="#005F8C" FontAttributes="Bold"/>
+                    <Label x:Name="waiterLabel" Grid.Column="1"
+               Text="-" TextColor="#005F8C"/>
                 </Grid>
-            </Frame>
 
-            <!-- Sección de items de la orden -->
-            <Frame Grid.Row="2" CornerRadius="10" Padding="0" HasShadow="True"
-                   BackgroundColor="#F3F3F3" BorderColor="#FFE0E0E0">
+                <Grid Grid.Row="4" Grid.Column="0" ColumnDefinitions="Auto,Auto" ColumnSpacing="5">
+                    <Label Text="Estado:" 
+               TextColor="#005F8C" FontAttributes="Bold"/>
+                    <Label x:Name="statusLabel" Grid.Column="1"
+               Text="-" TextColor="#005F8C"/>
+                </Grid>
 
-                <syncfusion:SfDataGrid x:Name="itemsGrid" ItemsSource="{Binding OrderItems}"
-                                      VerticalOptions="Fill" HorizontalOptions="Fill"
-                                      HeaderRowHeight="50" AutoGenerateColumnsMode="None"
-                                      RowHeight="50" SelectionMode="None">
+                <Grid Grid.Row="5" Grid.Column="0" ColumnDefinitions="Auto,Auto" ColumnSpacing="5">
+                    <Label Text="Descuento:" 
+               TextColor="#005F8C" FontAttributes="Bold"/>
+                    <Label x:Name="discountLabel" Grid.Column="1"
+               Text="$0.00" TextColor="#005F8C"/>
+                </Grid>
 
-                    <syncfusion:SfDataGrid.DefaultStyle>
-                        <syncfusion:DataGridStyle HeaderRowBackground="#005F8C"
-                                                HeaderRowTextColor="#F3F3F3"
-                                                RowTextColor="#005F8C"/>
-                    </syncfusion:SfDataGrid.DefaultStyle>
+                <Button Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" 
+            Text="Volver" BackgroundColor="#005F8C" 
+            TextColor="#ffffff" Clicked="OnBackButtonClicked"
+            VerticalOptions="Start"/>
+            </Grid>
 
-                    <syncfusion:SfDataGrid.Columns>
-                        <syncfusion:DataGridTextColumn MappingName="ArticleName" HeaderText="Artículo"
-                                      ColumnWidthMode="Fill"/>
 
-                        <syncfusion:DataGridNumericColumn MappingName="Quantity" HeaderText="Cantidad"
-                                        CellTextAlignment="Center"
-                                        ColumnWidthMode="FitByHeader"
-                                        Width="150"/>
+            <VerticalStackLayout Grid.Row="1" Spacing="10">
+                <Label Text="Listado Final" FontSize="18" TextColor="#005F8C" FontAttributes="Bold"/>
+                <Frame CornerRadius="10" Padding="0" HasShadow="True"
+                       BackgroundColor="#F3F3F3" BorderColor="#FFE0E0E0">
 
-                        <syncfusion:DataGridTextColumn MappingName="UnitPrice" HeaderText="Precio Unit."
-                                         CellTextAlignment="End"
-                                         ValueBinding="{Binding UnitPrice, StringFormat='{0:C}'}"
-                                         ColumnWidthMode="FitByHeader"
-                                         Width="120"/>
+                    <syncfusion:SfDataGrid x:Name="itemsGrid" ItemsSource="{Binding OrderItems}"
+                                          VerticalOptions="Fill" HorizontalOptions="Fill"
+                                          HeaderRowHeight="50" AutoGenerateColumnsMode="None"
+                                          RowHeight="50" SelectionMode="None">
 
-                        <syncfusion:DataGridTextColumn MappingName="TotalPrice" HeaderText="Total"
-                                         CellTextAlignment="End"
-                                         ValueBinding="{Binding TotalPrice, StringFormat='{0:C}'}"
-                                         ColumnWidthMode="FitByHeader"
-                                         Width="120"/>
-                    </syncfusion:SfDataGrid.Columns>
-                </syncfusion:SfDataGrid>
-            </Frame>
+                        <syncfusion:SfDataGrid.DefaultStyle>
+                            <syncfusion:DataGridStyle HeaderRowBackground="#005F8C"
+                                                    HeaderRowTextColor="#F3F3F3"
+                                                    RowTextColor="#005F8C"/>
+                        </syncfusion:SfDataGrid.DefaultStyle>
 
-            <VerticalStackLayout Grid.Row="3" Spacing="10">
+                        <syncfusion:SfDataGrid.Columns>
+                            <syncfusion:DataGridTextColumn MappingName="ArticleName" HeaderText="Artículo"
+                                          ColumnWidthMode="Fill"/>
+
+                            <syncfusion:DataGridNumericColumn MappingName="Quantity" HeaderText="Cantidad"
+                                            CellTextAlignment="Center"
+                                            ColumnWidthMode="FitByHeader"
+                                            Width="150"/>
+
+                            <syncfusion:DataGridTextColumn MappingName="UnitPrice" HeaderText="Precio Unit."
+                                             CellTextAlignment="Start"
+                                             ValueBinding="{Binding UnitPrice, StringFormat='{0:C}'}"
+                                             ColumnWidthMode="FitByHeader"
+                                             Width="120"/>
+
+                            <syncfusion:DataGridTextColumn MappingName="TotalPrice" HeaderText="Total"
+                                             CellTextAlignment="Start"
+                                             ValueBinding="{Binding TotalPrice, StringFormat='{0:C}'}"
+                                             ColumnWidthMode="FitByHeader"
+                                             Width="120"/>
+                        </syncfusion:SfDataGrid.Columns>
+                    </syncfusion:SfDataGrid>
+                </Frame>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Grid.Row="2" Spacing="10">
                 <!-- Sección de transacción -->
                 <Frame x:Name="transactionSection" CornerRadius="10" Padding="15" HasShadow="True"
                        BackgroundColor="#F3F3F3" BorderColor="#FFE0E0E0" IsVisible="False">
@@ -98,52 +111,50 @@
                         <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
                             <Label Grid.Row="0" Grid.Column="0" Text="Total:" TextColor="#005F8C" FontAttributes="Bold"/>
                             <Label x:Name="totalAmountLabel" Grid.Row="0" Grid.Column="1" Text="$0.00" 
-                                   TextColor="#005F8C" HorizontalOptions="End"/>
+                                   TextColor="#005F8C" HorizontalOptions="Start"/>
 
                             <Label Grid.Row="1" Grid.Column="0" Text="ITBIS:" TextColor="#005F8C" FontAttributes="Bold"/>
                             <Label x:Name="itbisLabel" Grid.Row="1" Grid.Column="1" Text="$0.00" 
-                                   TextColor="#005F8C" HorizontalOptions="End"/>
+                                   TextColor="#005F8C" HorizontalOptions="Start"/>
 
                             <Label Grid.Row="2" Grid.Column="0" Text="Propina:" TextColor="#005F8C" FontAttributes="Bold"/>
                             <Label x:Name="tipLabel" Grid.Row="2" Grid.Column="1" Text="$0.00" 
-                                   TextColor="#005F8C" HorizontalOptions="End"/>
+                                   TextColor="#005F8C" HorizontalOptions="Start"/>
 
                             <Label Grid.Row="3" Grid.Column="0" Text="Efectivo:" TextColor="#005F8C" FontAttributes="Bold"/>
                             <Label x:Name="cashLabel" Grid.Row="3" Grid.Column="1" Text="$0.00" 
-                                   TextColor="#005F8C" HorizontalOptions="End"/>
+                                   TextColor="#005F8C" HorizontalOptions="Start"/>
 
                             <Label Grid.Row="4" Grid.Column="0" Text="Tarjeta:" TextColor="#005F8C" FontAttributes="Bold"/>
                             <Label x:Name="cardLabel" Grid.Row="4" Grid.Column="1" Text="$0.00" 
-                                   TextColor="#005F8C" HorizontalOptions="End"/>
+                                   TextColor="#005F8C" HorizontalOptions="Start"/>
 
                             <Label Grid.Row="5" Grid.Column="0" Text="Transferencia:" TextColor="#005F8C" FontAttributes="Bold"/>
                             <Label x:Name="transferLabel" Grid.Row="5" Grid.Column="1" Text="$0.00" 
-                                   TextColor="#005F8C" HorizontalOptions="End"/>
+                                   TextColor="#005F8C" HorizontalOptions="Start"/>
                         </Grid>
                     </StackLayout>
                 </Frame>
 
                 <!-- Sección de reembolso -->
-                <Frame x:Name="refundSection" CornerRadius="10" Padding="15" HasShadow="True"
-                       BackgroundColor="#F3F3F3" BorderColor="#FFE0E0E0" IsVisible="False">
-                    <StackLayout>
-                        <Label Text="Información de Reembolso" FontSize="18" TextColor="#005F8C" FontAttributes="Bold"/>
+                <VerticalStackLayout x:Name="refundSection" Spacing="5" IsVisible="False">
+                    <Label Text="Información de Reembolso" FontSize="18" TextColor="#005F8C" FontAttributes="Bold"/>
 
-                        <BoxView HeightRequest="1" Color="#005F8C" Margin="0,5,0,10"/>
+                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Motivo:" TextColor="#005F8C" FontAttributes="Bold"/>
+                        <Label x:Name="refundReasonLabel" Grid.Row="0" Grid.Column="1" Text="-" TextColor="#005F8C"/>
 
-                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto">
-                            <Label Grid.Row="0" Grid.Column="0" Text="Motivo:" TextColor="#005F8C" FontAttributes="Bold"/>
-                            <Label x:Name="refundReasonLabel" Grid.Row="0" Grid.Column="1" Text="-" TextColor="#005F8C"/>
+                        <Label Grid.Row="1" Grid.Column="0" Text="Fecha:" TextColor="#005F8C" FontAttributes="Bold"/>
+                        <Label x:Name="refundDateLabel" Grid.Row="1" Grid.Column="1" Text="-" TextColor="#005F8C"/>
+                    </Grid>
 
-                            <Label Grid.Row="1" Grid.Column="0" Text="Fecha:" TextColor="#005F8C" FontAttributes="Bold"/>
-                            <Label x:Name="refundDateLabel" Grid.Row="1" Grid.Column="1" Text="-" TextColor="#005F8C"/>
-                        </Grid>
-
+                    <Label Text="Listado Original" FontSize="18" TextColor="#005F8C" FontAttributes="Bold" Margin="0,10,0,0"/>
+                    <Frame CornerRadius="10" Padding="0" HasShadow="True"
+                           BackgroundColor="#F3F3F3" BorderColor="#FFE0E0E0">
                         <syncfusion:SfDataGrid x:Name="refundItemsGrid" ItemsSource="{Binding RefundedItems}"
                                             VerticalOptions="Fill" HorizontalOptions="Fill"
                                             HeaderRowHeight="40" AutoGenerateColumnsMode="None"
-                                            RowHeight="40" SelectionMode="None"
-                                            Margin="0,10,0,0">
+                                            RowHeight="40" SelectionMode="None">
 
                             <syncfusion:SfDataGrid.DefaultStyle>
                                 <syncfusion:DataGridStyle HeaderRowBackground="#005F8C"
@@ -156,51 +167,26 @@
                                               ColumnWidthMode="Fill"/>
 
                                 <syncfusion:DataGridNumericColumn MappingName="Quantity" HeaderText="Cantidad"
-                                                CellTextAlignment="Center"
+                                                CellTextAlignment="Start"
                                                 ColumnWidthMode="FitByHeader"
                                                 Width="100"/>
 
                                 <syncfusion:DataGridTextColumn MappingName="UnitPrice" HeaderText="Precio Unit."
-                                                 CellTextAlignment="End"
+                                                 CellTextAlignment="Start"
                                                  ValueBinding="{Binding UnitPrice, StringFormat='{0:C}'}"
                                                  ColumnWidthMode="FitByHeader"
                                                  Width="140"/>
                             </syncfusion:SfDataGrid.Columns>
                         </syncfusion:SfDataGrid>
-                    </StackLayout>
-                </Frame>
+                    </Frame>
 
-                <!-- Sección de diferencias -->
-                <Frame x:Name="differenceSection" CornerRadius="10" Padding="15" HasShadow="True"
-                       BackgroundColor="#F3F3F3" BorderColor="#FFE0E0E0" IsVisible="False">
-                    <StackLayout>
-                        <Label Text="Diferencias después del Reembolso" FontSize="18" TextColor="#005F8C" FontAttributes="Bold"/>
-
-                        <BoxView HeightRequest="1" Color="#005F8C" Margin="0,5,0,10"/>
-
-                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto">
-                            <Label Grid.Row="0" Grid.Column="0" Text="Total Original:" TextColor="#005F8C" FontAttributes="Bold"/>
-                            <Label x:Name="originalTotalLabel" Grid.Row="0" Grid.Column="1" Text="$0.00" 
-                                   TextColor="#005F8C" HorizontalOptions="End"/>
-
-                            <Label Grid.Row="1" Grid.Column="0" Text="Total Reembolsado:" TextColor="#005F8C" FontAttributes="Bold"/>
-                            <Label x:Name="refundedTotalLabel" Grid.Row="1" Grid.Column="1" Text="$0.00" 
-                                   TextColor="#005F8C" HorizontalOptions="End"/>
-
-                            <Label Grid.Row="2" Grid.Column="0" Text="Nuevo Total:" TextColor="#005F8C" FontAttributes="Bold"/>
-                            <Label x:Name="newTotalLabel" Grid.Row="2" Grid.Column="1" Text="$0.00" 
-                                   TextColor="#005F8C" HorizontalOptions="End" FontAttributes="Bold"/>
-
-                            <Label Grid.Row="3" Grid.Column="0" Text="Diferencia:" TextColor="#005F8C" FontAttributes="Bold"/>
-                            <Label x:Name="differenceLabel" Grid.Row="3" Grid.Column="1" Text="$0.00" 
-                                   TextColor="#005F8C" HorizontalOptions="End" FontAttributes="Bold"/>
-                        </Grid>
-
+                    <Label Text="Listado Reembolsado" FontSize="18" TextColor="#005F8C" FontAttributes="Bold" Margin="0,10,0,0"/>
+                    <Frame CornerRadius="10" Padding="0" HasShadow="True"
+                           BackgroundColor="#F3F3F3" BorderColor="#FFE0E0E0">
                         <syncfusion:SfDataGrid x:Name="differenceItemsGrid" ItemsSource="{Binding DifferenceItems}"
                                             VerticalOptions="Fill" HorizontalOptions="Fill"
                                             HeaderRowHeight="40" AutoGenerateColumnsMode="None"
-                                            RowHeight="40" SelectionMode="None"
-                                            Margin="0,10,0,0">
+                                            RowHeight="40" SelectionMode="None">
 
                             <syncfusion:SfDataGrid.DefaultStyle>
                                 <syncfusion:DataGridStyle HeaderRowBackground="#005F8C"
@@ -212,30 +198,47 @@
                                 <syncfusion:DataGridTextColumn MappingName="ArticleName" HeaderText="Artículo" 
                                               ColumnWidthMode="Fill"/>
 
-                                <syncfusion:DataGridNumericColumn MappingName="OriginalQuantity" HeaderText="Cant. Original"
+                                <syncfusion:DataGridNumericColumn MappingName="OriginalQuantity" HeaderText="Cantidad Original"
                                                 CellTextAlignment="Center"
                                                 ColumnWidthMode="FitByHeader"
-                                                Width="100"/>
+                                                Width="200"/>
 
-                                <syncfusion:DataGridNumericColumn MappingName="RefundedQuantity" HeaderText="Cant. Reemb."
+                                <syncfusion:DataGridNumericColumn MappingName="RefundedQuantity" HeaderText="Cantidad Reembolsada"
                                                 CellTextAlignment="Center"
                                                 ColumnWidthMode="FitByHeader"
-                                                Width="100"/>
+                                                Width="200"/>
 
-                                <syncfusion:DataGridNumericColumn MappingName="NewQuantity" HeaderText="Cant. Final"
+                                <syncfusion:DataGridNumericColumn MappingName="NewQuantity" HeaderText="Cantidad Final"
                                                 CellTextAlignment="Center"
                                                 ColumnWidthMode="FitByHeader"
-                                                Width="100"/>
-
-                                <syncfusion:DataGridTextColumn MappingName="Difference" HeaderText="Diferencia"
-                                                 CellTextAlignment="End"
-                                                 ValueBinding="{Binding Difference, StringFormat='{0:C}'}"
-                                                 ColumnWidthMode="FitByHeader"
-                                                 Width="120"/>
+                                                Width="200"/>
                             </syncfusion:SfDataGrid.Columns>
                         </syncfusion:SfDataGrid>
-                    </StackLayout>
-                </Frame>
+                    </Frame>
+                </VerticalStackLayout>
+
+                <!-- Sección de diferencias -->
+                <VerticalStackLayout x:Name="differenceSection" Spacing="5" IsVisible="False">
+                    <Label Text="Diferencias después del Reembolso" FontSize="18" TextColor="#005F8C" FontAttributes="Bold"/>
+
+                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Total Original:" TextColor="#005F8C" FontAttributes="Bold"/>
+                        <Label x:Name="originalTotalLabel" Grid.Row="0" Grid.Column="1" Text="$0.00" 
+                               TextColor="#005F8C" HorizontalOptions="Start"/>
+
+                        <Label Grid.Row="1" Grid.Column="0" Text="Total Reembolsado:" TextColor="#005F8C" FontAttributes="Bold"/>
+                        <Label x:Name="refundedTotalLabel" Grid.Row="1" Grid.Column="1" Text="$0.00" 
+                               TextColor="#005F8C" HorizontalOptions="Start"/>
+
+                        <Label Grid.Row="2" Grid.Column="0" Text="Nuevo Total:" TextColor="#005F8C" FontAttributes="Bold"/>
+                        <Label x:Name="newTotalLabel" Grid.Row="2" Grid.Column="1" Text="$0.00" 
+                               TextColor="#005F8C" HorizontalOptions="Start" FontAttributes="Bold"/>
+
+                        <Label Grid.Row="3" Grid.Column="0" Text="Diferencia:" TextColor="#005F8C" FontAttributes="Bold"/>
+                        <Label x:Name="differenceLabel" Grid.Row="3" Grid.Column="1" Text="$0.00" 
+                               TextColor="#005F8C" HorizontalOptions="Start" FontAttributes="Bold"/>
+                    </Grid>
+                </VerticalStackLayout>
             </VerticalStackLayout>
         </Grid>
     </ScrollView>
