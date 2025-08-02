@@ -25,14 +25,14 @@ public partial class Configuration : ContentView
         var rncStr = Preferences.Get("CompanyRNC", "0");
         txtRNC.Value = double.TryParse(rncStr, out double rnc) ? rnc : 0;
         
-        var taxStr = Preferences.Get("TaxRate", "18");
-        txtTax.Value = double.TryParse(taxStr, out double tax) ? tax : 18;
+        var taxStr = Preferences.Get("TaxRate", "0");
+        txtTax.Value = double.TryParse(taxStr, out double tax) ? tax : 0;
         
         var deliveryTaxStr = Preferences.Get("DeliveryTaxRate", "0");
         txtDeliveryTax.Value = double.TryParse(deliveryTaxStr, out double deliveryTax) ? deliveryTax : 0;
         
-        var waiterTaxStr = Preferences.Get("WaiterTaxRate", "10");
-        txtWaiterTax.Value = double.TryParse(waiterTaxStr, out double waiterTax) ? waiterTax : 10;
+        var waiterTaxStr = Preferences.Get("WaiterTaxRate", "0");
+        txtWaiterTax.Value = double.TryParse(waiterTaxStr, out double waiterTax) ? waiterTax : 0;
         
         txtComment.Text = Preferences.Get("InvoiceComment", "GRACIAS POR PREFERIRNOS");
     }
