@@ -261,6 +261,24 @@
                     <!-- Tax -->
                     <Label Grid.Row="1"
                            Grid.Column="0"
+                           x:Name="taxDeliveryLabelTitle"
+                           Text=""
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           VerticalOptions="Center"
+                           TextColor="Black"/>
+
+                    <Label Grid.Row="1"
+                           Grid.Column="1"
+                           x:Name="taxDeliveryLabel"
+                           Text="$0.00"
+                           FontSize="14"
+                           HorizontalTextAlignment="End"
+                           VerticalOptions="Center"
+                           TextColor="Black"/>
+
+                    <Label Grid.Row="1"
+                           Grid.Column="0"
                            x:Name="taxLabelTitle"
                            Text=""
                            FontSize="14"

@@ -30,6 +30,7 @@ public partial class OrderVisual : ContentPage
     // Tax rates from configuration
     private decimal _taxRate = 0.0m;
     private decimal _waiterTaxRate = 0.0m;
+    private decimal _deliveryTaxRate = 0.0m;
     private decimal _discountAmount = 0m;
 
     private bool _isSearchBarFocused = false;
@@ -91,6 +92,7 @@ public partial class OrderVisual : ContentPage
         // Load tax rates from preferences (convert from percentage to decimal)
         _taxRate = decimal.Parse(Preferences.Get("TaxRate", "18")) / 100m;
         _waiterTaxRate = decimal.Parse(Preferences.Get("WaiterTaxRate", "10")) / 100m;
+        _deliveryTaxRate = decimal.Parse(Preferences.Get("DeliveryTaxRate", "0")) / 100m;
     }
 
     private void LoadCashRegisterSettings()
@@ -771,9 +773,16 @@ public partial class OrderVisual : ContentPage
             await DisplayAlert("Cantidad invalida", "No se puede guardar una orden con cantidades negativas.", "OK");
             return;
         }
+        decimal orderTotal = 0;
 
         //Validar si la orden tiene un descuento mayor al total de la orden, lit quien sería tan tontito de hacer eso?
-        decimal orderTotal = CalculateSubtotal() + CalculateTax(CalculateSubtotal()) + CalculateWaiterTax(CalculateSubtotal());
+        if (!_currentOrder.Table.IsTakeOut)
+        {
+            orderTotal = CalculateSubtotal() + CalculateTax(CalculateSubtotal()) + CalculateWaiterTax(CalculateSubtotal());
+        } else {
+            orderTotal = CalculateSubtotal() + CalculateDeliveryTax(CalculateSubtotal());
+        }
+
         if (_discountAmount > orderTotal)
         {
             await DisplayAlert("Descuento inválido",
@@ -946,15 +955,43 @@ public partial class OrderVisual : ContentPage
         decimal subtotal = CalculateSubtotal();
         decimal tax = CalculateTax(subtotal);
         decimal waiterTax = CalculateWaiterTax(subtotal);
-        decimal total = subtotal + tax + waiterTax - _discountAmount;
+        decimal deliveryTax = CalculateDeliveryTax(subtotal);
+        decimal total = 0;
+        if (_currentOrder.Table.IsTakeOut)
+            total = subtotal + deliveryTax - _discountAmount;
+        else
+            total = subtotal + tax + waiterTax - _discountAmount;
 
         MainThread.BeginInvokeOnMainThread(() =>
         {
             subtotalLabel.Text = subtotal.ToString("C2");
-            taxLabelTitle.Text = $"Impuestos (ITBIS) ({_taxRate:P0}):";
-            taxLabel.Text = $"{tax:C2}";
-            taxWaiterLabelTitle.Text = $"Propina Mesero ({_waiterTaxRate:P0}):";
-            taxWaiterLabel.Text = $"{waiterTax:C2}";
+            if (_currentOrder.Table.IsTakeOut)
+            {
+                taxDeliveryLabelTitle.Text = $"Impuesto de Entrega ({_deliveryTaxRate:P0}):";
+                taxDeliveryLabel.Text = $"{deliveryTax:C2}";
+
+                taxDeliveryLabelTitle.IsVisible = true;
+                taxDeliveryLabel.IsVisible = true;
+                taxLabelTitle.IsVisible = false;
+                taxLabel.IsVisible = false;
+                taxWaiterLabelTitle.IsVisible = false;
+                taxWaiterLabel.IsVisible = false;
+            }
+            else
+            {
+                taxLabelTitle.Text = $"Impuestos (ITBIS) ({_taxRate:P0}):";
+                taxLabel.Text = $"{tax:C2}";
+                taxWaiterLabelTitle.Text = $"Propina Mesero ({_waiterTaxRate:P0}):";
+                taxWaiterLabel.Text = $"{waiterTax:C2}";
+
+                taxDeliveryLabelTitle.IsVisible = false;
+                taxDeliveryLabel.IsVisible = false;
+                taxLabelTitle.IsVisible = true;
+                taxLabel.IsVisible = true;
+                taxWaiterLabelTitle.IsVisible = true;
+                taxWaiterLabel.IsVisible = true;
+            }
+
             totalLabel.Text = total.ToString("C2");
         });
     }
@@ -964,6 +1001,10 @@ public partial class OrderVisual : ContentPage
         return OrderItems.Sum(item => item.TotalPrice);
     }
 
+    private decimal CalculateDeliveryTax(decimal subtotal)
+    {
+        return subtotal * _deliveryTaxRate;
+    }
     private decimal CalculateTax(decimal subtotal)
     {
         return subtotal * _taxRate;
