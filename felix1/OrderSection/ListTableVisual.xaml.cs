@@ -237,7 +237,7 @@ public partial class ListTableVisual : ContentView
         var taxRate = decimal.Parse(Preferences.Get("TaxRate", "18")) / 100m * subtotal;
         var waiterTaxRate = decimal.Parse(Preferences.Get("WaiterTaxRate", "10")) / 100m * subtotal;
 
-        return subtotal + waiterTaxRate + taxRate;
+        return subtotal + waiterTaxRate + taxRate - order.Discount;
     }
 
     private async void RefundVisual(Order order)
