@@ -1,18 +1,13 @@
 ═════════════════════════════════════════
-
             {{ transaction.orderReceipt.CompanyName }}
          {{ transaction.orderReceipt.CompanyAddress }}
           Tel: {{ transaction.orderReceipt.CompanyPhone }}
           RNC: {{ transaction.orderReceipt.CompanyRNC }}
 ═════════════════════════════════════════
-
-      COMPROBANTE DE PAGO
-
 Mesa: {{ transaction.orderReceipt.Order.Table.LocalNumber }} [{{ transaction.orderReceipt.Order.Table.GlobalNumber }}]
 Orden: #{{ transaction.orderReceipt.Order.OrderNumber }}
 Fecha: {{ transaction.PrintDate | date.to_string "%d/%m/%Y %H:%M" }}
 Mesero: {{ transaction.orderReceipt.Order.Waiter.Name }}
-
 ═══════════════════════════════════════════════
 {{- if transaction.orderReceipt.Order.Table.IsTakeOut }}
           *** PARA LLEVAR ***
@@ -21,26 +16,25 @@ Mesero: {{ transaction.orderReceipt.Order.Waiter.Name }}
 Artículos:
 {{ for item in transaction.orderReceipt.Order.Items }}
 {{ item.Article.Name }} 
-{{ ("- " + item.Quantity + " x " + (item.UnitPrice | math.format "c" "en-US")) | string.pad_right 20 }}{{ item.TotalPrice | math.format "c" "en-US"}}
-{{ end }}
+{{ ("- " + item.Quantity + " x " + (item.UnitPrice | math.format "c" "en-US")) | string.pad_right 21 }}{{ item.TotalPrice | math.format "c" "en-US"}}{{ end }}
 ═══════════════════════════════════════════════
-{{ "Subtotal:" | string.pad_right 14 }}{{ (transaction.transaction.TotalAmount - transaction.transaction.TaxAmountITBIS - transaction.transaction.TaxAmountWaiters + transaction.orderReceipt.Order.Discount) | math.format "c" "en-US" | string.pad_left 14 }}
+{{ "Subtotal:" | string.pad_right 21 }}{{ (transaction.transaction.TotalAmount - transaction.transaction.TaxAmountITBIS - transaction.transaction.TaxAmountWaiters + transaction.orderReceipt.Order.Discount) | math.format "c" "en-US"}}
 {{ if transaction.orderReceipt.Order.Discount > 0 }}
-{{ "Descuento:" | string.pad_right 14 }}{{ transaction.orderReceipt.Order.Discount | math.format "c" "en-US" | string.prepend "-" | string.pad_left 14 }}
+{{ "Descuento:" | string.pad_right 21 }}{{ transaction.orderReceipt.Order.Discount | math.format "c" "en-US" | string.prepend "-"}}
 {{end}}
-{{ ("ITBIS (" + (transaction.orderReceipt.TaxRateITBIS | math.times 100 | math.format "0") + "%):") | string.pad_right 14 }}{{ transaction.transaction.TaxAmountITBIS | math.format "c" "en-US" | string.pad_left 14 }}
-{{ ("Propina (" + (transaction.orderReceipt.TaxRateWaiters | math.times 100 | math.format "0") + "%):") | string.pad_right 14 }}{{ transaction.transaction.TaxAmountWaiters | math.format "c" "en-US" | string.pad_left 14 }}
+{{ ("ITBIS (" + (transaction.orderReceipt.TaxRateITBIS | math.times 100 | math.format "0") + "%):") | string.pad_right 21 }}{{ transaction.transaction.TaxAmountITBIS | math.format "c" "en-US" }}
+{{ ("Propina (" + (transaction.orderReceipt.TaxRateWaiters | math.times 100 | math.format "0") + "%):") | string.pad_right 21 }}{{ transaction.transaction.TaxAmountWaiters | math.format "c" "en-US"}}
 ───────────────────────────────────────────────
-{{ "TOTAL:"}}{{ transaction.transaction.TotalAmount | math.format "c" "en-US" | string.pad_left 24 }}
+{{ "TOTAL:" | string.pad_right 21 }}{{ transaction.transaction.TotalAmount | math.format "c" "en-US"}}
 ═══════════════════════════════════════════════
 
 MÉTODOS DE PAGO:
-{{ if transaction.transaction.CashAmount > 0 }}{{ "Efectivo:"}}{{ transaction.transaction.CashAmount | math.format "c" "en-US" | string.pad_left 14 }}{{ end }}
-{{ if transaction.transaction.CardAmount > 0 }}{{ "Tarjeta:"}}{{ transaction.transaction.CardAmount | math.format "c" "en-US" | string.pad_left 14 }}{{ end }}
-{{ if transaction.transaction.TransferAmount > 0 }}{{ "Transferencia:"}}{{ transaction.transaction.TransferAmount | math.format "c" "en-US" | string.pad_left 14 }}{{ end }}
+{{ if transaction.transaction.CashAmount > 0 }}{{ "Efectivo:"  | string.pad_right 21 }}{{ transaction.transaction.CashAmount | math.format "c" "en-US"}}{{ end }}
+{{ if transaction.transaction.CardAmount > 0 }}{{ "Tarjeta:" | string.pad_right 21 }}{{ transaction.transaction.CardAmount | math.format "c" "en-US" }}{{ end }}
+{{ if transaction.transaction.TransferAmount > 0 }}{{ "Transferencia:" | string.pad_right 21 }}{{ transaction.transaction.TransferAmount | math.format "c" "en-US"}}{{ end }}
 {{ if (transaction.transaction.CashAmount + transaction.transaction.CardAmount + transaction.transaction.TransferAmount) > transaction.transaction.TotalAmount }}
 ───────────────────────────────────────────────
-{{ "Devuelta:" | string.pad_right 18 }}{{ ((transaction.transaction.CashAmount + transaction.transaction.CardAmount + transaction.transaction.TransferAmount) - transaction.transaction.TotalAmount) | math.format "c" "en-US" | string.pad_left 14 }}
+{{ "Devuelta:" | string.pad_right 21 }}{{ ((transaction.transaction.CashAmount + transaction.transaction.CardAmount + transaction.transaction.TransferAmount) - transaction.transaction.TotalAmount) | math.format "c" "en-US"}}
 {{ end }}
 ═══════════════════════════════════════════════
 

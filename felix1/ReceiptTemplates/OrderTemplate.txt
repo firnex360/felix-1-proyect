@@ -1,16 +1,13 @@
 ═════════════════════════════════════════
-
             {{ receipt.CompanyName }}
          {{ receipt.CompanyAddress }}
           Tel: {{ receipt.CompanyPhone }}
           RNC: {{ receipt.CompanyRNC }}
 ═════════════════════════════════════════
-
 Mesa: {{ receipt.Order.Table.LocalNumber }} [{{ receipt.Order.Table.GlobalNumber }}]
 Orden: #{{ receipt.Order.OrderNumber }}
 Fecha: {{ receipt.PrintDate | date.to_string "%d/%m/%Y %H:%M" }}
 Mesero: {{ receipt.Order.Waiter.Name }}
-
 ═══════════════════════════════════════════════
 {{- if receipt.Order.Table.IsTakeOut }}
           *** PARA LLEVAR ***
@@ -22,20 +19,18 @@ Artículos:
 {{ ("- " + item.Quantity + " x " + (item.UnitPrice | math.format "c" "en-US")) | string.pad_right 23 }}{{ item.TotalPrice | math.format "c" "en-US"}}
 {{ end }}
 ═══════════════════════════════════════════════
-{{ "Subtotal:" | string.pad_right 18 }}{{ (receipt.TotalAmount - receipt.TaxAmountITBIS - receipt.TaxAmountWaiters + receipt.Order.Discount) | math.format "c" "en-US" | string.pad_left 14 }}
+{{ "Subtotal:" | string.pad_right 23 }}{{ (receipt.TotalAmount - receipt.TaxAmountITBIS - receipt.TaxAmountWaiters + receipt.Order.Discount) | math.format "c" "en-US" }}
 {{ if receipt.Order.Discount > 0 }}
-{{ "Descuento:" | string.pad_right 18 }}{{ receipt.Order.Discount | math.format "c" "en-US" | string.prepend "-" | string.pad_left 14 }}
+{{ "Descuento:" | string.pad_right 23 }}{{ receipt.Order.Discount | math.format "c" "en-US" | string.prepend "-" }}
 {{end}}
-{{ ("ITBIS (" + (receipt.TaxRateITBIS | math.times 100 | math.format "0") + "%):") | string.pad_right 18 }}{{ receipt.TaxAmountITBIS | math.format "c" "en-US" | string.pad_left 14 }}
-{{ ("Propina (" + (receipt.TaxRateWaiters | math.times 100 | math.format "0") + "%):") | string.pad_right 18 }}{{ receipt.TaxAmountWaiters | math.format "c" "en-US" | string.pad_left 14 }}
+{{ ("ITBIS (" + (receipt.TaxRateITBIS | math.times 100 | math.format "0") + "%):") | string.pad_right 23 }}{{ receipt.TaxAmountITBIS | math.format "c" "en-US" }}
+{{ ("Propina (" + (receipt.TaxRateWaiters | math.times 100 | math.format "0") + "%):") | string.pad_right 23 }}{{ receipt.TaxAmountWaiters | math.format "c" "en-US" }}
 ───────────────────────────────────────────────
-{{ "TOTAL:" | string.pad_right 15 }}{{ receipt.TotalAmount | math.format "c" "en-US" | string.pad_left 3 }}
+{{ "TOTAL:" | string.pad_right 16 }}{{ receipt.TotalAmount | math.format "c" "en-US" }}
 ═══════════════════════════════════════════════
-
 {{ if receipt.Order.IsDuePaid }}
      *** PENDIENTE DE PAGO ***
 {{ else }}
          ***  PAGADO  ***
 {{ end }}
-
     GRACIAS POR PREFERIRNOS
