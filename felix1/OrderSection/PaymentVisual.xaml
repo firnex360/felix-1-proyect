@@ -361,7 +361,11 @@
                                Grid.Row="1" 
                                Grid.ColumnSpan="3"
                                Padding="10">
-
+            <Label Text="Salir (ESC)" 
+                   FontSize="14" 
+                   TextColor="black" 
+                   VerticalOptions="Center"
+                   FontFamily="Inter"/>
             <Button x:Name="btnCancel"
                     Text="Cancelar (F1)"
                     WidthRequest="150"

@@ -22,8 +22,12 @@ Artículos:
 {{ if transaction.orderReceipt.Order.Discount > 0 }}
 {{ "Descuento:" | string.pad_right 21 }}{{ transaction.orderReceipt.Order.Discount | math.format "c" "en-US" | string.prepend "-"}}
 {{end}}
+{{- if transaction.orderReceipt.Order.Table.IsTakeOut }}
+{{ ("Delivery (" + (transaction.orderReceipt.TaxRateWaiters | math.times 100 | math.format "0") + "%):") | string.pad_right 21 }}{{ transaction.transaction.TaxAmountWaiters | math.format "c" "en-US"}}
+{{- else }}
 {{ ("ITBIS (" + (transaction.orderReceipt.TaxRateITBIS | math.times 100 | math.format "0") + "%):") | string.pad_right 21 }}{{ transaction.transaction.TaxAmountITBIS | math.format "c" "en-US" }}
 {{ ("Propina (" + (transaction.orderReceipt.TaxRateWaiters | math.times 100 | math.format "0") + "%):") | string.pad_right 21 }}{{ transaction.transaction.TaxAmountWaiters | math.format "c" "en-US"}}
+{{- end }}
 ───────────────────────────────────────────────
 {{ "TOTAL:" | string.pad_right 21 }}{{ transaction.transaction.TotalAmount | math.format "c" "en-US"}}
 ═══════════════════════════════════════════════

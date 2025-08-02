@@ -31,6 +31,7 @@ public partial class OrderVisual : ContentPage
     // Tax rates from configuration
     private decimal _taxRate = 0.0m;
     private decimal _waiterTaxRate = 0.0m;
+    private decimal _deliveryTaxRate = 0.0m;
     private decimal _discountAmount = 0m;
 
     private bool _isSearchBarFocused = false;
@@ -90,8 +91,14 @@ public partial class OrderVisual : ContentPage
     private void LoadTaxRatesFromConfiguration()
     {
         // Load tax rates from preferences (convert from percentage to decimal)
-        _taxRate = decimal.Parse(Preferences.Get("TaxRate", "18")) / 100m;
-        _waiterTaxRate = decimal.Parse(Preferences.Get("WaiterTaxRate", "10")) / 100m;
+        var taxRateString = Preferences.Get("TaxRate", "18");
+        var waiterTaxRateString = Preferences.Get("WaiterTaxRate", "10");
+        var deliveryTaxRateString = Preferences.Get("DeliveryTaxRate", "10");
+        
+        // Safely parse tax rates with fallback to default values
+        _taxRate = (decimal.TryParse(taxRateString, out var parsedTaxRate) ? parsedTaxRate : 18m) / 100m;
+        _waiterTaxRate = (decimal.TryParse(waiterTaxRateString, out var parsedWaiterTaxRate) ? parsedWaiterTaxRate : 10m) / 100m;
+        _deliveryTaxRate = (decimal.TryParse(deliveryTaxRateString, out var parsedDeliveryTaxRate) ? parsedDeliveryTaxRate : 10m) / 100m;
     }
 
     private void LoadCashRegisterSettings()
@@ -792,7 +799,8 @@ public partial class OrderVisual : ContentPage
         }
 
         //Validar si la orden tiene un descuento mayor al total de la orden, lit quien sería tan tontito de hacer eso?
-        decimal orderTotal = CalculateSubtotal() + CalculateTax(CalculateSubtotal()) + CalculateWaiterTax(CalculateSubtotal());
+        decimal orderTotal = CalculateSubtotal() + CalculateTax(CalculateSubtotal()) + 
+            (_currentOrder?.Table?.IsTakeOut == true ? CalculateDeliveryTax(CalculateSubtotal()) : CalculateWaiterTax(CalculateSubtotal()));
         if (_discountAmount > orderTotal)
         {
             await DisplayAlert("Descuento inválido",
@@ -870,8 +878,9 @@ public partial class OrderVisual : ContentPage
 
                 // Transaction Financial Information
                 TotalAmount = CalculateSubtotal() + CalculateTax(CalculateSubtotal()) + CalculateWaiterTax(CalculateSubtotal()) - _discountAmount,
-                TaxAmountITBIS = CalculateTax(CalculateSubtotal()),
-                TaxAmountWaiters = CalculateWaiterTax(CalculateSubtotal()),
+                TaxAmountITBIS = _currentOrder?.Table?.IsTakeOut == true ? 0 : CalculateTax(CalculateSubtotal()),
+                TaxAmountWaiters = _currentOrder?.Table?.IsTakeOut == true ? 0 : CalculateWaiterTax(CalculateSubtotal()),
+                TaxAmountDelivery = _currentOrder?.Table?.IsTakeOut == true ? CalculateDeliveryTax(CalculateSubtotal()) : 0,
                 CashAmount = 0, // TODO: Set based on payment method
                 CardAmount = 0, // TODO: Set based on payment method
                 TransferAmount = 0, // TODO: Set based on payment method
@@ -879,6 +888,7 @@ public partial class OrderVisual : ContentPage
                 // Tax Percentages
                 TaxRateITBIS = _taxRate, // Store the actual tax rate (e.g., 0.18 for 18%)
                 TaxRateWaiters = _waiterTaxRate, // Store the actual waiter tax rate (e.g., 0.10 for 10%)
+                TaxRateDelivery = _deliveryTaxRate, // Store the actual delivery tax rate (e.g., 0.10 for 10%)
 
                 PrintDate = DateTime.Now
             };
@@ -886,6 +896,7 @@ public partial class OrderVisual : ContentPage
             if (orderReceipt.Order!.Table!.IsTakeOut)
             {
                 orderReceipt.Order.Waiter = orderReceipt.Order!.CashRegister!.Cashier;
+                orderReceipt.TotalAmount = CalculateSubtotal() + CalculateDeliveryTax(CalculateSubtotal());
             }
 
             string templateText = File.ReadAllText(@"felix1\ReceiptTemplates\OrderTemplate.txt");
@@ -1009,6 +1020,11 @@ public partial class OrderVisual : ContentPage
     private decimal CalculateWaiterTax(decimal subtotal)
     {
         return subtotal * _waiterTaxRate;
+    }
+
+    private decimal CalculateDeliveryTax(decimal subtotal)
+    {
+        return subtotal * _deliveryTaxRate;
     }
 
     private void OnDiscountChanged(object sender, TextChangedEventArgs e)

@@ -19,6 +19,7 @@ public class OrderReceipt
     public decimal TotalAmount { get; set; }
     public decimal TaxAmountITBIS { get; set; }
     public decimal TaxAmountWaiters { get; set; }
+    public decimal TaxAmountDelivery { get; set; } // Delivery/takeout tax amount
     public decimal CashAmount { get; set; }
     public decimal CardAmount { get; set; }
     public decimal TransferAmount { get; set; }
@@ -26,6 +27,7 @@ public class OrderReceipt
     // Tax Percentages
     public decimal TaxRateITBIS { get; set; } // ITBIS tax rate (e.g., 0.18 for 18%)
     public decimal TaxRateWaiters { get; set; } // Waiter tax rate (e.g., 0.10 for 10%)
+    public decimal TaxRateDelivery { get; set; } // Delivery tax rate (e.g., 0.10 for 10%)
 
     // Receipt Metadata
     public DateTime PrintDate { get; set; } = DateTime.Now;
