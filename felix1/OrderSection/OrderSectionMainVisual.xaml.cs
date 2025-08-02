@@ -304,7 +304,7 @@ public partial class OrderSectionMainVisual : ContentPage
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             if (method != null)
             {
-                method.Invoke(listTableVisual, new object[] { });
+                method.Invoke(listTableVisual, new object[] { this, EventArgs.Empty });
             }
         } else if (RightPanel.Content is ListWaiterVisual listWaiterVisual)
         {
@@ -313,7 +313,7 @@ public partial class OrderSectionMainVisual : ContentPage
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             if (method != null)
             {
-                method.Invoke(listWaiterVisual, new object[] { });
+                method.Invoke(listWaiterVisual, new object[] { this, EventArgs.Empty });
             }
         }
     }
@@ -896,7 +896,7 @@ public partial class OrderSectionMainVisual : ContentPage
                         System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                     if (method != null)
                     {
-                        method.Invoke(listTableVisual, new object[] { });
+                        method.Invoke(listTableVisual, new object[] { s!, e });
                     }
                 } else if (RightPanel.Content is ListWaiterVisual listWaiterVisual)
                 {
@@ -981,7 +981,7 @@ public partial class OrderSectionMainVisual : ContentPage
                             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                         if (method != null)
                         {
-                            method.Invoke(listTableVisual, new object[] { });
+                            method.Invoke(listTableVisual, new object[] { sender, EventArgs.Empty });
                         }
                     } else if (RightPanel.Content is ListWaiterVisual listWaiterVisual)
                     {
@@ -989,7 +989,7 @@ public partial class OrderSectionMainVisual : ContentPage
                             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                         if (method != null)
                         {
-                            method.Invoke(listWaiterVisual, new object[] { });
+                            method.Invoke(listWaiterVisual, new object[] { sender, EventArgs.Empty });
                         }
                     }
                     e.Handled = true;
