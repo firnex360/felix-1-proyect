@@ -363,7 +363,7 @@
                                Padding="10">
 
             <Button x:Name="btnCancel"
-                    Text="Cancelar"
+                    Text="Cancelar (F1)"
                     WidthRequest="150"
                     HorizontalOptions="End"
                     VerticalOptions="End"
@@ -371,7 +371,7 @@
                     Style="{StaticResource CancelButtonStyle}" />
 
             <Button x:Name="btnProcessPayment"
-                    Text="Procesar Pago"
+                    Text="Procesar Pago (F4)"
                     BackgroundColor="#005F8C"
                     TextColor="#F3F3F3"
                     WidthRequest="150"

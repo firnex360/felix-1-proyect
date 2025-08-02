@@ -71,12 +71,14 @@ namespace felix1.OrderSection
             AddCashMethod();
             FocusFirstPaymentEntry();
 
-            btnCancel.Focused += (s, e) => {
+            btnCancel.Focused += (s, e) =>
+            {
                 _isPaymentFocused = false;
                 _currentFocusedEntry = null!;
             };
 
-            btnProcessPayment.Focused += (s, e) => {
+            btnProcessPayment.Focused += (s, e) =>
+            {
                 _isPaymentFocused = false;
                 _currentFocusedEntry = null!;
             };
@@ -119,7 +121,7 @@ namespace felix1.OrderSection
                     }
                     else
                     {
-                        OnChargeClicked(sender, null);
+                        OnChargeClicked(this, null);
                     }
                     e.Handled = true;
                     break;
@@ -145,6 +147,16 @@ namespace felix1.OrderSection
                     e.Handled = true;
                     break;
 
+                case Windows.System.VirtualKey.F4:
+                    OnChargeClicked(this, null);
+                    e.Handled = true;
+                    break;
+                
+                case Windows.System.VirtualKey.F1:
+                    OnCancelButtonClicked(this, null);
+                    e.Handled = true;
+                    break;
+
                 case Windows.System.VirtualKey.Escape:
                     CloseThisWindow();
                     e.Handled = true;
@@ -163,7 +175,7 @@ namespace felix1.OrderSection
                 {
                     Dispatcher.Dispatch(async () =>
                     {
-                        await Task.Delay(300); 
+                        await Task.Delay(300);
                         entry.Focus();
                         entry.CursorPosition = 0;
                         entry.SelectionLength = entry.Text?.Length ?? 0;
@@ -615,6 +627,8 @@ namespace felix1.OrderSection
                     TransferAmount = _transferAmount
                 };
 
+                _transaction = transaction;
+
                 if (Order.IsDuePaid)
                 {
                     orderToUpdate.IsDuePaid = true;
@@ -661,6 +675,7 @@ namespace felix1.OrderSection
                 return;
             }
 
+            OnPrintReceipt(this, null!);
             CloseThisWindow();
             ListTableVisual.Instance?.ReloadTM();
         }
@@ -774,7 +789,7 @@ namespace felix1.OrderSection
             try
             {
 
-                                var orderReceiptLocal = new OrderReceipt
+                var orderReceiptLocal = new OrderReceipt
                 {
                     // Company Information (loaded from configuration/settings)
                     CompanyName = Preferences.Get("CompanyName", "Sin nombre"),
@@ -783,7 +798,7 @@ namespace felix1.OrderSection
                     CompanyRNC = Preferences.Get("CompanyRNC", "0"),
 
                     // Order Information
-                    Order = _order,
+                    Order = Order,
 
                     // Transaction Financial Information
                     TotalAmount = 0,
@@ -809,9 +824,9 @@ namespace felix1.OrderSection
                     PrintDate = DateTime.Now
                 };
 
-                string templateText = File.ReadAllText(@"C:\Codes\github\felix-1-proyect\felix1\ReceiptTemplates\PaymentTemplate.txt");
+                string templateText = File.ReadAllText(@"felix1\ReceiptTemplates\PaymentTemplate.txt");
                 var template = Template.Parse(templateText);
-                var scribanModel = new { transaction = transaction, ChangeAmount = _changeAmount };
+                var scribanModel = new { transaction = paymentReceipt};
                 string text = template.Render(scribanModel, member => member.Name);
                 System.Drawing.Printing.PrintDocument pd = new System.Drawing.Printing.PrintDocument();
                 var savedPrinter = Preferences.Get("SelectedPrinter", "");

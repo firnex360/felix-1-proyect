@@ -1,35 +1,47 @@
-========================================
-           COMPROBANTE DE PAGO
-========================================
-Mesa: {{ transaction.Order.Table.LocalNumber }} (Global: {{ transaction.Order.Table.GlobalNumber }})
-Orden #: {{ transaction.Order.OrderNumber }}
-Fecha: {{ transaction.Date }}
-Mesero: {{ transaction.Order.Waiter.Name }}
---------------------------------------------------
+═════════════════════════════════════════
+
+            {{ transaction.orderReceipt.CompanyName }}
+         {{ transaction.orderReceipt.CompanyAddress }}
+          Tel: {{ transaction.orderReceipt.CompanyPhone }}
+          RNC: {{ transaction.orderReceipt.CompanyRNC }}
+═════════════════════════════════════════
+
+      COMPROBANTE DE PAGO
+
+Mesa: {{ transaction.orderReceipt.Order.Table.LocalNumber }} [{{ transaction.orderReceipt.Order.Table.GlobalNumber }}]
+Orden: #{{ transaction.orderReceipt.Order.OrderNumber }}
+Fecha: {{ transaction.PrintDate | date.to_string "%d/%m/%Y %H:%M" }}
+Mesero: {{ transaction.orderReceipt.Order.Waiter.Name }}
+
+═══════════════════════════════════════════════
+{{- if transaction.orderReceipt.Order.Table.IsTakeOut }}
+          *** PARA LLEVAR ***
+═══════════════════════════════════════════════
+{{- end }}
 Artículos:
-{{ for item in transaction.Order.Items }}
-- {{ item.ArticleName }} x{{ item.Quantity }} @ ${{ item.UnitPrice }} = ${{ item.TotalPrice }}
+{{ for item in transaction.orderReceipt.Order.Items }}
+{{ item.Article.Name }} 
+{{ ("- " + item.Quantity + " x " + (item.UnitPrice | math.format "c" "en-US")) | string.pad_right 20 }}{{ item.TotalPrice | math.format "c" "en-US"}}
 {{ end }}
---------------------------------------------------
-Subtotal: ${{ transaction.Order.Subtotal }}
-Descuento: ${{ transaction.Order.Discount }}
-ITBIS (18%): ${{ transaction.TaxAmountITBIS }}
-TOTAL: ${{ transaction.TotalAmount }}
+═══════════════════════════════════════════════
+{{ "Subtotal:" | string.pad_right 14 }}{{ (transaction.transaction.TotalAmount - transaction.transaction.TaxAmountITBIS - transaction.transaction.TaxAmountWaiters + transaction.orderReceipt.Order.Discount) | math.format "c" "en-US" | string.pad_left 14 }}
+{{ if transaction.orderReceipt.Order.Discount > 0 }}
+{{ "Descuento:" | string.pad_right 14 }}{{ transaction.orderReceipt.Order.Discount | math.format "c" "en-US" | string.prepend "-" | string.pad_left 14 }}
+{{end}}
+{{ ("ITBIS (" + (transaction.orderReceipt.TaxRateITBIS | math.times 100 | math.format "0") + "%):") | string.pad_right 14 }}{{ transaction.transaction.TaxAmountITBIS | math.format "c" "en-US" | string.pad_left 14 }}
+{{ ("Propina (" + (transaction.orderReceipt.TaxRateWaiters | math.times 100 | math.format "0") + "%):") | string.pad_right 14 }}{{ transaction.transaction.TaxAmountWaiters | math.format "c" "en-US" | string.pad_left 14 }}
+───────────────────────────────────────────────
+{{ "TOTAL:"}}{{ transaction.transaction.TotalAmount | math.format "c" "en-US" | string.pad_left 24 }}
+═══════════════════════════════════════════════
 
 MÉTODOS DE PAGO:
-{{ if transaction.CashAmount > 0 }}
-Efectivo: ${{ transaction.CashAmount }}
+{{ if transaction.transaction.CashAmount > 0 }}{{ "Efectivo:"}}{{ transaction.transaction.CashAmount | math.format "c" "en-US" | string.pad_left 14 }}{{ end }}
+{{ if transaction.transaction.CardAmount > 0 }}{{ "Tarjeta:"}}{{ transaction.transaction.CardAmount | math.format "c" "en-US" | string.pad_left 14 }}{{ end }}
+{{ if transaction.transaction.TransferAmount > 0 }}{{ "Transferencia:"}}{{ transaction.transaction.TransferAmount | math.format "c" "en-US" | string.pad_left 14 }}{{ end }}
+{{ if (transaction.transaction.CashAmount + transaction.transaction.CardAmount + transaction.transaction.TransferAmount) > transaction.transaction.TotalAmount }}
+───────────────────────────────────────────────
+{{ "Devuelta:" | string.pad_right 18 }}{{ ((transaction.transaction.CashAmount + transaction.transaction.CardAmount + transaction.transaction.TransferAmount) - transaction.transaction.TotalAmount) | math.format "c" "en-US" | string.pad_left 14 }}
 {{ end }}
-{{ if transaction.CardAmount > 0 }}
-Tarjeta: ${{ transaction.CardAmount }}
-{{ end }}
-{{ if transaction.TransferAmount > 0 }}
-Transferencia: ${{ transaction.TransferAmount }}
-{{ end }}
-{{ if ChangeAmount > 0 }}
-Devuelta: ${{ ChangeAmount }}
-{{ end }}
+═══════════════════════════════════════════════
 
-========================================
-           ¡GRACIAS POR SU COMPRA!
-========================================
+    GRACIAS POR PREFERIRNOS
