@@ -20,8 +20,6 @@ namespace felix1.AdminSection
 
         public ListPaymentVisual(CashRegister cashRegister)
         {
-            CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
-            CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
 
             InitializeComponent();
             _cashRegisterId = cashRegister.Id;
@@ -193,8 +191,8 @@ namespace felix1.AdminSection
             {
                 bool confirm = await Application.Current!.MainPage!.DisplayAlert(
                     "Confirmar pago",
-                    $"�Marcar orden #{item.OrderId} como pagada?",
-                    "S�", "No");
+                    $"Marcar orden #{item.OrderId} como pagada?",
+                    "Si", "No");
 
                 if (confirm)
                 {
