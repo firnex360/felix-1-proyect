@@ -234,8 +234,12 @@ public partial class ListTableVisual : ContentView
             .Select(group => group.First()) // Take first instance of each
             .Sum(item => item.Quantity * item.UnitPrice); // Sum distinct items
 
-        var taxRate = decimal.Parse(Preferences.Get("TaxRate", "18")) / 100m * subtotal;
-        var waiterTaxRate = decimal.Parse(Preferences.Get("WaiterTaxRate", "10")) / 100m * subtotal;
+        var taxRateString = Preferences.Get("TaxRate", "0");
+        var waiterTaxRateString = Preferences.Get("WaiterTaxRate", "0");
+        
+        // Safely parse tax rates with fallback to 0
+        var taxRate = (decimal.TryParse(taxRateString, out var parsedTaxRate) ? parsedTaxRate : 0m) / 100m * subtotal;
+        var waiterTaxRate = (decimal.TryParse(waiterTaxRateString, out var parsedWaiterTaxRate) ? parsedWaiterTaxRate : 0m) / 100m * subtotal;
 
         return subtotal + waiterTaxRate + taxRate - order.Discount;
     }
