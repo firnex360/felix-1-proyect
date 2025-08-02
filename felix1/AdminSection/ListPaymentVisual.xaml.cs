@@ -77,7 +77,7 @@ namespace felix1.AdminSection
 
                 var refunds = await db.Refunds
                     .Include(r => r.Order)
-                        .ThenInclude(o => o.CashRegister)
+                        .ThenInclude(o => o!.CashRegister)
                     .Include(r => r.RefundedItems)
                     .Where(r => r.Order != null &&
                                r.Order.CashRegister != null &&
@@ -163,7 +163,7 @@ namespace felix1.AdminSection
                     {
                         await Application.Current.MainPage.DisplayAlert(
                             "Detalles",
-                            "Esta transacción está asociada a un reembolso.",
+                            "Esta transaccion esta asociada a un reembolso.",
                             "OK");
                     }
                     else
@@ -191,10 +191,10 @@ namespace felix1.AdminSection
         {
             if (sender is ImageButton imageButton && imageButton.BindingContext is CombinedTransaction item)
             {
-                bool confirm = await Application.Current.MainPage.DisplayAlert(
+                bool confirm = await Application.Current!.MainPage!.DisplayAlert(
                     "Confirmar pago",
-                    $"¿Marcar orden #{item.OrderId} como pagada?",
-                    "Sí", "No");
+                    $"ï¿½Marcar orden #{item.OrderId} como pagada?",
+                    "Sï¿½", "No");
 
                 if (confirm)
                 {
@@ -251,10 +251,10 @@ namespace felix1.AdminSection
                 bool newStatus = !item.IsPaid;
                 string action = newStatus ? "marcar como PAGADA" : "marcar como PENDIENTE";
 
-                bool confirm = await Application.Current.MainPage.DisplayAlert(
+                bool confirm = await Application.Current!.MainPage!.DisplayAlert(
                     "Confirmar cambio",
-                    $"¿Desea {action} la orden #{item.OrderId}?",
-                    "Sí", "No");
+                    $"ï¿½Desea {action} la orden #{item.OrderId}?",
+                    "Sï¿½", "No");
 
                 if (confirm)
                 {

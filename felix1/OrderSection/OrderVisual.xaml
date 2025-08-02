@@ -55,14 +55,21 @@
                                                   CurrentCellBorderColor="#C7CFDD"/>
                     </syncfusion:SfDataGrid.DefaultStyle>
 
+                    <syncfusion:SfDataGrid.SortColumnDescriptions>
+                        <syncfusion:SortColumnDescription ColumnName="Name"
+                                                          SortDirection="Ascending"/>
+                    </syncfusion:SfDataGrid.SortColumnDescriptions>
+
                     <syncfusion:SfDataGrid.Columns>
                         <syncfusion:DataGridTextColumn
+                            x:Name="colName"
                             MappingName="Name"
                             HeaderText="Nombre"
                             CellTextAlignment="Start"
                             HeaderTextAlignment="Start"
                             ColumnWidthMode="FitByCell"
-                            MaximumWidth="300"/>
+                            MaximumWidth="400"
+                            AllowSorting="True"/>
 
                         <syncfusion:DataGridNumericColumn
                             MappingName="PriPrice"
@@ -131,7 +138,7 @@
                         WidthRequest="40"
                         Padding="4"/>
 
-                <Button Text="Remove"
+                <Button Text="Eliminar"
                         BackgroundColor="#6c757d"
                         TextColor="White"
                         Clicked="OnRemoveItemClicked"
@@ -207,7 +214,7 @@
                             CellTextAlignment="Start"
                             HeaderTextAlignment="Start"
                             ColumnWidthMode="FitByCell"
-                            MaximumWidth="400"/>
+                            MaximumWidth="800"/>
 
                         <syncfusion:DataGridNumericColumn
                             MappingName="UnitPrice"
@@ -362,23 +369,55 @@
                            VerticalOptions="Center"/>
 
                     <!-- Action Buttons -->
-                    <HorizontalStackLayout  Grid.Row="6"
-                                            Grid.ColumnSpan="2"
-                                            Spacing="15"
-                                            HorizontalOptions="Center"
-                                            VerticalOptions="Center"
-                                            Margin="0,15,0,0">
+                    <VerticalStackLayout
+                        Grid.Row="6"
+                        Grid.ColumnSpan="2"
+                        Padding="5"
+                        Spacing="10">
 
-                        <buttons:SfButton x:Name="exitSaveButton"
-                            Text="Salir y Guardar"
-                            Clicked="OnExitSave"
-                            Style="{StaticResource CancelButtonStyle}"/>
+                        <Button x:Name="printReceiptButton"
+                                Text="Imprimir Recibo (F4)"
+                                BackgroundColor="#005F8C"
+                                TextColor="White"
+                                Clicked="OnPrintReceipt"
+                                FontSize="14"
+                                HeightRequest="10"
+                                CornerRadius="8"
+                                FontAttributes="Bold"
+                                HorizontalOptions="Fill"/>
 
-                        <buttons:SfButton x:Name="printReceiptButton"
-                            Text="Imprimir Recibo"
-                            Clicked="OnPrintReceipt"
-                            Style="{StaticResource ButtonStyle}"/>
-                    </HorizontalStackLayout>
+                        <HorizontalStackLayout  Grid.Row="6"
+                                                Grid.ColumnSpan="2"
+                                                Spacing="5"
+                                                HorizontalOptions="Center"
+                                                VerticalOptions="Center"
+                                                Margin="0,0,0,0">
+
+                            <Button x:Name="exitSaveButton"
+                                    Text="Salir y Guardar (ESC)"
+                                    BackgroundColor="#C7CFDD"
+                                    TextColor="Black"
+                                    Clicked="OnExitSave"
+                                    FontSize="14"
+                                    HorizontalOptions="Fill"
+                                    HeightRequest="10"
+                                    CornerRadius="8"
+                                    FontAttributes="Bold"/>
+
+                            <Button x:Name="printReceiptButtonCopy"
+                                    Text="Imprimir Recibo Copia (F2)"
+                                    BackgroundColor="#005F8C"
+                                    TextColor="White"
+                                    Clicked="OnPrintReceiptCopy"
+                                    FontSize="14"
+                                    HorizontalOptions="Fill"
+                                    HeightRequest="10"
+                                    CornerRadius="8"
+                                    FontAttributes="Bold"/>
+
+
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
                 </Grid>
             </Frame>
         </Grid>

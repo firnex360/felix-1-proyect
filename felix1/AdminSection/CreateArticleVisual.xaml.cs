@@ -167,14 +167,20 @@ public partial class CreateArticleVisual : ContentView
 
             if (editingArticle == null)
             {
+                var secNumber = 0f;
+                if (!string.IsNullOrEmpty(txtSecondaryPrice.Text))
+                {
+                    float.TryParse(txtSecondaryPrice.Text, out secNumber);
+                }
+
                 // CREATE NEW ARTICLE
                 await AppDbContext.ExecuteSafeAsync(async db =>
                 {
                     var newArticle = new Article
                     {
                         Name = txtName.Text,
-                        PriPrice = txtPrice.Text != null ? float.Parse(txtPrice.Text) : 0f,
-                        SecPrice = txtSecondaryPrice.Text != null ? float.Parse(txtSecondaryPrice.Text) : 0f,
+                        PriPrice = float.TryParse(txtPrice.Text, out var priPrice) ? priPrice : 0f,
+                        SecPrice = secNumber,
                         Category = parsed ? categoryEnum : ArticleCategory.Otros,
                         IsDeleted = false,
                         IsSideDish = txtSideDish.IsChecked
@@ -241,6 +247,12 @@ public partial class CreateArticleVisual : ContentView
             }
 
             ListArticleVisual.Instance?.ReloadArticles();
+            
+            // Show success message
+            // await ShowAlert("Éxito", 
+            //     editingArticle == null ? "Artículo creado correctamente" : "Artículo actualizado correctamente", 
+            //     "OK");
+            
             CloseThisWindow();
         }
         catch (Exception ex)

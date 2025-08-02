@@ -81,13 +81,17 @@
                Padding="0" 
                HasShadow="True"
                BackgroundColor="#F3F3F3" 
-               BorderColor="#FFE0E0E0" 
-               Margin="20,0,20,0">
+               BorderColor="#F5F7FA" 
+               Margin="20"
+               VerticalOptions="Fill"
+               HorizontalOptions="Start">
 
             <syncfusion:SfDataGrid x:Name="dataGrid" ItemsSource="{Binding CombinedItems}"
                                   VerticalOptions="Fill" HorizontalOptions="Fill"
                                   HeaderRowHeight="60" AutoGenerateColumnsMode="None"
-                                  RowHeight="60" SortingMode="Single"
+                                  RowHeight="50" SortingMode="Single"
+                                  AllowTriStateSorting="True"
+                                  VerticalOverScrollMode="Bounce"
                                   EmptyView="No hay datos para esta caja">
 
                 <syncfusion:SfDataGrid.DefaultStyle>
@@ -98,9 +102,9 @@
                 </syncfusion:SfDataGrid.DefaultStyle>
 
                 <syncfusion:SfDataGrid.Columns>
-                    <syncfusion:DataGridTemplateColumn MappingName="Id" HeaderText="ID"
-                                    ColumnWidthMode="FitByHeader"
-                                    Width="120">
+                    <syncfusion:DataGridTemplateColumn MappingName="Id" HeaderText="Codigo"
+                                    HeaderTextAlignment="Start"
+                                    ColumnWidthMode="FitByHeader">
                         <syncfusion:DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Label Text="{Binding DisplayId}" 
@@ -144,7 +148,7 @@
                             <DataTemplate>
                                 <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
                                     <ImageButton
-                                        Source="editing.png"
+                                        Source="view.png"
                                         CornerRadius="10"
                                         Padding="10"
                                         WidthRequest="28"
@@ -174,7 +178,7 @@
                                     </ImageButton>
 
                                     <ImageButton
-                                        Source="delete.png"
+                                        Source="coin.png"
                                         CornerRadius="10"
                                         Padding="10"
                                         WidthRequest="28"

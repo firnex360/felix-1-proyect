@@ -16,7 +16,7 @@ namespace felix1.OrderSection;
 public partial class OrderSectionMainVisual : ContentPage
 {
     private CashRegister _cashRegister;
-    private User _waiter;
+    private User? _waiter;
 
     public OrderSectionMainVisual(CashRegister cashRegister, User waiter)
     {
@@ -226,7 +226,7 @@ public partial class OrderSectionMainVisual : ContentPage
         switch (e.Key)
         {
             case Windows.System.VirtualKey.F1: // F1 for Takeout
-                CreateTakeoutOrder();
+                _ = ShowTakeoutPopup();
                 e.Handled = true;
                 return;
             case Windows.System.VirtualKey.F2: // F2 for New Table
@@ -264,7 +264,7 @@ public partial class OrderSectionMainVisual : ContentPage
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             if (method != null)
             {
-                method.Invoke(listTableVisual, new object[] { this, EventArgs.Empty });
+                method.Invoke(listTableVisual, new object[] { });
             }
         } else if (RightPanel.Content is ListWaiterVisual listWaiterVisual)
         {
@@ -273,7 +273,7 @@ public partial class OrderSectionMainVisual : ContentPage
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             if (method != null)
             {
-                method.Invoke(listWaiterVisual, new object[] { this, EventArgs.Empty });
+                method.Invoke(listWaiterVisual, new object[] { });
             }
         }
     }
@@ -300,7 +300,7 @@ public partial class OrderSectionMainVisual : ContentPage
             var popupContent = new StackLayout
             {
                 Spacing = 5,
-                Padding = 20,
+                Padding = 10,
                 BackgroundColor = Colors.White,
                 WidthRequest = 400
             };
@@ -308,32 +308,18 @@ public partial class OrderSectionMainVisual : ContentPage
             // Title
             popupContent.Children.Add(new Label
             {
-                Text = "Crear Orden",
+                Text = "Crear Nueva Mesa",
                 FontSize = 20,
                 FontAttributes = FontAttributes.Bold,
                 TextColor = Color.FromArgb("#005F8C"),
                 HorizontalOptions = LayoutOptions.Center,
-                Margin = new Microsoft.Maui.Thickness(0, 0, 0, 10)
+                Margin = new Microsoft.Maui.Thickness(0, 0, 0, 0)
             });
-
-            // Create Take-out Order button
-            var createTakeoutButton = new Button
-            {
-                Text = "Crear Orden Para Llevar",
-                BackgroundColor = Color.FromArgb("#FF9800"),
-                TextColor = Colors.White,
-                CornerRadius = 8,
-                HeightRequest = 50,
-                FontSize = 16,
-                FontAttributes = FontAttributes.Bold,
-                HorizontalOptions = LayoutOptions.Fill,
-                Margin = new Microsoft.Maui.Thickness(0, 5, 0, 5)
-            };
 
             // Add search bar for waiter selection
             var waiterSearchBar = new SearchBar
             {
-                Placeholder = "Buscar mesero o escribe número...",
+                Placeholder = "Selecciona un mesero...",
                 HorizontalOptions = LayoutOptions.Fill,
                 Margin = new Microsoft.Maui.Thickness(0, 20, 0, 0),
                 BackgroundColor = Color.FromArgb("#f5f7fa"),
@@ -388,31 +374,6 @@ public partial class OrderSectionMainVisual : ContentPage
                 WidthRequest = 450,
                 AnimationDuration = 100,
                 AutoSizeMode = PopupAutoSizeMode.Height
-            };
-
-            // Wire up the takeout button
-            createTakeoutButton.Clicked += (s, e) =>
-            {
-                popup.Dismiss();
-                if (RightPanel.Content is ListTableVisual listTableVisual)
-                {
-                    // Call the create takeout order method
-                    var method = typeof(ListTableVisual).GetMethod("OnCreateTakeoutOrderClicked", 
-                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                    if (method != null)
-                    {
-                        method.Invoke(listTableVisual, new object[] { s!, e });
-                    }
-                } else if (RightPanel.Content is ListWaiterVisual listWaiterVisual)
-                {
-                    // Call the create takeout order method
-                    var method = typeof(ListWaiterVisual).GetMethod("OnCreateTakeoutOrderClicked", 
-                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                    if (method != null)
-                    {
-                        method.Invoke(listWaiterVisual, new object[] { s!, e });
-                    }
-                }
             };
 
             // Wire up the close button
@@ -619,6 +580,414 @@ public partial class OrderSectionMainVisual : ContentPage
         }
 
         return availableWaiters;
+    }
+
+    private async Task<List<Table>> AddActiveTakeoutOrdersSection(StackLayout parent)
+    {
+        // Available takeout orders section header
+        parent.Children.Add(new Label
+        {
+            Text = "",
+            FontSize = 16,
+            FontAttributes = FontAttributes.Bold,
+            TextColor = Color.FromArgb("#005F8C"),
+            Margin = new Microsoft.Maui.Thickness(0, 10, 0, 10)
+        });
+
+        // Get active takeout orders for the current cash register
+        var activeTakeoutOrders = await AppDbContext.ExecuteSafeAsync(async db =>
+        {
+            // Get tables that are takeout orders associated with the current cash register
+            var takeoutTables = await db.Tables
+                .Where(t => t.IsTakeOut && !t.IsPaid)
+                .ToListAsync();
+
+            // Filter by cash register through orders if needed
+            if (_cashRegister != null)
+            {
+                var cashRegisterOrders = await db.Orders
+                    .Where(o => o.CashRegister != null && o.CashRegister.Id == _cashRegister.Id)
+                    .Select(o => o.Table)
+                    .Where(t => t != null && t.IsTakeOut && !t.IsPaid)
+                    .ToListAsync();
+                
+                return cashRegisterOrders.Where(t => t != null).ToList()!;
+            }
+            
+            return takeoutTables;
+        });
+
+        if (activeTakeoutOrders.Any())
+        {
+            var takeoutGrid = new Grid
+            {
+                ColumnSpacing = 8,
+                RowSpacing = 8,
+                HorizontalOptions = LayoutOptions.Fill
+            };
+
+            // Set up columns (2 per row for takeout orders)
+            takeoutGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new Microsoft.Maui.GridLength(1, Microsoft.Maui.GridUnitType.Star) });
+            takeoutGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new Microsoft.Maui.GridLength(1, Microsoft.Maui.GridUnitType.Star) });
+
+            int row = 0, col = 0;
+            for (int i = 0; i < activeTakeoutOrders.Count; i++)
+            {
+                var takeoutOrder = activeTakeoutOrders[i];
+                
+                // Add row definition if needed
+                if (col == 0)
+                    takeoutGrid.RowDefinitions.Add(new RowDefinition { Height = Microsoft.Maui.GridLength.Auto });
+
+                // Add number indicator for all takeout orders
+                //var numberText = $"({i + 1})";
+                
+                var takeoutButton = new Button
+                {
+                    Text = $"🥡 Para Llevar #{takeoutOrder.LocalNumber}",
+                    FontSize = 12,
+                    HeightRequest = 40,
+                    BackgroundColor = Color.FromArgb("#005f8c"),
+                    TextColor = Colors.White,
+                    CornerRadius = 6,
+                    HorizontalOptions = LayoutOptions.Fill
+                };
+
+                takeoutButton.Clicked += (s, e) =>
+                {
+                    // Find the parent popup and dismiss it
+                    var popup = FindParentPopup(takeoutButton);
+                    popup?.Dismiss();
+                    
+                    OpenTakeoutOrder(takeoutOrder);
+                };
+
+                takeoutGrid.Children.Add(takeoutButton);
+                Grid.SetRow(takeoutButton, row);
+                Grid.SetColumn(takeoutButton, col);
+
+                col++;
+                if (col >= 2)
+                {
+                    col = 0;
+                    row++;
+                }
+            }
+
+            parent.Children.Add(takeoutGrid);
+        }
+        else
+        {
+            parent.Children.Add(new Label
+            {
+                Text = "No hay órdenes para llevar activas",
+                FontAttributes = FontAttributes.Italic,
+                TextColor = Colors.Gray,
+                HorizontalOptions = LayoutOptions.Center,
+                FontSize = 12
+            });
+        }
+
+        return activeTakeoutOrders;
+    }
+
+    private async void OpenTakeoutOrder(Table takeoutTable)
+    {
+        // First, find the order associated with this table
+        var order = await AppDbContext.ExecuteSafeAsync(async db =>
+        {
+            var openCashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
+            if (openCashRegister == null) return null;
+
+            return await db.Orders
+                .Include(o => o.Table)
+                .Include(o => o.Waiter)
+                .Include(o => o.Items!)
+                    .ThenInclude(oi => oi.Article!)
+                .FirstOrDefaultAsync(o => o.CashRegister != null &&
+                                         o.CashRegister.Id == openCashRegister.Id &&
+                                         o.Table != null &&
+                                         o.Table.Id == takeoutTable.Id &&
+                                         !o.IsDuePaid);
+        });
+
+        if (order == null)
+        {
+            await DisplayAlert("Error", $"No se encontró una orden activa para la mesa para llevar #{takeoutTable.LocalNumber}", "OK");
+            return;
+        }
+
+        if (RightPanel.Content is ListTableVisual listTableVisual)
+        {
+            // Call the method to open a specific order (not table)
+            var method = typeof(ListTableVisual).GetMethod("OnViewOrderClicked",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (method != null)
+            {
+                method.Invoke(listTableVisual, new object[] { order });
+            }
+            else
+            {
+                await DisplayAlert("Info", $"Abriendo orden para llevar #{takeoutTable.LocalNumber}", "OK");
+            }
+        }
+        else if (RightPanel.Content is ListWaiterVisual listWaiterVisual)
+        {
+            // Call the method to open a specific order
+            var method = typeof(ListWaiterVisual).GetMethod("OnViewOrderClicked",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (method != null)
+            {
+                method.Invoke(listWaiterVisual, new object[] { order });
+            }
+            else
+            {
+                await DisplayAlert("Info", $"Abriendo orden para llevar #{takeoutTable.LocalNumber}", "OK");
+            }
+        }
+    }
+
+    private async Task ShowTakeoutPopup()
+    {
+        try
+        {
+            // Create the popup content
+            var popupContent = new StackLayout
+            {
+                Spacing = 5,
+                Padding = 10,
+                BackgroundColor = Colors.White,
+                WidthRequest = 400
+            };
+
+            // Title
+            popupContent.Children.Add(new Label
+            {
+                Text = "Ordenes Para Llevar",
+                FontSize = 20,
+                FontAttributes = FontAttributes.Bold,
+                TextColor = Color.FromArgb("#005F8C"),
+                HorizontalOptions = LayoutOptions.Center,
+                Margin = new Microsoft.Maui.Thickness(0, 0, 0, 0)
+            });
+
+            // Add search bar for takeout order selection
+            var takeoutSearchBar = new SearchBar
+            {
+                Placeholder = "Buscar orden para llevar o escribe número...",
+                HorizontalOptions = LayoutOptions.Fill,
+                Margin = new Microsoft.Maui.Thickness(0, 20, 0, 0),
+                BackgroundColor = Color.FromArgb("#f5f7fa"),
+                TextColor = Colors.Black
+            };
+
+            // Available takeout orders section
+            var activeTakeoutOrders = await AddActiveTakeoutOrdersSection(popupContent);
+
+            popupContent.Children.Add(takeoutSearchBar);
+
+            // Create Take-out Order button
+            var createTakeoutButton = new Button
+            {
+                Text = "Crear Nueva Orden (F1)",
+                BackgroundColor = Color.FromArgb("#005f8c"),
+                TextColor = Colors.White,
+                CornerRadius = 6,
+                HeightRequest = 40,
+                FontSize = 14,
+                HorizontalOptions = LayoutOptions.Fill,
+                Margin = new Microsoft.Maui.Thickness(0, 10, 0, 0)
+            };
+
+            popupContent.Children.Add(createTakeoutButton);
+
+            // Create footer with close button
+            var footerContent = new StackLayout
+            {
+                Orientation = StackOrientation.Horizontal,
+                HorizontalOptions = LayoutOptions.Center,
+                Spacing = 10,
+                Padding = new Microsoft.Maui.Thickness(15, 10)
+            };
+
+            var closeButton = new Button
+            {
+                Text = "Cerrar",
+                BackgroundColor = Color.FromArgb("#757575"),
+                TextColor = Colors.White,
+                CornerRadius = 6,
+                WidthRequest = 100,
+                HeightRequest = 35,
+                FontSize = 14,
+                HorizontalOptions = LayoutOptions.End
+            };
+
+            footerContent.Children.Add(closeButton);
+
+            // Create Syncfusion popup
+            var popup = new SfPopup
+            {
+                ContentTemplate = new Microsoft.Maui.Controls.DataTemplate(() => popupContent),
+                FooterTemplate = new Microsoft.Maui.Controls.DataTemplate(() => footerContent),
+                PopupStyle = new PopupStyle
+                {
+                    CornerRadius = 10,
+                    HasShadow = true,
+                    BlurRadius = 3,
+                    PopupBackground = Colors.White
+                },
+                StaysOpen = false,
+                ShowCloseButton = true,
+                ShowFooter = false,
+                ShowHeader = false,
+                WidthRequest = 450,
+                AnimationDuration = 100,
+                AutoSizeMode = PopupAutoSizeMode.Height
+            };
+
+            // Wire up the takeout button
+            createTakeoutButton.Clicked += (s, e) =>
+            {
+                popup.Dismiss();
+                if (RightPanel.Content is ListTableVisual listTableVisual)
+                {
+                    // Call the create takeout order method
+                    var method = typeof(ListTableVisual).GetMethod("OnCreateTakeoutOrderClicked", 
+                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (method != null)
+                    {
+                        method.Invoke(listTableVisual, new object[] { });
+                    }
+                } else if (RightPanel.Content is ListWaiterVisual listWaiterVisual)
+                {
+                    // Call the create takeout order method
+                    var method = typeof(ListWaiterVisual).GetMethod("OnCreateTakeoutOrderClicked", 
+                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (method != null)
+                    {
+                        method.Invoke(listWaiterVisual, new object[] { s!, e });
+                    }
+                }
+            };
+
+            // Wire up the close button
+            closeButton.Clicked += (s, e) => popup.Dismiss();
+
+            // Wire up the search button pressed event for takeout order search bar
+            takeoutSearchBar.SearchButtonPressed += (s, e) =>
+            {
+                var searchText = takeoutSearchBar.Text?.Trim() ?? "";
+                Table selectedTakeoutOrder = null!;
+
+                if (string.IsNullOrWhiteSpace(searchText))
+                {
+                    // If no search text, select the first takeout order
+                    selectedTakeoutOrder = activeTakeoutOrders.FirstOrDefault()!;
+                }
+                else if (int.TryParse(searchText, out int orderNumber) && orderNumber >= 1 && orderNumber <= activeTakeoutOrders.Count)
+                {
+                    // If it's a valid order number, select that order by index
+                    int index = orderNumber - 1;
+                    selectedTakeoutOrder = activeTakeoutOrders[index];
+                }
+                else
+                {
+                    // Otherwise, search by table number
+                    selectedTakeoutOrder = activeTakeoutOrders.FirstOrDefault(t => 
+                        t.LocalNumber.ToString().Contains(searchText) || 
+                        t.GlobalNumber.ToString().Contains(searchText))!;
+                }
+
+                if (selectedTakeoutOrder != null)
+                {
+                    popup.Dismiss();
+                    OpenTakeoutOrder(selectedTakeoutOrder);
+                }
+            };
+
+            // Set up key handler for takeout search bar (exact same pattern as OrderVisual)
+            takeoutSearchBar.HandlerChanged += (s, e) =>
+            {
+#if WINDOWS
+                if (takeoutSearchBar?.Handler?.PlatformView is Microsoft.UI.Xaml.Controls.AutoSuggestBox takeoutAutoSuggestBox)
+                {
+                    takeoutAutoSuggestBox.KeyDown -= TakeoutSearchBarPlatformView_KeyDown;
+                    takeoutAutoSuggestBox.KeyDown += TakeoutSearchBarPlatformView_KeyDown;
+                    takeoutAutoSuggestBox.KeyUp -= TakeoutSearchBarPlatformView_KeyUp;
+                    takeoutAutoSuggestBox.KeyUp += TakeoutSearchBarPlatformView_KeyUp;
+                }
+#endif
+            };
+
+#if WINDOWS
+            void TakeoutSearchBarPlatformView_KeyUp(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
+            {
+                if (e.Key == Windows.System.VirtualKey.Escape)
+                {
+                    popup.Dismiss();
+                    e.Handled = true;
+                }
+            }
+
+            void TakeoutSearchBarPlatformView_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
+            {
+                if (e.Key == Windows.System.VirtualKey.F1)
+                {
+                    // F1 to create new takeout order
+                    popup.Dismiss();
+                    if (RightPanel.Content is ListTableVisual listTableVisual)
+                    {
+                        var method = typeof(ListTableVisual).GetMethod("OnCreateTakeoutOrderClicked", 
+                            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                        if (method != null)
+                        {
+                            method.Invoke(listTableVisual, new object[] { });
+                        }
+                    } else if (RightPanel.Content is ListWaiterVisual listWaiterVisual)
+                    {
+                        var method = typeof(ListWaiterVisual).GetMethod("OnCreateTakeoutOrderClicked", 
+                            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                        if (method != null)
+                        {
+                            method.Invoke(listWaiterVisual, new object[] { });
+                        }
+                    }
+                    e.Handled = true;
+                }
+                else if (e.Key == Windows.System.VirtualKey.Escape)
+                {
+                    popup.Dismiss();
+                    e.Handled = true;
+                }
+                else if (e.Key == Windows.System.VirtualKey.Enter)
+                {
+                    // Only proceed if there's content in the search bar
+                    if (!string.IsNullOrWhiteSpace(takeoutSearchBar.Text))
+                    {
+                        // Trigger the SearchButtonPressed event (same as OrderVisual pattern)
+                        takeoutSearchBar.OnSearchButtonPressed();
+                    }
+                    e.Handled = true;
+                }
+            }
+#endif
+
+            popup.Opened += (s, e) =>
+            {
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    await Task.Delay(100); // make sure it's rendered
+                    takeoutSearchBar?.Focus();
+                });
+            };
+
+            // Show the popup
+            popup.Show(); 
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"Error al mostrar el popup: {ex.Message}", "OK");
+        }
     }
 
     private SfPopup? FindParentPopup(Element element)

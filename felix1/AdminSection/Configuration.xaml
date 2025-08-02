@@ -289,6 +289,72 @@
             </VerticalStackLayout>
         </Frame>
 
+        <!-- Printer Configuration Section -->
+        <Frame BackgroundColor="#F8F9FA"
+               CornerRadius="12"
+               HasShadow="True"
+               BorderColor="#E9ECEF"
+               Padding="20">
+            <VerticalStackLayout Spacing="20">
+                <Label Text="Configuración de Impresora"
+                       FontSize="18"
+                       FontAttributes="Bold"
+                       TextColor="#005F8C"
+                       Margin="0,0,0,10"/>
+
+                <Grid RowSpacing="15"
+                      ColumnSpacing="15">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Printer Selection -->
+                    <VerticalStackLayout Grid.Row="0"
+                                         Grid.Column="0"
+                                         Spacing="5">
+                        <Label Text="Impresora Seleccionada:"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#005F8C"/>
+                        <Border Stroke="#C7CFDD"
+                                StrokeThickness="1"
+                                BackgroundColor="White"
+                                StrokeShape="RoundRectangle 8"
+                                Padding="3"
+                                HeightRequest="45">
+                            <Picker x:Name="pickerPrinter"
+                                    TextColor="#FF005F8C"
+                                    BackgroundColor="Transparent"
+                                    FontSize="16"/>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Refresh Printers Button -->
+                    <VerticalStackLayout Grid.Row="0"
+                                         Grid.Column="1"
+                                         Spacing="5">
+                        <Label Text=""
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#005F8C"/>
+                        <Button Text="Actualizar listado de impresoras"
+                                x:Name="btnRefreshPrinters"
+                                Clicked="btnRefreshPrinters_Clicked"
+                                HeightRequest="45"
+                                BackgroundColor="#FF005F8C"
+                                TextColor="White"
+                                FontSize="14"
+                                CornerRadius="8"
+                                HorizontalOptions="Fill"/>
+                    </VerticalStackLayout>
+                </Grid>
+            </VerticalStackLayout>
+        </Frame>
+
         <!-- Save Button -->
 
         <Button Text="Guardar Cambios"
