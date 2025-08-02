@@ -53,14 +53,21 @@
                                                   CurrentCellBorderColor="#C7CFDD"/>
                     </syncfusion:SfDataGrid.DefaultStyle>
 
+                    <syncfusion:SfDataGrid.SortColumnDescriptions>
+                        <syncfusion:SortColumnDescription ColumnName="Name"
+                                                          SortDirection="Ascending"/>
+                    </syncfusion:SfDataGrid.SortColumnDescriptions>
+
                     <syncfusion:SfDataGrid.Columns>
                         <syncfusion:DataGridTextColumn
+                            x:Name="colName"
                             MappingName="Name"
                             HeaderText="Nombre"
                             CellTextAlignment="Start"
                             HeaderTextAlignment="Start"
                             ColumnWidthMode="FitByCell"
-                            MaximumWidth="300"/>
+                            MaximumWidth="400"
+                            AllowSorting="True"/>
 
                         <syncfusion:DataGridNumericColumn
                             MappingName="PriPrice"
@@ -129,7 +136,7 @@
                         WidthRequest="40"
                         Padding="4"/>
 
-                <Button Text="Remove"
+                <Button Text="Eliminar"
                         BackgroundColor="#6c757d"
                         TextColor="White"
                         Clicked="OnRemoveItemClicked"
