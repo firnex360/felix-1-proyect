@@ -586,10 +586,13 @@ namespace felix1.OrderSection
 
             var totalPayment = _cashAmount + _cardAmount + _transferAmount;
 
-            if (!Order.IsDuePaid && totalPayment < Total)
+            if (!Order.IsDuePaid)
             {
-                await DisplayAlert("Error", $"El total pagado (${totalPayment:N2}) es menor que el total de la orden (${Total:N2})", "OK");
-                return;
+                if (totalPayment < Total)
+                {
+                    await DisplayAlert("Error", $"El pago (${totalPayment:N2}) no cubre el total de la orden (${Total:N2})", "OK");
+                    return;
+                }
             }
 
             _changeAmount = totalPayment > Total ? totalPayment - Total : 0;
@@ -600,6 +603,7 @@ namespace felix1.OrderSection
                 var orderToUpdate = await db.Orders
                     .Include(o => o.Table)
                     .Include(o => o.Items)
+                    .Include(o => o.CashRegister)
                     .FirstOrDefaultAsync(o => o.Id == Order.Id);
 
                 if (orderToUpdate == null) return false;
@@ -616,29 +620,16 @@ namespace felix1.OrderSection
                     TransferAmount = _transferAmount
                 };
 
-                if (Order.IsDuePaid)
+                if (orderToUpdate.Table != null)
                 {
-                    orderToUpdate.IsDuePaid = true;
+                    orderToUpdate.Table.IsPaid = true; 
+                    orderToUpdate.Table.IsBillRequested = false;
 
-                    if (orderToUpdate.Table != null)
-                    {
-                        orderToUpdate.Table.IsPaid = true;
-                        orderToUpdate.Table.IsBillRequested = false;
-                    }
-
-                    if (totalPayment < Total)
+                    if (orderToUpdate.IsDuePaid)
                     {
                         await DisplayAlert("Información",
-                            $"Orden marcada como pagada con pago parcial (${totalPayment:N2} de ${Total:N2})",
+                            $"Pago registrado (${totalPayment:N2}) para cuenta por cobrar",
                             "OK");
-                    }
-                }
-                else
-                {
-                    if (totalPayment >= Total && orderToUpdate.Table != null)
-                    {
-                        orderToUpdate.Table.IsPaid = true;
-                        orderToUpdate.Table.IsBillRequested = false;
                     }
                 }
 
@@ -647,11 +638,9 @@ namespace felix1.OrderSection
 
                 if (Order.Table != null)
                 {
-                    Order.Table.IsPaid = orderToUpdate.Table?.IsPaid ?? false;
-                    Order.Table.IsBillRequested = orderToUpdate.Table?.IsBillRequested ?? false;
+                    Order.Table.IsPaid = true;
+                    Order.Table.IsBillRequested = false;
                 }
-
-                Order.IsDuePaid = orderToUpdate.IsDuePaid;
 
                 return true;
             });
