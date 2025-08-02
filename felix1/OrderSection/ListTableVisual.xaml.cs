@@ -438,13 +438,18 @@ private void LoadExistingTakeoutOrders()
         await AppDbContext.ExecuteSafeAsync(async db =>
         {
             var waiter = await db.Users.FirstOrDefaultAsync(u => u.Name == "TAKEOUT");
-            var cashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
+            var cashRegister = await db.CashRegisters
+                .Include(c => c.Cashier)  // Include the Cashier relationship
+                .FirstOrDefaultAsync(c => c.IsOpen);
 
             if (cashRegister == null)
             {
                 await Application.Current!.MainPage!.DisplayAlert("Error", "No hay una caja abierta.", "OK");
                 return;
             }
+
+            // Debug: Check if cashier is loaded
+            Console.WriteLine($"Cash Register Cashier: {cashRegister.Cashier?.Name ?? "NULL"}");
 
             var existingTakeouts = await db.Orders
                 .Where(o => o.CashRegister!.Id == cashRegister.Id && o.Table != null && o.Table.IsTakeOut)
