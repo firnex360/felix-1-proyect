@@ -349,38 +349,55 @@
                            VerticalOptions="Center"/>
 
                     <!-- Action Buttons -->
-                    <HorizontalStackLayout  Grid.Row="6"
-                                            Grid.ColumnSpan="2"
-                                            Spacing="15"
-                                            HorizontalOptions="Center"
-                                            VerticalOptions="Center"
-                                            Margin="0,15,0,0">
-
-                        <Button x:Name="exitSaveButton"
-                                Text="Salir y Guardar"
-                                BackgroundColor="#C7CFDD"
-                                TextColor="Black"
-                                Clicked="OnExitSave"
-                                FontSize="14"
-                                WidthRequest="150"
-                                HeightRequest="45"
-                                CornerRadius="8"
-                                FontAttributes="Bold">
-
-
-                        </Button>
+                    <VerticalStackLayout
+                        Grid.Row="6"
+                        Grid.ColumnSpan="2"
+                        Padding="5"
+                        Spacing="10">
 
                         <Button x:Name="printReceiptButton"
-                                Text="Imprimir Recibo"
+                                Text="Imprimir Recibo (F4)"
                                 BackgroundColor="#005F8C"
                                 TextColor="White"
                                 Clicked="OnPrintReceipt"
                                 FontSize="14"
-                                WidthRequest="200"
-                                HeightRequest="45"
+                                HeightRequest="10"
                                 CornerRadius="8"
-                                FontAttributes="Bold"/>
-                    </HorizontalStackLayout>
+                                FontAttributes="Bold"
+                                HorizontalOptions="Fill"/>
+
+                        <HorizontalStackLayout  Grid.Row="6"
+                                                Grid.ColumnSpan="2"
+                                                Spacing="5"
+                                                HorizontalOptions="Center"
+                                                VerticalOptions="Center"
+                                                Margin="0,0,0,0">
+
+                            <Button x:Name="exitSaveButton"
+                                    Text="Salir y Guardar (ESC)"
+                                    BackgroundColor="#C7CFDD"
+                                    TextColor="Black"
+                                    Clicked="OnExitSave"
+                                    FontSize="14"
+                                    HorizontalOptions="Fill"
+                                    HeightRequest="10"
+                                    CornerRadius="8"
+                                    FontAttributes="Bold"/>
+
+                            <Button x:Name="printReceiptButtonCopy"
+                                    Text="Imprimir Recibo Copia (F2)"
+                                    BackgroundColor="#005F8C"
+                                    TextColor="White"
+                                    Clicked="OnPrintReceiptCopy"
+                                    FontSize="14"
+                                    HorizontalOptions="Fill"
+                                    HeightRequest="10"
+                                    CornerRadius="8"
+                                    FontAttributes="Bold"/>
+
+
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
                 </Grid>
             </Frame>
         </Grid>

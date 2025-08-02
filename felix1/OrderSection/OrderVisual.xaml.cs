@@ -25,7 +25,8 @@ public partial class OrderVisual : ContentPage
     public ObservableCollection<OrderItem> OrderItems { get; set; } = new();
     private Order? _currentOrder;
     private bool _isEditing = false;
-    private bool _useSecondaryPrice = false; // Cache for cash register setting
+    private bool _useSecondaryPrice = false;
+    private bool _isCopyReceipt = false;
 
     // Tax rates from configuration
     private decimal _taxRate = 0.0m;
@@ -404,8 +405,12 @@ public partial class OrderVisual : ContentPage
                 OnExitSave(this, EventArgs.Empty);
                 e.Handled = true;
                 break;
-            case Windows.System.VirtualKey.F2:
+            case Windows.System.VirtualKey.F4:
                 OnPrintReceipt(this, EventArgs.Empty);
+                e.Handled = true;
+                break;
+            case Windows.System.VirtualKey.F2:
+                OnPrintReceiptCopy(this, EventArgs.Empty);
                 e.Handled = true;
                 break;
         }
@@ -446,8 +451,12 @@ public partial class OrderVisual : ContentPage
                 OnExitSave(this, EventArgs.Empty);
                 e.Handled = true;
                 break;
-            case Windows.System.VirtualKey.F2:
+            case Windows.System.VirtualKey.F4:
                 OnPrintReceipt(this, EventArgs.Empty);
+                e.Handled = true;
+                break;
+            case Windows.System.VirtualKey.F2:
+                OnPrintReceiptCopy(this, EventArgs.Empty);
                 e.Handled = true;
                 break;
         }
@@ -751,8 +760,15 @@ public partial class OrderVisual : ContentPage
         }
     }
 
+    private void OnPrintReceiptCopy(object sender, EventArgs e)
+    {
+        _isCopyReceipt = true; // Set flag to indicate this is a copy print
+        OnPrintReceipt(sender, e);
+    }
+
     private async void OnPrintReceipt(object sender, EventArgs e)
     {
+
         // Save order changes first
         if (!SaveOrderChanges())
         {
@@ -810,7 +826,10 @@ public partial class OrderVisual : ContentPage
                 // Update the current order reference with the database version
                 _currentOrder = orderFromDb;
 
-                _currentOrder.IsBillRequested = true;
+                if (!_isCopyReceipt)
+                {
+                    _currentOrder.IsBillRequested = true;
+                }
                 db.Orders.Update(_currentOrder);
                 await db.SaveChangesAsync();
 
