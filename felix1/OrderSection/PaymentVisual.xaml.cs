@@ -34,6 +34,7 @@ namespace felix1.OrderSection
         public decimal Total => (Subtotal + TaxITBIS + TaxWaiters) - Discount;
         public decimal TotalPayment => _cashAmount + _cardAmount + _transferAmount;
         public int ItemsCount => Order.Items?.Sum(i => i.Quantity) ?? 0;
+        public string OrderInfoText { get; set; }
 
         public string TaxITBISLabel => $"ITBIS ({_taxRate:P0})";
         public string TaxWaitersLabel => $"Propina ({_waiterTaxRate:P0})";
@@ -64,6 +65,8 @@ namespace felix1.OrderSection
             InitializeComponent();
             Order = order;
             BindingContext = this;
+
+            OrderInfoText = $"Mesa {order.Table?.LocalNumber} ({order.Table?.GlobalNumber}) - Orden #{order.Id}";
 
             UpdatePaymentSummary();
             AddCashMethod();

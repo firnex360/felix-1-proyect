@@ -9,6 +9,17 @@
     <Grid ColumnDefinitions="400,*"
           RowDefinitions="*">
 
+        <!-- RIGHT COLUMN with info order and table -->
+        <Label Grid.Column="1"
+               Grid.Row="0"
+               Text="{Binding OrderInfoText}"
+               HorizontalOptions="End"
+               VerticalOptions="Center"
+               Margin="0,0,20,0"
+               FontSize="16"
+               FontAttributes="Bold"
+               TextColor="#005F8C"/>
+
         <!-- LEFT COLUMN with DataGrid + SearchBar -->
         <Grid Grid.Column="0"
               RowDefinitions="*,Auto"
@@ -109,41 +120,53 @@
 
             <!-- Toolbar for Order Actions -->
             <StackLayout Grid.Row="0"
-                         Orientation="Horizontal"
-                         Spacing="10"
-                         Margin="0,0,0,10">
+             Orientation="Horizontal"
+             Spacing="10"
+             Margin="0,0,0,10">
 
                 <Button Text="+"
-                        BackgroundColor="#28a745"
-                        TextColor="White"
-                        Clicked="OnIncreaseQuantityClicked"
-                        FontSize="14"
-                        WidthRequest="40"
-                        Padding="4"/>
+            BackgroundColor="#28a745"
+            TextColor="White"
+            Clicked="OnIncreaseQuantityClicked"
+            FontSize="14"
+            WidthRequest="40"
+            Padding="4"/>
 
                 <Button Text="-"
-                        BackgroundColor="#dc3545"
-                        TextColor="White"
-                        Clicked="OnDecreaseQuantityClicked"
-                        FontSize="14"
-                        WidthRequest="40"
-                        Padding="4"/>
+            BackgroundColor="#dc3545"
+            TextColor="White"
+            Clicked="OnDecreaseQuantityClicked"
+            FontSize="14"
+            WidthRequest="40"
+            Padding="4"/>
 
                 <Button Text="Remove"
-                        BackgroundColor="#6c757d"
-                        TextColor="White"
-                        Clicked="OnRemoveItemClicked"
-                        FontSize="12"
-                        Padding="8,4"/>
+            BackgroundColor="#6c757d"
+            TextColor="White"
+            Clicked="OnRemoveItemClicked"
+            FontSize="12"
+            Padding="8,4"/>
 
                 <CheckBox x:Name="dueToPayCheckBox"
-                          VerticalOptions="Center"
-                          Color="#005F8C"/>
+              VerticalOptions="Center"
+              Color="#005F8C"/>
 
                 <Label Text="Por cobrar"
-                       FontSize="14"
-                       TextColor="Black"
-                       VerticalOptions="Center"/>
+           FontSize="14"
+           TextColor="Black"
+           VerticalOptions="Center"/>
+
+                <!-- Add a spacer to push the order info to the right -->
+                <BoxView Color="Transparent"
+             WidthRequest="20"/>
+
+                <Label Text="{Binding OrderInfoText}"
+           HorizontalOptions="EndAndExpand"
+           VerticalOptions="Center"
+           FontSize="14"
+           FontAttributes="Bold"
+           TextColor="#005F8C"/>
+
             </StackLayout>
 
             <!-- Order Items DataGrid -->

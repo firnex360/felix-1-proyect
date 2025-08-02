@@ -34,10 +34,12 @@ public partial class OrderVisual : ContentPage
 
     private bool _isSearchBarFocused = false;
     private System.Timers.Timer? _focusTimer;
+    public string OrderInfoText { get; set; }
 
     public OrderVisual(Order order)
     {
         InitializeComponent();
+
         BindingContext = this;
         _currentOrder = order;
         LoadTaxRatesFromConfiguration(); // Load tax rates from preferences
@@ -83,6 +85,8 @@ public partial class OrderVisual : ContentPage
 
             dueToPayCheckBox.IsChecked = order.IsDuePaid;
         }
+
+        OrderInfoText = $"Mesa {order.Table?.LocalNumber} ({order.Table?.GlobalNumber}) - Orden #{order.Id}";
 
     }
 
