@@ -17,6 +17,7 @@ public partial class OrderSectionMainVisual : ContentPage
 {
     private CashRegister _cashRegister;
     private User? _waiter;
+    private System.Timers.Timer? _searchBarFocusTimer;
 
     public OrderSectionMainVisual(CashRegister cashRegister, User waiter)
     {
@@ -40,6 +41,34 @@ public partial class OrderSectionMainVisual : ContentPage
         }
 #endif
 
+    }
+
+    // Timer for auto-focusing the search bar
+    private void StartSearchBarFocusTimer()
+    {
+        _searchBarFocusTimer = new System.Timers.Timer(5000); // 5 seconds
+        _searchBarFocusTimer.Elapsed += (s, e) =>
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                // Only focus if search bar is not already focused and no popup is open
+                if (searchBar != null && !searchBar.IsFocused)
+                {
+                    searchBar.Focus();
+                }
+            });
+        };
+        _searchBarFocusTimer.Start();
+    }
+
+    private void StopSearchBarFocusTimer()
+    {
+        if (_searchBarFocusTimer != null)
+        {
+            _searchBarFocusTimer.Stop();
+            _searchBarFocusTimer.Dispose();
+            _searchBarFocusTimer = null;
+        }
     }
 
     private void DisplayCashRegisterInfo()
@@ -206,6 +235,17 @@ public partial class OrderSectionMainVisual : ContentPage
         base.OnAppearing();
         this.HandlerChanged += OnHandlerChanged;
         OnHandlerChanged(this, EventArgs.Empty);
+        
+        // Start the timer when the page appears
+        //StartSearchBarFocusTimer();
+    }
+
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+        
+        // Stop the timer when the page disappears
+        //StopSearchBarFocusTimer();
     }
 
     private void OnHandlerChanged(object? sender, EventArgs e)
