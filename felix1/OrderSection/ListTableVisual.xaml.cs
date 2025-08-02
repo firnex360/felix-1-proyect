@@ -229,6 +229,9 @@ public partial class ListTableVisual : ContentView
 
     private decimal findOrderTotal(Order order)
     {
+        if (order.Items == null || order.Items.Count == 0 || order.Table == null)
+            return 0m;
+            
         var subtotal = order.Items!
             .GroupBy(item => item.Id) // Group by unique ID
             .Select(group => group.First()) // Take first instance of each
@@ -236,8 +239,14 @@ public partial class ListTableVisual : ContentView
 
         var taxRate = decimal.Parse(Preferences.Get("TaxRate", "18")) / 100m * subtotal;
         var waiterTaxRate = decimal.Parse(Preferences.Get("WaiterTaxRate", "10")) / 100m * subtotal;
+        var deliveryTaxRate = decimal.Parse(Preferences.Get("DeliveryTaxRate", "0")) / 100m * subtotal;
 
-        return subtotal + waiterTaxRate + taxRate;
+        if (order.Table.IsTakeOut)
+        {
+            return subtotal + deliveryTaxRate - order.Discount;
+        }
+        return subtotal + waiterTaxRate + taxRate - order.Discount;
+        
     }
 
     private async void RefundVisual(Order order)
@@ -402,7 +411,7 @@ public partial class ListTableVisual : ContentView
 
         var orderButton = new Button
         {
-            Text = $"Orden #{displayOrderNumber}",
+            Text = $"Orden #{order.OrderNumber} || Total: {findOrderTotal(order):C}",
             FontSize = 12,
             HeightRequest = 30,
             //WidthRequest = 90,
