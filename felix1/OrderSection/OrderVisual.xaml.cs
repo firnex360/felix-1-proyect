@@ -774,6 +774,16 @@ public partial class OrderVisual : ContentPage
             return;
         }
 
+        //Validar si la orden tiene un descuento mayor al total de la orden, lit quien sería tan tontito de hacer eso?
+        decimal orderTotal = CalculateSubtotal() + CalculateTax(CalculateSubtotal()) + CalculateWaiterTax(CalculateSubtotal());
+        if (_discountAmount > orderTotal)
+        {
+            await DisplayAlert("Descuento inválido",
+                $"El descuento ({_discountAmount:C2}) no puede ser mayor que el total de la orden ({orderTotal:C2}).",
+                "OK");
+            return;
+        }
+
         Console.WriteLine("Print receipt clicked");
         if (_currentOrder != null)
         {
