@@ -122,6 +122,7 @@ public partial class OrderVisual : ContentPage
         var articlesFromDb = AppDbContext.ExecuteSafeAsync(async db =>
             await db.Articles
                 .Where(a => !a.IsDeleted)
+                .OrderBy(a => a.Name)
                 .ToListAsync())
             .GetAwaiter().GetResult();
 

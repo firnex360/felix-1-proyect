@@ -53,11 +53,6 @@
                                                   CurrentCellBorderColor="#C7CFDD"/>
                     </syncfusion:SfDataGrid.DefaultStyle>
 
-                    <syncfusion:SfDataGrid.SortColumnDescriptions>
-                        <syncfusion:SortColumnDescription ColumnName="Name"
-                                                          SortDirection="Ascending"/>
-                    </syncfusion:SfDataGrid.SortColumnDescriptions>
-
                     <syncfusion:SfDataGrid.Columns>
                         <syncfusion:DataGridTextColumn
                             x:Name="colName"
@@ -66,8 +61,7 @@
                             CellTextAlignment="Start"
                             HeaderTextAlignment="Start"
                             ColumnWidthMode="FitByCell"
-                            MaximumWidth="400"
-                            AllowSorting="True"/>
+                            MaximumWidth="400"/>
 
                         <syncfusion:DataGridNumericColumn
                             MappingName="PriPrice"
