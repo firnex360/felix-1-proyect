@@ -20,7 +20,7 @@ Artículos:
 ═══════════════════════════════════════════════
 {{ "Subtotal:" | string.pad_right 23 }}{{ (receipt.TotalAmount - receipt.TaxAmountITBIS - receipt.TaxAmountWaiters - receipt.TaxAmountDelivery) | math.format "c" "en-US" }}
 {{ if receipt.Order.Discount > 0 }}
-{{ "Descuento:" | string.pad_right 23 }}{{ receipt.Order.Discount | math.format "c" "en-US" | string.prepend "-" }}
+{{ "Descuento:" | string.pad_right 22 }}{{ receipt.Order.Discount | math.format "c" "en-US" | string.prepend "-" }}
 {{end}}
 {{- if receipt.Order.Table.IsTakeOut }}
 {{ ("Delivery (" + (receipt.TaxRateDelivery | math.times 100 | math.format "0") + "%):") | string.pad_right 23 }}{{ receipt.TaxAmountDelivery | math.format "c" "en-US" }}
