@@ -5,7 +5,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="felix1.AdminSection.Configuration"
              BackgroundColor="White">
-
+<ScrollView>
     <VerticalStackLayout Spacing="25"
                          Padding="20">
         <!-- Company Information Section -->
@@ -355,6 +355,45 @@
             </VerticalStackLayout>
         </Frame>
 
+        <!-- Auto-Close Cash Register -->
+        <Frame BackgroundColor="#F8F9FA"
+            CornerRadius="12"
+            HasShadow="True"
+            BorderColor="#E9ECEF"
+            Padding="20">
+            <VerticalStackLayout Spacing="20">
+                <Label Text="Cierre Automático de Caja Registradora"
+                    FontSize="18"
+                    FontAttributes="Bold"
+                    TextColor="#005F8C"
+                    Margin="0,0,0,10"/>
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Horas antes de cerrar automáticamente:"
+                        FontSize="14"
+                        FontAttributes="Bold"
+                        TextColor="#005F8C"/>
+                    <Border Stroke="#C7CFDD"
+                            StrokeThickness="1"
+                            BackgroundColor="White"
+                            StrokeShape="RoundRectangle 8"
+                            Padding="3"
+                            HeightRequest="45">
+                        <numericEntry:SfNumericEntry x:Name="txtAutoCloseHours"
+                                                    CustomFormat="#.##"
+                                                    Value="12"
+                                                    Placeholder="12"
+                                                    PlaceholderColor="Gray"
+                                                    ShowClearButton="True"
+                                                    TextColor="#FF005F8C"
+                                                    FontSize="16"
+                                                    BackgroundColor="Transparent"
+                                                    ShowBorder="False"/>
+                    </Border>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </Frame>
+
+
         <!-- Save Button -->
 
         <Button Text="Guardar Cambios"
@@ -368,4 +407,5 @@
                 FontSize="16"
                 HorizontalOptions="Fill"/>
     </VerticalStackLayout>
+</ScrollView>
 </ContentView>

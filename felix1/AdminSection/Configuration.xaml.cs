@@ -15,26 +15,29 @@ public partial class Configuration : ContentView
         // Load all saved values (fall back to defaults if not found)
         txtCompany.Text = Preferences.Get("CompanyName", "Sin nombre");
         txtAddress.Text = Preferences.Get("CompanyAddress", "Sin dirección");
-        
+
         // Use TryParse to handle invalid string formats safely
         var phoneStr = Preferences.Get("CompanyPhone", "0");
         txtPhone.Value = double.TryParse(phoneStr, out double phone) ? phone : 0;
-        
+
         txtEmail.Text = Preferences.Get("CompanyEmail", "");
-        
+
         var rncStr = Preferences.Get("CompanyRNC", "0");
         txtRNC.Value = double.TryParse(rncStr, out double rnc) ? rnc : 0;
-        
+
         var taxStr = Preferences.Get("TaxRate", "18");
         txtTax.Value = double.TryParse(taxStr, out double tax) ? tax : 18;
-        
+
         var deliveryTaxStr = Preferences.Get("DeliveryTaxRate", "0");
         txtDeliveryTax.Value = double.TryParse(deliveryTaxStr, out double deliveryTax) ? deliveryTax : 0;
-        
+
         var waiterTaxStr = Preferences.Get("WaiterTaxRate", "10");
         txtWaiterTax.Value = double.TryParse(waiterTaxStr, out double waiterTax) ? waiterTax : 10;
-        
+
         txtComment.Text = Preferences.Get("InvoiceComment", "GRACIAS POR PREFERIRNOS");
+        var closeHourStr = Preferences.Get("AutoCloseHours", "12");
+        txtAutoCloseHours.Value = double.TryParse(closeHourStr, out double closeHours) ? closeHours : 12;
+
     }
 
     private void LoadAvailablePrinters()
@@ -112,6 +115,8 @@ public partial class Configuration : ContentView
             Preferences.Set("DeliveryTaxRate", txtDeliveryTax.Value.ToString());
             Preferences.Set("WaiterTaxRate", txtWaiterTax.Value.ToString());
             Preferences.Set("InvoiceComment", txtComment.Text);
+            Preferences.Set("AutoCloseHours", txtAutoCloseHours.Value.ToString());
+
             
             // Save selected printer
             if (pickerPrinter.SelectedItem != null)
