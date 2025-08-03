@@ -1099,7 +1099,7 @@ public partial class ListTableVisual : ContentView
     {
         // Gray highlight for non-active frames when cycling with Tab
         tableFrame.BorderColor = Color.FromArgb("#9E9E9E"); // Gray for inactive
-        tableFrame.BackgroundColor = Color.FromArgb("#F5F5F5"); // Light gray background
+        tableFrame.BackgroundColor = Color.FromArgb("#ffffff"); // Light gray background
         tableFrame.HasShadow = true;
         tableFrame.CornerRadius = 10;
         tableFrame.Shadow = new Shadow

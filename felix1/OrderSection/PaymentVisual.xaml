@@ -11,10 +11,10 @@
 
     <ContentPage.Resources>
         <ResourceDictionary>
-            <local:BoolToColorConverter x:Key="BoolToColorConverter" />
-            
+            <local:BoolToColorConverter x:Key="BoolToColorConverter"/>
+
             <Style x:Key="CancelButtonStyle"
-                    TargetType="buttons:SfButton">
+                   TargetType="buttons:SfButton">
                 <Setter Property="TextColor"
                         Value="Black"/>
                 <Setter Property="CornerRadius"
@@ -57,9 +57,9 @@
                 </Setter>
             </Style>
 
-            
+
             <Style x:Key="ButtonStyle"
-                    TargetType="buttons:SfButton">
+                   TargetType="buttons:SfButton">
                 <Setter Property="TextColor"
                         Value="Black"/>
                 <Setter Property="CornerRadius"
@@ -111,30 +111,40 @@
           Padding="20"
           RowSpacing="20">
 
-        <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="15">
+        <VerticalStackLayout Grid.Row="0"
+                Grid.Column="0"
+                Spacing="15">
             <Frame BackgroundColor="#F5F5F5"
                    CornerRadius="10"
                    BorderColor="#FFE0E0E0"
                    HasShadow="True"
                    Padding="0">
-                <VerticalStackLayout Spacing="10" Padding="15">
+                <VerticalStackLayout Spacing="10"
+                        Padding="15">
 
-                    <Label Text="Detalles" FontAttributes="Bold" FontSize="20" TextColor="#005F8C" FontFamily="Inter"/>
-                    <CollectionView x:Name="ItemsList" ItemsSource="{Binding Order.Items}" MaximumHeightRequest="125">
+                    <Label Text="Detalles"
+                            FontAttributes="Bold"
+                            FontSize="20"
+                            TextColor="#005F8C"
+                            FontFamily="Inter"/>
+                    <CollectionView x:Name="ItemsList"
+                            ItemsSource="{Binding Order.Items}"
+                            MaximumHeightRequest="125">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
                                 <VerticalStackLayout Margin="0,0,0,10">
-                                    <Label Text="{Binding Article.Name}" 
-                                               TextColor="#005F8C" 
-                                               FontAttributes="Bold"
-                                               FontFamily="Inter"/>
-
-                                    <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="5">
-                                        <Label Text="- " 
-                                           Grid.Column="0"
+                                    <Label Text="{Binding Article.Name}"
                                            TextColor="#005F8C"
-                                           FontFamily="Inter"
-                                           VerticalOptions="Center"/>
+                                           FontAttributes="Bold"
+                                           FontFamily="Inter"/>
+
+                                    <Grid ColumnDefinitions="Auto, *, Auto"
+                                            ColumnSpacing="5">
+                                        <Label Text="- "
+                                               Grid.Column="0"
+                                               TextColor="#005F8C"
+                                               FontFamily="Inter"
+                                               VerticalOptions="Center"/>
 
                                         <Label Grid.Column="1"
                                                TextColor="#005F8C"
@@ -142,23 +152,23 @@
                                                VerticalOptions="Center">
                                             <Label.FormattedText>
                                                 <FormattedString>
-                                                    <Span Text="{Binding Quantity, StringFormat='{0:N0} x '}" 
+                                                    <Span Text="{Binding Quantity, StringFormat='{0:N0} x '}"
                                                           TextColor="#005F8C"
                                                           FontFamily="Inter"/>
-                                                    <Span Text="{Binding UnitPrice, StringFormat='{0:N2}'}" 
-                                                      TextColor="#005F8C"
-                                                      FontFamily="Inter"/>
+                                                    <Span Text="{Binding UnitPrice, StringFormat='{0:N2}'}"
+                                                          TextColor="#005F8C"
+                                                          FontFamily="Inter"/>
                                                 </FormattedString>
                                             </Label.FormattedText>
                                         </Label>
 
-                                        <Label Text="{Binding TotalPrice, StringFormat='{0:N2}'}" 
-                                           Grid.Column="2"
-                                           TextColor="#005F8C"
-                                           FontAttributes="Bold"
-                                           HorizontalOptions="End"
-                                           FontFamily="Inter"
-                                           VerticalOptions="Center"/>
+                                        <Label Text="{Binding TotalPrice, StringFormat='{0:N2}'}"
+                                               Grid.Column="2"
+                                               TextColor="#005F8C"
+                                               FontAttributes="Bold"
+                                               HorizontalOptions="End"
+                                               FontFamily="Inter"
+                                               VerticalOptions="Center"/>
                                     </Grid>
 
                                 </VerticalStackLayout>
@@ -166,105 +176,114 @@
                         </CollectionView.ItemTemplate>
                     </CollectionView>
 
-                    <BoxView HeightRequest="1" BackgroundColor="#005F8C" Margin="0,10" />
+                    <BoxView HeightRequest="1"
+                            BackgroundColor="#005F8C"
+                            Margin="0,10"/>
 
                     <Grid ColumnDefinitions="Auto, *, Auto">
-                        <Label Text="{Binding ItemsCount, StringFormat='Items x{0:N0}'}" 
-                               Grid.Column="0" 
+                        <Label Text="{Binding ItemsCount, StringFormat='Items x{0:N0}'}"
+                               Grid.Column="0"
                                Grid.ColumnSpan="2"
-                               TextColor="#005F8C" 
+                               TextColor="#005F8C"
                                HorizontalOptions="Start"
                                FontFamily="Inter"/>
 
 
-                        <Label Text="{Binding Subtotal, StringFormat='{0:N2}'}" 
-                                   Grid.Column="2" 
-                                   TextColor="#005F8C" 
-                                   HorizontalOptions="End"
-                                   FontFamily="Inter"/>
+                        <Label Text="{Binding Subtotal, StringFormat='{0:N2}'}"
+                               Grid.Column="2"
+                               TextColor="#005F8C"
+                               HorizontalOptions="End"
+                               FontFamily="Inter"/>
                     </Grid>
 
                     <Grid ColumnDefinitions="*, Auto">
-                        <Label Text="{Binding TaxITBISLabel}" 
-                                   TextColor="#005F8C"
-                                   FontFamily="Inter"/>
-                        <Label Text="{Binding TaxITBIS, StringFormat='{0:N2}'}" 
-                                   Grid.Column="1"
-                                   TextColor="#005F8C" 
-                                   HorizontalOptions="End"
-                                   FontFamily="Inter"/>
+                        <Label Text="{Binding TaxITBISLabel}"
+                               TextColor="#005F8C"
+                               FontFamily="Inter"/>
+                        <Label Text="{Binding TaxITBIS, StringFormat='{0:N2}'}"
+                               Grid.Column="1"
+                               TextColor="#005F8C"
+                               HorizontalOptions="End"
+                               FontFamily="Inter"/>
                     </Grid>
 
                     <Grid ColumnDefinitions="*, Auto">
-                        <Label Text="{Binding TaxWaitersLabel}" 
-                                   TextColor="#005F8C"
-                                   FontFamily="Inter"/>
-                        <Label Text="{Binding TaxWaiters, StringFormat='{0:N2}'}" 
-                                   Grid.Column="1"
-                                   TextColor="#005F8C" 
-                                   HorizontalOptions="End"
-                                   FontFamily="Inter"/>
+                        <Label Text="{Binding TaxWaitersLabel}"
+                               TextColor="#005F8C"
+                               FontFamily="Inter"/>
+                        <Label Text="{Binding TaxWaiters, StringFormat='{0:N2}'}"
+                               Grid.Column="1"
+                               TextColor="#005F8C"
+                               HorizontalOptions="End"
+                               FontFamily="Inter"/>
                     </Grid>
 
                     <Grid ColumnDefinitions="*, Auto">
-                        <Label Text="Total" 
-                                   FontAttributes="Bold" 
-                                   TextColor="#005F8C"
-                                   FontFamily="Inter"/>
-                        <Label Text="{Binding Total, StringFormat='{0:N2}'}" 
-                                   Grid.Column="1"
-                                   FontAttributes="Bold" 
-                                   TextColor="#005F8C" 
-                                   HorizontalOptions="End"
-                                   FontFamily="Inter"/>
+                        <Label Text="Total"
+                               FontAttributes="Bold"
+                               TextColor="#005F8C"
+                               FontFamily="Inter"/>
+                        <Label Text="{Binding Total, StringFormat='{0:N2}'}"
+                               Grid.Column="1"
+                               FontAttributes="Bold"
+                               TextColor="#005F8C"
+                               HorizontalOptions="End"
+                               FontFamily="Inter"/>
                     </Grid>
 
-                    <BoxView HeightRequest="1" BackgroundColor="#005F8C" Margin="0,10" IsVisible="{Binding AnyPaymentMethodUsed}"/>
+                    <BoxView HeightRequest="1"
+                            BackgroundColor="#005F8C"
+                            Margin="0,10"
+                            IsVisible="{Binding AnyPaymentMethodUsed}"/>
 
-                    <Grid ColumnDefinitions="*, Auto" IsVisible="{Binding IsCashUsed}">
-                        <Label Text="Efectivo:" 
-                                   TextColor="#005F8C"
-                                   FontFamily="Inter"/>
-                        <Label Text="{Binding CashAmount, StringFormat='{0:N2}'}" 
-                                   Grid.Column="1"
-                                   TextColor="#005F8C" 
-                                   HorizontalOptions="End"
-                                   FontFamily="Inter"/>
+                    <Grid ColumnDefinitions="*, Auto"
+                            IsVisible="{Binding IsCashUsed}">
+                        <Label Text="Efectivo:"
+                               TextColor="#005F8C"
+                               FontFamily="Inter"/>
+                        <Label Text="{Binding CashAmount, StringFormat='{0:N2}'}"
+                               Grid.Column="1"
+                               TextColor="#005F8C"
+                               HorizontalOptions="End"
+                               FontFamily="Inter"/>
                     </Grid>
 
-                    <Grid ColumnDefinitions="*, Auto" IsVisible="{Binding IsTransferUsed}">
-                        <Label Text="Transferencia:" 
-                                   TextColor="#005F8C"
-                                   FontFamily="Inter"/>
-                        <Label Text="{Binding TransferAmount, StringFormat='{0:N2}'}" 
-                                   Grid.Column="1"
-                                   TextColor="#005F8C" 
-                                   HorizontalOptions="End"
-                                   FontFamily="Inter"/>
+                    <Grid ColumnDefinitions="*, Auto"
+                            IsVisible="{Binding IsTransferUsed}">
+                        <Label Text="Transferencia:"
+                               TextColor="#005F8C"
+                               FontFamily="Inter"/>
+                        <Label Text="{Binding TransferAmount, StringFormat='{0:N2}'}"
+                               Grid.Column="1"
+                               TextColor="#005F8C"
+                               HorizontalOptions="End"
+                               FontFamily="Inter"/>
                     </Grid>
 
-                    <Grid ColumnDefinitions="*, Auto" IsVisible="{Binding IsCardUsed}">
-                        <Label Text="Tarjeta:" 
-                                   TextColor="#005F8C"
-                                   FontFamily="Inter"/>
-                        <Label Text="{Binding CardAmount, StringFormat='{0:N2}'}" 
-                                   Grid.Column="1"
-                                   TextColor="#005F8C" 
-                                   HorizontalOptions="End"
-                                   FontFamily="Inter"/>
+                    <Grid ColumnDefinitions="*, Auto"
+                            IsVisible="{Binding IsCardUsed}">
+                        <Label Text="Tarjeta:"
+                               TextColor="#005F8C"
+                               FontFamily="Inter"/>
+                        <Label Text="{Binding CardAmount, StringFormat='{0:N2}'}"
+                               Grid.Column="1"
+                               TextColor="#005F8C"
+                               HorizontalOptions="End"
+                               FontFamily="Inter"/>
                     </Grid>
 
-                    <Grid ColumnDefinitions="*, Auto" IsVisible="{Binding AnyPaymentMethodUsed}">
-                        <Label Text="Total Pagado:" 
-                                   FontAttributes="Bold" 
-                                   TextColor="#005F8C"
-                                   FontFamily="Inter"/>
-                        <Label Text="{Binding TotalPayment, StringFormat='{0:N2}'}" 
-                                   Grid.Column="1"
-                                   FontAttributes="Bold" 
-                                   TextColor="#005F8C" 
-                                   HorizontalOptions="End"
-                                   FontFamily="Inter"/>
+                    <Grid ColumnDefinitions="*, Auto"
+                            IsVisible="{Binding AnyPaymentMethodUsed}">
+                        <Label Text="Total Pagado:"
+                               FontAttributes="Bold"
+                               TextColor="#005F8C"
+                               FontFamily="Inter"/>
+                        <Label Text="{Binding TotalPayment, StringFormat='{0:N2}'}"
+                               Grid.Column="1"
+                               FontAttributes="Bold"
+                               TextColor="#005F8C"
+                               HorizontalOptions="End"
+                               FontFamily="Inter"/>
                     </Grid>
                 </VerticalStackLayout>
             </Frame>
@@ -277,30 +296,30 @@
                    Padding="15">
                 <VerticalStackLayout Spacing="8">
                     <Grid ColumnDefinitions="*, Auto">
-                        <Label Text="Total" 
-                               FontAttributes="Bold" 
-                               TextColor="#005F8C" 
+                        <Label Text="Total"
+                               FontAttributes="Bold"
+                               TextColor="#005F8C"
                                FontSize="30"
                                FontFamily="Inter"/>
-                        <Label Text="{Binding Total, StringFormat='{0:N2}'}" 
+                        <Label Text="{Binding Total, StringFormat='{0:N2}'}"
                                Grid.Column="1"
-                               FontAttributes="Bold" 
-                               FontSize="30" 
-                               TextColor="#005F8C" 
+                               FontAttributes="Bold"
+                               FontSize="30"
+                               TextColor="#005F8C"
                                HorizontalOptions="End"
                                FontFamily="Inter"/>
                     </Grid>
                     <Grid ColumnDefinitions="*, Auto">
-                        <Label Text="Devuelta" 
-                               FontAttributes="Bold" 
-                               TextColor="#005F8C" 
+                        <Label Text="Devuelta"
+                               FontAttributes="Bold"
+                               TextColor="#005F8C"
                                FontSize="30"
                                FontFamily="Inter"/>
-                        <Label Text="{Binding ChangeAmount, StringFormat='{0:N2}'}" 
+                        <Label Text="{Binding ChangeAmount, StringFormat='{0:N2}'}"
                                Grid.Column="1"
-                               FontAttributes="Bold" 
-                               FontSize="30" 
-                               TextColor="#005F8C" 
+                               FontAttributes="Bold"
+                               FontSize="30"
+                               TextColor="#005F8C"
                                HorizontalOptions="End"
                                FontFamily="Inter"/>
                     </Grid>
@@ -308,47 +327,51 @@
             </Frame>
         </VerticalStackLayout>
 
-        <VerticalStackLayout Grid.Row="0" Grid.Column="2" Spacing="15">
-            <Label Text="PAGO PENDIENTE" 
+        <VerticalStackLayout Grid.Row="0"
+                Grid.Column="2"
+                Spacing="15">
+            <Label Text="PAGO PENDIENTE"
                    IsVisible="{Binding Order.IsDuePaid}"
-                   FontAttributes="Bold" 
-                   FontSize="16" 
+                   FontAttributes="Bold"
+                   FontSize="16"
                    TextColor="Red"
                    HorizontalOptions="Center"
                    FontFamily="Inter"/>
-            <Label Text="Métodos de pago" 
-                   FontAttributes="Bold" 
-                   FontSize="20" 
+            <Label Text="Métodos de pago"
+                   FontAttributes="Bold"
+                   FontSize="20"
                    TextColor="#005F8C"
                    FontFamily="Inter"/>
 
-            <ScrollView Orientation="Vertical" VerticalScrollBarVisibility="Always">
+            <ScrollView Orientation="Vertical"
+                    VerticalScrollBarVisibility="Always">
                 <VerticalStackLayout Spacing="15">
                     <HorizontalStackLayout Spacing="10">
-                        <Button Text="Transferencia (F6)" 
+                        <Button Text="Transferencia (F6)"
                                 WidthRequest="150"
-                                HeightRequest="40" 
-                                CornerRadius="8" 
-                                FontSize="14" 
-                                BackgroundColor="#005F8C" 
+                                HeightRequest="40"
+                                CornerRadius="8"
+                                FontSize="14"
+                                BackgroundColor="#005F8C"
                                 TextColor="White"
                                 FontAttributes="Bold"
                                 FontFamily="Inter"
                                 Clicked="OnAddTransferClicked"/>
 
-                        <Button Text="Tarjeta (F7)" 
+                        <Button Text="Tarjeta (F7)"
                                 WidthRequest="150"
-                                HeightRequest="40" 
-                                CornerRadius="8" 
-                                FontSize="14" 
-                                BackgroundColor="#005F8C" 
+                                HeightRequest="40"
+                                CornerRadius="8"
+                                FontSize="14"
+                                BackgroundColor="#005F8C"
                                 TextColor="White"
                                 FontAttributes="Bold"
                                 FontFamily="Inter"
                                 Clicked="OnAddCardClicked"/>
                     </HorizontalStackLayout>
 
-                    <StackLayout x:Name="ActivePaymentMethodsContainer" Spacing="10">
+                    <StackLayout x:Name="ActivePaymentMethodsContainer"
+                            Spacing="10">
                     </StackLayout>
                 </VerticalStackLayout>
             </ScrollView>
@@ -361,35 +384,43 @@
         </VerticalStackLayout>
 
 
-        
-        <HorizontalStackLayout HorizontalOptions="End" 
-                               VerticalOptions="End" 
-                               Spacing="10" 
-                               Grid.Row="1" 
+
+        <HorizontalStackLayout HorizontalOptions="End"
+                               VerticalOptions="End"
+                               Spacing="10"
+                               Grid.Row="1"
                                Grid.ColumnSpan="3"
                                Padding="10">
-            <Label Text="Salir (ESC)" 
-                   FontSize="14" 
-                   TextColor="black" 
+
+            <Label Text="Rellenar campo (F3)"
+                   FontSize="14"
+                   TextColor="black"
                    VerticalOptions="Center"
                    FontFamily="Inter"/>
+
+            <Label Text="Salir (ESC)"
+                   FontSize="14"
+                   TextColor="black"
+                   VerticalOptions="Center"
+                   FontFamily="Inter"/>
+
             <buttons:SfButton x:Name="btnCancel"
-                    Text="Cancelar (F1)"
-                    WidthRequest="150"
-                    HorizontalOptions="End"
-                    VerticalOptions="End"
-                    Clicked="OnCancelButtonClicked"
-                    Style="{StaticResource CancelButtonStyle}" />
+                              Text="Cancelar (F1)"
+                              WidthRequest="150"
+                              HorizontalOptions="End"
+                              VerticalOptions="End"
+                              Clicked="OnCancelButtonClicked"
+                              Style="{StaticResource CancelButtonStyle}"/>
 
             <buttons:SfButton x:Name="btnProcessPayment"
-                    Text="Procesar Pago (F4)"
-                    BackgroundColor="#005F8C"
-                    TextColor="#F3F3F3"
-                    WidthRequest="150"
-                    HorizontalOptions="End"
-                    VerticalOptions="End"
-                    Clicked="OnChargeClicked" 
-                    Style="{StaticResource ButtonStyle}"/>
+                              Text="Procesar Pago (F4)"
+                              BackgroundColor="#005F8C"
+                              TextColor="#F3F3F3"
+                              WidthRequest="150"
+                              HorizontalOptions="End"
+                              VerticalOptions="End"
+                              Clicked="OnChargeClicked"
+                              Style="{StaticResource ButtonStyle}"/>
         </HorizontalStackLayout>
     </Grid>
 </ContentPage>

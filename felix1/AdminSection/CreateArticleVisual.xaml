@@ -115,6 +115,12 @@
             <HorizontalStackLayout HorizontalOptions="End"
                     VerticalOptions="End" Padding="10, 0, 10, 0" Spacing="10">
                         
+                <buttons:SfButton x:Name="btnCancel"
+                                Text="Cancelar"
+                                Clicked="OnCancelButtonClicked"
+                                HorizontalOptions="Fill"
+                                Style="{StaticResource CancelButtonStyle}"/>
+                                
                 <buttons:SfButton x:Name="btnCreateArticle"
                                 Text="Crear Artículo"
                                 Clicked="OnSaveArticle"
@@ -123,11 +129,6 @@
                                 TextColor="#F3F3F3"
                                 Style="{StaticResource ButtonStyle}"/>
 
-                <buttons:SfButton x:Name="btnCancel"
-                                Text="Cancelar"
-                                Clicked="OnCancelButtonClicked"
-                                HorizontalOptions="Fill"
-                                Style="{StaticResource CancelButtonStyle}"/>
 
             </HorizontalStackLayout>
         </VerticalStackLayout>

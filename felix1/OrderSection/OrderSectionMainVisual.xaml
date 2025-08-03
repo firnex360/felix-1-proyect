@@ -26,13 +26,13 @@
                    HasShadow="False"
                    VerticalOptions="Center"
                    HorizontalOptions="Fill"
-                   WidthRequest="200"
+                   WidthRequest="525"
                    HeightRequest="40"
                    BorderColor="#FFE0E0E0"
                    Margin="10,0">
 
                 <SearchBar x:Name="searchBar"
-                           Placeholder="Buscar Mesa..."
+                           Placeholder="Buscar o crear ordenes (F1: llevar, F2: local)..."
                            TextChanged="OnSearchBarTextChanged"
                            TextColor="#22223B"
                            PlaceholderColor="#FF78828F"
@@ -57,15 +57,16 @@
                               HorizontalOptions="End"
                               Style="{StaticResource SidebarButtonStyle}"/>
 
+            <Label Text="Mostrar ordenes completadas:"
+                   VerticalOptions="Center"
+                   FontSize="14"
+                   TextColor="#005F8C"/>
+                   
             <CheckBox x:Name="chkShowCompleted"
                       VerticalOptions="Center"
                       CheckedChanged="OnShowCompletedChanged"
                       Color="#005F8C"/>
 
-            <Label Text="Mostrar Completas"
-                   VerticalOptions="Center"
-                   FontSize="14"
-                   TextColor="#005F8C"/>
 
 
         </HorizontalStackLayout>
