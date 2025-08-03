@@ -74,9 +74,10 @@ public partial class CreateArticleVisual : ContentView
         // Initialize the ObservableCollection for side dishes
         var sideDishes = AppDbContext.ExecuteSafeAsync(async db =>
         {
-            return await db.Articles
-                .Where(a => a.IsSideDish && !a.IsDeleted)
-                .ToListAsync();
+            var query = db.Articles
+                .Where(a => a.IsSideDish && !a.IsDeleted);
+                if (articleToEdit != null) { query = query.Where(a => a.Id != articleToEdit.Id); } // exclude the article being edited
+                return await query.ToListAsync();
         }).GetAwaiter().GetResult();
 
         var selectedIds = new HashSet<int>();
@@ -232,6 +233,11 @@ public partial class CreateArticleVisual : ContentView
 
                         foreach (var sd in selectedSideDishes)
                         {
+                            if (sd.Equals(article.IsSideDish))
+                            {
+                                // Prevent adding the article itself as a side dish
+                                continue;
+                            }
                             article.SideDishes.Add(sd);
                         }
 
@@ -320,11 +326,7 @@ public partial class CreateArticleVisual : ContentView
 
     private async void OnSideDishClicked(object? sender, CheckedChangedEventArgs e)
     {
-        
-        if (sender is not CheckBox txtSideDish || editingArticle == null)
-            return;
-
-        // Handle the side dish checkbox click event
+        RightPanelA.IsEnabled = true;
         if (editingArticle == null) return;
         if (e.Value == false)
         {
@@ -343,14 +345,11 @@ public partial class CreateArticleVisual : ContentView
                 txtSideDish.CheckedChanged -= OnSideDishClicked;
                 txtSideDish.IsChecked = true;
                 txtSideDish.CheckedChanged += OnSideDishClicked;
+                foreach (var item in SideDishArticles) { item.IsSelected = false; }
             }
+        } else { //if checked is true, right panel is disabled and all items are unselected
             RightPanelA.IsEnabled = false;
             foreach (var item in SideDishArticles) { item.IsSelected = false; }
-            
-        }
-        else
-        {
-            RightPanelA.IsEnabled = true;
         }
     }
 }

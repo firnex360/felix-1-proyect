@@ -12,12 +12,15 @@
     <ContentPage.Resources>
         <ResourceDictionary>
             <local:BoolToColorConverter x:Key="BoolToColorConverter" />
+            
             <Style x:Key="CancelButtonStyle"
-                    TargetType="Button">
+                    TargetType="buttons:SfButton">
                 <Setter Property="TextColor"
                         Value="Black"/>
                 <Setter Property="CornerRadius"
                         Value="5"/>
+                <Setter Property="IsCheckable"
+                        Value="True"/>
                 <Setter Property="Margin"
                         Value="0"/>
                 <Setter Property="BackgroundColor"
@@ -56,11 +59,13 @@
 
             
             <Style x:Key="ButtonStyle"
-                    TargetType="Button">
+                    TargetType="buttons:SfButton">
                 <Setter Property="TextColor"
                         Value="Black"/>
                 <Setter Property="CornerRadius"
                         Value="5"/>
+                <Setter Property="IsCheckable"
+                        Value="True"/>
                 <Setter Property="Margin"
                         Value="0"/>
                 <Setter Property="BackgroundColor"
@@ -72,6 +77,8 @@
                                 <VisualState.Setters>
                                     <Setter Property="Background"
                                             Value="#005F8C"/>
+                                    <Setter Property="TextColor"
+                                            Value="#F3F3F3"/>
                                 </VisualState.Setters>
                             </VisualState>
                             <VisualState x:Name="Hovered">
@@ -366,7 +373,7 @@
                    TextColor="black" 
                    VerticalOptions="Center"
                    FontFamily="Inter"/>
-            <Button x:Name="btnCancel"
+            <buttons:SfButton x:Name="btnCancel"
                     Text="Cancelar (F1)"
                     WidthRequest="150"
                     HorizontalOptions="End"
@@ -374,7 +381,7 @@
                     Clicked="OnCancelButtonClicked"
                     Style="{StaticResource CancelButtonStyle}" />
 
-            <Button x:Name="btnProcessPayment"
+            <buttons:SfButton x:Name="btnProcessPayment"
                     Text="Procesar Pago (F4)"
                     BackgroundColor="#005F8C"
                     TextColor="#F3F3F3"

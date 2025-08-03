@@ -14,7 +14,7 @@ public partial class ListWaiterVisual : ContentView
     // Add tracking for currently highlighted table
     private Table? _currentHighlightedTable = null;
     private bool _isGlobalSearchMatch = false;
-        public bool ShowCompletedOrders { get; set; } = false;
+    public bool ShowCompletedOrders { get; set; } = false;
 
     // Add tracking for multiple matching tables (Tab navigation)
     private List<Frame> _matchingLocalFrames = new();
@@ -27,7 +27,7 @@ public partial class ListWaiterVisual : ContentView
         BindingContext = this;
         Instance = this;
         LoadMeseros();
-        LoadExistingTakeoutOrders();
+        ReloadTM();
     }
 
     private Color GetOrderButtonColor(Order order)
@@ -44,17 +44,16 @@ public partial class ListWaiterVisual : ContentView
         {
             return Color.FromArgb("#005F8C"); // CUANDO ACABAS DE GENERAR LA ORDEN COLOR TEMPORAL
         }
-        }
+    }
 
-    private void LoadMeseros()
+    private async void LoadMeseros()
     {
-        var meseros = AppDbContext.ExecuteSafeAsync(async db =>
+        var meseros = await AppDbContext.ExecuteSafeAsync(async db =>
             await db.Users
                 .Where(u => u.Role == "Mesero" && !u.Deleted && u.Available)
-                .ToListAsync())
-            .GetAwaiter().GetResult();
+                .ToListAsync());
 
-        var tableOrders = AppDbContext.ExecuteSafeAsync(async db =>
+        var tableOrders = await AppDbContext.ExecuteSafeAsync(async db =>
         {
             var openCashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
             if (openCashRegister == null) return new List<Order>();
@@ -67,141 +66,164 @@ public partial class ListWaiterVisual : ContentView
                     .ThenInclude(oi => oi.Article)
                 .Where(o => o.Table != null &&
                            o.Waiter != null &&
-                           o.CashRegister == openCashRegister &&
-                           (ShowCompletedOrders ? o.IsDuePaid : !o.IsDuePaid)) // Modified condition
+                           o.CashRegister == openCashRegister)
                 .ToListAsync();
 
-            return orders;
-        })
-        .GetAwaiter().GetResult();
+            // Filtrar órdenes basado en el estado de pago
+            var filteredOrders = new List<Order>();
+            foreach (var order in orders)
+            {
+                bool hasRefund = await HasRefund(order);
+
+                if (ShowCompletedOrders)
+                {
+                    // Mostrar solo órdenes pagadas sin reembolsos
+                    if (order.Table?.IsPaid == true && !hasRefund)
+                    {
+                        filteredOrders.Add(order);
+                    }
+                }
+                else
+                {
+                    // Mostrar solo órdenes no pagadas
+                    if (order.Table?.IsPaid == false)
+                    {
+                        filteredOrders.Add(order);
+                    }
+                }
+            }
+
+            return filteredOrders;
+        });
 
         MeseroContainer.Children.Clear();
 
         //foreach (var user in meseros)
         //{
         var user = AppSession.CurrentUser;
-            var userTables = tableOrders
-                .Where(o => o.Waiter?.Id == user.Id && o.Table != null)
-                .Select(o => o.Table!)
-                .Distinct()
+        var userTables = tableOrders
+            .Where(o => o.Waiter?.Id == user.Id && o.Table != null)
+            .Select(o => o.Table!)
+            .Distinct()
+            .ToList();
+
+        var stack = new VerticalStackLayout
+        {
+            Spacing = 12,
+            VerticalOptions = LayoutOptions.Start,
+            HorizontalOptions = LayoutOptions.Fill,
+        };
+
+        // Mesero's name
+        stack.Children.Add(new Label
+        {
+            Text = user.Name,
+            FontSize = 18,
+            TextColor = Colors.Black,
+            FontAttributes = FontAttributes.Bold,
+            HorizontalOptions = LayoutOptions.Center
+        });
+
+        //ADD AVAILABLE TABLES WITHIN THE ORDERS THAT THE MESERO HAS
+        // Create a horizontal layout to hold all table frames
+        var tableRow = new VerticalStackLayout
+        {
+            Spacing = 10,
+            HorizontalOptions = LayoutOptions.Fill,
+        };
+
+        foreach (var table in userTables)
+        {
+            var ordersForTable = tableOrders
+                .Where(o => o.Table?.Id == table.Id)
+                .OrderBy(o => o.OrderNumber)
                 .ToList();
 
-            var stack = new VerticalStackLayout
+            var tableContent = new VerticalStackLayout
             {
-                Spacing = 12,
-                VerticalOptions = LayoutOptions.Start,
-                HorizontalOptions = LayoutOptions.Fill,
+                Spacing = 5,
+                HorizontalOptions = LayoutOptions.Center,
+                VerticalOptions = LayoutOptions.Start
             };
 
-            // Mesero's name
-            stack.Children.Add(new Label
+            // Table number label
+            tableContent.Children.Add(new Label
             {
-                Text = user.Name,
-                FontSize = 18,
-                TextColor = Colors.Black,
+                Text = $"Mesa #{table.LocalNumber} - #{table.GlobalNumber}",
                 FontAttributes = FontAttributes.Bold,
-                HorizontalOptions = LayoutOptions.Center
+                FontSize = 14,
+                HorizontalOptions = LayoutOptions.Center,
+                TextColor = Colors.Black
             });
 
-            //ADD AVAILABLE TABLES WITHIN THE ORDERS THAT THE MESERO HAS
-            // Create a horizontal layout to hold all table frames
-            var tableRow = new VerticalStackLayout
+            // Add buttons for each order
+            foreach (var order in ordersForTable)
             {
-                Spacing = 10,
-                HorizontalOptions = LayoutOptions.Fill,
-            };
-
-            foreach (var table in userTables)
-            {
-                var ordersForTable = tableOrders
-                    .Where(o => o.Table?.Id == table.Id)
-                    .OrderBy(o => o.OrderNumber)
-                    .ToList();
-
-                var tableContent = new VerticalStackLayout
+                var orderButton = new Button
                 {
-                    Spacing = 5,
-                    HorizontalOptions = LayoutOptions.Center,
-                    VerticalOptions = LayoutOptions.Start
-                };
-
-                // Table number label
-                tableContent.Children.Add(new Label
-                {
-                    Text = $"Mesa #{table.LocalNumber} - #{table.GlobalNumber}",
-                    FontAttributes = FontAttributes.Bold,
-                    FontSize = 14,
-                    HorizontalOptions = LayoutOptions.Center,
-                    TextColor = Colors.Black
-                });
-
-                // Add buttons for each order
-                foreach (var order in ordersForTable)
-                {
-                    var orderButton = new Button
+                    Text = $"Orden #{order.OrderNumber} || Total: {findOrderTotal(order):C}",
+                    FontSize = 12,
+                    HeightRequest = 30,
+                    BackgroundColor = GetOrderButtonColor(order),
+                    TextColor = Colors.White,
+                    CornerRadius = 5,
+                    HorizontalOptions = LayoutOptions.Fill,
+                    Command = new Command(() =>
                     {
-                        Text = $"Orden #{order.OrderNumber} || Total: {findOrderTotal(order):C}",
-                        FontSize = 12,
-                        HeightRequest = 30,
-                        BackgroundColor = GetOrderButtonColor(order),
-                        TextColor = Colors.White,
-                        CornerRadius = 5,
-                        HorizontalOptions = LayoutOptions.Fill,
-                        Command = new Command(() => {
-                            if (order.IsDuePaid)
-                                RefundVisual(order);
-                            else
-                                OnViewOrderClicked(order);
-                        })
-                    };
-                    tableContent.Children.Add(orderButton);
-                }
-
-                // Determine frame border color based on orders
-                Color frameBorderColor = ordersForTable.Any() ?
-                GetOrderButtonColor(ordersForTable.First()) : 
-                Color.FromArgb("#C7CFDD"); 
-
-                var tableFrame = new Frame
-                {
-                    HeightRequest = 100,
-                    BackgroundColor = Colors.White,
-                    CornerRadius = 10,
-                    Padding = 8,
-                    Content = tableContent,
-                    BorderColor = frameBorderColor,
-                    HorizontalOptions = LayoutOptions.Fill
+                        if (order.IsDuePaid)
+                            RefundVisual(order);
+                        else
+                            OnViewOrderClicked(order);
+                    })
                 };
-
-                tableRow.Children.Add(tableFrame);
+                tableContent.Children.Add(orderButton);
             }
 
-            stack.Children.Add(tableRow);
+            // Determine frame border color based on orders
+            Color frameBorderColor = ordersForTable.Any() ?
+            GetOrderButtonColor(ordersForTable.First()) :
+            Color.FromArgb("#C7CFDD");
 
-            // Add "Create Table" button
-            stack.Children.Add(new Button
+            var tableFrame = new Frame
             {
-                Text = "Crear Mesa",
-                BackgroundColor = Color.FromArgb("#005F8C"),
-                TextColor = Colors.White,
-                CornerRadius = 8,
-                HeightRequest = 40,
-                WidthRequest = 120,
-                HorizontalOptions = LayoutOptions.Center,
-                Command = new Command(() => OnCreateTableWindowClicked(user))
-            });
-
-            var card = new Frame
-            {
-                WidthRequest = 300,
-                CornerRadius = 10,
-                Padding = 10,
+                HeightRequest = 100,
                 BackgroundColor = Colors.White,
-                BorderColor = Colors.White,
-                Content = stack,
+                CornerRadius = 10,
+                Padding = 8,
+                Content = tableContent,
+                BorderColor = frameBorderColor,
+                HorizontalOptions = LayoutOptions.Fill
             };
 
-            MeseroContainer.Children.Add(card);
+            tableRow.Children.Add(tableFrame);
+        }
+
+        stack.Children.Add(tableRow);
+
+        // Add "Create Table" button
+        stack.Children.Add(new Button
+        {
+            Text = "Crear Mesa",
+            BackgroundColor = Color.FromArgb("#005F8C"),
+            TextColor = Colors.White,
+            CornerRadius = 8,
+            HeightRequest = 40,
+            WidthRequest = 120,
+            HorizontalOptions = LayoutOptions.Center,
+            Command = new Command(() => OnCreateTableWindowClicked(user))
+        });
+
+        var card = new Frame
+        {
+            WidthRequest = 300,
+            CornerRadius = 10,
+            Padding = 10,
+            BackgroundColor = Colors.White,
+            BorderColor = Colors.White,
+            Content = stack,
+        };
+
+        MeseroContainer.Children.Add(card);
         //}
     }
 
@@ -363,144 +385,144 @@ public partial class ListWaiterVisual : ContentView
             ReloadTM();
         });
     }
-
-private void AddTakeoutOrderToPanel(Order order)
-{
-    int displayOrderNumber = order.Table?.LocalNumber ?? order.OrderNumber;
-
-    var orderButton = new Button
+    /*
+    private void AddTakeoutOrderToPanel(Order order)
     {
-        Text = $"Orden #{displayOrderNumber}",
-        FontSize = 12,
-        HeightRequest = 30,
-        //WidthRequest = 90,
-        BackgroundColor = GetOrderButtonColor(order),
-        TextColor = Colors.White,
-        CornerRadius = 5,
-        HorizontalOptions = LayoutOptions.Fill,
-        Command = new Command(() =>{
-            if (order.IsDuePaid)
-                RefundVisual(order);
-            else
-                OnViewOrderClicked(order);
-        })
-    };
+        int displayOrderNumber = order.Table?.LocalNumber ?? order.OrderNumber;
 
-    // Find the container in the visual tree
-    if (this.FindByName("TakeoutOrdersContainer") is VerticalStackLayout container)
-    {
-        container.Children.Add(orderButton);
-    }
-}
+        var orderButton = new Button
+        {
+            Text = $"Orden #{displayOrderNumber}",
+            FontSize = 12,
+            HeightRequest = 30,
+            //WidthRequest = 90,
+            BackgroundColor = GetOrderButtonColor(order),
+            TextColor = Colors.White,
+            CornerRadius = 5,
+            HorizontalOptions = LayoutOptions.Fill,
+            Command = new Command(() =>{
+                if (order.IsDuePaid)
+                    RefundVisual(order);
+                else
+                    OnViewOrderClicked(order);
+            })
+        };
 
-private void LoadExistingTakeoutOrders()
-{
         // Find the container in the visual tree
         if (this.FindByName("TakeoutOrdersContainer") is VerticalStackLayout container)
         {
-            container.Children.Clear();
-
-            var takeoutOrders = AppDbContext.ExecuteSafeAsync(async db =>
-            {
-                var openCashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
-                if (openCashRegister == null) return new List<Order>();
-
-                return await db.Orders
-                    .Include(o => o.Table)
-                    .Where(o => o.Table != null &&
-                               o.Table.IsTakeOut &&
-                               o.CashRegister == openCashRegister &&
-                               !o.IsDuePaid)
-                    .OrderBy(o => o.OrderNumber)
-                    .ToListAsync();
-            }).GetAwaiter().GetResult();
-
-            foreach (var order in takeoutOrders)
-            {
-                AddTakeoutOrderToPanel(order);
-            }
-
-            var createButton = new Button
-            {
-                Text = "Crear Pedido",
-                BackgroundColor = Color.FromArgb("#005F8C"),
-                TextColor = Colors.White,
-                CornerRadius = 8,
-                HeightRequest = 40,
-                WidthRequest = 120,
-                HorizontalOptions = LayoutOptions.Center,
-                Command = new Command(() => OnCreateTakeoutOrderClicked())
-            };
-            container.Children.Add(createButton);
+            container.Children.Add(orderButton);
         }
     }
 
-    private async void OnCreateTakeoutOrderClicked()
+    private void LoadExistingTakeoutOrders()
     {
-        await AppDbContext.ExecuteSafeAsync(async db =>
-        {
-            var waiter = await db.Users.FirstOrDefaultAsync(u => u.Name == "TAKEOUT");
-            var cashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
-
-            if (cashRegister == null)
+            // Find the container in the visual tree
+            if (this.FindByName("TakeoutOrdersContainer") is VerticalStackLayout container)
             {
-                await Application.Current!.MainPage!.DisplayAlert("Error", "No hay una caja abierta.", "OK");
-                return;
+                container.Children.Clear();
+
+                var takeoutOrders = AppDbContext.ExecuteSafeAsync(async db =>
+                {
+                    var openCashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
+                    if (openCashRegister == null) return new List<Order>();
+
+                    return await db.Orders
+                        .Include(o => o.Table)
+                        .Where(o => o.Table != null &&
+                                   o.Table.IsTakeOut &&
+                                   o.CashRegister == openCashRegister &&
+                                   !o.IsDuePaid)
+                        .OrderBy(o => o.OrderNumber)
+                        .ToListAsync();
+                }).GetAwaiter().GetResult();
+
+                foreach (var order in takeoutOrders)
+                {
+                    AddTakeoutOrderToPanel(order);
+                }
+
+                var createButton = new Button
+                {
+                    Text = "Crear Pedido",
+                    BackgroundColor = Color.FromArgb("#005F8C"),
+                    TextColor = Colors.White,
+                    CornerRadius = 8,
+                    HeightRequest = 40,
+                    WidthRequest = 120,
+                    HorizontalOptions = LayoutOptions.Center,
+                    Command = new Command(() => OnCreateTakeoutOrderClicked())
+                };
+                container.Children.Add(createButton);
             }
+        }
 
-            var existingTakeouts = await db.Orders
-                .Where(o => o.CashRegister!.Id == cashRegister.Id && o.Table != null && o.Table.IsTakeOut)
-                .Select(o => o.Table!)
-                .ToListAsync();
-
-            var allTables = await db.Orders
-                .Include(o => o.Table)
-                .Include(o => o.Waiter)
-                .Where(o => o.CashRegister != null && o.CashRegister.Id == cashRegister.Id && o.Table != null)
-                .Select(o => o.Table!)
-                .ToListAsync();
-
-            int nextTakeoutNumber = (existingTakeouts.Count + 1);
-
-            var table = new Table
+        private async void OnCreateTakeoutOrderClicked()
+        {
+            await AppDbContext.ExecuteSafeAsync(async db =>
             {
-                LocalNumber = nextTakeoutNumber,
-                GlobalNumber = allTables.Count + 101, // global numbers start from 100
-                IsTakeOut = true,
-                IsBillRequested = false,
-                IsPaid = false
-            };
+                var waiter = await db.Users.FirstOrDefaultAsync(u => u.Name == "TAKEOUT");
+                var cashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
 
-            db.Tables.Add(table);
-            await db.SaveChangesAsync();
+                if (cashRegister == null)
+                {
+                    await Application.Current!.MainPage!.DisplayAlert("Error", "No hay una caja abierta.", "OK");
+                    return;
+                }
 
-            int orderNumber = await db.Orders
-                .Where(o => o.CashRegister!.Id == cashRegister.Id)
-                .CountAsync();
+                var existingTakeouts = await db.Orders
+                    .Where(o => o.CashRegister!.Id == cashRegister.Id && o.Table != null && o.Table.IsTakeOut)
+                    .Select(o => o.Table!)
+                    .ToListAsync();
 
-            db.Attach(cashRegister);
-            if (waiter != null) db.Attach(waiter);
+                var allTables = await db.Orders
+                    .Include(o => o.Table)
+                    .Include(o => o.Waiter)
+                    .Where(o => o.CashRegister != null && o.CashRegister.Id == cashRegister.Id && o.Table != null)
+                    .Select(o => o.Table!)
+                    .ToListAsync();
 
-            var order = new Order
-            {
-                OrderNumber = orderNumber + 1,
-                Date = DateTime.Now,
-                Waiter = waiter,
-                Table = table,
-                Items = null,
-                CashRegister = cashRegister,
-                IsDuePaid = false,
-                IsBillRequested = false
-            };
+                int nextTakeoutNumber = (existingTakeouts.Count + 1);
 
-            db.Orders.Add(order);
-            await db.SaveChangesAsync();
+                var table = new Table
+                {
+                    LocalNumber = nextTakeoutNumber,
+                    GlobalNumber = allTables.Count + 101, // global numbers start from 100
+                    IsTakeOut = true,
+                    IsBillRequested = false,
+                    IsPaid = false
+                };
 
-            LoadExistingTakeoutOrders();
-            OnViewOrderClicked(order);
-        });
-    }
+                db.Tables.Add(table);
+                await db.SaveChangesAsync();
 
+                int orderNumber = await db.Orders
+                    .Where(o => o.CashRegister!.Id == cashRegister.Id)
+                    .CountAsync();
+
+                db.Attach(cashRegister);
+                if (waiter != null) db.Attach(waiter);
+
+                var order = new Order
+                {
+                    OrderNumber = orderNumber + 1,
+                    Date = DateTime.Now,
+                    Waiter = waiter,
+                    Table = table,
+                    Items = null,
+                    CashRegister = cashRegister,
+                    IsDuePaid = false,
+                    IsBillRequested = false
+                };
+
+                db.Orders.Add(order);
+                await db.SaveChangesAsync();
+
+                LoadExistingTakeoutOrders();
+                OnViewOrderClicked(order);
+            });
+        }
+    */
     private async void OnViewOrderClicked(Order order)
     {
 
@@ -538,13 +560,13 @@ private void LoadExistingTakeoutOrders()
             };
 
             Application.Current?.OpenWindow(window);
-            
+
         }
         catch (Exception e)
         {
 
             Console.WriteLine(e.Message);
-        }        
+        }
 
     }
 
@@ -563,9 +585,8 @@ private void LoadExistingTakeoutOrders()
     {
         LoadTables();
         LoadMeseros();
-        LoadExistingTakeoutOrders();
     }
-    
+
 
     // Method to open the currently highlighted table's order
     public async void OpenHighlightedTable()
@@ -606,7 +627,7 @@ private void LoadExistingTakeoutOrders()
     {
         // Reset all frames to default appearance first
         ResetAllTableFrames();
-        
+
         // Clear tracking collections
         _matchingLocalFrames.Clear();
         _matchingLocalTables.Clear();
@@ -871,8 +892,8 @@ private void LoadExistingTakeoutOrders()
             return await db.Orders
                 .Include(o => o.Table)
                 .Include(o => o.Waiter)
-                .Where(o => o.CashRegister != null && 
-                           o.CashRegister.Id == openCashRegister.Id && 
+                .Where(o => o.CashRegister != null &&
+                           o.CashRegister.Id == openCashRegister.Id &&
                            o.Table != null &&
                            !o.IsDuePaid)
                 .Select(o => o.Table!)
@@ -882,7 +903,7 @@ private void LoadExistingTakeoutOrders()
 
         // Find all matching tables and frames
         var matchingTables = allTables.Where(t => t.LocalNumber == localNumber).ToList();
-        
+
         // Search through all visible table frames and collect matching ones
         foreach (var meseroCard in MeseroContainer.Children.OfType<Frame>())
         {
@@ -898,16 +919,16 @@ private void LoadExistingTakeoutOrders()
                             {
                                 var tableLabel = tableContent.Children.OfType<Label>()
                                     .FirstOrDefault(l => l.Text != null && l.Text.StartsWith("Mesa #"));
-                                
+
                                 if (tableLabel != null)
                                 {
                                     var labelText = tableLabel.Text.Replace("Mesa #", "");
                                     if (int.TryParse(labelText, out int tableLocalNumber) && tableLocalNumber == localNumber)
                                     {
                                         // Find the corresponding table from database
-                                        var matchingTable = matchingTables.FirstOrDefault(t => 
+                                        var matchingTable = matchingTables.FirstOrDefault(t =>
                                             DoesFrameMatchTable(tableFrame, t));
-                                        
+
                                         if (matchingTable != null)
                                         {
                                             _matchingLocalFrames.Add(tableFrame);
@@ -984,7 +1005,7 @@ private void LoadExistingTakeoutOrders()
         if (_matchingLocalFrames.Count > 1)
         {
             _activeLocalFrameIndex = (_activeLocalFrameIndex + 1) % _matchingLocalFrames.Count;
-            
+
             // Re-highlight all frames
             for (int i = 0; i < _matchingLocalFrames.Count; i++)
             {
@@ -997,7 +1018,7 @@ private void LoadExistingTakeoutOrders()
                     ApplyHighlightStyling(_matchingLocalFrames[i], false);
                 }
             }
-            
+
             // Update the current highlighted table
             if (_activeLocalFrameIndex < _matchingLocalTables.Count)
             {
@@ -1022,5 +1043,20 @@ private void LoadExistingTakeoutOrders()
             Opacity = 0.8f
         };
         tableFrame.Scale = 1.08;
+    }
+    
+    private async Task<bool> HasTransaction(Order order)
+    {
+        return await AppDbContext.ExecuteSafeAsync(async db =>
+        {
+            return await db.Transactions.AnyAsync(t => t.Order != null && t.Order.Id == order.Id);
+        });
+    }
+    private async Task<bool> HasRefund(Order order)
+    {
+        return await AppDbContext.ExecuteSafeAsync(async db =>
+        {
+            return await db.Refunds.AnyAsync(r => r.Order != null && r.Order.Id == order.Id);
+        });
     }
 }

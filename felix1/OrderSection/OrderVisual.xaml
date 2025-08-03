@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
+             xmlns:inputLayout="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:syncfusion="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
              x:Class="felix1.OrderSection.OrderVisual"
@@ -260,6 +262,24 @@
                     <!-- Tax -->
                     <Label Grid.Row="1"
                            Grid.Column="0"
+                           x:Name="taxDeliveryLabelTitle"
+                           Text=""
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           VerticalOptions="Center"
+                           TextColor="Black"/>
+
+                    <Label Grid.Row="1"
+                           Grid.Column="1"
+                           x:Name="taxDeliveryLabel"
+                           Text="$0.00"
+                           FontSize="14"
+                           HorizontalTextAlignment="End"
+                           VerticalOptions="Center"
+                           TextColor="Black"/>
+
+                    <Label Grid.Row="1"
+                           Grid.Column="0"
                            x:Name="taxLabelTitle"
                            Text=""
                            FontSize="14"
@@ -349,16 +369,14 @@
                         Padding="5"
                         Spacing="10">
 
-                        <Button x:Name="printReceiptButton"
+                        <buttons:SfButton x:Name="printReceiptButton"
                                 Text="Imprimir Recibo (F4)"
-                                BackgroundColor="#005F8C"
-                                TextColor="White"
                                 Clicked="OnPrintReceipt"
                                 FontSize="14"
-                                HeightRequest="10"
                                 CornerRadius="8"
                                 FontAttributes="Bold"
-                                HorizontalOptions="Fill"/>
+                                HorizontalOptions="Fill"
+                                Style="{StaticResource ButtonStyle}"/>
 
                         <HorizontalStackLayout  Grid.Row="6"
                                                 Grid.ColumnSpan="2"
@@ -367,27 +385,23 @@
                                                 VerticalOptions="Center"
                                                 Margin="0,0,0,0">
 
-                            <Button x:Name="exitSaveButton"
+                            <buttons:SfButton x:Name="exitSaveButton"
                                     Text="Salir y Guardar (ESC)"
-                                    BackgroundColor="#C7CFDD"
-                                    TextColor="Black"
                                     Clicked="OnExitSave"
                                     FontSize="14"
                                     HorizontalOptions="Fill"
-                                    HeightRequest="10"
                                     CornerRadius="8"
-                                    FontAttributes="Bold"/>
+                                    FontAttributes="Bold"
+                                    Style="{StaticResource CancelButtonStyle}"/>
 
-                            <Button x:Name="printReceiptButtonCopy"
+                            <buttons:SfButton x:Name="printReceiptButtonCopy"
                                     Text="Imprimir Recibo Copia (F2)"
-                                    BackgroundColor="#005F8C"
-                                    TextColor="White"
                                     Clicked="OnPrintReceiptCopy"
                                     FontSize="14"
                                     HorizontalOptions="Fill"
-                                    HeightRequest="10"
                                     CornerRadius="8"
-                                    FontAttributes="Bold"/>
+                                    FontAttributes="Bold"
+                                    Style="{StaticResource ButtonStyle}"/>
 
 
                         </HorizontalStackLayout>
@@ -396,4 +410,102 @@
             </Frame>
         </Grid>
     </Grid>
+
+    
+    <ContentPage.Resources>
+        <ResourceDictionary>
+
+            <Style x:Key="CancelButtonStyle"
+                    TargetType="buttons:SfButton">
+                <Setter Property="TextColor"
+                        Value="Black"/>
+                <Setter Property="CornerRadius"
+                        Value="5"/>
+                <Setter Property="IsCheckable"
+                        Value="True"/>
+                <Setter Property="Margin"
+                        Value="0"/>
+                <Setter Property="BackgroundColor"
+                        Value="#F5F7FA"/>
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="Transparent"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Hovered">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#AFFF1D1D"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#FD2D2D"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Checked">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#C7CFDD"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+
+            
+            <Style x:Key="ButtonStyle"
+                    TargetType="buttons:SfButton">
+                <Setter Property="TextColor"
+                        Value="Black"/>
+                <Setter Property="CornerRadius"
+                        Value="5"/>
+                <Setter Property="IsCheckable"
+                        Value="True"/>
+                <Setter Property="Margin"
+                        Value="0"/>
+                <Setter Property="BackgroundColor"
+                        Value="#F5F7FA"/>
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#005F8C"/>
+                                    <Setter Property="TextColor"
+                                            Value="#F3F3F3"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Hovered">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#C7CFDD"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#FFA5AAB3"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Checked">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#005F8C"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+
+        </ResourceDictionary>
+    </ContentPage.Resources>
 </ContentPage>

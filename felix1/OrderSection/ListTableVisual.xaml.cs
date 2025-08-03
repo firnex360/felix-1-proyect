@@ -229,7 +229,10 @@ public partial class ListTableVisual : ContentView
 
     private decimal findOrderTotal(Order order)
     {
-        var subtotal = order.Items!
+        if (order.Items == null || order.Items.Count == 0 || order.Table == null)
+            return 0m;
+            
+        var subtotal = order.Items
             .GroupBy(item => item.Id) // Group by unique ID
             .Select(group => group.First()) // Take first instance of each
             .Sum(item => item.Quantity * item.UnitPrice); // Sum distinct items
@@ -240,8 +243,12 @@ public partial class ListTableVisual : ContentView
         // Safely parse tax rates with fallback to 0
         var taxRate = (decimal.TryParse(taxRateString, out var parsedTaxRate) ? parsedTaxRate : 0m) / 100m * subtotal;
         var waiterTaxRate = (decimal.TryParse(waiterTaxRateString, out var parsedWaiterTaxRate) ? parsedWaiterTaxRate : 0m) / 100m * subtotal;
+        var deliveryTaxRate = decimal.Parse(Preferences.Get("DeliveryTaxRate", "0")) / 100m * subtotal;
+        var discount = order.Discount; 
 
-        return subtotal + waiterTaxRate + taxRate - order.Discount;
+        return order.Table?.IsTakeOut == true
+            ? subtotal + deliveryTaxRate - discount
+            : subtotal + waiterTaxRate + taxRate - discount;
     }
 
     private async void RefundVisual(Order order)
@@ -406,7 +413,7 @@ public partial class ListTableVisual : ContentView
 
         var orderButton = new Button
         {
-            Text = $"Orden #{displayOrderNumber}",
+            Text = $"Orden #{order.OrderNumber} || Total: {findOrderTotal(order):C}",
             FontSize = 12,
             HeightRequest = 30,
             //WidthRequest = 90,
@@ -443,6 +450,9 @@ public partial class ListTableVisual : ContentView
                 // Cargar órdenes para llevar
                 var orders = await db.Orders
                     .Include(o => o.Table)
+                    .Include(o => o.Waiter)
+                    .Include(o => o.Items!)
+                    .ThenInclude(i => i.Article)
                     .Where(o => o.Table != null &&
                                o.Table.IsTakeOut &&
                                o.CashRegister == openCashRegister)
