@@ -33,7 +33,7 @@ namespace felix1.OrderSection
         public decimal TaxDelivery => Subtotal * _deliveryTaxRate;
         public decimal TaxITBIS => Subtotal * _taxRate;
         public decimal TaxWaiters => Subtotal * _waiterTaxRate;
-        public decimal Total => Order.Table.IsTakeOut ? TotalDelivery : TotalCasual;
+        public decimal Total => Order.Table!.IsTakeOut ? TotalDelivery : TotalCasual;
         public decimal TotalCasual => (Subtotal + TaxITBIS + TaxWaiters) - Discount;
         public decimal TotalDelivery => (Subtotal + TaxDelivery) - Discount;
         public decimal TotalPayment => _cashAmount + _cardAmount + _transferAmount;
@@ -626,6 +626,7 @@ namespace felix1.OrderSection
                     .Include(o => o.Table)
                     .Include(o => o.Items)
                     .Include(o => o.CashRegister)
+                        .ThenInclude(cr => cr!.Cashier)
                     .FirstOrDefaultAsync(o => o.Id == Order.Id);
 
                 if (orderToUpdate == null) return false;
@@ -823,11 +824,15 @@ namespace felix1.OrderSection
                 // Create PaymentReceipt object with all necessary data
                 var paymentReceipt = new PaymentReceipt
                 {
-                    
                     orderReceipt = orderReceiptLocal,
                     transaction = _transaction,
                     PrintDate = DateTime.Now
                 };
+
+                if (paymentReceipt.orderReceipt.Order!.Table!.IsTakeOut)
+                {
+                    paymentReceipt.orderReceipt.Order.Waiter = paymentReceipt.orderReceipt.Order!.CashRegister!.Cashier;
+                }
 
                 string templateText = File.ReadAllText(@"felix1\ReceiptTemplates\PaymentTemplate.txt");
                 var template = Template.Parse(templateText);

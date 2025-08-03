@@ -585,6 +585,8 @@ public partial class ListTableVisual : ContentView
                 await db.Orders
                     .Include(o => o.Table)
                     .Include(o => o.Waiter)
+                    .Include(o => o.CashRegister)
+                        .ThenInclude(cr => cr!.Cashier)
                     .Include(o => o.Items!)
                     .ThenInclude(oi => oi.Article!)
                     .AsNoTracking()
