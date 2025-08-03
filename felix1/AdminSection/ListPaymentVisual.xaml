@@ -11,6 +11,7 @@
     <ContentView.Resources>
         <local:InverseBoolConverter x:Key="InverseBool"/>
         <local:BoolToPaidStatusConverter x:Key="PaidStatusConverter"/>
+        <local:FloatToDecimalConverter x:Key="FloatToDecimal"/>
     </ContentView.Resources>
 
     <Grid RowDefinitions="Auto, Auto, *" ColumnDefinitions="*">

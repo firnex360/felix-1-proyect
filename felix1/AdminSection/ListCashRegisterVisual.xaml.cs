@@ -42,15 +42,24 @@ public partial class ListCashRegisterVisual : ContentView
 
     private void OnDetailsClicked(object sender, EventArgs e)
     {
-        if (sender is ImageButton imageButton && imageButton.BindingContext is CashRegister cashRegister)
+        try
         {
-            if (Application.Current?.MainPage is NavigationPage navPage &&
-                navPage.CurrentPage is AdminSectionMainVisual adminPage)
+            if (sender is ImageButton imageButton && imageButton.BindingContext is CashRegister cashRegister)
             {
-                adminPage.RightPanelView.Content = new ListPaymentVisual(cashRegister);
+                if (Application.Current?.MainPage is NavigationPage navPage &&
+                    navPage.CurrentPage is AdminSectionMainVisual adminPage)
+                {
+                    adminPage.RightPanelView.Content = new ListPaymentVisual(cashRegister);
+                }
             }
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[ERROR] OnDetailsClicked: {ex}");
+            Application.Current?.MainPage?.DisplayAlert("Error", ex.ToString(), "OK");
+        }
     }
+
 
     private void OnSearchBarTextChanged(object sender, TextChangedEventArgs e)
     {
