@@ -232,7 +232,7 @@ public partial class ListTableVisual : ContentView
         if (order.Items == null || order.Items.Count == 0 || order.Table == null)
             return 0m;
             
-        var subtotal = order.Items!
+        var subtotal = order.Items
             .GroupBy(item => item.Id) // Group by unique ID
             .Select(group => group.First()) // Take first instance of each
             .Sum(item => item.Quantity * item.UnitPrice); // Sum distinct items
@@ -240,13 +240,11 @@ public partial class ListTableVisual : ContentView
         var taxRate = decimal.Parse(Preferences.Get("TaxRate", "18")) / 100m * subtotal;
         var waiterTaxRate = decimal.Parse(Preferences.Get("WaiterTaxRate", "10")) / 100m * subtotal;
         var deliveryTaxRate = decimal.Parse(Preferences.Get("DeliveryTaxRate", "0")) / 100m * subtotal;
+        var discount = order.Discount; 
 
-        if (order.Table.IsTakeOut)
-        {
-            return subtotal + deliveryTaxRate - order.Discount;
-        }
-        return subtotal + waiterTaxRate + taxRate - order.Discount;
-        
+        return order.Table?.IsTakeOut == true
+            ? subtotal + deliveryTaxRate - discount
+            : subtotal + waiterTaxRate + taxRate - discount;
     }
 
     private async void RefundVisual(Order order)
@@ -448,6 +446,9 @@ public partial class ListTableVisual : ContentView
                 // Cargar órdenes para llevar
                 var orders = await db.Orders
                     .Include(o => o.Table)
+                    .Include(o => o.Waiter)
+                    .Include(o => o.Items!)
+                    .ThenInclude(i => i.Article)
                     .Where(o => o.Table != null &&
                                o.Table.IsTakeOut &&
                                o.CashRegister == openCashRegister)

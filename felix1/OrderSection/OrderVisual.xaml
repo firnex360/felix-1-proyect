@@ -375,16 +375,14 @@
                         Padding="5"
                         Spacing="10">
 
-                        <Button x:Name="printReceiptButton"
+                        <buttons:SfButton x:Name="printReceiptButton"
                                 Text="Imprimir Recibo (F4)"
-                                BackgroundColor="#005F8C"
-                                TextColor="White"
                                 Clicked="OnPrintReceipt"
                                 FontSize="14"
-                                HeightRequest="10"
                                 CornerRadius="8"
                                 FontAttributes="Bold"
-                                HorizontalOptions="Fill"/>
+                                HorizontalOptions="Fill"
+                                Style="{StaticResource ButtonStyle}"/>
 
                         <HorizontalStackLayout  Grid.Row="6"
                                                 Grid.ColumnSpan="2"
@@ -393,27 +391,23 @@
                                                 VerticalOptions="Center"
                                                 Margin="0,0,0,0">
 
-                            <Button x:Name="exitSaveButton"
+                            <buttons:SfButton x:Name="exitSaveButton"
                                     Text="Salir y Guardar (ESC)"
-                                    BackgroundColor="#C7CFDD"
-                                    TextColor="Black"
                                     Clicked="OnExitSave"
                                     FontSize="14"
                                     HorizontalOptions="Fill"
-                                    HeightRequest="10"
                                     CornerRadius="8"
-                                    FontAttributes="Bold"/>
+                                    FontAttributes="Bold"
+                                    Style="{StaticResource CancelButtonStyle}"/>
 
-                            <Button x:Name="printReceiptButtonCopy"
+                            <buttons:SfButton x:Name="printReceiptButtonCopy"
                                     Text="Imprimir Recibo Copia (F2)"
-                                    BackgroundColor="#005F8C"
-                                    TextColor="White"
                                     Clicked="OnPrintReceiptCopy"
                                     FontSize="14"
                                     HorizontalOptions="Fill"
-                                    HeightRequest="10"
                                     CornerRadius="8"
-                                    FontAttributes="Bold"/>
+                                    FontAttributes="Bold"
+                                    Style="{StaticResource ButtonStyle}"/>
 
 
                         </HorizontalStackLayout>
