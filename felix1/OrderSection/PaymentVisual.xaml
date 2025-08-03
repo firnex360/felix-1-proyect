@@ -184,11 +184,29 @@
                                    FontFamily="Inter"/>
                     </Grid>
 
+
+                    <!-- Show delivery tax only if it's a takeout order -->
+
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Text="{Binding TaxDeliveryLabel}" 
+                        IsVisible="{Binding ShowDeliveryTax}" 
+                                   TextColor="#005F8C"
+                                   FontFamily="Inter"/>
+                        <Label Text="{Binding TaxDelivery, StringFormat='{0:N2}'}" 
+                        IsVisible="{Binding ShowDeliveryTax}" 
+                                   Grid.Column="1"
+                                   TextColor="#005F8C" 
+                                   HorizontalOptions="End"
+                                   FontFamily="Inter"/>
+                    </Grid>
+
                     <Grid ColumnDefinitions="*, Auto">
                         <Label Text="{Binding TaxITBISLabel}" 
+                        IsVisible="{Binding ShowITBISAndWaiterTax}" 
                                    TextColor="#005F8C"
                                    FontFamily="Inter"/>
                         <Label Text="{Binding TaxITBIS, StringFormat='{0:N2}'}" 
+                        IsVisible="{Binding ShowITBISAndWaiterTax}" 
                                    Grid.Column="1"
                                    TextColor="#005F8C" 
                                    HorizontalOptions="End"
@@ -197,9 +215,11 @@
 
                     <Grid ColumnDefinitions="*, Auto">
                         <Label Text="{Binding TaxWaitersLabel}" 
+                        IsVisible="{Binding ShowITBISAndWaiterTax}" 
                                    TextColor="#005F8C"
                                    FontFamily="Inter"/>
                         <Label Text="{Binding TaxWaiters, StringFormat='{0:N2}'}" 
+                        IsVisible="{Binding ShowITBISAndWaiterTax}" 
                                    Grid.Column="1"
                                    TextColor="#005F8C" 
                                    HorizontalOptions="End"
