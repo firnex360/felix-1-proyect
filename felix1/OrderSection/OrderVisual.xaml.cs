@@ -800,7 +800,7 @@ public partial class OrderVisual : ContentPage
         decimal orderTotal = 0;
 
         //Validar si la orden tiene un descuento mayor al total de la orden, lit quien sería tan tontito de hacer eso?
-        if (!_currentOrder.Table.IsTakeOut)
+        if (_currentOrder!.Table!.IsTakeOut)
         {
             orderTotal = CalculateSubtotal() + CalculateTax(CalculateSubtotal()) + CalculateWaiterTax(CalculateSubtotal());
         } else {
@@ -1002,7 +1002,7 @@ public partial class OrderVisual : ContentPage
         decimal waiterTax = CalculateWaiterTax(subtotal);
         decimal deliveryTax = CalculateDeliveryTax(subtotal);
         decimal total = 0;
-        if (_currentOrder.Table.IsTakeOut)
+        if (_currentOrder!.Table!.IsTakeOut)
             total = subtotal + deliveryTax - _discountAmount;
         else
             total = subtotal + tax + waiterTax - _discountAmount;
@@ -1058,11 +1058,6 @@ public partial class OrderVisual : ContentPage
     private decimal CalculateWaiterTax(decimal subtotal)
     {
         return subtotal * _waiterTaxRate;
-    }
-
-    private decimal CalculateDeliveryTax(decimal subtotal)
-    {
-        return subtotal * _deliveryTaxRate;
     }
 
     private void OnDiscountChanged(object sender, TextChangedEventArgs e)
