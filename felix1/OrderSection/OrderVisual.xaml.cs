@@ -98,7 +98,7 @@ public partial class OrderVisual : ContentPage
         var taxRateString = Preferences.Get("TaxRate", "18");
         var waiterTaxRateString = Preferences.Get("WaiterTaxRate", "10");
         var deliveryTaxRateString = Preferences.Get("DeliveryTaxRate", "10");
-        
+
         // Safely parse tax rates with fallback to default values
         _taxRate = (decimal.TryParse(taxRateString, out var parsedTaxRate) ? parsedTaxRate : 18m) / 100m;
         _waiterTaxRate = (decimal.TryParse(waiterTaxRateString, out var parsedWaiterTaxRate) ? parsedWaiterTaxRate : 10m) / 100m;
@@ -807,7 +807,9 @@ public partial class OrderVisual : ContentPage
         if (_currentOrder!.Table!.IsTakeOut)
         {
             orderTotal = CalculateSubtotal() + CalculateTax(CalculateSubtotal()) + CalculateWaiterTax(CalculateSubtotal());
-        } else {
+        }
+        else
+        {
             orderTotal = CalculateSubtotal() + CalculateDeliveryTax(CalculateSubtotal());
         }
 
@@ -909,7 +911,48 @@ public partial class OrderVisual : ContentPage
                 orderReceipt.TotalAmount = CalculateSubtotal() + CalculateDeliveryTax(CalculateSubtotal());
             }
 
-            string templateText = File.ReadAllText(@"felix1\ReceiptTemplates\OrderTemplate.txt");
+            string templateText;
+            try
+            {
+                var assembly = typeof(OrderVisual).Assembly;
+                
+                // Debug: List all embedded resources
+                var resourceNames = assembly.GetManifestResourceNames();
+                Console.WriteLine("Available embedded resources:");
+                foreach (var name in resourceNames)
+                {
+                    Console.WriteLine($"  - {name}");
+                }
+                
+                using var stream = assembly.GetManifestResourceStream("felix1.ReceiptTemplates.OrderTemplate.txt");
+                if (stream == null)
+                {
+                    // Fallback to file system for development
+                    Console.WriteLine("Embedded resource not found, trying file system...");
+                    templateText = File.ReadAllText(@"felix1\ReceiptTemplates\OrderTemplate.txt");
+                }
+                else
+                {
+                    using var reader = new StreamReader(stream);
+                    templateText = reader.ReadToEnd();
+                    Console.WriteLine("Successfully loaded template from embedded resource");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to load template: {ex.Message}");
+                // Final fallback - try to read from file system
+                try
+                {
+                    templateText = File.ReadAllText(@"felix1\ReceiptTemplates\OrderTemplate.txt");
+                    Console.WriteLine("Loaded template from file system as fallback");
+                }
+                catch (Exception fileEx)
+                {
+                    throw new Exception($"Could not load receipt template from embedded resource or file system. Embedded resource error: {ex.Message}. File system error: {fileEx.Message}");
+                }
+            }
+
             var template = Template.Parse(templateText);
             var scribanModel = new { receipt = orderReceipt };
             string text = template.Render(scribanModel, member => member.Name);

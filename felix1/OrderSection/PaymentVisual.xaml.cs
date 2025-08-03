@@ -856,7 +856,47 @@ namespace felix1.OrderSection
                     paymentReceipt.orderReceipt.TaxAmountDelivery = 0;
                 }
 
-                string templateText = File.ReadAllText(@"felix1\ReceiptTemplates\PaymentTemplate.txt");
+                string templateText;
+                try
+                {
+                    var assembly = typeof(PaymentVisual).Assembly;
+                    
+                    // Debug: List all embedded resources
+                    var resourceNames = assembly.GetManifestResourceNames();
+                    Console.WriteLine("Available embedded resources:");
+                    foreach (var name in resourceNames)
+                    {
+                        Console.WriteLine($"  - {name}");
+                    }
+                    
+                    using var stream = assembly.GetManifestResourceStream("felix1.ReceiptTemplates.PaymentTemplate.txt");
+                    if (stream == null)
+                    {
+                        // Fallback to file system for development
+                        Console.WriteLine("Embedded resource not found, trying file system...");
+                        templateText = File.ReadAllText(@"felix1\ReceiptTemplates\PaymentTemplate.txt");
+                    }
+                    else
+                    {
+                        using var reader = new StreamReader(stream);
+                        templateText = reader.ReadToEnd();
+                        Console.WriteLine("Successfully loaded template from embedded resource");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Failed to load template: {ex.Message}");
+                    // Final fallback - try to read from file system
+                    try
+                    {
+                        templateText = File.ReadAllText(@"felix1\ReceiptTemplates\PaymentTemplate.txt");
+                        Console.WriteLine("Loaded template from file system as fallback");
+                    }
+                    catch (Exception fileEx)
+                    {
+                        throw new Exception($"Could not load receipt template from embedded resource or file system. Embedded resource error: {ex.Message}. File system error: {fileEx.Message}");
+                    }
+                }
                 var template = Template.Parse(templateText);
                 var scribanModel = new { transaction = paymentReceipt};
                 string text = template.Render(scribanModel, member => member.Name);
