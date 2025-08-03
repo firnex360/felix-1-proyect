@@ -560,7 +560,7 @@ namespace felix1.OrderSection
 
             return frame;
         }
-        
+
         private async void OnCancelButtonClicked(object sender, EventArgs e)
         {
             Order.IsBillRequested = false;
@@ -739,6 +739,57 @@ namespace felix1.OrderSection
             OnPropertyChanged(nameof(TaxITBISLabel));
             OnPropertyChanged(nameof(TaxWaitersLabel));
             OnPropertyChanged(nameof(Total));
+        }
+
+        // Print receipt method (for transaction)
+        private void OnPrintReceipt(object sender, EventArgs e)
+        {
+            Console.WriteLine("Print transaction receipt clicked");
+
+            // Create a transaction object for the receipt
+            var transaction = new Transaction
+            {
+                Date = DateTime.Now,
+                Order = Order,
+                TotalAmount = Total,
+                TaxAmountITBIS = TaxITBIS,
+                TaxAmountWaiters = TaxWaiters,
+                CashAmount = _cashAmount,
+                CardAmount = _cardAmount,
+                TransferAmount = _transferAmount
+            };
+
+
+#if WINDOWS
+            try
+            {
+
+                string templateText = File.ReadAllText(@"C:\Codes\github\felix-1-proyect\felix1\ReceiptTemplates\PaymentTemplate.txt");
+                var template = Template.Parse(templateText);
+                var scribanModel = new { transaction = transaction, ChangeAmount = _changeAmount };
+                string text = template.Render(scribanModel, member => member.Name);
+                System.Drawing.Printing.PrintDocument pd = new System.Drawing.Printing.PrintDocument();
+                var savedPrinter = Preferences.Get("SelectedPrinter", "");
+                if (!string.IsNullOrEmpty(savedPrinter))
+                {
+                    pd.PrinterSettings.PrinterName = savedPrinter; // or whatever name shows in Windows, but it should take the default one
+                }
+                pd.PrintPage += (sender, e) =>
+                {
+                    System.Drawing.Font font = new System.Drawing.Font("Consolas", 10);
+                    e.Graphics!.DrawString(text, font, System.Drawing.Brushes.Black, new System.Drawing.PointF(10, 10));
+                };
+                pd.Print();
+                Console.WriteLine("Printed successfully.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Print failed: " + ex.Message);
+            }
+#else
+            Console.WriteLine("Printing is only supported on Windows for now.");
+            DisplayAlert("Error", $"No se pudo imprimir el recibo: La funcionalidad de impresión no está disponible en esta plataforma (solo Windows).", "OK");
+#endif
         }
     }
 

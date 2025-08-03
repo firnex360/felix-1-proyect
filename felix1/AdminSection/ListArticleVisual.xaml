@@ -96,14 +96,13 @@
                         HeaderText="Nombre"
                         CellTextAlignment="Start"
                         HeaderTextAlignment="Start"
-                        ColumnWidthMode="FitByCell"
-                        MaximumWidth="300"/>
+                        ColumnWidthMode="FitByCell"/>
 
                     <!-- Primary Price -->
                     <syncfusion:DataGridNumericColumn
                         MappingName="PriPrice"
                         HeaderText="Precio Primario"
-                        Format="C2"
+                        Format="$#,##0.00"
                         CellTextAlignment="Start"
                         HeaderTextAlignment="Start"
                         ColumnWidthMode="FitByHeader"/>
@@ -112,7 +111,7 @@
                     <syncfusion:DataGridNumericColumn
                         MappingName="SecPrice"
                         HeaderText="Precio Secundario"
-                        Format="C2"
+                        Format="$#,##0.00"
                         CellTextAlignment="Start"
                         HeaderTextAlignment="Center"
                         ColumnWidthMode="FitByHeader"/>

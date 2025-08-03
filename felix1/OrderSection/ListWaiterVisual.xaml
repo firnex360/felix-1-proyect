@@ -4,10 +4,10 @@
              x:Class="felix1.OrderSection.ListWaiterVisual"
              NavigationPage.HasNavigationBar="False">
              
-    <Grid x:Name="MainGrid" ColumnDefinitions="*, Auto" BackgroundColor="White">
+    <Grid x:Name="MainGrid" BackgroundColor="#FFCC1818">
         
         <!--    SCROLLABLE MESERO   -->
-        <ScrollView Grid.Column="0" Orientation="Horizontal" VerticalOptions="Fill">
+        <ScrollView Grid.Column="0" Orientation="Vertical" VerticalOptions="Fill" HorizontalOptions="Fill">
             <HorizontalStackLayout x:Name="MeseroContainer"
                                 Spacing="10"
                                 Padding="10"
@@ -16,37 +16,5 @@
                                 HorizontalOptions="Fill" />
         </ScrollView>
         
-        <!--    STATIC TAKEOUT   -->
-        <Grid Grid.Column="1"
-            WidthRequest="300"
-            x:Name="TakeoutPanel" 
-            Padding="10" 
-            VerticalOptions="Fill"
-            BackgroundColor="#F5F7FA">
-                
-                <Frame
-                CornerRadius="10"
-                Padding = "10"
-                BackgroundColor="White"
-                BorderColor="White"
-                VerticalOptions="Fill"
-                WidthRequest="300">
-                    <VerticalStackLayout x:Name="TakeoutContainer" 
-                                        Spacing="12"
-                                        VerticalOptions="Fill">
-                        <Label
-                            Text="WAITER EJEMPLOOO"
-                            FontSize="18"
-                            FontAttributes="Bold"
-                            TextColor="Black"
-                            HorizontalOptions="Center" />
-                        <VerticalStackLayout x:Name="TakeoutOrdersContainer"
-                                            Spacing="5"
-                                            VerticalOptions="Start" />
-                    </VerticalStackLayout>
-                </Frame>
-
-            </Grid>
-
     </Grid>
 </ContentView>

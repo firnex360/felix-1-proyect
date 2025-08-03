@@ -229,15 +229,22 @@ public partial class ListTableVisual : ContentView
 
     private decimal findOrderTotal(Order order)
     {
-        var subtotal = order.Items!
+        if (order.Items == null || order.Items.Count == 0 || order.Table == null)
+            return 0m;
+            
+        var subtotal = order.Items
             .GroupBy(item => item.Id) // Group by unique ID
             .Select(group => group.First()) // Take first instance of each
             .Sum(item => item.Quantity * item.UnitPrice); // Sum distinct items
 
         var taxRate = decimal.Parse(Preferences.Get("TaxRate", "18")) / 100m * subtotal;
         var waiterTaxRate = decimal.Parse(Preferences.Get("WaiterTaxRate", "10")) / 100m * subtotal;
+        var deliveryTaxRate = decimal.Parse(Preferences.Get("DeliveryTaxRate", "0")) / 100m * subtotal;
+        var discount = order.Discount; 
 
-        return subtotal + waiterTaxRate + taxRate;
+        return order.Table?.IsTakeOut == true
+            ? subtotal + deliveryTaxRate - discount
+            : subtotal + waiterTaxRate + taxRate - discount;
     }
 
     private async void RefundVisual(Order order)
@@ -402,7 +409,7 @@ public partial class ListTableVisual : ContentView
 
         var orderButton = new Button
         {
-            Text = $"Orden #{displayOrderNumber}",
+            Text = $"Orden #{order.OrderNumber} || Total: {findOrderTotal(order):C}",
             FontSize = 12,
             HeightRequest = 30,
             //WidthRequest = 90,
@@ -439,6 +446,9 @@ public partial class ListTableVisual : ContentView
                 // Cargar órdenes para llevar
                 var orders = await db.Orders
                     .Include(o => o.Table)
+                    .Include(o => o.Waiter)
+                    .Include(o => o.Items!)
+                    .ThenInclude(i => i.Article)
                     .Where(o => o.Table != null &&
                                o.Table.IsTakeOut &&
                                o.CashRegister == openCashRegister)
@@ -497,13 +507,18 @@ public partial class ListTableVisual : ContentView
         await AppDbContext.ExecuteSafeAsync(async db =>
         {
             var waiter = await db.Users.FirstOrDefaultAsync(u => u.Name == "TAKEOUT");
-            var cashRegister = await db.CashRegisters.FirstOrDefaultAsync(c => c.IsOpen);
+            var cashRegister = await db.CashRegisters
+                .Include(c => c.Cashier)  // Include the Cashier relationship
+                .FirstOrDefaultAsync(c => c.IsOpen);
 
             if (cashRegister == null)
             {
                 await Application.Current!.MainPage!.DisplayAlert("Error", "No hay una caja abierta.", "OK");
                 return;
             }
+
+            // Debug: Check if cashier is loaded
+            Console.WriteLine($"Cash Register Cashier: {cashRegister.Cashier?.Name ?? "NULL"}");
 
             var existingTakeouts = await db.Orders
                 .Where(o => o.CashRegister!.Id == cashRegister.Id && o.Table != null && o.Table.IsTakeOut)
@@ -706,11 +721,11 @@ public partial class ListTableVisual : ContentView
                     {
                         foreach (var tableFrame in tableRow.Children.OfType<Frame>())
                         {
-                            // Reset to default appearance
                             tableFrame.BorderColor = Color.FromArgb("#C7CFDD");
                             tableFrame.BackgroundColor = Colors.White;
                             tableFrame.HasShadow = false;
                             tableFrame.Scale = 1.0; // Reset any scaling from animations
+                            tableFrame.CornerRadius = 10; // Preserve the corner radius
                         }
                     }
                 }
@@ -778,7 +793,7 @@ public partial class ListTableVisual : ContentView
 
                                 if (tableLabel != null)
                                 {
-                                    var labelText = tableLabel.Text.Replace("Mesa #", "");
+                                    var labelText = tableLabel.Text.Replace("Mesa #", "").Split(" - ")[0];
                                     if (int.TryParse(labelText, out int displayedLocalNumber))
                                     {
                                         // For global search, we need to check if this displayed table
@@ -891,16 +906,16 @@ public partial class ListTableVisual : ContentView
         else
         {
             // highlight for non-active frames when cycling with Tab
-            tableFrame.BorderColor = Color.FromArgb("#F3F3F3"); //  for non-active
-            tableFrame.BackgroundColor = Color.FromArgb("#F3F3F3"); // Light  background
+            tableFrame.BorderColor = Color.FromArgb("#2196F3"); // Blue for local search
+            tableFrame.BackgroundColor = Color.FromArgb("#E3F2FD"); // Light blue background
             tableFrame.HasShadow = true;
             tableFrame.CornerRadius = 10;
             tableFrame.Shadow = new Shadow
             {
-                Brush = new SolidColorBrush(Color.FromArgb("#F3F3F3")),
-                Offset = new Point(1, 1),
-                Radius = 3,
-                Opacity = 0.5f
+                Brush = new SolidColorBrush(Color.FromArgb("#2196F3")),
+                Offset = new Point(2, 2),
+                Radius = 5,
+                Opacity = 0.7f
             };
         }
     }
@@ -953,7 +968,8 @@ public partial class ListTableVisual : ContentView
 
                                 if (tableLabel != null)
                                 {
-                                    var labelText = tableLabel.Text.Replace("Mesa #", "");
+                                    var labelText = tableLabel.Text.Replace("Mesa #", "").Split(" - ")[0];
+                                    
                                     if (int.TryParse(labelText, out int tableLocalNumber) && tableLocalNumber == localNumber)
                                     {
                                         // Find the corresponding table from database
@@ -983,7 +999,7 @@ public partial class ListTableVisual : ContentView
             }
             else
             {
-                ApplyHighlightStyling(_matchingLocalFrames[i], false);
+                ApplyInactiveTabHighlight(_matchingLocalFrames[i]);
             }
         }
 
@@ -1046,7 +1062,7 @@ public partial class ListTableVisual : ContentView
                 }
                 else
                 {
-                    ApplyHighlightStyling(_matchingLocalFrames[i], false);
+                    ApplyInactiveTabHighlight(_matchingLocalFrames[i]);
                 }
             }
 
@@ -1062,17 +1078,34 @@ public partial class ListTableVisual : ContentView
     {
         // Blue highlight for the active frame (the one that opens on Enter)
         tableFrame.BorderColor = Color.FromArgb("#005F8C"); // Blue for active
-        tableFrame.BackgroundColor = Color.FromArgb("#E3F2FD"); // Light blue
+        tableFrame.BackgroundColor = Color.FromArgb("#d2e8f8ff"); // Light blue
         tableFrame.HasShadow = true;
         tableFrame.CornerRadius = 10;
         tableFrame.Shadow = new Shadow
         {
             Brush = new SolidColorBrush(Color.FromArgb("#005F8C")),
             Offset = new Point(2, 2),
-            Radius = 7,
+            Radius = 3,
             Opacity = 0.8f
         };
         tableFrame.Scale = 1.08;
+    }
+
+    private void ApplyInactiveTabHighlight(Frame tableFrame)
+    {
+        // Gray highlight for non-active frames when cycling with Tab
+        tableFrame.BorderColor = Color.FromArgb("#9E9E9E"); // Gray for inactive
+        tableFrame.BackgroundColor = Color.FromArgb("#F5F5F5"); // Light gray background
+        tableFrame.HasShadow = true;
+        tableFrame.CornerRadius = 10;
+        tableFrame.Shadow = new Shadow
+        {
+            Brush = new SolidColorBrush(Color.FromArgb("#9E9E9E")),
+            Offset = new Point(1, 1),
+            Radius = 3,
+            Opacity = 0.5f
+        };
+        tableFrame.Scale = 1.0; // No scaling for inactive frames
     }
 
     private async Task<bool> HasTransaction(Order order)

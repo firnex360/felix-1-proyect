@@ -300,6 +300,8 @@
                                 <VisualState.Setters>
                                     <Setter Property="Background"
                                             Value="#005F8C"/>
+                                    <Setter Property="TextColor"
+                                            Value="#F3F3F3"/>
                                 </VisualState.Setters>
                             </VisualState>
                             <VisualState x:Name="Hovered">

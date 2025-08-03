@@ -1,11 +1,13 @@
 namespace felix1.AdminSection;
 using Microsoft.Maui.Storage; // For Preferences
+using System.Drawing.Printing; // For printer access
 public partial class Configuration : ContentView
 {
     public Configuration()
     {
         InitializeComponent();
         LoadSavedData();
+        LoadAvailablePrinters();
     }
 
     private void LoadSavedData()
@@ -34,6 +36,67 @@ public partial class Configuration : ContentView
         
         txtComment.Text = Preferences.Get("InvoiceComment", "GRACIAS POR PREFERIRNOS");
     }
+
+    private void LoadAvailablePrinters()
+    {
+        try
+        {
+#if WINDOWS
+            pickerPrinter.Items.Clear();
+            
+            // Get all installed printers
+            foreach (string printerName in PrinterSettings.InstalledPrinters)
+            {
+                pickerPrinter.Items.Add(printerName);
+            }
+            
+            // If no printers found, add a message
+            if (pickerPrinter.Items.Count == 0)
+            {
+                pickerPrinter.Items.Add("No hay impresoras disponibles");
+            }
+            
+            // Load selected printer AFTER printers are loaded
+            var savedPrinter = Preferences.Get("SelectedPrinter", "");
+            if (!string.IsNullOrEmpty(savedPrinter) && pickerPrinter.Items.Contains(savedPrinter))
+            {
+                pickerPrinter.SelectedItem = savedPrinter;
+            }
+#else
+            // For other platforms, show a message
+            pickerPrinter.Items.Clear();
+            pickerPrinter.Items.Add("Solo disponible en Windows");
+#endif
+        }
+        catch (Exception ex)
+        {
+            pickerPrinter.Items.Clear();
+            pickerPrinter.Items.Add($"Error: {ex.Message}");
+        }
+    }
+
+    private async void btnRefreshPrinters_Clicked(object sender, EventArgs e)
+    {
+        try
+        {
+            // Store current selection before refreshing
+            var currentSelection = pickerPrinter.SelectedItem?.ToString();
+            
+            LoadAvailablePrinters();
+            
+            // Try to restore the selection if it still exists
+            if (!string.IsNullOrEmpty(currentSelection) && pickerPrinter.Items.Contains(currentSelection))
+            {
+                pickerPrinter.SelectedItem = currentSelection;
+            }
+            
+            await Application.Current!.MainPage!.DisplayAlert("Éxito", "Lista de impresoras actualizada", "OK");
+        }
+        catch (Exception ex)
+        {
+            await Application.Current!.MainPage!.DisplayAlert("Error", $"No se pudo actualizar: {ex.Message}", "OK");
+        }
+    }
     
      private async void btnSave_Clicked(object sender, EventArgs e)
     {
@@ -49,6 +112,12 @@ public partial class Configuration : ContentView
             Preferences.Set("DeliveryTaxRate", txtDeliveryTax.Value.ToString());
             Preferences.Set("WaiterTaxRate", txtWaiterTax.Value.ToString());
             Preferences.Set("InvoiceComment", txtComment.Text);
+            
+            // Save selected printer
+            if (pickerPrinter.SelectedItem != null)
+            {
+                Preferences.Set("SelectedPrinter", pickerPrinter.SelectedItem.ToString());
+            }
 
             await Application.Current!.MainPage!.DisplayAlert("Éxito", "Configuración guardada correctamente", "OK");
         }
