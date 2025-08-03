@@ -807,16 +807,18 @@ namespace felix1.OrderSection
                     Order = Order,
 
                     // Transaction Financial Information
-                    TotalAmount = 0,
-                    TaxAmountITBIS = 0,
-                    TaxAmountWaiters = 0,
-                    CashAmount = 0, // TODO: Set based on payment method
-                    CardAmount = 0, // TODO: Set based on payment method
-                    TransferAmount = 0, // TODO: Set based on payment method
+                    TotalAmount = Total,
+                    TaxAmountITBIS = TaxITBIS,
+                    TaxAmountWaiters = TaxWaiters,
+                    TaxAmountDelivery = TaxDelivery,
+                    CashAmount = _cashAmount,
+                    CardAmount = _cardAmount,
+                    TransferAmount = _transferAmount,
 
                     // Tax Percentages
                     TaxRateITBIS = _taxRate, // Store the actual tax rate (e.g., 0.18 for 18%)
                     TaxRateWaiters = _waiterTaxRate, // Store the actual waiter tax rate (e.g., 0.10 for 10%)
+                    TaxRateDelivery = _deliveryTaxRate, // Store the actual delivery tax rate (e.g., 0.10 for 10%)
 
                     PrintDate = DateTime.Now
                 };
@@ -832,6 +834,12 @@ namespace felix1.OrderSection
                 if (paymentReceipt.orderReceipt.Order!.Table!.IsTakeOut)
                 {
                     paymentReceipt.orderReceipt.Order.Waiter = paymentReceipt.orderReceipt.Order!.CashRegister!.Cashier;
+                    paymentReceipt.orderReceipt.TaxAmountITBIS = 0;
+                    paymentReceipt.orderReceipt.TaxAmountWaiters = 0;
+                }
+                else
+                {
+                    paymentReceipt.orderReceipt.TaxAmountDelivery = 0;
                 }
 
                 string templateText = File.ReadAllText(@"felix1\ReceiptTemplates\PaymentTemplate.txt");
