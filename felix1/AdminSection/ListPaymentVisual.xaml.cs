@@ -33,8 +33,6 @@ namespace felix1.AdminSection
 
         public ListPaymentVisual(CashRegister cashRegister)
         {
-            CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
-            CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
 
             InitializeComponent();
 
