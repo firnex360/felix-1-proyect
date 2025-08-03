@@ -15,13 +15,37 @@ namespace felix1.AdminSection
     {
         private bool _unpaidOnly = false;
         public ObservableCollection<CombinedTransaction> CombinedItems { get; } = new();
+        public ObservableCollection<CategoryCount> CategoryCounts { get; } = new();
         private readonly int _cashRegisterId;
         private bool _showOnlyUnpaid = false;
+
+        public ObservableCollection<TopSoldItem> TopSoldItems { get; } = new();
+        public int TotalOrders { get; set; }
+        public int TotalRefunds { get; set; }
+        public int TotalTakeOut { get; set; }
+        public int TotalTables { get; set; }
+        public string OpenHours { get; set; }
+        public decimal TotalRevenue { get; set; }
+        public decimal TotalRefundAmount { get; set; }
+        public float InitialMoney { get; set; }
+        public decimal IncomeMoney { get; set; }
+        public decimal FinalMoney { get; set; }
 
         public ListPaymentVisual(CashRegister cashRegister)
         {
 
             InitializeComponent();
+
+            doughnutSeries.PaletteBrushes = new List<Brush>
+            {
+                new SolidColorBrush(Color.FromArgb("#A884F3")),
+                new SolidColorBrush(Color.FromArgb("#5584C2")),
+                new SolidColorBrush(Color.FromArgb("#008b8b")),
+                new SolidColorBrush(Color.FromArgb("#68C37D")),
+                new SolidColorBrush(Color.FromArgb("#FEB31A")),
+                new SolidColorBrush(Color.FromArgb("#F33559"))
+            };
+
             _cashRegisterId = cashRegister.Id;
             LoadCombinedData();
             BindingContext = this;
@@ -39,14 +63,70 @@ namespace felix1.AdminSection
                 var orders = await db.Orders
                     .Include(o => o.CashRegister)
                     .Include(o => o.Items)
+                        .ThenInclude(item => item.Article)
+                    .Include(o => o.Table)
                     .Where(o => o.CashRegister != null && o.CashRegister.Id == _cashRegisterId)
                     .OrderByDescending(o => o.Date)
                     .ToListAsync();
+
+                var categoryCounts = orders
+                    .SelectMany(o => o.Items)
+                    .Where(item => item.Article != null)
+                    .GroupBy(item => item.Article.Category.ToString())
+                    .Select(g => new CategoryCount
+                    {
+                        Category = g.Key,
+                        Count = g.Sum(item => item.Quantity)
+                    })
+                    .OrderByDescending(x => x.Count)
+                    .ToList();
 
                 var orderIds = orders.Select(o => o.Id).ToList();
                 var transactions = await db.Transactions
                     .Where(t => t.Order != null && orderIds.Contains(t.Order.Id))
                     .ToListAsync();
+
+                var refunds = await db.Refunds
+                    .Include(r => r.Order)
+                        .ThenInclude(o => o.CashRegister)
+                    .Include(r => r.RefundedItems)
+                    .Where(r => r.Order != null && r.Order.CashRegister != null && r.Order.CashRegister.Id == _cashRegisterId)
+                    .ToListAsync();
+
+                var topItems = orders
+                    .SelectMany(o => o.Items)
+                    .Where(i => i.Article != null)
+                    .GroupBy(i => i.Article.Name)
+                    .Select(g => new TopSoldItem
+                    {
+                        ArticleName = g.Key,
+                        Quantity = g.Sum(i => i.Quantity)
+                    })
+                    .OrderByDescending(i => i.Quantity)
+                    .Take(5)
+                    .ToList();
+
+                while (topItems.Count < 5)
+                {
+                    topItems.Add(new TopSoldItem { ArticleName = "-", Quantity = 0 });
+                }
+
+                TotalOrders = orders.Count;
+                TotalRefunds = refunds.Count;
+                TotalTakeOut = orders.Count(o => o.Table?.IsTakeOut ?? false);
+                TotalTables = orders.Select(o => o.Table?.Id ?? 0).Distinct().Count();
+
+                var cashRegister = await db.CashRegisters.FindAsync(_cashRegisterId);
+                if (cashRegister != null)
+                {
+                    var timeOpen = (cashRegister.TimeFinish ?? DateTime.Now) - cashRegister.TimeStarted;
+                    OpenHours = $"{timeOpen.Hours}h {timeOpen.Minutes}m";
+
+                    InitialMoney = cashRegister.InitialMoney;
+                    IncomeMoney = Convert.ToDecimal(orders.Sum(o => o.Items?.Sum(i => (float)i.TotalPrice) ?? 0f));
+                    TotalRefundAmount = Convert.ToDecimal(refunds.Sum(r => r.RefundedItems?.Sum(i => (float)i.TotalPrice) ?? 0f));
+                    FinalMoney = Convert.ToDecimal(InitialMoney) + IncomeMoney - TotalRefundAmount;
+                }
 
                 var combinedItems = new List<CombinedTransaction>();
 
@@ -58,7 +138,7 @@ namespace felix1.AdminSection
                     decimal orderTotal = order.Items?.Sum(i => i.TotalPrice) ?? 0;
                     var orderTransactions = transactions.Where(t => t.Order?.Id == order.Id).ToList();
 
-                    var item = new CombinedTransaction
+                    combinedItems.Add(new CombinedTransaction
                     {
                         Id = order.Id,
                         Time = (order.Date ?? DateTime.Now).ToString("HH:mm"),
@@ -68,19 +148,8 @@ namespace felix1.AdminSection
                         PaymentMethods = GetPaymentMethods(orderTransactions),
                         OrderId = order.Id,
                         HasPayment = orderTransactions.Any()
-                    };
-
-                    combinedItems.Add(item);
+                    });
                 }
-
-                var refunds = await db.Refunds
-                    .Include(r => r.Order)
-                        .ThenInclude(o => o!.CashRegister)
-                    .Include(r => r.RefundedItems)
-                    .Where(r => r.Order != null &&
-                               r.Order.CashRegister != null &&
-                               r.Order.CashRegister.Id == _cashRegisterId)
-                    .ToListAsync();
 
                 foreach (var refund in refunds)
                 {
@@ -89,7 +158,7 @@ namespace felix1.AdminSection
 
                     decimal refundTotal = refund.RefundedItems?.Sum(i => i.TotalPrice) ?? 0;
 
-                    var item = new CombinedTransaction
+                    combinedItems.Add(new CombinedTransaction
                     {
                         Id = refund.Id,
                         Time = refund.Date.ToString("HH:mm"),
@@ -100,18 +169,29 @@ namespace felix1.AdminSection
                         OrderId = refund.Order?.Id ?? 0,
                         IsRefund = true,
                         HasPayment = true
-                    };
-
-                    combinedItems.Add(item);
+                    });
                 }
 
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
+                    CategoryCounts.Clear();
+                    foreach (var item in categoryCounts) CategoryCounts.Add(item);
+
+                    TopSoldItems.Clear();
+                    foreach (var item in topItems) TopSoldItems.Add(item);
+
+                    OnPropertyChanged(nameof(TotalOrders));
+                    OnPropertyChanged(nameof(TotalRefunds));
+                    OnPropertyChanged(nameof(TotalTakeOut));
+                    OnPropertyChanged(nameof(TotalTables));
+                    OnPropertyChanged(nameof(OpenHours));
+                    OnPropertyChanged(nameof(InitialMoney));
+                    OnPropertyChanged(nameof(IncomeMoney));
+                    OnPropertyChanged(nameof(TotalRefundAmount));
+                    OnPropertyChanged(nameof(FinalMoney));
+
                     CombinedItems.Clear();
-                    foreach (var item in combinedItems.OrderByDescending(i => i.Time))
-                    {
-                        CombinedItems.Add(item);
-                    }
+                    foreach (var item in combinedItems.OrderByDescending(i => i.Time)) CombinedItems.Add(item);
                 });
             });
         }
@@ -294,6 +374,12 @@ namespace felix1.AdminSection
             public decimal DisplayAmount => IsRefund ? TotalAmount * -1 : TotalAmount;
             public string DisplayId => IsRefund ? $"{Id} ({OrderId})" : Id.ToString("0000");
         }
+
+        public class CategoryCount
+        {
+            public string Category { get; set; }
+            public int Count { get; set; }
+        }
     }
 
     public class BoolToPaidStatusConverter : IValueConverter
@@ -352,4 +438,29 @@ namespace felix1.AdminSection
             throw new NotImplementedException();
         }
     }
+
+    public class TopSoldItem
+    {
+        public string ArticleName { get; set; }
+        public int Quantity { get; set; }
+        public string DisplayText => $"{ArticleName}: {Quantity}";
+    }
+
+    public class FloatToDecimalConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is float floatValue)
+            {
+                return (decimal)floatValue;
+            }
+            return 0m;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
 }

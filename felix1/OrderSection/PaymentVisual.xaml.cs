@@ -22,21 +22,29 @@ namespace felix1.OrderSection
 {
     public partial class PaymentVisual : ContentPage
     {
-        private decimal _taxRate = 0.18m;
-        private decimal _waiterTaxRate = 0.10m;
+        private decimal _taxRate = 0.0m;
+        private decimal _waiterTaxRate = 0.0m;
+        private decimal _deliveryTaxRate = 0.0m;
 
         public Order Order { get; set; }
         public decimal Subtotal => Order.Items?.Sum(i => i.TotalPrice) ?? 0;
         public decimal Discount => Order.Discount;
         public decimal TaxableAmount => Subtotal - Discount;
+        public decimal TaxDelivery => Subtotal * _deliveryTaxRate;
         public decimal TaxITBIS => Subtotal * _taxRate;
         public decimal TaxWaiters => Subtotal * _waiterTaxRate;
-        public decimal Total => (Subtotal + TaxITBIS + TaxWaiters) - Discount;
+        public decimal Total => Order.Table.IsTakeOut ? TotalDelivery : TotalCasual;
+        public decimal TotalCasual => (Subtotal + TaxITBIS + TaxWaiters) - Discount;
+        public decimal TotalDelivery => (Subtotal + TaxDelivery) - Discount;
         public decimal TotalPayment => _cashAmount + _cardAmount + _transferAmount;
         public int ItemsCount => Order.Items?.Sum(i => i.Quantity) ?? 0;
-
+        public string OrderInfoText { get; set; }
+        public string TaxDeliveryLabel => $"Delivery ({_deliveryTaxRate:P0})";
         public string TaxITBISLabel => $"ITBIS ({_taxRate:P0})";
         public string TaxWaitersLabel => $"Propina ({_waiterTaxRate:P0})";
+        public bool ShowDeliveryTax => Order.Table?.IsTakeOut ?? false;
+        public bool ShowITBISAndWaiterTax => !ShowDeliveryTax;
+
 
         public bool AnyPaymentMethodUsed => _cashAmount > 0 || _cardAmount > 0 || _transferAmount > 0;
         public bool IsCashUsed => _cashAmount > 0;
@@ -67,6 +75,8 @@ namespace felix1.OrderSection
             Order = order;
             BindingContext = this;
 
+            OrderInfoText = $"Mesa {order.Table?.LocalNumber} ({order.Table?.GlobalNumber}) - Orden #{order.Id}";
+
             UpdatePaymentSummary();
             AddCashMethod();
             FocusFirstPaymentEntry();
@@ -88,6 +98,7 @@ namespace felix1.OrderSection
         {
             _taxRate = decimal.Parse(Preferences.Get("TaxRate", "18")) / 100m;
             _waiterTaxRate = decimal.Parse(Preferences.Get("WaiterTaxRate", "10")) / 100m;
+            _deliveryTaxRate = decimal.Parse(Preferences.Get("DeliveryTaxRate", "0")) / 100m;
         }
 
         protected override void OnAppearing()
@@ -597,10 +608,13 @@ namespace felix1.OrderSection
 
             var totalPayment = _cashAmount + _cardAmount + _transferAmount;
 
-            if (!Order.IsDuePaid && totalPayment < Total)
+            if (!Order.IsDuePaid)
             {
-                await DisplayAlert("Error", $"El total pagado (${totalPayment:N2}) es menor que el total de la orden (${Total:N2})", "OK");
-                return;
+                if (totalPayment < Total)
+                {
+                    await DisplayAlert("Error", $"El pago (${totalPayment:N2}) no cubre el total de la orden (${Total:N2})", "OK");
+                    return;
+                }
             }
 
             _changeAmount = totalPayment > Total ? totalPayment - Total : 0;
@@ -611,6 +625,7 @@ namespace felix1.OrderSection
                 var orderToUpdate = await db.Orders
                     .Include(o => o.Table)
                     .Include(o => o.Items)
+                    .Include(o => o.CashRegister)
                     .FirstOrDefaultAsync(o => o.Id == Order.Id);
 
                 if (orderToUpdate == null) return false;
@@ -639,19 +654,11 @@ namespace felix1.OrderSection
                         orderToUpdate.Table.IsBillRequested = false;
                     }
 
-                    if (totalPayment < Total)
+                    if (orderToUpdate.IsDuePaid)
                     {
                         await DisplayAlert("Información",
-                            $"Orden marcada como pagada con pago parcial (${totalPayment:N2} de ${Total:N2})",
+                            $"Pago registrado (${totalPayment:N2}) para cuenta por cobrar",
                             "OK");
-                    }
-                }
-                else
-                {
-                    if (totalPayment >= Total && orderToUpdate.Table != null)
-                    {
-                        orderToUpdate.Table.IsPaid = true;
-                        orderToUpdate.Table.IsBillRequested = false;
                     }
                 }
 
@@ -660,11 +667,9 @@ namespace felix1.OrderSection
 
                 if (Order.Table != null)
                 {
-                    Order.Table.IsPaid = orderToUpdate.Table?.IsPaid ?? false;
-                    Order.Table.IsBillRequested = orderToUpdate.Table?.IsBillRequested ?? false;
+                    Order.Table.IsPaid = true;
+                    Order.Table.IsBillRequested = false;
                 }
-
-                Order.IsDuePaid = orderToUpdate.IsDuePaid;
 
                 return true;
             });

@@ -106,14 +106,24 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <Grid RowDefinitions="*, Auto"
+    <!-- Order Info Label in Top Right -->
+
+    <Grid RowDefinitions="*, Auto, Auto"
           ColumnDefinitions="*, 30, *"
           Padding="20"
           RowSpacing="20">
 
-        <VerticalStackLayout Grid.Row="0"
-                Grid.Column="0"
-                Spacing="15">
+        <!-- Order Info Label in its own row -->
+        <Label Grid.Row="0" Grid.Column="2"
+           Text="{Binding OrderInfoText}"
+           HorizontalOptions="End"
+           VerticalOptions="Start"
+           Margin="0,10,20,0"
+           FontSize="16"
+           FontAttributes="Bold"
+           TextColor="#005F8C"/>
+
+        <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="15">
             <Frame BackgroundColor="#F5F5F5"
                    CornerRadius="10"
                    BorderColor="#FFE0E0E0"
@@ -189,33 +199,53 @@
                                FontFamily="Inter"/>
 
 
-                        <Label Text="{Binding Subtotal, StringFormat='{0:N2}'}"
-                               Grid.Column="2"
-                               TextColor="#005F8C"
-                               HorizontalOptions="End"
-                               FontFamily="Inter"/>
+                        <Label Text="{Binding Subtotal, StringFormat='{0:N2}'}" 
+                                   Grid.Column="2" 
+                                   TextColor="#005F8C" 
+                                   HorizontalOptions="End"
+                                   FontFamily="Inter"/>
+                    </Grid>
+
+
+                    <!-- Show delivery tax only if it's a takeout order -->
+
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Text="{Binding TaxDeliveryLabel}" 
+                        IsVisible="{Binding ShowDeliveryTax}" 
+                                   TextColor="#005F8C"
+                                   FontFamily="Inter"/>
+                        <Label Text="{Binding TaxDelivery, StringFormat='{0:N2}'}" 
+                        IsVisible="{Binding ShowDeliveryTax}" 
+                                   Grid.Column="1"
+                                   TextColor="#005F8C" 
+                                   HorizontalOptions="End"
+                                   FontFamily="Inter"/>
                     </Grid>
 
                     <Grid ColumnDefinitions="*, Auto">
-                        <Label Text="{Binding TaxITBISLabel}"
-                               TextColor="#005F8C"
-                               FontFamily="Inter"/>
-                        <Label Text="{Binding TaxITBIS, StringFormat='{0:N2}'}"
-                               Grid.Column="1"
-                               TextColor="#005F8C"
-                               HorizontalOptions="End"
-                               FontFamily="Inter"/>
+                        <Label Text="{Binding TaxITBISLabel}" 
+                        IsVisible="{Binding ShowITBISAndWaiterTax}" 
+                                   TextColor="#005F8C"
+                                   FontFamily="Inter"/>
+                        <Label Text="{Binding TaxITBIS, StringFormat='{0:N2}'}" 
+                        IsVisible="{Binding ShowITBISAndWaiterTax}" 
+                                   Grid.Column="1"
+                                   TextColor="#005F8C" 
+                                   HorizontalOptions="End"
+                                   FontFamily="Inter"/>
                     </Grid>
 
                     <Grid ColumnDefinitions="*, Auto">
-                        <Label Text="{Binding TaxWaitersLabel}"
-                               TextColor="#005F8C"
-                               FontFamily="Inter"/>
-                        <Label Text="{Binding TaxWaiters, StringFormat='{0:N2}'}"
-                               Grid.Column="1"
-                               TextColor="#005F8C"
-                               HorizontalOptions="End"
-                               FontFamily="Inter"/>
+                        <Label Text="{Binding TaxWaitersLabel}" 
+                        IsVisible="{Binding ShowITBISAndWaiterTax}" 
+                                   TextColor="#005F8C"
+                                   FontFamily="Inter"/>
+                        <Label Text="{Binding TaxWaiters, StringFormat='{0:N2}'}" 
+                        IsVisible="{Binding ShowITBISAndWaiterTax}" 
+                                   Grid.Column="1"
+                                   TextColor="#005F8C" 
+                                   HorizontalOptions="End"
+                                   FontFamily="Inter"/>
                     </Grid>
 
                     <Grid ColumnDefinitions="*, Auto">
@@ -327,10 +357,17 @@
             </Frame>
         </VerticalStackLayout>
 
-        <VerticalStackLayout Grid.Row="0"
-                Grid.Column="2"
-                Spacing="15">
-            <Label Text="PAGO PENDIENTE"
+        <VerticalStackLayout Grid.Row="0" Grid.Column="2" Spacing="15">
+            <Label Grid.Row="0"
+                   Grid.Column="2"
+                   Text="{Binding OrderInfoText}"
+                   HorizontalOptions="End"
+                   VerticalOptions="Start"
+                   Margin="0,10,20,0"
+                   FontSize="16"
+                   FontAttributes="Bold"
+                   TextColor="#005F8C"/>
+            <Label Text="PAGO PENDIENTE" 
                    IsVisible="{Binding Order.IsDuePaid}"
                    FontAttributes="Bold"
                    FontSize="16"

@@ -92,6 +92,31 @@ public partial class OrderSectionMainVisual : ContentPage
             if (!confirm)
                 return;
 
+            // Verificar si hay órdenes con mesas no pagadas
+            bool hasUnpaidTables = await AppDbContext.ExecuteSafeAsync(async db =>
+            {
+                return await db.Orders
+                    .Include(o => o.Table)
+                    .AnyAsync(o =>
+                        o.CashRegister != null &&
+                        o.CashRegister.Id == _cashRegister.Id &&
+                        o.Table != null &&
+                        !o.Table.IsPaid);
+            });
+
+            if (hasUnpaidTables)
+            {
+                // Segundo aviso, el jovencito igual no se da cuenta que hay mesas abiertas en frente suya
+                bool confirmCloseAnyway = await DisplayAlert(
+                    "Advertencia",
+                    "Hay mesas sin pagar asociadas a esta caja. ¿Desea cerrar la caja de todas formas?",
+                    "Sí, cerrar",
+                    "No, cancelar");
+
+                if (!confirmCloseAnyway)
+                    return;
+            }
+
             await AppDbContext.ExecuteSafeAsync(async db =>
             {
                 var user = await db.Users.FindAsync(AppSession.CurrentUser.Id);
