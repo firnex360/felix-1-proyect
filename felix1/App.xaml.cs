@@ -24,7 +24,7 @@ public partial class App : Application
 		{
 			using var db = new AppDbContext(); // Usa tu propio DbContext
 			var registers = db.CashRegisters.ToList();
-			double hoursBeforeClose = double.TryParse(Preferences.Get("AutoCloseHours", "0.1"), out var h) ? h : 0.1;
+			double hoursBeforeClose = double.TryParse(Preferences.Get("AutoCloseHours", "1"), out var h) ? h : 1;
 
 
         	var closedRegisters = new List<CashRegister>();
@@ -47,7 +47,7 @@ public partial class App : Application
 					foreach (var reg in closedRegisters)
 					{
 						await Current!.MainPage!.DisplayAlert(
-							"Caja Ha Sido Cerrada Automáticamente",
+							"Caja ha sido cerrada automaticamente",
 							$"Caja #{reg.Number} fue cerrada tras {hoursBeforeClose} horas.",
 							"OK");
 					}
