@@ -68,6 +68,11 @@
                                               HeaderRowFontAttributes="Bold"/>
                 </syncfusion:SfDataGrid.DefaultStyle>
 
+                <syncfusion:SfDataGrid.SortColumnDescriptions>
+                    <syncfusion:SortColumnDescription ColumnName="Id"
+                            SortDirection="Descending"/>
+                </syncfusion:SfDataGrid.SortColumnDescriptions>
+
                 <syncfusion:SfDataGrid.Columns>
 
                     <syncfusion:DataGridNumericColumn

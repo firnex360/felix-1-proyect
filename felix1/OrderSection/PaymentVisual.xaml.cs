@@ -598,8 +598,10 @@ namespace felix1.OrderSection
                 return true;
             });
 
-            CloseThisWindow();
+            // Reload the table list before closing the window
             ListTableVisual.Instance?.ReloadTM();
+            
+            CloseThisWindow();
         }
 
         private async void OnChargeClicked(object sender, EventArgs e)
@@ -636,8 +638,8 @@ namespace felix1.OrderSection
                     Date = DateTime.Now,
                     Order = orderToUpdate,
                     TotalAmount = Total,
-                    TaxAmountITBIS = TaxITBIS,
-                    TaxAmountWaiters = TaxWaiters,
+                    TaxAmountITBIS = Order.Table!.IsTakeOut ? 0 : TaxITBIS,
+                    TaxAmountWaiters = Order.Table!.IsTakeOut ? 0 : TaxWaiters,
                     CashAmount = _cashAmount,
                     CardAmount = _cardAmount,
                     TransferAmount = _transferAmount
@@ -662,10 +664,20 @@ namespace felix1.OrderSection
                             "OK");
                     }
                 }
+                else
+                {
+                    // Normal payment - mark table as paid
+                    if (orderToUpdate.Table != null)
+                    {
+                        orderToUpdate.Table.IsPaid = true;
+                        orderToUpdate.Table.IsBillRequested = false;
+                    }
+                }
 
                 db.Transactions.Add(transaction);
                 await db.SaveChangesAsync();
 
+                // Update local object to reflect database changes
                 if (Order.Table != null)
                 {
                     Order.Table.IsPaid = true;
@@ -682,8 +694,11 @@ namespace felix1.OrderSection
             }
 
             OnPrintReceipt(this, null!);
-            CloseThisWindow();
+            
+            // Reload the table list before closing the window
             ListTableVisual.Instance?.ReloadTM();
+            
+            CloseThisWindow();
         }
 
         private void CloseThisWindow()
@@ -789,7 +804,6 @@ namespace felix1.OrderSection
                 CardAmount = _cardAmount,
                 TransferAmount = _transferAmount
             };
-
 
 #if WINDOWS
             try

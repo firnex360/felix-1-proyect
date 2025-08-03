@@ -144,7 +144,7 @@ namespace felix1.AdminSection
                         Time = (order.Date ?? DateTime.Now).ToString("HH:mm"),
                         ReferenceType = "Orden",
                         TotalAmount = orderTotal,
-                        IsPaid = order.IsDuePaid,
+                        IsPaid = !order.IsDuePaid,
                         PaymentMethods = GetPaymentMethods(orderTransactions),
                         OrderId = order.Id,
                         HasPayment = orderTransactions.Any()
@@ -331,8 +331,8 @@ namespace felix1.AdminSection
 
                 bool confirm = await Application.Current!.MainPage!.DisplayAlert(
                     "Confirmar cambio",
-                    $"�Desea {action} la orden #{item.OrderId}?",
-                    "S�", "No");
+                    $"Desea {action} la orden #{item.OrderId}?",
+                    "Si", "No");
 
                 if (confirm)
                 {
