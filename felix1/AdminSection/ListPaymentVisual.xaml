@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:chart="clr-namespace:Syncfusion.Maui.Charts;assembly=Syncfusion.Maui.Charts"
+             xmlns:syncfusion="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
+             xmlns:local="clr-namespace:felix1.AdminSection"
+             BackgroundColor="White"
+             x:Class="felix1.AdminSection.ListPaymentVisual"
+             NavigationPage.HasNavigationBar="False">
+
+    <ContentView.Resources>
+        <local:InverseBoolConverter x:Key="InverseBool"/>
+        <local:BoolToPaidStatusConverter x:Key="PaidStatusConverter"/>
+        <local:FloatToDecimalConverter x:Key="FloatToDecimal"/>
+    </ContentView.Resources>
+
+    <Grid RowDefinitions="Auto, Auto, *" ColumnDefinitions="*">
+        <Grid Grid.Row="0" Grid.Column="0" ColumnDefinitions="*,Auto" Margin="0,0,0,20">
+            <HorizontalStackLayout Grid.Column="0" HorizontalOptions="Start" VerticalOptions="Center" Spacing="20" Margin="20,10,0,0">
+                <Frame BackgroundColor="#F3F3F3" CornerRadius="5" Padding="0" HasShadow="False"
+                       VerticalOptions="Center" HeightRequest="40" BorderColor="#FFE0E0E0" WidthRequest="340">
+                    <SearchBar x:Name="searchBar" Placeholder="Buscar pagos..." TextChanged="OnSearchBarTextChanged"
+                              TextColor="#22223B" PlaceholderColor="#A0AEC0" BackgroundColor="Transparent"
+                              CancelButtonColor="#4F8FCB" FontSize="16" Margin="8,0" HeightRequest="40"/>
+                </Frame>
+                <Frame BackgroundColor="White" CornerRadius="10" Padding="0" HasShadow="False"
+                       VerticalOptions="Center" HeightRequest="40" BorderColor="White">
+                    <HorizontalStackLayout Spacing="6" VerticalOptions="Center" Padding="8,0">
+                        <Label Text="Solo pendiente" VerticalOptions="Center" TextColor="#005F8C" FontSize="14"/>
+                        <Switch x:Name="unpaidOnlySwitch" Toggled="OnUnpaidOnlySwitchToggled"/>
+                    </HorizontalStackLayout>
+                </Frame>
+            </HorizontalStackLayout>
+            <Button Grid.Column="1" Text="Volver a Cajas" VerticalOptions="Center" HorizontalOptions="End"
+                    Clicked="OnBackButtonClicked" BackgroundColor="#005F8C" TextColor="White"
+                    FontAttributes="Bold" FontSize="14" Padding="10,0" Margin="0,10,20,0"/>
+        </Grid>
+
+        <Frame Grid.Row="1" Grid.Column="0" CornerRadius="10" Padding="0" HasShadow="True"
+               BackgroundColor="#F3F3F3" BorderColor="#FFE0E0E0" Margin="20,0,20,10">
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,*">
+                <Grid ColumnDefinitions="*,*" Grid.Row="0" Grid.ColumnSpan="2" Padding="10,10,10,0">
+                    <Label Text="Categorías más vendidas" 
+                           FontAttributes="Bold" FontFamily="Inter"
+                           TextColor="#005F8C" FontSize="14"
+                           HorizontalOptions="Start" />
+                    <Label Text="Resumen de Caja"
+                           FontAttributes="Bold" FontFamily="Inter"
+                           TextColor="#005F8C" FontSize="16"
+                           HorizontalOptions="End"/>
+                </Grid>
+
+                <VerticalStackLayout Grid.Row="1" Grid.Column="0" Margin="10">
+                    <chart:SfCircularChart x:Name="doughnutChart" HeightRequest="250">
+                        <chart:SfCircularChart.Legend>
+                            <chart:ChartLegend Placement="Left" />
+                        </chart:SfCircularChart.Legend>
+                        <chart:DoughnutSeries 
+                                    x:Name="doughnutSeries"
+                                    ItemsSource="{Binding CategoryCounts}"
+                                    XBindingPath="Category"
+                                    YBindingPath="Count"
+                                    InnerRadius="0.4"
+                                    ExplodeRadius="10"
+                                    ExplodeIndex="2"
+                                    ExplodeOnTouch="True"
+                                    ShowDataLabels="True">
+                            <chart:DoughnutSeries.PaletteBrushes>
+                                <SolidColorBrush Color="#A884F3"/>
+                                <SolidColorBrush Color="#5584C2"/>
+                                <SolidColorBrush Color="#008b8b"/>
+                                <SolidColorBrush Color="#68C37D"/>
+                                <SolidColorBrush Color="#FEB31A"/>
+                                <SolidColorBrush Color="#F33559"/>
+                            </chart:DoughnutSeries.PaletteBrushes>
+                            <chart:DoughnutSeries.DataLabelSettings>
+                                <chart:CircularDataLabelSettings 
+                                    LabelPlacement="Outer" 
+                                    UseSeriesPalette="True" />
+                            </chart:DoughnutSeries.DataLabelSettings>
+                        </chart:DoughnutSeries>
+                    </chart:SfCircularChart>
+                </VerticalStackLayout>
+
+                <Grid Grid.Row="1" Grid.Column="1" Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <!-- Si te soy sincero... Esta cosa está bien rara, en cualquier momento se rompe y ni dios sabe como arreglarlo-->
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label Text="Artículos más vendidos:" FontAttributes="Bold" TextColor="#005F8C" 
+           Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,0,5"/>
+
+                    <Label Text="{Binding TopSoldItems[0].DisplayText}" TextColor="#22223B" 
+           Grid.Row="1" Grid.Column="0" Margin="5,0" LineBreakMode="WordWrap"/>
+                    <Label Text="{Binding TopSoldItems[1].DisplayText}" TextColor="#22223B" 
+           Grid.Row="2" Grid.Column="0" Margin="5,0" LineBreakMode="WordWrap"/>
+                    <Label Text="{Binding TopSoldItems[2].DisplayText}" TextColor="#22223B" 
+           Grid.Row="3" Grid.Column="0" Margin="5,0" LineBreakMode="WordWrap"/>
+                    <Label Text="{Binding TopSoldItems[3].DisplayText}" TextColor="#22223B" 
+           Grid.Row="4" Grid.Column="0" Margin="5,0" LineBreakMode="WordWrap"/>
+                    <Label Text="{Binding TopSoldItems[4].DisplayText}" TextColor="#22223B" 
+           Grid.Row="5" Grid.Column="0" Margin="5,0" LineBreakMode="WordWrap"/>
+
+                    <Label Text="Flujo de Caja:" FontAttributes="Bold" TextColor="#005F8C" 
+           Grid.Row="0" Grid.Column="1" Margin="10,0,0,5"/>
+
+                    <Label Text="{Binding InitialMoney, Converter={StaticResource FloatToDecimal}, StringFormat='Inicial: {0:C2}'}" 
+           TextColor="#22223B" Grid.Row="1" Grid.Column="1" Margin="10,0"/>
+                    <Label Text="{Binding IncomeMoney, StringFormat='Ingresos: {0:C2}'}" 
+           TextColor="#22223B" Grid.Row="2" Grid.Column="1" Margin="10,0"/>
+                    <Label Text="{Binding TotalRefundAmount, StringFormat='Reembolsos: {0:C2}'}" 
+           TextColor="#22223B" Grid.Row="3" Grid.Column="1" Margin="10,0"/>
+                    <Label Text="{Binding FinalMoney, StringFormat='Final: {0:C2}'}" 
+           TextColor="#22223B" Grid.Row="4" Grid.Column="1" Margin="10,0" FontAttributes="Bold"/>
+
+                    <Label Text="Estadísticas:" FontAttributes="Bold" TextColor="#005F8C" 
+           Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,10,0,5"/>
+
+                    <Label Text="{Binding TotalOrders, StringFormat='Órdenes totales: {0}'}" 
+           TextColor="#22223B" Grid.Row="7" Grid.Column="0" Margin="5,0"/>
+                    <Label Text="{Binding TotalRefunds, StringFormat='Reembolsos: {0}'}" 
+           TextColor="#22223B" Grid.Row="8" Grid.Column="0" Margin="5,0"/>
+                    <Label Text="{Binding TotalTakeOut, StringFormat='Para llevar: {0}'}" 
+           TextColor="#22223B" Grid.Row="9" Grid.Column="0" Margin="5,0"/>
+                </Grid>
+            </Grid>
+        </Frame>
+        
+        <Frame Grid.Row="2" Grid.Column="0" 
+               CornerRadius="10" 
+               Padding="0" 
+               HasShadow="True"
+               BackgroundColor="#F3F3F3" 
+               BorderColor="#F5F7FA" 
+               Margin="20"
+               VerticalOptions="Fill"
+               HorizontalOptions="Start">
+
+            <syncfusion:SfDataGrid x:Name="dataGrid" ItemsSource="{Binding CombinedItems}"
+                                  VerticalOptions="Fill" HorizontalOptions="Fill"
+                                  HeaderRowHeight="60" AutoGenerateColumnsMode="None"
+                                  RowHeight="60" SortingMode="Single"
+                                  EmptyView="No hay datos para esta caja"
+                                   HorizontalScrollBarVisibility="Default"
+                                    VerticalScrollBarVisibility="Default">
+
+                <syncfusion:SfDataGrid.DefaultStyle>
+                    <syncfusion:DataGridStyle HeaderRowBackground="#005F8C"
+                                            HeaderRowTextColor="#F3F3F3"
+                                            RowTextColor="#005F8C"
+                                            HeaderRowFontAttributes="Bold"/>
+                </syncfusion:SfDataGrid.DefaultStyle>
+
+                <syncfusion:SfDataGrid.Columns>
+                    <syncfusion:DataGridTemplateColumn MappingName="Id" HeaderText="Codigo"
+                                    HeaderTextAlignment="Start"
+                                    ColumnWidthMode="FitByHeader">
+                        <syncfusion:DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Label Text="{Binding DisplayId}" 
+                                       TextColor="#005F8C"
+                                       VerticalOptions="Center"
+                                       HorizontalOptions="Start"
+                                       Margin="10,0,0,0"/>
+                            </DataTemplate>
+                        </syncfusion:DataGridTemplateColumn.CellTemplate>
+                    </syncfusion:DataGridTemplateColumn>
+
+                    <syncfusion:DataGridTextColumn MappingName="Time" HeaderText="Hora"
+                                  CellTextAlignment="Start"
+                                  ColumnWidthMode="FitByHeader"
+                                  Width="80"/>
+
+                    <syncfusion:DataGridTextColumn MappingName="ReferenceType" HeaderText="Tipo"
+                                  CellTextAlignment="Start"
+                                  ColumnWidthMode="FitByHeader"
+                                  Width="120"/>
+
+                    <syncfusion:DataGridTextColumn MappingName="DisplayAmount" HeaderText="Total"
+                                 CellTextAlignment="Start"
+                                 ValueBinding="{Binding DisplayAmount, StringFormat='{0:N2}'}"
+                                 ColumnWidthMode="FitByHeader"
+                                 Width="120"/>
+
+                    <syncfusion:DataGridTextColumn MappingName="PaymentStatus" HeaderText="Estado"
+                             ColumnWidthMode="FitByHeader"
+                             Width="120"/>
+
+                    <syncfusion:DataGridTextColumn MappingName="PaymentMethods" HeaderText="Método"
+                                 ColumnWidthMode="Fill"
+                                 MinimumWidth="180"/>
+
+                    <syncfusion:DataGridTemplateColumn HeaderText="Acciones" 
+                                 ColumnWidthMode="FitByHeader"
+                                 Width="120">
+                        <syncfusion:DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                                    <ImageButton
+                                        Source="view.png"
+                                        CornerRadius="10"
+                                        Padding="10"
+                                        WidthRequest="28"
+                                        HeightRequest="28"
+                                        BackgroundColor="#F3F3F3"
+                                        Clicked="OnDetailsClicked"
+                                        IsVisible="{Binding IsRefund, Converter={StaticResource InverseBool}}"
+                                        VerticalOptions="Center">
+                                        <VisualStateManager.VisualStateGroups>
+                                            <VisualStateGroupList>
+                                                <VisualStateGroup x:Name="CommonStates">
+                                                    <VisualState x:Name="Normal">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="BackgroundColor"
+                                                                    Value="Transparent"/>
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                    <VisualState x:Name="PointerOver">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="BackgroundColor"
+                                                                    Value="#FFD6D7DA"/>
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                </VisualStateGroup>
+                                            </VisualStateGroupList>
+                                        </VisualStateManager.VisualStateGroups>
+                                    </ImageButton>
+
+                                    <ImageButton
+                                        Source="coin.png"
+                                        CornerRadius="10"
+                                        Padding="10"
+                                        WidthRequest="28"
+                                        HeightRequest="28"
+                                        BackgroundColor="#F3F3F3"
+                                        Clicked="OnPayClicked"
+                                        IsVisible="{Binding IsPaid, Converter={StaticResource InverseBool}}"
+                                        VerticalOptions="Center">
+                                        <VisualStateManager.VisualStateGroups>
+                                            <VisualStateGroupList>
+                                                <VisualStateGroup x:Name="CommonStates">
+                                                    <VisualState x:Name="Normal">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="BackgroundColor"
+                                                                    Value="Transparent"/>
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                    <VisualState x:Name="PointerOver">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="BackgroundColor"
+                                                                    Value="#FFD6D7DA"/>
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                </VisualStateGroup>
+                                            </VisualStateGroupList>
+                                        </VisualStateManager.VisualStateGroups>
+                                    </ImageButton>
+                                </HorizontalStackLayout>
+                            </DataTemplate>
+                        </syncfusion:DataGridTemplateColumn.CellTemplate>
+                    </syncfusion:DataGridTemplateColumn>
+                </syncfusion:SfDataGrid.Columns>
+            </syncfusion:SfDataGrid>
+        </Frame>
+    </Grid>
+</ContentView>

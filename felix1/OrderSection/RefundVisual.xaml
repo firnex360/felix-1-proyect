@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
+             xmlns:inputLayout="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:syncfusion="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
+             x:Class="felix1.OrderSection.RefundVisual"
+             BackgroundColor="White">
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto,Auto,Auto" ColumnDefinitions="*,*" 
+          Padding="20" RowSpacing="10" ColumnSpacing="10">
+
+        <Label Grid.Row="0" Grid.Column="0"
+               TextColor="#005F8C"
+               Text="Artículos Originales"
+               FontAttributes="Bold"
+               FontSize="16"/>
+
+        <Label Grid.Row="0" Grid.Column="1"
+               TextColor="#005F8C"
+               Text="Artículos a Devolver"
+               FontAttributes="Bold"
+               FontSize="16"/>
+
+        <Frame Grid.Row="1" Grid.Column="0" Grid.RowSpan="2"
+               CornerRadius="10"
+               Padding="0"
+               Margin="0,5"
+               HasShadow="True"
+               VerticalOptions="FillAndExpand"
+               HorizontalOptions="FillAndExpand"
+               BackgroundColor="#F5F5F5"
+               BorderColor="#F5F5F5">
+
+            <syncfusion:SfDataGrid x:Name="originalItemsDataGrid"
+                                   ItemsSource="{Binding OriginalItems}"
+                                   HeaderRowHeight="60"
+                                   RowHeight="50"
+                                   AutoGenerateColumnsMode="None"
+                                   SelectionMode="Single"
+                                   NavigationMode="Cell"
+                                   SelectionChanged="OnOriginalItemSelected">
+
+                <syncfusion:SfDataGrid.EmptyView>
+                    <Label Text="No hay artículos"
+                           TextColor="#005F8C"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"/>
+                </syncfusion:SfDataGrid.EmptyView>
+
+                <syncfusion:SfDataGrid.DefaultStyle>
+                    <syncfusion:DataGridStyle HeaderRowBackground="#005F8C"
+                                              HeaderRowTextColor="#F5F5F5"
+                                              RowTextColor="Black"
+                                              HeaderRowFontAttributes="Bold"
+                                              SelectionBackground="#C7CFDD"
+                                              CurrentCellBorderColor="#C7CFDD"/>
+                </syncfusion:SfDataGrid.DefaultStyle>
+
+                <syncfusion:SfDataGrid.Columns>
+                    <syncfusion:DataGridTextColumn MappingName="ArticleName" HeaderText="Nombre"
+                                                   CellTextAlignment="Start" HeaderTextAlignment="Start"/>
+                    <syncfusion:DataGridNumericColumn MappingName="Quantity" HeaderText="Cantidad"
+                                                      Format="0" CellTextAlignment="Center" HeaderTextAlignment="Center"/>
+                    <syncfusion:DataGridNumericColumn MappingName="UnitPrice" HeaderText="Precio"
+                                                      Format="C2" CellTextAlignment="End" HeaderTextAlignment="End"/>
+                    <syncfusion:DataGridNumericColumn MappingName="TotalPrice" HeaderText="Total"
+                                                      Format="C2" CellTextAlignment="Start" HeaderTextAlignment="Start" ColumnWidthMode="Fill"/>
+                </syncfusion:SfDataGrid.Columns>
+            </syncfusion:SfDataGrid>
+        </Frame>
+
+        <Frame Grid.Row="1" Grid.Column="1" Grid.RowSpan="2"
+               CornerRadius="10"
+               Padding="0"
+               Margin="0,5"
+               HasShadow="True"
+               VerticalOptions="FillAndExpand"
+               HorizontalOptions="FillAndExpand"
+               BackgroundColor="#F3F3F3"
+               BorderColor="#F5F7FA">
+
+            <syncfusion:SfDataGrid x:Name="refundedItemsDataGrid"
+                                   ItemsSource="{Binding RefundedItems}"
+                                   HeaderRowHeight="60"
+                                   RowHeight="50"
+                                   AutoGenerateColumnsMode="None"
+                                   SelectionMode="Single"
+                                   NavigationMode="Cell"
+                                   SelectionChanged="OnRefundedItemSelected">
+
+                <syncfusion:SfDataGrid.EmptyView>
+                    <Label Text="No hay artículos"
+                           TextColor="#005F8C"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"/>
+                </syncfusion:SfDataGrid.EmptyView>
+
+                <syncfusion:SfDataGrid.DefaultStyle>
+                    <syncfusion:DataGridStyle HeaderRowBackground="#005F8C"
+                                              HeaderRowTextColor="#F5F5F5"
+                                              RowTextColor="Black"
+                                              HeaderRowFontAttributes="Bold"
+                                              SelectionBackground="#C7CFDD"
+                                              CurrentCellBorderColor="#C7CFDD"/>
+                </syncfusion:SfDataGrid.DefaultStyle>
+
+                <syncfusion:SfDataGrid.Columns>
+                    <syncfusion:DataGridTextColumn MappingName="ArticleName" HeaderText="Nombre"
+                                                   CellTextAlignment="Start" HeaderTextAlignment="Start"/>
+                    <syncfusion:DataGridNumericColumn MappingName="Quantity" HeaderText="Cantidad"
+                                                      Format="0" CellTextAlignment="Center" HeaderTextAlignment="Center"/>
+                    <syncfusion:DataGridNumericColumn MappingName="UnitPrice" HeaderText="Precio"
+                                                      Format="C2" CellTextAlignment="End" HeaderTextAlignment="End"/>
+                    <syncfusion:DataGridNumericColumn MappingName="TotalPrice" HeaderText="Total"
+                                                      Format="C2" CellTextAlignment="Start" HeaderTextAlignment="Start" ColumnWidthMode="Fill"/>
+                </syncfusion:SfDataGrid.Columns>
+            </syncfusion:SfDataGrid>
+        </Frame>
+
+        <StackLayout Grid.Row="3" Grid.Column="0" Orientation="Horizontal" Spacing="10" HorizontalOptions="Center">
+            <buttons:SfButton Text="Agregar Seleccionados" 
+                    Clicked="OnAddSelectedToRefund"
+                    Style="{StaticResource ButtonStyle}"/>
+
+            <buttons:SfButton Text="Agregar Todo" 
+                    Clicked="OnAddAllToRefund"
+                    Style="{StaticResource ButtonStyle}"/>
+        </StackLayout>
+
+        <StackLayout Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="10" HorizontalOptions="Center">
+            <buttons:SfButton Text="Quitar Seleccionados" 
+                    Clicked="OnRemoveSelectedFromRefund"
+                    Style="{StaticResource ButtonStyle}"/>
+
+            <buttons:SfButton Text="Quitar Todo" 
+                    Clicked="OnRemoveAllFromRefund"
+                    Style="{StaticResource ButtonStyle}"/>
+        </StackLayout>
+
+        <StackLayout Grid.Row="4" Grid.Column="0" Orientation="Horizontal" Spacing="10" HorizontalOptions="End">
+            <Label Text="Total Orden:" 
+                   TextColor="#005F8C"
+                   FontFamily="Inter"
+                   FontAttributes="Bold"
+                   FontSize="14"/>
+            <Label Text="{Binding OrderTotal, StringFormat='{0:C2}'}" 
+                   TextColor="#005F8C"
+                   FontFamily="Inter"
+                   FontAttributes="Bold"
+                   FontSize="14"/>
+        </StackLayout>
+
+        <StackLayout Grid.Row="4" Grid.Column="1" Orientation="Horizontal" Spacing="10" HorizontalOptions="End">
+            <Label Text="Total Devolución:" 
+                   TextColor="#005F8C"
+                   FontFamily="Inter"
+                   FontAttributes="Bold"
+                   FontSize="14"/>
+            <Label Text="{Binding RefundTotal, StringFormat='{0:C2}'}" 
+                   TextColor="#005F8C"
+                   FontAttributes="Bold"
+                   FontFamily="Inter"
+                   FontSize="14"/>
+        </StackLayout>
+
+        <Grid Grid.Row="5" Grid.ColumnSpan="2"
+              ColumnDefinitions="*,Auto,Auto"
+              VerticalOptions="Center"
+              Padding="0,10"
+              ColumnSpacing="15">
+
+            <Frame Grid.Column="0"
+                   BackgroundColor="White"
+                   BorderColor="#E9ECEF"
+                   CornerRadius="6"
+                   HasShadow="True"
+                   Padding="5,2"
+                   VerticalOptions="Center"
+                   HorizontalOptions="Fill">
+                <Entry Text="{Binding Refund.Reason}"
+                       Placeholder="Ingrese el motivo de la devolución"
+                       FontSize="14"
+                       FontFamily="Inter"
+                       FontAttributes="None"
+                       BackgroundColor="Transparent"
+                       TextColor="#005F8C"/>
+            </Frame>
+
+            <buttons:SfButton Grid.Column="1"
+                    Text="Descartar"
+                    Command="{Binding DiscardCommand}"
+                    HorizontalOptions="End"
+                    VerticalOptions="Center"
+                    Style="{StaticResource CancelButtonStyle}"/>
+
+            <buttons:SfButton Grid.Column="2"
+                    Text="Procesar"
+                    Command="{Binding ProcessRefundCommand}"
+                    HorizontalOptions="End"
+                    VerticalOptions="Center"
+                    Style="{StaticResource ButtonStyle}"/>
+        </Grid>
+    </Grid>
+
+    
+    <ContentPage.Resources>
+        <ResourceDictionary>
+
+            <Style x:Key="CancelButtonStyle"
+                    TargetType="buttons:SfButton">
+                <Setter Property="TextColor"
+                        Value="Black"/>
+                <Setter Property="CornerRadius"
+                        Value="5"/>
+                <Setter Property="IsCheckable"
+                        Value="True"/>
+                <Setter Property="Margin"
+                        Value="0"/>
+                <Setter Property="BackgroundColor"
+                        Value="#F5F7FA"/>
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="Transparent"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Hovered">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#AFFF1D1D"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#FD2D2D"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Checked">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#C7CFDD"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+
+            
+            <Style x:Key="ButtonStyle"
+                    TargetType="buttons:SfButton">
+                <Setter Property="TextColor"
+                        Value="Black"/>
+                <Setter Property="CornerRadius"
+                        Value="5"/>
+                <Setter Property="IsCheckable"
+                        Value="True"/>
+                <Setter Property="Margin"
+                        Value="0"/>
+                <Setter Property="BackgroundColor"
+                        Value="#F5F7FA"/>
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#005F8C"/>
+                                    <Setter Property="TextColor"
+                                            Value="#F3F3F3"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Hovered">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#C7CFDD"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#FFA5AAB3"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Checked">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#005F8C"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+
+        </ResourceDictionary>
+    </ContentPage.Resources>
+</ContentPage>

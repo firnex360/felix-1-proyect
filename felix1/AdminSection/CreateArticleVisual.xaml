@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
              xmlns:numericEntry="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs"
              xmlns:inputLayout="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
              xmlns:syncfusion="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             BackgroundColor="White"
              x:Class="felix1.CreateArticleVisual"
              NavigationPage.HasNavigationBar="False">
 
@@ -18,14 +17,16 @@
                              HorizontalOptions="Start">
 
             <Label Text="Agregar Artículo"
-                    FontSize="28"
-                    TextColor="#000000"/>
+                   FontSize="30"
+                   FontFamily="Inter"
+                   TextColor="#005F8C"
+                   FontAttributes="Bold"/>
             <!-- codigo -->
             <HorizontalStackLayout Spacing="10"
                     Padding="10">
                 <Label
                     Text="Código"
-                    TextColor="#000000"
+                    TextColor="#005F8C"
                     VerticalOptions="Center"
                     WidthRequest="100"/>
 
@@ -34,8 +35,8 @@
                     WidthRequest="200"
                     Placeholder="#####"
                     IsEnabled="False"
-                    BackgroundColor="#FFECECEC"
-                    TextColor="#000000"
+                    BackgroundColor="#C7CFDD"
+                    TextColor="Black"
                     HorizontalOptions="Start"
                     ClearButtonVisibility="WhileEditing"/>
             </HorizontalStackLayout>
@@ -44,7 +45,7 @@
                     Padding="10">
                 <Label
                     Text="Nombre"
-                    TextColor="#000000"
+                    TextColor="#005F8C"
                     VerticalOptions="Center"
                     WidthRequest="100"/>
 
@@ -52,8 +53,8 @@
                     x:Name="txtName"
                     WidthRequest="200"
                     Placeholder="Escribir nombre"
-                    BackgroundColor="#FFECECEC"
-                    TextColor="#000000"
+                    BackgroundColor="#C7CFDD"
+                    TextColor="Black"
                     HorizontalOptions="Start"
                     ClearButtonVisibility="WhileEditing"/>
             </HorizontalStackLayout>
@@ -62,7 +63,7 @@
                     Padding="10">
                 <Label
                     Text="Precio"
-                    TextColor="#000000"
+                    TextColor="#005F8C"
                     VerticalOptions="Center"
                     WidthRequest="100"/>
 
@@ -72,8 +73,8 @@
                     TextChanged="OnNumericEntryTextChanged"
                     WidthRequest="200"
                     Placeholder="Digitar monto"
-                    BackgroundColor="#FFECECEC"
-                    TextColor="#000000"
+                    BackgroundColor="#C7CFDD"
+                    TextColor="Black"
                     HorizontalOptions="Start"
                     ClearButtonVisibility="WhileEditing"/>
             </HorizontalStackLayout>
@@ -82,7 +83,7 @@
                     Padding="10">
                 <Label
                     Text="Categoría"
-                    TextColor="#000000"
+                    TextColor="#005F8C"
                     VerticalOptions="Center"
                     WidthRequest="100"/>
 
@@ -90,8 +91,8 @@
                     x:Name="pckCategory"
                     WidthRequest="200"
                     Title="Select Category"
-                    BackgroundColor="#FFECECEC"
-                    TextColor="#000000"
+                    BackgroundColor="#C7CFDD"
+                    TextColor="#005F8C"
                     HorizontalOptions="Start"/>
 
             </HorizontalStackLayout>
@@ -100,24 +101,35 @@
                     Padding="10">
                 <Label
                     Text="Acompañamiento"
-                    TextColor="#000000"
+                    TextColor="#005F8C"
                     VerticalOptions="Center"/>
                 <CheckBox
                     x:Name="txtSideDish"
                     IsChecked="false"
-                    IsEnabled="false"
-                    BackgroundColor="#FFECECEC"
-                    Color="LightBlue"/>
+                    CheckedChanged="OnSideDishClicked"
+                    BackgroundColor="#F3F3F3"
+                    Color="#005F8C"/>
             </HorizontalStackLayout>
 
             <!-- CREAR -->
             <HorizontalStackLayout HorizontalOptions="End"
-                    VerticalOptions="End">
-                <Button Text="Crear Artículo"
-                        Clicked="OnSaveArticle"
-                        WidthRequest="250"
-                        BackgroundColor="#7E949D"
-                        TextColor="#FFFFFF"/>
+                    VerticalOptions="End" Padding="10, 0, 10, 0" Spacing="10">
+                        
+                <buttons:SfButton x:Name="btnCancel"
+                                Text="Cancelar"
+                                Clicked="OnCancelButtonClicked"
+                                HorizontalOptions="Fill"
+                                Style="{StaticResource CancelButtonStyle}"/>
+                                
+                <buttons:SfButton x:Name="btnCreateArticle"
+                                Text="Crear Artículo"
+                                Clicked="OnSaveArticle"
+                                HorizontalOptions="Fill"
+                                BackgroundColor="#005F8C"
+                                TextColor="#F3F3F3"
+                                Style="{StaticResource ButtonStyle}"/>
+
+
             </HorizontalStackLayout>
         </VerticalStackLayout>
 
@@ -127,34 +139,35 @@
 
         <Grid Grid.Column="1"
                 RowDefinitions="*,*"
-                BackgroundColor="LightBlue">
+                BackgroundColor="#F3F3F3">
             <!-- AGREGAR TABLE / GRID -->
             <VerticalStackLayout x:Name="RightPanelA"
                     Padding="10">
                 <Label Text="Acompañamiento"
-                        FontSize="28"
-                        TextColor="#000000"
-                        Margin="12,0,0,0"/>
+                       FontSize="25"
+                       FontFamily="Inter"
+                       TextColor="#005F8C"
+                       Margin="12,0,0,0"/>
 
                 <Frame
-                    BackgroundColor="#F5F7FA"
+                    BackgroundColor="#F3F3F3"
                     CornerRadius="10"
                     Padding="0"
                     HasShadow="False"
                     VerticalOptions="Center"
                     HorizontalOptions="Start"
                     HeightRequest="40"
-                    BorderColor="#FF74777A"
+                    BorderColor="#C7CFDD"
                     WidthRequest="300"
                     Margin="10,10,0,0">
 
                     <SearchBar x:Name="searchBar"
                                Placeholder="Buscar artículos..."
                                TextChanged="OnSearchBarTextChanged"
-                               TextColor="#22223B"
-                               PlaceholderColor="#A0AEC0"
+                               TextColor="Black"
+                               PlaceholderColor="#C7CFDD"
                                BackgroundColor="Transparent"
-                               CancelButtonColor="#4F8FCB"
+                               CancelButtonColor="#005F8C"
                                FontSize="16"
                                Margin="8,0"
                                HeightRequest="20"
@@ -194,8 +207,9 @@
                     x:Name="RightPanelB"
                     Padding="10">
                 <Label Text="Opciones Avanzadas"
-                        FontSize="28"
-                        TextColor="#000000"/>
+                        FontSize="25"
+                        FontFamily="Inter"
+                        TextColor="#005F8C"/>
 
                 <HorizontalStackLayout Spacing="10"
                         Padding="10">
@@ -203,22 +217,117 @@
                         Text="Precio Secundario"
                         VerticalOptions="Center"
                         WidthRequest="150"
-                        TextColor="#000000"/>
+                        TextColor="#005F8C"/>
 
                     <Entry
                         x:Name="txtSecondaryPrice"
                         TextChanged="OnNumericEntryTextChanged"
                         WidthRequest="200"
                         Placeholder="Digitar monto"
-                        BackgroundColor="#FFFFFF"
-                        TextColor="#000000"
+                        BackgroundColor="White"
+                        TextColor="Black"
                         HorizontalOptions="Start"
                         ClearButtonVisibility="WhileEditing"/>
                 </HorizontalStackLayout>
-
-
             </VerticalStackLayout>
         </Grid>
-
     </Grid>
-</ContentPage>
+    
+
+    <ContentView.Resources>
+        <ResourceDictionary>
+
+            <Style x:Key="CancelButtonStyle"
+                    TargetType="buttons:SfButton">
+                <Setter Property="TextColor"
+                        Value="Black"/>
+                <Setter Property="CornerRadius"
+                        Value="5"/>
+                <Setter Property="IsCheckable"
+                        Value="True"/>
+                <Setter Property="Margin"
+                        Value="0"/>
+                <Setter Property="BackgroundColor"
+                        Value="#F5F7FA"/>
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="Transparent"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Hovered">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#AFFF1D1D"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#FD2D2D"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Checked">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#C7CFDD"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+
+            
+            <Style x:Key="ButtonStyle"
+                    TargetType="buttons:SfButton">
+                <Setter Property="TextColor"
+                        Value="Black"/>
+                <Setter Property="CornerRadius"
+                        Value="5"/>
+                <Setter Property="IsCheckable"
+                        Value="True"/>
+                <Setter Property="Margin"
+                        Value="0"/>
+                <Setter Property="BackgroundColor"
+                        Value="#F5F7FA"/>
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#005F8C"/>
+                                    <Setter Property="TextColor"
+                                            Value="#F3F3F3"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Hovered">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#C7CFDD"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#FFA5AAB3"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Checked">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#005F8C"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+
+        </ResourceDictionary>
+    </ContentView.Resources>
+</ContentView>

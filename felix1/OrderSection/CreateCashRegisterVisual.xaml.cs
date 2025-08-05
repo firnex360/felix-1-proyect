@@ -5,11 +5,11 @@ using felix1.Logic;
 
 namespace felix1.OrderSection;
 
-public partial class CreateOrderVisual : ContentPage
+public partial class CreateCashRegisterVisual : ContentPage
 {
     private CashRegister? existingOpenRegister = null;
 
-    public CreateOrderVisual()
+    public CreateCashRegisterVisual()
     {
         InitializeComponent();
         LoadCashRegisterStatus();
@@ -17,10 +17,10 @@ public partial class CreateOrderVisual : ContentPage
 
     private async void LoadCashRegisterStatus()
     {
-        using var db = new AppDbContext();
-        existingOpenRegister = db.CashRegisters
-                            .Include(c => c.Cashier)
-                            .FirstOrDefault(c => c.IsOpen);
+        existingOpenRegister = await AppDbContext.ExecuteSafeAsync(async db =>
+            await db.CashRegisters
+                .Include(c => c.Cashier)
+                .FirstOrDefaultAsync(c => c.IsOpen));
 
         if (existingOpenRegister != null)
         {
@@ -33,17 +33,20 @@ public partial class CreateOrderVisual : ContentPage
 
                 if (response)
                 {
-                    // User wants to continue with existing register 
+                    // User wants to continue with existing register
                     await OpenOrderSectionMain(existingOpenRegister);
                     return;
                 }
                 else
                 {
                     // User wants to close the register
-                    existingOpenRegister.IsOpen = false;
-                    existingOpenRegister.TimeFinish = DateTime.Now;
-                    db.CashRegisters.Update(existingOpenRegister);
-                    await db.SaveChangesAsync();
+                    await AppDbContext.ExecuteSafeAsync(async db =>
+                    {
+                        existingOpenRegister.IsOpen = false;
+                        existingOpenRegister.TimeFinish = DateTime.Now;
+                        db.CashRegisters.Update(existingOpenRegister);
+                        await db.SaveChangesAsync();
+                    });
 
                     ShowCreateNewRegisterView();
                     return;
@@ -63,10 +66,13 @@ public partial class CreateOrderVisual : ContentPage
                 }
                 else
                 {
-                    existingOpenRegister.IsOpen = false;
-                    existingOpenRegister.TimeFinish = DateTime.Now;
-                    db.CashRegisters.Update(existingOpenRegister);
-                    await db.SaveChangesAsync();
+                    await AppDbContext.ExecuteSafeAsync(async db =>
+                    {
+                        existingOpenRegister.IsOpen = false;
+                        existingOpenRegister.TimeFinish = DateTime.Now;
+                        db.CashRegisters.Update(existingOpenRegister);
+                        await db.SaveChangesAsync();
+                    });
 
                     ShowCreateNewRegisterView();
                     return;
@@ -105,35 +111,39 @@ public partial class CreateOrderVisual : ContentPage
             return;
         }
 
-        using var checkDb = new AppDbContext();
-        if (checkDb.CashRegisters.Any(c => c.IsOpen))
+        bool hasOpenRegister = await AppDbContext.ExecuteSafeAsync(async db =>
+            await db.CashRegisters.AnyAsync(c => c.IsOpen));
+
+        if (hasOpenRegister)
         {
             await DisplayAlert("Error", "Ya hay una caja abierta en el sistema.", "OK");
             return;
         }
 
-        using var db = new AppDbContext();
-        var user = db.Users.Find(AppSession.CurrentUser.Id);
-
-        var newCashRegister = new CashRegister
+        await AppDbContext.ExecuteSafeAsync(async db =>
         {
-            Number = 1,
-            InitialMoney = float.Parse(txtInitialMoney.Value.ToString() ?? "0"),
-            TimeStarted = DateTime.Now,
-            IsSecPrice = cbxSecondaryPrice.IsChecked,
-            IsOpen = true,
-            Cashier = user,
-        };
+            var user = await db.Users.FindAsync(AppSession.CurrentUser.Id);
 
-        db.CashRegisters.Add(newCashRegister);
-        await db.SaveChangesAsync();
+            var newCashRegister = new CashRegister
+            {
+                Number = 1,
+                InitialMoney = float.Parse(txtInitialMoney.Value.ToString() ?? "0"),
+                TimeStarted = DateTime.Now,
+                IsSecPrice = cbxSecondaryPrice.IsChecked,
+                IsOpen = true,
+                Cashier = user,
+            };
 
-        await OpenOrderSectionMain(newCashRegister);
+            db.CashRegisters.Add(newCashRegister);
+            await db.SaveChangesAsync();
+
+            await OpenOrderSectionMain(newCashRegister);
+        });
     }
 
     private async Task OpenOrderSectionMain(CashRegister cashRegister)
     {
-        var orderSectionMain = new OrderSectionMainVisual(cashRegister);
+        var orderSectionMain = new OrderSectionMainVisual(cashRegister, null!);
         await Navigation.PushAsync(orderSectionMain);
         Navigation.RemovePage(this);
     }

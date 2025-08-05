@@ -2,26 +2,28 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
-             BackgroundColor="#647C84"
+             BackgroundColor="#F3F3F3"
              x:Class="felix1.AdminSectionMainVisual"
              NavigationPage.HasNavigationBar="False">
 
     <Grid ColumnDefinitions="200,*">
         <!-- LEFT MENU -->
         <VerticalStackLayout Grid.Column="0"
-                             BackgroundColor="#F5F7FA"
+                             BackgroundColor="#F3F3F3"
                              Padding="5"
                              Spacing="10">
 
             <buttons:SfButton x:Name="btnShowArticle"
                               Text="Artículos"
-                              TextColor="Black"
                               CornerRadius="5"
                               Clicked="OnShowArticle"
                               IsCheckable="True"
                               IsChecked="True"
                               Margin="0,0,0,0"
-                              BackgroundColor="#F5F7FA">
+                              BackgroundColor="Transparent"
+                              ImageSource="foodtray.png"
+                              ImageAlignment="Start"
+                              ShowIcon="True">
 
                 <VisualStateManager.VisualStateGroups>
                     <VisualStateGroup x:Name="CommonStates">
@@ -29,28 +31,32 @@
                         <!-- Default State -->
                         <VisualState x:Name="Normal">
                             <VisualState.Setters>
-                                <Setter Property="Background" Value="#F5F7FA"/>
+                                <Setter Property="Background" Value="#F3F3F3" />
+                                <Setter Property="TextColor" Value="Black"/>
                             </VisualState.Setters>
                         </VisualState>
 
                         <!-- Hovered State -->
                         <VisualState x:Name="Hovered">
                             <VisualState.Setters>
-                                <Setter Property="Background" Value="#C2C7CD"/>
+                                <Setter Property="Background" Value="#C7CFDD"/>
+                                <Setter Property="TextColor" Value="Black"/>
                             </VisualState.Setters>
                         </VisualState>
 
                         <!-- Pressed State -->
                         <VisualState x:Name="Pressed">
                             <VisualState.Setters>
-                                <Setter Property="Background" Value="#33B7E3"/>
+                                <Setter Property="Background" Value="#005F8C"/>
+                                <Setter Property="TextColor" Value="#F3F3F3"/>
                             </VisualState.Setters>
                         </VisualState>
 
                         <!-- Checked State -->
                         <VisualState x:Name="Checked">
                             <VisualState.Setters>
-                                <Setter Property="Background" Value="#33B7E3"/>
+                                <Setter Property="Background" Value="#005F8C"/>
+                                <Setter Property="TextColor" Value="#F3F3F3"/>
                             </VisualState.Setters>
                         </VisualState>
                     </VisualStateGroup>
@@ -64,7 +70,10 @@
                               Clicked="OnShowUser"
                               IsCheckable="True"
                               Margin="0,0,0,0"
-                              BackgroundColor="#F5F7FA">
+                              BackgroundColor="#F3F3F3"
+                              ImageSource="user.png"
+                              ImageAlignment="Start"
+                              ShowIcon="True">
 
                 <VisualStateManager.VisualStateGroups>
                     <VisualStateGroup x:Name="CommonStates">
@@ -72,33 +81,84 @@
                         <!-- Default State -->
                         <VisualState x:Name="Normal">
                             <VisualState.Setters>
-                                <Setter Property="Background" Value="#F5F7FA"/>
+                                <Setter Property="Background" Value="#F3F3F3"/>
                             </VisualState.Setters>
                         </VisualState>
 
                         <!-- Hovered State -->
                         <VisualState x:Name="Hovered">
                             <VisualState.Setters>
-                                <Setter Property="Background" Value="#C2C7CD"/>
+                                <Setter Property="Background" Value="#C7CFDD"/>
                             </VisualState.Setters>
                         </VisualState>
 
                         <!-- Pressed State -->
                         <VisualState x:Name="Pressed">
                             <VisualState.Setters>
-                                <Setter Property="Background" Value="#33B7E3"/>
+                                <Setter Property="Background" Value="#005F8C"/>
+                                <Setter Property="TextColor" Value="#F3F3F3"/>
                             </VisualState.Setters>
                         </VisualState>
 
                         <!-- Checked State -->
                         <VisualState x:Name="Checked">
                             <VisualState.Setters>
-                                <Setter Property="Background" Value="#33B7E3"/>
+                                <Setter Property="Background" Value="#005F8C"/>
+                                <Setter Property="TextColor" Value="#F3F3F3"/>
                             </VisualState.Setters>
                         </VisualState>
                     </VisualStateGroup>
                 </VisualStateManager.VisualStateGroups>
             </buttons:SfButton>
+
+            <buttons:SfButton x:Name="btnShowCuadre"
+                              Text="Historial Cuadre"
+                              TextColor="Black"
+                              CornerRadius="5"
+                              Clicked="OnShowCuadre"
+                              IsCheckable="True"
+                              Margin="0,0,0,0"
+                              BackgroundColor="#F3F3F3"
+                              ImageSource="history.png"
+                              ImageAlignment="Start"
+                              ShowIcon="True">
+
+                <VisualStateManager.VisualStateGroups>
+                    <VisualStateGroup x:Name="CommonStates">
+
+                        <!-- Default State -->
+                        <VisualState x:Name="Normal">
+                            <VisualState.Setters>
+                                <Setter Property="Background" Value="#F3F3F3"/>
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <!-- Hovered State -->
+                        <VisualState x:Name="Hovered">
+                            <VisualState.Setters>
+                                <Setter Property="Background" Value="#C7CFDD"/>
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <!-- Pressed State -->
+                        <VisualState x:Name="Pressed">
+                            <VisualState.Setters>
+                                <Setter Property="Background" Value="#005F8C"/>
+                                <Setter Property="TextColor" Value="#F3F3F3"/>
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <!-- Checked State -->
+                        <VisualState x:Name="Checked">
+                            <VisualState.Setters>
+                                <Setter Property="Background" Value="#005F8C"/>
+                                <Setter Property="TextColor" Value="#F3F3F3"/>
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateManager.VisualStateGroups>
+            </buttons:SfButton>
+
 
             <buttons:SfButton x:Name="btnShowConfiguration"
                               Text="Configuraciones"
@@ -107,7 +167,10 @@
                               Clicked="OnShowConfiguration"
                               IsCheckable="True"
                               Margin="0,0,0,0"
-                              BackgroundColor="#F5F7FA">
+                              BackgroundColor="#F3F3F3"
+                              ImageSource="settings.png"
+                              ImageAlignment="Start"
+                              ShowIcon="True">
 
                 <VisualStateManager.VisualStateGroups>
                     <VisualStateGroup x:Name="CommonStates">
@@ -115,28 +178,30 @@
                         <!-- Default State -->
                         <VisualState x:Name="Normal">
                             <VisualState.Setters>
-                                <Setter Property="Background" Value="#F5F7FA"/>
+                                <Setter Property="Background" Value="#F3F3F3"/>
                             </VisualState.Setters>
                         </VisualState>
 
                         <!-- Hovered State -->
                         <VisualState x:Name="Hovered">
                             <VisualState.Setters>
-                                <Setter Property="Background" Value="#C2C7CD"/>
+                                <Setter Property="Background" Value="#C7CFDD"/>
                             </VisualState.Setters>
                         </VisualState>
 
                         <!-- Pressed State -->
                         <VisualState x:Name="Pressed">
                             <VisualState.Setters>
-                                <Setter Property="Background" Value="#33B7E3"/>
+                                <Setter Property="Background" Value="#005F8C"/>
+                                <Setter Property="TextColor" Value="#F3F3F3"/>
                             </VisualState.Setters>
                         </VisualState>
 
                         <!-- Checked State -->
                         <VisualState x:Name="Checked">
                             <VisualState.Setters>
-                                <Setter Property="Background" Value="#33B7E3"/>
+                                <Setter Property="Background" Value="#005F8C"/>
+                                <Setter Property="TextColor" Value="#F3F3F3"/>
                             </VisualState.Setters>
                         </VisualState>
                     </VisualStateGroup>
@@ -152,47 +217,50 @@
             CornerRadius="5"
             Margin="10,10,10,10"
             HeightRequest="40"
-            VerticalOptions="End">
+            VerticalOptions="End"
+            ImageSource="exit.png"
+            ImageAlignment="Start"
+            ShowIcon="True">
 
             <VisualStateManager.VisualStateGroups>
-                    <VisualStateGroup x:Name="CommonStates">
+                <VisualStateGroup x:Name="CommonStates">
 
-                        <!-- Default State -->
-                        <VisualState x:Name="Normal">
-                            <VisualState.Setters>
-                                <Setter Property="Background" Value="#F5F7FA"/>
-                            </VisualState.Setters>
-                        </VisualState>
+                    <!-- Default State -->
+                    <VisualState x:Name="Normal">
+                        <VisualState.Setters>
+                            <Setter Property="Background" Value="#F3F3F3"/>
+                        </VisualState.Setters>
+                    </VisualState>
 
-                        <!-- Hovered State -->
-                        <VisualState x:Name="Hovered">
-                            <VisualState.Setters>
-                                <Setter Property="Background" Value="#7DFF0000"/>
-                            </VisualState.Setters>
-                        </VisualState>
+                    <!-- Hovered State -->
+                    <VisualState x:Name="Hovered">
+                        <VisualState.Setters>
+                            <Setter Property="Background" Value="#fd2d2d"/>
+                        </VisualState.Setters>
+                    </VisualState>
 
-                        <!-- Pressed State -->
-                        <VisualState x:Name="Pressed">
-                            <VisualState.Setters>
-                                <Setter Property="Background" Value="red"/>
-                            </VisualState.Setters>
-                        </VisualState>
+                    <!-- Pressed State -->
+                    <VisualState x:Name="Pressed">
+                        <VisualState.Setters>
+                            <Setter Property="Background" Value="#FF0031"/>
+                        </VisualState.Setters>
+                    </VisualState>
 
-                        <!-- Checked State -->
-                        <VisualState x:Name="Checked">
-                            <VisualState.Setters>
-                                <Setter Property="Background" Value="#33B7E3"/>
-                            </VisualState.Setters>
-                        </VisualState>
-                    </VisualStateGroup>
-                </VisualStateManager.VisualStateGroups>
+                    <!-- Checked State -->
+                    <VisualState x:Name="Checked">
+                        <VisualState.Setters>
+                            <Setter Property="Background" Value="#005F8C"/>
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
         </buttons:SfButton>
 
         <!-- RIGHT || CONTENT AREA -->
         <ContentView x:Name="RightPanel"
                      Grid.Column="1"
                      Grid.RowSpan="3"
-                     BackgroundColor="White"/>
+                     BackgroundColor="#F3F3F3"/>
     </Grid>
 
 </ContentPage>

@@ -5,14 +5,14 @@
              BackgroundColor="White"
              NavigationPage.HasNavigationBar="False">
 
-    <Grid ColumnDefinitions="*,*">
-        
+    <Grid ColumnDefinitions="3*,2*">
+
         <Grid Grid.Column="0">
-            <StackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="25">
+            <StackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="40">
 
                 <Label Text="Iniciar Sesión"
                        FontFamily="Inter"
-                       FontSize="28"
+                       FontSize="30"
                        FontAttributes="Bold"
                        TextColor="#005F8C"
                        HorizontalTextAlignment="Center"/>
@@ -27,9 +27,9 @@
                            Text="{Binding Username}"
                            Visual="Material"
                            FontFamily="Inter"
-                           FontSize="14"
+                           FontSize="16"
                            TextColor="#1A1C2C"
-                           BackgroundColor="White"
+                           BackgroundColor="#F5F7FA"
                            WidthRequest="250"/>
                 </StackLayout>
 
@@ -44,14 +44,15 @@
                            IsPassword="True"
                            Visual="Material"
                            FontFamily="Inter"
-                           FontSize="14"
+                           FontSize="16"
                            TextColor="#1A1C2C"
-                           BackgroundColor="White"
+                           BackgroundColor="#F5F7FA"
                            WidthRequest="250"/>
                 </StackLayout>
 
                 <Button Text="Iniciar Sesión"
                         FontFamily="Inter"
+                        FontSize="16"
                         BackgroundColor="#005F8C"
                         TextColor="White"
                         CornerRadius="8"
@@ -62,18 +63,27 @@
                         Command="{Binding LoginCommand}"
                         IsEnabled="{Binding LoginCommand.CanExecute}"/>
 
+                <StackLayout IsVisible="{Binding IsLoggingIn}" 
+                              Spacing="5"
+                              HorizontalOptions="Center">
+                    <ProgressBar Progress="{Binding ProgressValue}"
+                                 ProgressColor="#005F8C"
+                                 WidthRequest="180"/>
+                    <Label Text="{Binding ProgressText}"
+                           FontFamily="Inter"
+                           FontSize="12"
+                           TextColor="#005F8C"
+                           HorizontalOptions="Center"/>
+                </StackLayout>
 
-                <ActivityIndicator IsRunning="{Binding IsLoggingIn}" 
-                                   IsVisible="{Binding IsLoggingIn}"
-                                   HorizontalOptions="Center"/>
             </StackLayout>
         </Grid>
 
         <Grid Grid.Column="1">
             <Image Source="bglogin.png"
                    Aspect="AspectFill"
-                   Opacity="0.3"/>
-            <BoxView Opacity="0.8">
+                   Opacity="0.25"/>
+            <BoxView Opacity="0.75">
                 <BoxView.Background>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                         <GradientStop Color="#5AB9A8" Offset="0.0"/>
@@ -84,22 +94,6 @@
             <StackLayout Padding="30"
                          VerticalOptions="Center"
                          HorizontalOptions="Center">
-                <Label Text="Bienvenido"
-                       FontFamily="Inter"
-                       FontSize="32"
-                       FontAttributes="Bold"
-                       TextColor="White"
-                       HorizontalTextAlignment="Center"/>
-                <Label Text=" Accede y comienza a registrar"
-                       FontFamily="Inter"
-                       FontSize="16"
-                       TextColor="White"
-                       HorizontalTextAlignment="Center"/>
-                <Label Text="órdenes ahora."
-                       FontFamily="Inter"
-                       FontSize="16"
-                       TextColor="White"
-                       HorizontalTextAlignment="Center"/>
             </StackLayout>
         </Grid>
     </Grid>

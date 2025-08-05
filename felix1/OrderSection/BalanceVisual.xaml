@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="felix1.OrderSection.BalanceVisual"
+             BackgroundColor="#F8F9FA"
+             Title="Balance de Caja">
+    
+    <ScrollView>
+        <VerticalStackLayout Spacing="25" Padding="20">
+            
+            <!-- Header Section -->
+            <Frame BackgroundColor="#005F8C"
+                   CornerRadius="15"
+                   HasShadow="True"
+                   Padding="20">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Balance de Caja"
+                           FontSize="28"
+                           TextColor="White"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"/>
+                    <Label x:Name="lblCashRegisterHeader"
+                           TextColor="White"
+                           FontSize="16"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Financial Summary Section -->
+            <Frame BackgroundColor="White"
+                   CornerRadius="12"
+                   HasShadow="True"
+                   BorderColor="#E9ECEF"
+                   Padding="20">
+                <VerticalStackLayout Spacing="20">
+                    <Label Text="Resumen Financiero"
+                           FontSize="20"
+                           FontAttributes="Bold"
+                           TextColor="#005F8C"
+                           Margin="0,0,0,10"/>
+
+                    <Grid RowSpacing="15" ColumnSpacing="15">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Initial Money Card -->
+                        <Frame Grid.Row="0" Grid.Column="0"
+                               BackgroundColor="#E8F5E8"
+                               CornerRadius="10"
+                               Padding="15"
+                               HasShadow="False"
+                               BorderColor="#4CAF50">
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="💵 Dinero Inicial"
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       TextColor="#2E7D32"/>
+                                <Label x:Name="lblInitialMoney"
+                                       FontSize="18"
+                                       FontAttributes="Bold"
+                                       TextColor="#1B5E20"/>
+                            </VerticalStackLayout>
+                        </Frame>
+
+                        <!-- Total Orders Card -->
+                        <Frame Grid.Row="0" Grid.Column="1"
+                               BackgroundColor="#E3F2FD"
+                               CornerRadius="10"
+                               Padding="15"
+                               HasShadow="False"
+                               BorderColor="#2196F3">
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="Total de Órdenes"
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       TextColor="#1976D2"/>
+                                <Label x:Name="lblTotalOrders"
+                                       FontSize="18"
+                                       FontAttributes="Bold"
+                                       TextColor="#0D47A1"/>
+                            </VerticalStackLayout>
+                        </Frame>
+
+                        <!-- Total Money Card -->
+                        <Frame Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                               BackgroundColor="#FFF3E0"
+                               CornerRadius="10"
+                               Padding="15"
+                               HasShadow="False"
+                               BorderColor="#FF9800">
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="Total en Caja"
+                                       FontSize="16"
+                                       FontAttributes="Bold"
+                                       TextColor="#F57C00"
+                                       HorizontalOptions="Center"/>
+                                <Label x:Name="lblTotalMoney"
+                                       FontSize="24"
+                                       FontAttributes="Bold"
+                                       TextColor="#E65100"
+                                       HorizontalOptions="Center"/>
+                            </VerticalStackLayout>
+                        </Frame>
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Payment Methods Section -->
+            <Frame BackgroundColor="White"
+                   CornerRadius="12"
+                   HasShadow="True"
+                   BorderColor="#E9ECEF"
+                   Padding="15">
+                <VerticalStackLayout Spacing="20">
+                    <Label Text="💳 Métodos de Pago"
+                           FontSize="20"
+                           FontAttributes="Bold"
+                           TextColor="#005F8C"
+                           Margin="0,0,0,10"/>
+
+                    <Grid RowSpacing="15" ColumnSpacing="15">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Cash Card -->
+                        <Frame Grid.Row="0" Grid.Column="0"
+                               BackgroundColor="#F1F8E9"
+                               CornerRadius="8"
+                               Padding="12"
+                               HasShadow="False">
+                            <VerticalStackLayout Spacing="5">
+                                <Label Text="Efectivo"
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       TextColor="#558B2F"/>
+                                <Label x:Name="lblCashAmount"
+                                       FontSize="16"
+                                       FontAttributes="Bold"
+                                       TextColor="#33691E"/>
+                            </VerticalStackLayout>
+                        </Frame>
+
+                        <!-- Card Card -->
+                        <Frame Grid.Row="0" Grid.Column="1"
+                               BackgroundColor="#E8EAF6"
+                               CornerRadius="8"
+                               Padding="12"
+                               HasShadow="False">
+                            <VerticalStackLayout Spacing="5">
+                                <Label Text="Tarjeta"
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       TextColor="#3F51B5"/>
+                                <Label x:Name="lblCardAmount"
+                                       FontSize="16"
+                                       FontAttributes="Bold"
+                                       TextColor="#303F9F"/>
+                            </VerticalStackLayout>
+                        </Frame>
+
+                        <!-- Transfer Card -->
+                        <Frame Grid.Row="1" Grid.Column="0"
+                               BackgroundColor="#FCE4EC"
+                               CornerRadius="8"
+                               Padding="12"
+                               HasShadow="False">
+                            <VerticalStackLayout Spacing="5">
+                                <Label Text="Transferencia"
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       TextColor="#C2185B"/>
+                                <Label x:Name="lblTransferAmount"
+                                       FontSize="16"
+                                       FontAttributes="Bold"
+                                       TextColor="#AD1457"/>
+                            </VerticalStackLayout>
+                        </Frame>
+
+                        <!-- Refunds Card -->
+                        <Frame Grid.Row="1" Grid.Column="1"
+                               BackgroundColor="#FFEBEE"
+                               CornerRadius="8"
+                               Padding="12"
+                               HasShadow="False">
+                            <VerticalStackLayout Spacing="5">
+                                <Label Text="Reembolsos"
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       TextColor="#D32F2F"/>
+                                <Label x:Name="lblRefundsAmount"
+                                       FontSize="16"
+                                       FontAttributes="Bold"
+                                       TextColor="#C62828"/>
+                            </VerticalStackLayout>
+                        </Frame>
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Waiter Statistics Section -->
+            <Frame BackgroundColor="White"
+                   CornerRadius="12"
+                   HasShadow="True"
+                   BorderColor="#E9ECEF"
+                   Padding="20">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="Estadísticas por Mesero"
+                           FontSize="20"
+                           FontAttributes="Bold"
+                           TextColor="#005F8C"
+                           Margin="0,0,0,10"/>
+                    
+                    <Label x:Name="lblWaiterStats"
+                           TextColor="#37474F"
+                           FontSize="14"
+                           LineBreakMode="WordWrap"/>
+                    
+                    <!-- Discount Summary Card -->
+                    <Frame BackgroundColor="#FFF8E1"
+                           CornerRadius="8"
+                           Padding="12"
+                           HasShadow="False"
+                           BorderColor="#FFC107"
+                           Margin="0,10,0,0">
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Descuentos Aplicados"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="#F57C00"/>
+                            <Label x:Name="lblDiscountInfo"
+                                   TextColor="#EF6C00"
+                                   FontSize="14"
+                                   LineBreakMode="WordWrap"/>
+                        </VerticalStackLayout>
+                    </Frame>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Tax Information Section -->
+            <Frame BackgroundColor="White"
+                   CornerRadius="12"
+                   HasShadow="True"
+                   BorderColor="#E9ECEF"
+                   Padding="20">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="Información de Impuestos"
+                           FontSize="20"
+                           FontAttributes="Bold"
+                           TextColor="#005F8C"
+                           Margin="0,0,0,10"/>
+                    
+                    <Label x:Name="lblTaxInfo"
+                           TextColor="#37474F"
+                           FontSize="14"
+                           LineBreakMode="WordWrap"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Action Buttons -->
+            <VerticalStackLayout Spacing="15">
+                <Button Text="Imprimir Balance"
+                        x:Name="btnPrintBalance"
+                        Clicked="OnPrintBalance"
+                        HeightRequest="50"
+                        BackgroundColor="#4CAF50"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        CornerRadius="10"
+                        FontSize="16"
+                        HorizontalOptions="Fill"/>
+                
+                <Button Text="Cerrar Sesion"
+                        Clicked="OnGoToLogin"
+                        HeightRequest="50"
+                        BackgroundColor="#005F8C"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        CornerRadius="10"
+                        FontSize="16"
+                        HorizontalOptions="Fill"/>
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -4,14 +4,23 @@ using System.Text.RegularExpressions;
 using felix1.Data;
 using felix1.Logic;
 using Microsoft.EntityFrameworkCore;
+using Syncfusion.Maui.Popup;
 
 namespace felix1;
 
-public partial class CreateArticleVisual : ContentPage
+public partial class CreateArticleVisual : ContentView
 {
     private Article? editingArticle = null;
     public ObservableCollection<SideDishSelectable> SideDishArticles { get; set; } = new();
     //public ObservableCollection<Article> SideDishes { get; set; } = new();
+    
+    // Property to hold popup reference when used in popup mode
+    private SfPopup? _parentPopup = null;
+
+    public void SetPopupReference(SfPopup popup)
+    {
+        _parentPopup = popup;
+    }
 
     public class SideDishSelectable : INotifyPropertyChanged
     {
@@ -30,11 +39,9 @@ public partial class CreateArticleVisual : ContentPage
                 {
                     isSelected = value;
                     OnPropertyChanged(nameof(IsSelected));
-                    SelectionChangedCallback?.Invoke(); //FOR THE CHECKBOX IN SIDEDISH
                 }
             }
         }
-        public Action? SelectionChangedCallback { get; set; } //FOR THE CHECKBOX IN SIDEDISH
 
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged(string propertyName) =>
@@ -65,10 +72,13 @@ public partial class CreateArticleVisual : ContentPage
         BindingContext = this;
 
         // Initialize the ObservableCollection for side dishes
-        using var db = new AppDbContext();
-        var sideDishes = db.Articles
-                        .Where(a => a.IsSideDish && !a.IsDeleted)
-                        .ToList();
+        var sideDishes = AppDbContext.ExecuteSafeAsync(async db =>
+        {
+            var query = db.Articles
+                .Where(a => a.IsSideDish && !a.IsDeleted);
+                if (articleToEdit != null) { query = query.Where(a => a.Id != articleToEdit.Id); } // exclude the article being edited
+                return await query.ToListAsync();
+        }).GetAwaiter().GetResult();
 
         var selectedIds = new HashSet<int>();
 
@@ -77,14 +87,16 @@ public partial class CreateArticleVisual : ContentPage
                                          .Cast<ArticleCategory>()
                                          .Select(c => c.ToString())
                                          .ToList();
-
-        // Checking if an article is being edited
+        // UPDATE EXISTING
         if (articleToEdit != null)
         {
-            editingArticle = db.Articles
-                .Where(a => a.Id == articleToEdit.Id)
-                .Include(a => a.SideDishes)
-                .FirstOrDefault();
+            editingArticle = AppDbContext.ExecuteSafeAsync(async db =>
+            {
+                return await db.Articles
+                    .Where(a => a.Id == articleToEdit.Id)
+                    .Include(a => a.SideDishes) // Include side dishes for update
+                    .FirstOrDefaultAsync();
+            }).GetAwaiter().GetResult();
 
             // Pre-fill the fields
             txtCode.Text = editingArticle?.Id.ToString() ?? string.Empty;
@@ -96,7 +108,6 @@ public partial class CreateArticleVisual : ContentPage
             pckCategory.SelectedItem = editingArticle?.Category.ToString() ?? string.Empty;
 
             selectedIds = editingArticle?.SideDishes?.Select(sd => sd.Id).ToHashSet() ?? new HashSet<int>();
-
         }
 
         // Build the observable collection for the grid
@@ -105,152 +116,193 @@ public partial class CreateArticleVisual : ContentPage
         {
             var selectable = new SideDishSelectable
             {
-                Article = dish,
-                SelectionChangedCallback = UpdateSideDishCheckbox //FOR THE CHECKBOX IN SIDEDISH
+                Article = dish
             };
 
             selectable.IsSelected = selectedIds.Contains(dish.Id); // triggers PropertyChanged
 
             SideDishArticles.Add(selectable);
         }
-        UpdateSideDishCheckbox();
-
-
     }
-
-    //FOR THE CHECKBOX IN SIDEDISH
-    private void UpdateSideDishCheckbox()
-    {
-        // If ANY side dish is selected, check the checkbox
-        bool anySelected = SideDishArticles.Any(s => s.IsSelected);
-        MainThread.BeginInvokeOnMainThread(() =>
-        {
-            txtSideDish.IsChecked = anySelected;
-        });
-    }
-
-
 
     private async void OnSaveArticle(object sender, EventArgs e)
     {
         // VALIDATION
         if (string.IsNullOrWhiteSpace(txtName.Text))
         {
-            await DisplayAlert("Error", "El campo 'Nombre' es obligatorio.", "OK");
+            await ShowAlert("Error", "El campo 'Nombre' es obligatorio.", "OK");
             return;
         }
 
         if (string.IsNullOrWhiteSpace(txtPrice.Text))
         {
-            await DisplayAlert("Error", "El campo 'Precio' es obligatorio.", "OK");
+            await ShowAlert("Error", "El campo 'Precio' es obligatorio.", "OK");
             return;
         }
 
         if (pckCategory.SelectedItem == null)
         {
-            await DisplayAlert("Error", "Debe seleccionar una categoría.", "OK");
+            await ShowAlert("Error", "Debe seleccionar una categoría.", "OK");
             return;
         }
 
-
-
-
-        //POPUP CONFIRMATION
-        bool confirm = await DisplayAlert(
+        // POPUP CONFIRMATION
+        bool confirm = await ShowConfirmation(
             "Confirmación",
             editingArticle == null ? "¿Crear este artículo?" : "¿Actualizar este artículo?",
             "Sí",
             "No");
 
-        if (!confirm)
-            return;
+        if (!confirm) return;
 
-        using var db = new AppDbContext();
-
-        var selectedCategory = pckCategory.SelectedItem?.ToString();
-        var parsed = Enum.TryParse<ArticleCategory>(selectedCategory, out var categoryEnum);
-
-        // Collect selected side dishes
-        var selectedSideDishes = SideDishArticles
-            .Where(a => a.IsSelected)
-            .Select(a => db.Articles.Find(a.Id)) // fetch tracked instances
-            .Where(a => a != null)
-            .ToList();
-
-        if (editingArticle == null)
+        try
         {
+            var selectedCategory = pckCategory.SelectedItem?.ToString();
+            var parsed = Enum.TryParse<ArticleCategory>(selectedCategory, out var categoryEnum);
 
-            var newArticle = new Article
+            var selectedIds = SideDishArticles
+                .Where(sd => sd.IsSelected)
+                .Select(sd => sd.Id)
+                .ToList();
+
+            if (editingArticle == null)
             {
-                Name = txtName.Text,
-                PriPrice = txtPrice.Text != null ? float.Parse(txtPrice.Text) : 0f,
-                SecPrice = txtSecondaryPrice.Text != null ? float.Parse(txtSecondaryPrice.Text) : 0f,
-                Category = parsed ? categoryEnum : ArticleCategory.Other,
-                IsDeleted = false,
-                IsSideDish = txtSideDish.IsChecked,
-                SideDishes = selectedSideDishes
-                    .Where(a => a != null)
-                    .Cast<Article>()
-                    .ToList()
-            };
-
-            db.Articles.Add(newArticle);
-
-        }
-        else
-        {
-            // UPDATE EXISTING
-            var article = db.Articles
-                .Include(a => a.SideDishes) // Include side dishes for update
-                .FirstOrDefault(a => a.Id == editingArticle.Id);
-
-            if (article != null)
-            {
-                article.Name = txtName.Text;
-                article.PriPrice = float.TryParse(txtPrice.Text, out var pri) ? pri : 0f;
-                article.SecPrice = float.TryParse(txtSecondaryPrice.Text, out var sec) ? sec : 0f;
-                article.Category = parsed ? categoryEnum : ArticleCategory.Other;
-                article.IsSideDish = txtSideDish.IsChecked;
-
-                // Clear and update side dishes
-                if (article.SideDishes != null)
+                var secNumber = 0f;
+                if (!string.IsNullOrEmpty(txtSecondaryPrice.Text))
                 {
-                    article.SideDishes.Clear();
-
-                    foreach (var sd in selectedSideDishes)
-                        if (sd != null)
-                            article.SideDishes.Add(sd);
+                    float.TryParse(txtSecondaryPrice.Text, out secNumber);
                 }
 
-                db.Articles.Update(article);
+                // CREATE NEW ARTICLE
+                await AppDbContext.ExecuteSafeAsync(async db =>
+                {
+                    var newArticle = new Article
+                    {
+                        Name = txtName.Text,
+                        PriPrice = float.TryParse(txtPrice.Text, out var priPrice) ? priPrice : 0f,
+                        SecPrice = secNumber,
+                        Category = parsed ? categoryEnum : ArticleCategory.Otros,
+                        IsDeleted = false,
+                        IsSideDish = txtSideDish.IsChecked
+                    };
+
+                    // Attach the side dishes to the context first
+                    if (selectedIds.Any())
+                    {
+                        var selectedSideDishes = await db.Articles
+                            .Where(a => selectedIds.Contains(a.Id))
+                            .ToListAsync();
+
+                        // Set the state of each side dish to Unchanged
+                        foreach (var sideDish in selectedSideDishes)
+                        {
+                            db.Entry(sideDish).State = EntityState.Unchanged;
+                        }
+
+                        newArticle.SideDishes = selectedSideDishes;
+                    }
+
+                    await db.Articles.AddAsync(newArticle);
+                    await db.SaveChangesAsync();
+                });
             }
+            else
+            {
+                // UPDATE EXISTING ARTICLE (unchanged)
+                await AppDbContext.ExecuteSafeAsync(async db =>
+                {
+                    var article = await db.Articles
+                        .Include(a => a.SideDishes)
+                        .FirstOrDefaultAsync(a => a.Id == editingArticle.Id);
+
+                    if (article != null)
+                    {
+                        article.Name = txtName.Text;
+                        article.PriPrice = float.TryParse(txtPrice.Text, out var pri) ? pri : 0f;
+                        article.SecPrice = float.TryParse(txtSecondaryPrice.Text, out var sec) ? sec : 0f;
+                        article.Category = parsed ? categoryEnum : ArticleCategory.Otros;
+                        article.IsSideDish = txtSideDish.IsChecked;
+
+                        // Clear existing side dishes
+                        article.SideDishes!.Clear();
+
+                        // Add new selected side dishes
+                        var selectedSideDishes = await db.Articles
+                            .Where(a => selectedIds.Contains(a.Id))
+                            .ToListAsync();
+
+                        foreach (var sd in selectedSideDishes)
+                        {
+                            if (sd.Equals(article.IsSideDish))
+                            {
+                                // Prevent adding the article itself as a side dish
+                                continue;
+                            }
+                            article.SideDishes.Add(sd);
+                        }
+
+                        await db.SaveChangesAsync();
+                    }
+                });
+            }
+
+            ListArticleVisual.Instance?.ReloadArticles();
+            
+            // Show success message
+            // await ShowAlert("Éxito", 
+            //     editingArticle == null ? "Artículo creado correctamente" : "Artículo actualizado correctamente", 
+            //     "OK");
+            
+            CloseThisWindow();
         }
-
-        db.SaveChanges();
-        ListArticleVisual.Instance?.ReloadArticles(); // REFRESH THE LIST
-        await DisplayAlert("Éxito", "Artículo guardado correctamente.", "OK");
-
-        CloseThisWindow();
-
+        catch (Exception ex)
+        {
+            await ShowAlert("Error", $"Ocurrió un error al guardar: {ex.Message}", "OK");
+        }
     }
 
+    // Helper methods for displaying alerts since ContentView doesn't have DisplayAlert
+    private async Task ShowAlert(string title, string message, string cancel)
+    {
+        if (Application.Current?.MainPage != null)
+        {
+            await Application.Current.MainPage.DisplayAlert(title, message, cancel);
+        }
+    }
+
+    private async Task<bool> ShowConfirmation(string title, string message, string accept, string cancel)
+    {
+        if (Application.Current?.MainPage != null)
+        {
+            return await Application.Current.MainPage.DisplayAlert(title, message, accept, cancel);
+        }
+        return false;
+    }
+
+    private void OnCancelButtonClicked(object sender, EventArgs e)
+    {
+        CloseThisWindow();
+    }
+    
     private void CloseThisWindow()
     {
-        if (Application.Current != null)
+        // If we're in popup mode, close the popup
+        if (_parentPopup != null)
         {
-            foreach (var window in Application.Current.Windows)
+            try
             {
-                if (window.Page == this)
-                {
-                    Application.Current.CloseWindow(window);
-                    break;
-                }
+                _parentPopup.IsOpen = false;
+                _parentPopup.Dismiss();
+                Console.WriteLine("Popup dismissed successfully");
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error dismissing popup: {ex.Message}");
+            }
+            return;
         }
-        else
-        {
-            
-        }
+
+        Console.WriteLine("No popup reference found - popup was not closed");
     }
 
     //for the search bar logic
@@ -271,5 +323,33 @@ public partial class CreateArticleVisual : ContentPage
                 .ToList();
         }
     }
-}
 
+    private async void OnSideDishClicked(object? sender, CheckedChangedEventArgs e)
+    {
+        RightPanelA.IsEnabled = true;
+        if (editingArticle == null) return;
+        if (e.Value == false)
+        {
+            //search for all the side dishes that may have editingArticle as a side dish
+            bool isUsedAsSideDish = await AppDbContext.ExecuteSafeAsync(async db =>
+            {
+                return await db.Articles
+                    .Include(a => a.SideDishes)
+                    .Where(a => !a.IsDeleted)
+                    .AnyAsync(a => a.SideDishes.Any(sd => sd.Id == editingArticle.Id));
+            });
+
+            if (isUsedAsSideDish)
+            {
+                await ShowAlert("Advertencia", "Este artículo ya es un acompañante de otro artículo. No se puede des-marcar como acompañante.", "OK");
+                txtSideDish.CheckedChanged -= OnSideDishClicked;
+                txtSideDish.IsChecked = true;
+                txtSideDish.CheckedChanged += OnSideDishClicked;
+                foreach (var item in SideDishArticles) { item.IsSelected = false; }
+            }
+        } else { //if checked is true, right panel is disabled and all items are unselected
+            RightPanelA.IsEnabled = false;
+            foreach (var item in SideDishArticles) { item.IsSelected = false; }
+        }
+    }
+}

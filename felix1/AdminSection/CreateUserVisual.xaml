@@ -1,26 +1,24 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage 
+<ContentView 
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
+             xmlns:numericEntry="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs"
+             xmlns:inputLayout="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
+             xmlns:syncfusion="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="felix1.CreateUserVisual"
     NavigationPage.HasNavigationBar="False">
 
-    <!-- Degradado de fondo -->
-    <ContentPage.Background>
-        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Color="#F3F3F3" Offset="0.0"/>
-            <GradientStop Color="#C7CFDD" Offset="1.0"/>
-        </LinearGradientBrush>
-    </ContentPage.Background>
-
     <Grid RowDefinitions="Auto,*,Auto" ColumnDefinitions="*"
-          Padding="30">
+          Padding="30"
+          BackgroundColor="#F3F3F3">
 
-        <!-- Titulo (Evil) -->
+        <!-- Titulo -->
         <Label Text="Registrar Usuario"
-               FontSize="35"
+               FontFamily="Inter"
+               FontSize="30"
                FontAttributes="Bold"
-               TextColor="#1A1C2C"
+               TextColor="#005F8C"
                HorizontalOptions="Center"
                Margin="0,0,0,20"/>
 
@@ -35,11 +33,11 @@
                     <Label Text="Nombre"
                            FontSize="12"
                            FontAttributes="Bold"
-                           TextColor="#1A1C2C"/>
+                           TextColor="#005F8C"/>
                     <Entry Placeholder="Enter your name"
                            x:Name="entryNombre"
                            FontSize="14"
-                           TextColor="#1A1C2C"
+                           TextColor="Black"
                            BackgroundColor="#C7CFDD"/>
                 </StackLayout>
 
@@ -47,11 +45,11 @@
                     <Label Text="Username"
                            FontSize="12"
                            FontAttributes="Bold"
-                           TextColor="#1A1C2C"/>
+                           TextColor="#005F8C"/>
                     <Entry Placeholder="Enter your username"
                            x:Name="entryUsername"
                            FontSize="14"
-                           TextColor="#1A1C2C"
+                           TextColor="Black"
                            BackgroundColor="#C7CFDD"/>
                 </StackLayout>
 
@@ -59,12 +57,12 @@
                     <Label Text="Password"
                            FontSize="12"
                            FontAttributes="Bold"
-                           TextColor="#1A1C2C"/>
+                           TextColor="#005F8C"/>
                     <Entry Placeholder="Enter your password"
                            x:Name="entryPassword"
                            IsPassword="True"
                            FontSize="14"
-                           TextColor="#1A1C2C"
+                           TextColor="Black"
                            BackgroundColor="#C7CFDD"/>
                 </StackLayout>
 
@@ -72,30 +70,29 @@
                     <Label Text="Confirmar Password"
                            FontSize="12"
                            FontAttributes="Bold"
-                           TextColor="#1A1C2C"/>
+                           TextColor="#005F8C"/>
                     <Entry Placeholder="Confirm your password"
                            x:Name="entryCPassword"
                            IsPassword="True"
                            FontSize="14"
-                           TextColor="#1A1C2C"
+                           TextColor="Black"
                            BackgroundColor="#C7CFDD"/>
                 </StackLayout>
-
 
                 <StackLayout Spacing="2">
                     <Label Text="Rol"
                            FontSize="12"
                            FontAttributes="Bold"
-                           TextColor="#1A1C2C"/>
-                           <Frame CornerRadius="10"
+                           TextColor="#005F8C"/>
+                    <Frame CornerRadius="10"
                                    Padding="0"
                                    HasShadow="False"
-                                   BorderColor="Transparent"
+                                   BorderColor="#C7CFDD"
                                    BackgroundColor="#C7CFDD"
                                    HeightRequest="40">
-                                    <Picker x:Name="pickerRol"
-                                BackgroundColor="Transparent"
-                                TextColor="#1A1C2C"
+                        <Picker x:Name="pickerRol"
+                                BackgroundColor="#C7CFDD"
+                                TextColor="Black"
                                 FontSize="14">
                             <Picker.ItemsSource>
                                 <x:Array Type="{x:Type x:String}">
@@ -110,27 +107,122 @@
             </VerticalStackLayout>
         </ScrollView>
 
-        <!-- La sección para completar todo, no se me ocurre un nombre-->
+        <!-- Botones -->
         <Grid Grid.Row="2" Padding="0,30,0,0">
             <HorizontalStackLayout HorizontalOptions="End" Spacing="10">
-                <Button Text="Cancelar"
-                        BackgroundColor="#1A1C2C"
-                        TextColor="#F3F3F3"
+                <buttons:SfButton Text="Cancelar"
                         HeightRequest="45"
                         WidthRequest="120"
                         CornerRadius="10"
                         x:Name="btnCancelar"
-                        Clicked="OnCancelButtonClicked"/>
+                        Clicked="OnCancelButtonClicked"
+                        Style="{StaticResource CancelButtonStyle}"/>
 
-                <Button Text="Agregar Usuario"
-                        BackgroundColor="#EDE19E"
-                        TextColor="#1A1C2C"
+                <buttons:SfButton Text="Agregar Usuario"
                         HeightRequest="45"
                         WidthRequest="160"
                         CornerRadius="10"
                         x:Name="btnGuardarUsuario"
-                        ContentLayout="Left,10"/>
+                        Style="{StaticResource ButtonStyle}"/>
             </HorizontalStackLayout>
         </Grid>
     </Grid>
-</ContentPage>
+
+    
+    <ContentView.Resources>
+        <ResourceDictionary>
+
+            <Style x:Key="CancelButtonStyle"
+                    TargetType="buttons:SfButton">
+                <Setter Property="TextColor"
+                        Value="Black"/>
+                <Setter Property="CornerRadius"
+                        Value="5"/>
+                <Setter Property="IsCheckable"
+                        Value="True"/>
+                <Setter Property="Margin"
+                        Value="0"/>
+                <Setter Property="BackgroundColor"
+                        Value="#F5F7FA"/>
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="Transparent"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Hovered">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#AFFF1D1D"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#FD2D2D"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Checked">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#C7CFDD"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+
+            
+            <Style x:Key="ButtonStyle"
+                    TargetType="buttons:SfButton">
+                <Setter Property="TextColor"
+                        Value="Black"/>
+                <Setter Property="CornerRadius"
+                        Value="5"/>
+                <Setter Property="IsCheckable"
+                        Value="True"/>
+                <Setter Property="Margin"
+                        Value="0"/>
+                <Setter Property="BackgroundColor"
+                        Value="#F5F7FA"/>
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#005F8C"/>
+                                    <Setter Property="TextColor"
+                                            Value="#F3F3F3"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Hovered">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#C7CFDD"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#FFA5AAB3"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Checked">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#005F8C"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+
+        </ResourceDictionary>
+    </ContentView.Resources>
+</ContentView>

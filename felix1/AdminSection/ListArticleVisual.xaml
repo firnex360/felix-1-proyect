@@ -13,13 +13,13 @@
         <HorizontalStackLayout Grid.Row="0"
                                Spacing="20">
             <Frame
-                BackgroundColor="#F5F7FA"
+                BackgroundColor="#F3F3F3"
                 CornerRadius="10"
                 Padding="0"
                 HasShadow="False"
                 VerticalOptions="Center"
                 HeightRequest="40"
-                BorderColor="#FF74777A"
+                BorderColor="#FFE0E0E0"
                 WidthRequest="340"
                 Margin="20,10,0,0">
 
@@ -39,8 +39,8 @@
 
             <Button Margin="0,10,0,0"
                     Text="Agregar Artículo"
-                    TextColor="Black"
-                    BackgroundColor="#33B7E3"
+                    TextColor="White"
+                    BackgroundColor="#005F8C"
                     Clicked="OnCreateArticleWindowClicked"
                     HorizontalOptions="Start"
                     VerticalOptions="Center"/>
@@ -52,7 +52,7 @@
                CornerRadius="10"
                Padding="0"
                HasShadow="True"
-               BackgroundColor="#F5F7FA"
+               BackgroundColor="#F3F3F3"
                BorderColor="#F5F7FA"
                Margin="20"
                VerticalOptions="Fill"
@@ -68,11 +68,14 @@
                                    SortingMode="Single"
                                    AllowTriStateSorting="True"
                                    VerticalOverScrollMode="Bounce"
-                                   EmptyView="No hay registros">
+                                   EmptyView="No hay registros"
+                                   >
 
                 <syncfusion:SfDataGrid.DefaultStyle>
-                    <syncfusion:DataGridStyle HeaderRowBackground="#C2C7CD"
-                                              HeaderRowTextColor="black"/>
+                    <syncfusion:DataGridStyle HeaderRowBackground="#005F8C"
+                                              HeaderRowTextColor="#F3F3F3"
+                                              RowTextColor="#005F8C"
+                                              HeaderRowFontAttributes="Bold"/>
                 </syncfusion:SfDataGrid.DefaultStyle>
 
                 <!-- Custom Columns -->
@@ -93,14 +96,13 @@
                         HeaderText="Nombre"
                         CellTextAlignment="Start"
                         HeaderTextAlignment="Start"
-                        ColumnWidthMode="FitByCell"
-                        MaximumWidth="300"/>
+                        ColumnWidthMode="FitByCell"/>
 
                     <!-- Primary Price -->
                     <syncfusion:DataGridNumericColumn
                         MappingName="PriPrice"
                         HeaderText="Precio Primario"
-                        Format="C2"
+                        Format="$#,##0.00"
                         CellTextAlignment="Start"
                         HeaderTextAlignment="Start"
                         ColumnWidthMode="FitByHeader"/>
@@ -109,7 +111,7 @@
                     <syncfusion:DataGridNumericColumn
                         MappingName="SecPrice"
                         HeaderText="Precio Secundario"
-                        Format="C2"
+                        Format="$#,##0.00"
                         CellTextAlignment="Start"
                         HeaderTextAlignment="Center"
                         ColumnWidthMode="FitByHeader"/>
@@ -135,7 +137,7 @@
                                         Padding="10"
                                         WidthRequest="28"
                                         HeightRequest="28"
-                                        BackgroundColor="#FFD6D7DA"
+                                        BackgroundColor="#F3F3F3"
                                         Clicked="OnEditClicked"
                                         VerticalOptions="Center">
                                         <VisualStateManager.VisualStateGroups>
@@ -144,7 +146,7 @@
                                                     <VisualState x:Name="Normal">
                                                         <VisualState.Setters>
                                                             <Setter Property="BackgroundColor"
-                                                                    Value="#F5F7FA"/>
+                                                                    Value="Transparent"/>
                                                         </VisualState.Setters>
                                                     </VisualState>
                                                     <VisualState x:Name="PointerOver">

@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="felix1.OrderSection.ListOrderVisual"
+             x:Class="felix1.OrderSection.ListTableVisual"
              NavigationPage.HasNavigationBar="False">
              
-    <Grid ColumnDefinitions="*, Auto" BackgroundColor="White">
+    <Grid x:Name="MainGrid" ColumnDefinitions="*, Auto" BackgroundColor="White">
         
         <!--    SCROLLABLE MESERO   -->
-        <ScrollView Grid.Column="0" Orientation="Horizontal" VerticalOptions="FillAndExpand">
+        <ScrollView Grid.Column="0" Orientation="Horizontal" VerticalOptions="Fill">
             <HorizontalStackLayout x:Name="MeseroContainer"
                                 Spacing="10"
                                 Padding="10"
                                 BackgroundColor="#F5F7FA"
-                                VerticalOptions="FillAndExpand" />
+                                VerticalOptions="Fill" />
         </ScrollView>
         
         <!--    STATIC TAKEOUT   -->
         <Grid Grid.Column="1"
-            WidthRequest="{Binding Source={x:Reference MainGrid}, Path=Width, Converter={StaticResource WidthTo30PercentConverter}}"
+            WidthRequest="300"
             x:Name="TakeoutPanel" 
             Padding="10" 
-            VerticalOptions="FillAndExpand"
+            VerticalOptions="Fill"
             BackgroundColor="#F5F7FA">
                 
                 <Frame
@@ -28,24 +28,21 @@
                 Padding = "10"
                 BackgroundColor="White"
                 BorderColor="White"
-                VerticalOptions="FillAndExpand"
+                VerticalOptions="Fill"
                 WidthRequest="300">
-                    <VerticalStackLayout Spacing="12"
-                                        VerticalOptions="FillAndExpand">
-                        <Label
+                    <VerticalStackLayout x:Name="TakeoutContainer" 
+                                        Spacing="12"
+                                        VerticalOptions="Fill">
+                    <Label
                             Text="Takeout"
                             FontSize="18"
                             FontAttributes="Bold"
                             TextColor="Black"
                             HorizontalOptions="Center" />
-                        <Button
-                            Text="Crear Pedido"
-                            BackgroundColor="LightBlue"
-                            TextColor="White"
-                            CornerRadius="8"
-                            HeightRequest="40"
-                            WidthRequest="120"
-                            HorizontalOptions="Center" VerticalOptions="Center" />
+
+                    <VerticalStackLayout x:Name="TakeoutOrdersContainer"
+                                            Spacing="5"
+                                            VerticalOptions="Start" />
                     </VerticalStackLayout>
                 </Frame>
 

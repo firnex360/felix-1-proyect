@@ -1,46 +1,411 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:numericEntry="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs"
+             xmlns:inputLayout="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="felix1.AdminSection.Configuration">
-    <VerticalStackLayout Padding="32,48" Spacing="24" BackgroundColor="#F5F6FA">
-        <Frame CornerRadius="18" Padding="32" BackgroundColor="White">
+             x:Class="felix1.AdminSection.Configuration"
+             BackgroundColor="White">
+<ScrollView>
+    <VerticalStackLayout Spacing="25"
+                         Padding="20">
+        <!-- Company Information Section -->
+        <Frame BackgroundColor="#F8F9FA"
+               CornerRadius="12"
+               HasShadow="True"
+               BorderColor="#E9ECEF"
+               Padding="20">
             <VerticalStackLayout Spacing="20">
-                <Label Text="Configuración General" FontSize="28" FontAttributes="Bold" TextColor="#222" HorizontalOptions="Center"/>
-                <Grid RowSpacing="18" ColumnSpacing="16">
+                <Label Text="Información de la Empresa"
+                       FontSize="18"
+                       FontAttributes="Bold"
+                       TextColor="#005F8C"
+                       Margin="0,0,0,10"/>
+
+                <Grid RowSpacing="15"
+                      ColumnSpacing="15">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Label Text="Teléfono:" Grid.Row="0" Grid.Column="0" VerticalOptions="Center" TextColor="#444"/>
-                    <Entry x:Name="txtPhone" Placeholder="Ingrese el teléfono" Grid.Row="0" Grid.Column="1" Keyboard="Telephone" BackgroundColor="#F0F1F6" Margin="0,0,0,4"/>
+                    <!-- Company Name -->
+                    <VerticalStackLayout Grid.Row="0"
+                                         Grid.Column="0"
+                                         Spacing="5">
+                        <Label Text="Nombre de la Empresa:"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#005F8C"/>
+                        <Border Stroke="#C7CFDD"
+                                StrokeThickness="1"
+                                BackgroundColor="White"
+                                StrokeShape="RoundRectangle 8"
+                                Padding="3"
+                                HeightRequest="45">
+                            <Entry x:Name="txtCompany"
+                                   Placeholder="Ingrese el nombre de la empresa"
+                                   TextColor="#FF005F8C"
+                                   BackgroundColor="Transparent"
+                                   FontSize="16"
+                                   VerticalTextAlignment="Center"/>
+                        </Border>
+                    </VerticalStackLayout>
 
-                    <Label Text="Dirección:" Grid.Row="1" Grid.Column="0" VerticalOptions="Center" TextColor="#444"/>
-                    <Entry x:Name="txtAddress" Placeholder="Ingrese la dirección" Grid.Row="1" Grid.Column="1" BackgroundColor="#F0F1F6" Margin="0,0,0,4"/>
+                    <!-- Address -->
+                    <VerticalStackLayout Grid.Row="0"
+                                         Grid.Column="1"
+                                         Spacing="5">
+                        <Label Text="Dirección:"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#005F8C"/>
+                        <Border Stroke="#C7CFDD"
+                                StrokeThickness="1"
+                                BackgroundColor="White"
+                                StrokeShape="RoundRectangle 8"
+                                Padding="3"
+                                HeightRequest="45">
+                            <Entry x:Name="txtAddress"
+                                   Placeholder="Ingrese la dirección"
+                                   TextColor="#FF005F8C"
+                                   BackgroundColor="Transparent"
+                                   FontSize="16"/>
+                        </Border>
+                    </VerticalStackLayout>
 
-                    <Label Text="Email:" Grid.Row="2" Grid.Column="0" VerticalOptions="Center" TextColor="#444"/>
-                    <Entry x:Name="txtEmail" Placeholder="Ingrese el email" Grid.Row="2" Grid.Column="1" Keyboard="Email" BackgroundColor="#F0F1F6" Margin="0,0,0,4"/>
+                    <!-- Email -->
+                    <VerticalStackLayout Grid.Row="1"
+                                         Grid.Column="0"
+                                         Spacing="5">
+                        <Label Text="Email:"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#005F8C"/>
+                        <Border Stroke="#C7CFDD"
+                                StrokeThickness="1"
+                                BackgroundColor="White"
+                                StrokeShape="RoundRectangle 8"
+                                Padding="3"
+                                HeightRequest="45">
+                            <Entry x:Name="txtEmail"
+                                   Placeholder="Ingrese el email"
+                                   TextColor="#FF005F8C"
+                                   Keyboard="Email"
+                                   BackgroundColor="Transparent"
+                                   FontSize="16"/>
+                        </Border>
+                    </VerticalStackLayout>
 
-                    <Label Text="Nombre Empresa:" Grid.Row="3" Grid.Column="0" VerticalOptions="Center" TextColor="#444"/>
-                    <Entry x:Name="txtCompany" Placeholder="Ingrese el nombre de la empresa" Grid.Row="3" Grid.Column="1" BackgroundColor="#F0F1F6" Margin="0,0,0,4"/>
+                    <!-- Phone -->
+                    <VerticalStackLayout Grid.Row="1"
+                                         Grid.Column="1"
+                                         Spacing="5">
+                        <Label Text="Teléfono:"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#005F8C"/>
+                        <Border Stroke="#C7CFDD"
+                                StrokeThickness="1"
+                                BackgroundColor="White"
+                                StrokeShape="RoundRectangle 8"
+                                Padding="3"
+                                HeightRequest="45">
+                            <numericEntry:SfNumericEntry x:Name="txtPhone"
+                                                         CustomFormat="###-###-####"
+                                                         Placeholder="123-456-7890..."
+                                                         PlaceholderColor="Gray"
+                                                         ShowClearButton="True"
+                                                         TextColor="#FF005F8C"
+                                                         FontSize="16"
+                                                         BackgroundColor="Transparent"
+                                                         ShowBorder="False"/>
+                        </Border>
+
+                    </VerticalStackLayout>
+
+                    <!-- RNC -->
+                    <VerticalStackLayout Grid.Row="2"
+                                         Grid.Column="0"
+                                         Spacing="5">
+                        <Label Text="RNC:"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#005F8C"/>
+                        <Border Stroke="#C7CFDD"
+                                StrokeThickness="1"
+                                BackgroundColor="White"
+                                StrokeShape="RoundRectangle 8"
+                                Padding="3"
+                                HeightRequest="45">
+                            <numericEntry:SfNumericEntry x:Name="txtRNC"
+                                                         CustomFormat="###########"
+                                                         Value="130622914"
+                                                         Placeholder="123456789..."
+                                                         PlaceholderColor="Gray"
+                                                         ShowClearButton="True"
+                                                         TextColor="#FF005F8C"
+                                                         FontSize="16"
+                                                         BackgroundColor="Transparent"
+                                                         ShowBorder="False"/>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Comment -->
+                    <VerticalStackLayout Grid.Row="2"
+                                         Grid.Column="1"
+                                         Spacing="5">
+                        <Label Text="Comentario Al Pie De Factura:"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#005F8C"/>
+                        <Border Stroke="#C7CFDD"
+                                StrokeThickness="1"
+                                BackgroundColor="White"
+                                StrokeShape="RoundRectangle 8"
+                                Padding="3"
+                                HeightRequest="45">
+                            <Entry x:Name="txtComment"
+                                   Placeholder="Ingrese el comentario"
+                                   Text="GRACIAS POR PREFERIRNOS"
+                                   TextColor="#FF005F8C"
+                                   BackgroundColor="Transparent"
+                                   FontSize="16"/>
+                        </Border>
+                    </VerticalStackLayout>
                 </Grid>
-                <Button Text="Guardar Cambios"
-                        x:Name="btnSave"
-                        Margin="0,16,0,0"
-                        HeightRequest="48"
-                        BackgroundColor="#4F8EF7"
-                        TextColor="White"
-                        FontAttributes="Bold"
-                        CornerRadius="12"
-                        FontSize="18"
-                        HorizontalOptions="Fill"/>
             </VerticalStackLayout>
         </Frame>
+
+        <!-- Tax Configuration Section -->
+        <Frame BackgroundColor="#F8F9FA"
+               CornerRadius="12"
+               HasShadow="True"
+               BorderColor="#E9ECEF"
+               Padding="20">
+            <VerticalStackLayout Spacing="20">
+                <Label Text="Configuración de Impuestos"
+                       FontSize="18"
+                       FontAttributes="Bold"
+                       TextColor="#005F8C"
+                       Margin="0,0,0,10"/>
+
+                <Grid RowSpacing="15"
+                      ColumnSpacing="15">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- ITBIS Tax -->
+                    <VerticalStackLayout Grid.Row="0"
+                                         Grid.Column="0"
+                                         Spacing="5">
+                        <Label Text="ITBIS (%)"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#005F8C"/>
+                        <Border Stroke="#C7CFDD"
+                                StrokeThickness="1"
+                                BackgroundColor="White"
+                                StrokeShape="RoundRectangle 8"
+                                Padding="3"
+                                HeightRequest="45">
+                            <numericEntry:SfNumericEntry x:Name="txtTax"
+                                                         CustomFormat="##"
+                                                         Value="18"
+                                                         Placeholder="0..."
+                                                         PlaceholderColor="Gray"
+                                                         ShowClearButton="True"
+                                                         TextColor="#FF005F8C"
+                                                         FontSize="16"
+                                                         BackgroundColor="Transparent"
+                                                         ShowBorder="False"/>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Waiter Tax -->
+                    <VerticalStackLayout Grid.Row="0"
+                                         Grid.Column="2"
+                                         Spacing="5">
+                        <Label Text="Propina Mesero (%)"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#005F8C"/>
+                        <Border Stroke="#C7CFDD"
+                                StrokeThickness="1"
+                                BackgroundColor="White"
+                                StrokeShape="RoundRectangle 8"
+                                Padding="3"
+                                HeightRequest="45">
+                            <numericEntry:SfNumericEntry x:Name="txtWaiterTax"
+                                                         CustomFormat="##"
+                                                         Value="10"
+                                                         Placeholder="0..."
+                                                         PlaceholderColor="Gray"
+                                                         ShowClearButton="True"
+                                                         TextColor="#FF005F8C"
+                                                         FontSize="16"
+                                                         BackgroundColor="Transparent"
+                                                         ShowBorder="False"/>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Delivery Tax -->
+                    <VerticalStackLayout Grid.Row="0"
+                                         Grid.Column="1"
+                                         Spacing="5">
+                        <Label Text="Impuesto Delivery (%)"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#005F8C"/>
+                        <Border Stroke="#C7CFDD"
+                                StrokeThickness="1"
+                                BackgroundColor="White"
+                                StrokeShape="RoundRectangle 8"
+                                Padding="3"
+                                HeightRequest="45">
+                            <numericEntry:SfNumericEntry x:Name="txtDeliveryTax"
+                                                         CustomFormat="##"
+                                                         Value="10"
+                                                         Placeholder="0..."
+                                                         PlaceholderColor="Gray"
+                                                         ShowClearButton="True"
+                                                         TextColor="#FF005F8C"
+                                                         FontSize="16"
+                                                         BackgroundColor="Transparent"
+                                                         ShowBorder="False"/>
+                        </Border>
+                    </VerticalStackLayout>
+                </Grid>
+            </VerticalStackLayout>
+        </Frame>
+
+        <!-- Printer Configuration Section -->
+        <Frame BackgroundColor="#F8F9FA"
+               CornerRadius="12"
+               HasShadow="True"
+               BorderColor="#E9ECEF"
+               Padding="20">
+            <VerticalStackLayout Spacing="20">
+                <Label Text="Configuración de Impresora"
+                       FontSize="18"
+                       FontAttributes="Bold"
+                       TextColor="#005F8C"
+                       Margin="0,0,0,10"/>
+
+                <Grid RowSpacing="15"
+                      ColumnSpacing="15">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Printer Selection -->
+                    <VerticalStackLayout Grid.Row="0"
+                                         Grid.Column="0"
+                                         Spacing="5">
+                        <Label Text="Impresora Seleccionada:"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#005F8C"/>
+                        <Border Stroke="#C7CFDD"
+                                StrokeThickness="1"
+                                BackgroundColor="White"
+                                StrokeShape="RoundRectangle 8"
+                                Padding="3"
+                                HeightRequest="45">
+                            <Picker x:Name="pickerPrinter"
+                                    TextColor="#FF005F8C"
+                                    BackgroundColor="Transparent"
+                                    FontSize="16"/>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Refresh Printers Button -->
+                    <VerticalStackLayout Grid.Row="0"
+                                         Grid.Column="1"
+                                         Spacing="5">
+                        <Label Text=""
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#005F8C"/>
+                        <Button Text="Actualizar listado de impresoras"
+                                x:Name="btnRefreshPrinters"
+                                Clicked="btnRefreshPrinters_Clicked"
+                                HeightRequest="45"
+                                BackgroundColor="#FF005F8C"
+                                TextColor="White"
+                                FontSize="14"
+                                CornerRadius="8"
+                                HorizontalOptions="Fill"/>
+                    </VerticalStackLayout>
+                </Grid>
+            </VerticalStackLayout>
+        </Frame>
+
+        <!-- Auto-Close Cash Register -->
+        <Frame BackgroundColor="#F8F9FA"
+            CornerRadius="12"
+            HasShadow="True"
+            BorderColor="#E9ECEF"
+            Padding="20">
+            <VerticalStackLayout Spacing="20">
+                <Label Text="Cierre Automático de Caja Registradora"
+                    FontSize="18"
+                    FontAttributes="Bold"
+                    TextColor="#005F8C"
+                    Margin="0,0,0,10"/>
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Horas antes de cerrar automáticamente:"
+                        FontSize="14"
+                        FontAttributes="Bold"
+                        TextColor="#005F8C"/>
+                    <Border Stroke="#C7CFDD"
+                            StrokeThickness="1"
+                            BackgroundColor="White"
+                            StrokeShape="RoundRectangle 8"
+                            Padding="3"
+                            HeightRequest="45">
+                        <numericEntry:SfNumericEntry x:Name="txtAutoCloseHours"
+                                                    CustomFormat="#.##"
+                                                    Value="12"
+                                                    Placeholder="12"
+                                                    PlaceholderColor="Gray"
+                                                    ShowClearButton="True"
+                                                    TextColor="#FF005F8C"
+                                                    FontSize="16"
+                                                    BackgroundColor="Transparent"
+                                                    ShowBorder="False"/>
+                    </Border>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </Frame>
+
+
+        <!-- Save Button -->
+
+        <Button Text="Guardar Cambios"
+                x:Name="btnSave"
+                Clicked="btnSave_Clicked"
+                HeightRequest="50"
+                BackgroundColor="#005F8C"
+                TextColor="White"
+                FontAttributes="Bold"
+                CornerRadius="10"
+                FontSize="16"
+                HorizontalOptions="Fill"/>
     </VerticalStackLayout>
+</ScrollView>
 </ContentView>

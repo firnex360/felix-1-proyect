@@ -1,0 +1,534 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
+             xmlns:inputLayout="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:syncfusion="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
+             x:Class="felix1.OrderSection.OrderVisual"
+             BackgroundColor="White"
+             Title="OrderVisual">
+
+    <Grid ColumnDefinitions="400,*"
+          RowDefinitions="*">
+
+        <!-- RIGHT COLUMN with info order and table -->
+        <Label Grid.Column="1"
+               Grid.Row="0"
+               Text="{Binding OrderInfoText}"
+               HorizontalOptions="End"
+               VerticalOptions="Center"
+               Margin="0,0,20,0"
+               FontSize="16"
+               FontAttributes="Bold"
+               TextColor="#005F8C"/>
+
+        <!-- LEFT COLUMN with DataGrid + SearchBar -->
+        <Grid Grid.Column="0"
+              RowDefinitions="*,Auto"
+              Margin="20">
+
+            <!-- Full-height DataGrid -->
+            <Frame Grid.Row="0"
+                   CornerRadius="10"
+                   Padding="0"
+                   HasShadow="True"
+                   BackgroundColor="#F3F3F3"
+                   BorderColor="#F5F7FA"
+                   VerticalOptions="Fill"
+                   HorizontalOptions="Start"
+                   MaximumWidthRequest="400">
+
+                <syncfusion:SfDataGrid x:Name="listArticleDataGrid"
+                                       ItemsSource="{Binding ListArticles}"
+                                       VerticalOptions="Fill"
+                                       HorizontalOptions="Fill"
+                                       HeaderRowHeight="60"
+                                       RowHeight="50"
+                                       AutoGenerateColumnsMode="None"
+                                       SelectionMode="Single"
+                                       NavigationMode="Cell"
+                                       ColumnWidthMode="Auto"
+                                       CellTapped="OnArticleCellTapped">
+
+                    <syncfusion:SfDataGrid.EmptyView>
+                        <Label Text="No hay registros"
+                               TextColor="Black"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"/>
+                    </syncfusion:SfDataGrid.EmptyView>
+
+                    <syncfusion:SfDataGrid.DefaultStyle>
+                        <syncfusion:DataGridStyle HeaderRowBackground="#005F8C"
+                                                  HeaderRowTextColor="#F3F3F3"
+                                                  RowTextColor="Black"
+                                                  HeaderRowFontAttributes="Bold"
+                                                  SelectionBackground="#C7CFDD"
+                                                  CurrentCellBorderColor="#C7CFDD"/>
+                    </syncfusion:SfDataGrid.DefaultStyle>
+
+                    <syncfusion:SfDataGrid.Columns>
+                        <syncfusion:DataGridTextColumn
+                            x:Name="colName"
+                            MappingName="Name"
+                            HeaderText="Nombre"
+                            CellTextAlignment="Start"
+                            HeaderTextAlignment="Start"
+                            ColumnWidthMode="FitByCell"
+                            MaximumWidth="400"/>
+
+                        <syncfusion:DataGridNumericColumn
+                            MappingName="PriPrice"
+                            HeaderText="Precio"
+                            Format="C2"
+                            CellTextAlignment="End"
+                            HeaderTextAlignment="End"
+                            ColumnWidthMode="LastColumnFill"/>
+                    </syncfusion:SfDataGrid.Columns>
+                </syncfusion:SfDataGrid>
+            </Frame>
+
+            <!-- SearchBar BELOW the DataGrid -->
+            <Frame Grid.Row="1"
+                   Grid.Column="0"
+                   BackgroundColor="#F3F3F3"
+                   CornerRadius="10"
+                   Padding="0"
+                   HasShadow="False"
+                   VerticalOptions="End"
+                   HorizontalOptions="Start"
+                   WidthRequest="360"
+                   HeightRequest="40"
+                   BorderColor="#FFE0E0E0"
+                   Margin="0,10,0,0">
+
+                <SearchBar x:Name="searchBar"
+                           Placeholder="Buscar artículos..."
+                           TextChanged="OnSearchBarTextChanged"
+                           TextColor="#22223B"
+                           PlaceholderColor="#A0AEC0"
+                           BackgroundColor="Transparent"
+                           CancelButtonColor="#4F8FCB"
+                           FontSize="16"
+                           Margin="8,0"
+                           HeightRequest="40"
+                           HorizontalOptions="Fill"
+                           SearchButtonPressed="OnSearchBarSearchButtonPressed"/>
+            </Frame>
+        </Grid>
+
+        <!-- RIGHT COLUMN -->
+        <Grid Grid.Column="1"
+              RowDefinitions="Auto,*,*"
+              Margin="20,20,20,20">
+
+            <!-- Toolbar for Order Actions -->
+            <StackLayout Grid.Row="0"
+             Orientation="Horizontal"
+             Spacing="10"
+             Margin="0,0,0,10">
+
+                <Button Text="+"
+            BackgroundColor="#28a745"
+            TextColor="White"
+            Clicked="OnIncreaseQuantityClicked"
+            FontSize="14"
+            WidthRequest="40"
+            Padding="4"/>
+
+                <Button Text="-"
+            BackgroundColor="#dc3545"
+            TextColor="White"
+            Clicked="OnDecreaseQuantityClicked"
+            FontSize="14"
+            WidthRequest="40"
+            Padding="4"/>
+
+                <Button Text="Eliminar"
+                        BackgroundColor="#6c757d"
+                        TextColor="White"
+                        Clicked="OnRemoveItemClicked"
+                        FontSize="12"
+                        Padding="8,4"/>
+
+                <CheckBox x:Name="dueToPayCheckBox"
+              VerticalOptions="Center"
+              Color="#005F8C"/>
+
+                <Label Text="Por cobrar"
+           FontSize="14"
+           TextColor="Black"
+           VerticalOptions="Center"/>
+
+                <!-- Add a spacer to push the order info to the right -->
+                <BoxView Color="Transparent"
+             WidthRequest="20"/>
+
+                <Label Text="{Binding OrderInfoText}"
+           HorizontalOptions="EndAndExpand"
+           VerticalOptions="Center"
+           FontSize="14"
+           FontAttributes="Bold"
+           TextColor="#005F8C"/>
+
+            </StackLayout>
+
+            <!-- Order Items DataGrid -->
+            <Frame Grid.Row="1"
+                   CornerRadius="10"
+                   Padding="0"
+                   HasShadow="True"
+                   BackgroundColor="#F3F3F3"
+                   BorderColor="#F5F7FA"
+                   VerticalOptions="Fill"
+                   HorizontalOptions="Fill"
+                   Margin="0,0,0,10">
+
+                <syncfusion:SfDataGrid x:Name="orderItemsDataGrid"
+                                       ItemsSource="{Binding OrderItems}"
+                                       VerticalOptions="Fill"
+                                       HorizontalOptions="Fill"
+                                       HeaderRowHeight="60"
+                                       RowHeight="50"
+                                       AutoGenerateColumnsMode="None"
+                                       SortingMode="None"
+                                       AllowTriStateSorting="True"
+                                       ColumnWidthMode="Auto"
+                                       SelectionMode="Single"
+                                       NavigationMode="Cell"
+                                       AllowEditing="False"
+                                       LostFocusBehavior="EndEditCurrentCell"
+                                       EditTapAction="OnTap">
+
+                    <syncfusion:SfDataGrid.EmptyView>
+                        <Label Text="No hay articulos en la orden"
+                               TextColor="Black"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"/>
+                    </syncfusion:SfDataGrid.EmptyView>
+
+                    <syncfusion:SfDataGrid.DefaultStyle>
+                        <syncfusion:DataGridStyle HeaderRowBackground="#005F8C"
+                                                  HeaderRowTextColor="#F3F3F3"
+                                                  RowTextColor="Black"
+                                                  HeaderRowFontAttributes="Bold"
+                                                  SelectionBackground="#C7CFDD"
+                                                  CurrentCellBorderColor="#C7CFDD"/>
+                    </syncfusion:SfDataGrid.DefaultStyle>
+
+                    <syncfusion:SfDataGrid.Columns>
+                        <syncfusion:DataGridNumericColumn
+                            MappingName="Quantity"
+                            HeaderText="Cantidad"
+                            Format="0"
+                            CellTextAlignment="Center"
+                            HeaderTextAlignment="Center"
+                            AllowEditing="True"
+                            ColumnWidthMode="FitByHeader"/>
+
+                        <syncfusion:DataGridTextColumn
+                            MappingName="ArticleName"
+                            HeaderText="Nombre"
+                            CellTextAlignment="Start"
+                            HeaderTextAlignment="Start"
+                            ColumnWidthMode="FitByCell"
+                            MaximumWidth="800"/>
+
+                        <syncfusion:DataGridNumericColumn
+                            MappingName="UnitPrice"
+                            HeaderText="Precio"
+                            Format="C2"
+                            CellTextAlignment="End"
+                            HeaderTextAlignment="End"
+                            ColumnWidthMode="FitByCell"
+                            MaximumWidth="100"/>
+
+                        <syncfusion:DataGridNumericColumn
+                            MappingName="TotalPrice"
+                            HeaderText="Precio Total"
+                            Format="C2"
+                            CellTextAlignment="End"
+                            HeaderTextAlignment="End"
+                            ColumnWidthMode="LastColumnFill"/>
+                    </syncfusion:SfDataGrid.Columns>
+                </syncfusion:SfDataGrid>
+            </Frame>
+
+            <!-- Order Summary -->
+            <Frame Grid.Row="2"
+                   CornerRadius="10"
+                   Padding="15"
+                   HasShadow="True"
+                   BackgroundColor="#F8F9FA"
+                   BorderColor="#E9ECEF"
+                   Margin="0,0,0,0">
+
+                <Grid ColumnDefinitions="*,Auto"
+                      RowDefinitions="25,25,25,40,Auto,50,Auto">
+
+                    <!-- Subtotal -->
+                    <Label Grid.Row="0"
+                           Grid.Column="0"
+                           Text="Subtotal:"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           VerticalOptions="Center"
+                           TextColor="Black"/>
+                    <Label Grid.Row="0"
+                           Grid.Column="1"
+                           x:Name="subtotalLabel"
+                           Text="$0.00"
+                           FontSize="14"
+                           HorizontalTextAlignment="End"
+                           VerticalOptions="Center"
+                           TextColor="Black"/>
+
+                    <!-- Tax -->
+                    <Label Grid.Row="1"
+                           Grid.Column="0"
+                           x:Name="taxDeliveryLabelTitle"
+                           Text=""
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           VerticalOptions="Center"
+                           TextColor="Black"/>
+
+                    <Label Grid.Row="1"
+                           Grid.Column="1"
+                           x:Name="taxDeliveryLabel"
+                           Text="$0.00"
+                           FontSize="14"
+                           HorizontalTextAlignment="End"
+                           VerticalOptions="Center"
+                           TextColor="Black"/>
+
+                    <Label Grid.Row="1"
+                           Grid.Column="0"
+                           x:Name="taxLabelTitle"
+                           Text=""
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           VerticalOptions="Center"
+                           TextColor="Black"/>
+
+                    <Label Grid.Row="1"
+                           Grid.Column="1"
+                           x:Name="taxLabel"
+                           Text="$0.00"
+                           FontSize="14"
+                           HorizontalTextAlignment="End"
+                           VerticalOptions="Center"
+                           TextColor="Black"/>
+
+                    <Label Grid.Row="2"
+                           Grid.Column="0"
+                           x:Name="taxWaiterLabelTitle"
+                           Text="Propina Mesero:"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           VerticalOptions="Center"
+                           TextColor="Black"/>
+
+                    <Label Grid.Row="2"
+                           Grid.Column="1"
+                           x:Name="taxWaiterLabel"
+                           Text="$0.00"
+                           FontSize="14"
+                           HorizontalTextAlignment="End"
+                           VerticalOptions="Center"
+                           TextColor="Black"/>
+
+                    <!-- Discount -->
+                    <Label Grid.Row="3"
+                           Grid.Column="0"
+                           Text="Descuento:"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           VerticalOptions="Center"
+                           TextColor="Black"/>
+                    <Entry Grid.Row="3"
+                           Grid.Column="1"
+                           x:Name="discountEntry"
+                           Text=""
+                           Placeholder="0"
+                           FontSize="14"
+                           HorizontalTextAlignment="End"
+                           Keyboard="Numeric"
+                           WidthRequest="100"
+                           HeightRequest="10"
+                           HorizontalOptions="End"
+                           BackgroundColor="Transparent"
+                           TextColor="Black"
+                           TextChanged="OnDiscountChanged"/>
+
+                    <!-- Separator Line -->
+                    <BoxView Grid.Row="4"
+                             Grid.ColumnSpan="2"
+                             Color="#E9ECEF"
+                             HeightRequest="1"
+                             Margin="0,10"/>
+
+                    <!-- Total -->
+                    <Label Grid.Row="5"
+                           Grid.Column="0"
+                           Text="Total:"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="#007bff"
+                           VerticalOptions="Center"/>
+                    <Label Grid.Row="5"
+                           Grid.Column="1"
+                           x:Name="totalLabel"
+                           Text="$0.00"
+                           FontSize="28"
+                           FontAttributes="Bold"
+                           TextColor="#007bff"
+                           HorizontalTextAlignment="End"
+                           VerticalOptions="Center"/>
+
+                    <!-- Action Buttons -->
+                    <VerticalStackLayout
+                        Grid.Row="6"
+                        Grid.ColumnSpan="2"
+                        Padding="5"
+                        Spacing="10">
+
+                        <buttons:SfButton x:Name="printReceiptButton"
+                                Text="Imprimir Recibo (F4)"
+                                Clicked="OnPrintReceipt"
+                                FontSize="14"
+                                CornerRadius="8"
+                                FontAttributes="Bold"
+                                HorizontalOptions="Fill"
+                                Style="{StaticResource ButtonStyle}"/>
+
+                        <HorizontalStackLayout  Grid.Row="6"
+                                                Grid.ColumnSpan="2"
+                                                Spacing="5"
+                                                HorizontalOptions="Center"
+                                                VerticalOptions="Center"
+                                                Margin="0,0,0,0">
+
+                            <buttons:SfButton x:Name="exitSaveButton"
+                                    Text="Salir y Guardar (ESC)"
+                                    Clicked="OnExitSave"
+                                    FontSize="14"
+                                    HorizontalOptions="Fill"
+                                    CornerRadius="8"
+                                    FontAttributes="Bold"
+                                    Style="{StaticResource CancelButtonStyle}"/>
+
+                            <buttons:SfButton x:Name="printReceiptButtonCopy"
+                                    Text="Imprimir Recibo Copia (F2)"
+                                    Clicked="OnPrintReceiptCopy"
+                                    FontSize="14"
+                                    HorizontalOptions="Fill"
+                                    CornerRadius="8"
+                                    FontAttributes="Bold"
+                                    Style="{StaticResource ButtonStyle}"/>
+
+
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </Grid>
+            </Frame>
+        </Grid>
+    </Grid>
+
+    
+    <ContentPage.Resources>
+        <ResourceDictionary>
+
+            <Style x:Key="CancelButtonStyle"
+                    TargetType="buttons:SfButton">
+                <Setter Property="TextColor"
+                        Value="Black"/>
+                <Setter Property="CornerRadius"
+                        Value="5"/>
+                <Setter Property="IsCheckable"
+                        Value="True"/>
+                <Setter Property="Margin"
+                        Value="0"/>
+                <Setter Property="BackgroundColor"
+                        Value="#F5F7FA"/>
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="Transparent"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Hovered">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#AFFF1D1D"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#FD2D2D"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Checked">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#C7CFDD"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+
+            
+            <Style x:Key="ButtonStyle"
+                    TargetType="buttons:SfButton">
+                <Setter Property="TextColor"
+                        Value="Black"/>
+                <Setter Property="CornerRadius"
+                        Value="5"/>
+                <Setter Property="IsCheckable"
+                        Value="True"/>
+                <Setter Property="Margin"
+                        Value="0"/>
+                <Setter Property="BackgroundColor"
+                        Value="#F5F7FA"/>
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#005F8C"/>
+                                    <Setter Property="TextColor"
+                                            Value="#F3F3F3"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Hovered">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#C7CFDD"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#FFA5AAB3"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Checked">
+                                <VisualState.Setters>
+                                    <Setter Property="Background"
+                                            Value="#005F8C"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+
+        </ResourceDictionary>
+    </ContentPage.Resources>
+</ContentPage>

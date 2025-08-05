@@ -1,0 +1,39 @@
+═════════════════════════════════════════
+            {{ receipt.CompanyName }}
+         {{ receipt.CompanyAddress }}
+          Tel: {{ receipt.CompanyPhone }}
+          RNC: {{ receipt.CompanyRNC }}
+═════════════════════════════════════════
+Mesa: {{ receipt.Order.Table.LocalNumber }} [{{ receipt.Order.Table.GlobalNumber }}]
+Orden: #{{ receipt.Order.OrderNumber }}
+Fecha: {{ receipt.PrintDate | date.to_string "%d/%m/%Y %H:%M" }}
+Mesero: {{ receipt.Order.Waiter.Name }}
+═══════════════════════════════════════════════
+{{- if receipt.Order.Table.IsTakeOut }}
+        *** PARA LLEVAR ***
+═══════════════════════════════════════════════
+{{- end }}
+Artículos:
+{{ for item in receipt.Order.Items }}
+{{ item.Article.Name }} 
+{{ ("- " + item.Quantity + " x " + (item.UnitPrice | math.format "c" "en-US")) | string.pad_right 23 }}{{ item.TotalPrice | math.format "c" "en-US"}}{{ end }}
+═══════════════════════════════════════════════
+{{ "Subtotal:" | string.pad_right 23 }}{{ (receipt.TotalAmount - receipt.TaxAmountITBIS - receipt.TaxAmountWaiters - receipt.TaxAmountDelivery) | math.format "c" "en-US" }}
+{{ if receipt.Order.Discount > 0 }}
+{{ "Descuento:" | string.pad_right 22 }}{{ receipt.Order.Discount | math.format "c" "en-US" | string.prepend "-" }}
+{{end}}
+{{- if receipt.Order.Table.IsTakeOut }}
+{{ ("Delivery (" + (receipt.TaxRateDelivery | math.times 100 | math.format "0") + "%):") | string.pad_right 23 }}{{ receipt.TaxAmountDelivery | math.format "c" "en-US" }}
+{{- else }}
+{{ ("ITBIS (" + (receipt.TaxRateITBIS | math.times 100 | math.format "0") + "%):") | string.pad_right 23 }}{{ receipt.TaxAmountITBIS | math.format "c" "en-US" }}
+{{ ("Propina (" + (receipt.TaxRateWaiters | math.times 100 | math.format "0") + "%):") | string.pad_right 23 }}{{ receipt.TaxAmountWaiters | math.format "c" "en-US" }}
+{{- end }}
+───────────────────────────────────────────────
+{{ "TOTAL:" | string.pad_right 16 }}{{ receipt.TotalAmount | math.format "c" "en-US" }}
+═══════════════════════════════════════════════
+{{ if receipt.Order.IsDuePaid }}
+     *** PENDIENTE DE PAGO ***
+{{ else }}
+         ***  PAGADO  ***
+{{ end }}
+    GRACIAS POR PREFERIRNOS

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:syncfusion="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
+             xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
+             BackgroundColor="White"
+             x:Class="felix1.ListCashRegisterVisual"
+             NavigationPage.HasNavigationBar="False">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <HorizontalStackLayout Grid.Row="0"
+                               Spacing="20">
+
+            <Frame
+                BackgroundColor="#F5F7FA"
+                CornerRadius="10"
+                Padding="0"
+                HasShadow="False"
+                VerticalOptions="Center"
+                HeightRequest="40"
+                BorderColor="#F5F7FA"
+                WidthRequest="340"
+                Margin="20,10,0,0">
+
+                <SearchBar x:Name="searchBar"
+                           Placeholder="Buscar cajas..."
+                           TextChanged="OnSearchBarTextChanged"
+                           TextColor="#22223B"
+                           PlaceholderColor="#A0AEC0"
+                           BackgroundColor="Transparent"
+                           CancelButtonColor="#005F8C"
+                           FontSize="16"
+                           Margin="8,0"
+                           HeightRequest="40"
+                           HorizontalOptions="Fill"/>
+            </Frame>
+
+        </HorizontalStackLayout>
+
+        <!-- Fullscreen DataGrid -->
+        <Frame Grid.Row="1"
+               CornerRadius="10"
+               Padding="0"
+               HasShadow="True"
+               BackgroundColor="#F3F3F3"
+               BorderColor="#F5F7FA"
+               Margin="20"
+               VerticalOptions="Fill"
+               HorizontalOptions="Start">
+
+            <syncfusion:SfDataGrid x:Name="dataGrid"
+                                   ItemsSource="{Binding CashRegisters}"
+                                   VerticalOptions="Fill"
+                                   HorizontalOptions="Fill"
+                                   HeaderRowHeight="60"
+                                   AutoGenerateColumnsMode="None"
+                                   RowHeight="50"
+                                   SortingMode="Single"
+                                   AllowTriStateSorting="True"
+                                   VerticalOverScrollMode="Bounce"
+                                   EmptyView="No hay registros de caja">
+
+                <syncfusion:SfDataGrid.DefaultStyle>
+                    <syncfusion:DataGridStyle HeaderRowBackground="#005F8C"
+                                              HeaderRowTextColor="#F3F3F3"
+                                              RowTextColor="#005F8C"
+                                              HeaderRowFontAttributes="Bold"/>
+                </syncfusion:SfDataGrid.DefaultStyle>
+
+                <syncfusion:SfDataGrid.SortColumnDescriptions>
+                    <syncfusion:SortColumnDescription ColumnName="Id"
+                            SortDirection="Descending"/>
+                </syncfusion:SfDataGrid.SortColumnDescriptions>
+
+                <syncfusion:SfDataGrid.Columns>
+
+                    <syncfusion:DataGridNumericColumn
+                        MappingName="Id"
+                        HeaderText="Codigo"
+                        Format="0000"
+                        CellTextAlignment="Start"
+                        HeaderTextAlignment="Start"
+                        ColumnWidthMode="FitByHeader"/>
+
+                    <syncfusion:DataGridNumericColumn
+                        MappingName="InitialMoney"
+                        HeaderText="Dinero Inicial"
+                        Format="C2"
+                        CellTextAlignment="Start"
+                        HeaderTextAlignment="Start"
+                        ColumnWidthMode="FitByHeader"/>
+
+                    <syncfusion:DataGridTextColumn
+                        MappingName="TimeStarted"
+                        HeaderText="Fecha"
+                        CellTextAlignment="Start"
+                        HeaderTextAlignment="Start"
+                        ColumnWidthMode="None"
+                        Width="180"
+                        ValueBinding="{Binding TimeStarted, StringFormat='{0:dd/MM/yyyy HH:mm}'}"/>
+
+                    <syncfusion:DataGridTextColumn
+                        MappingName="Cashier.Name"
+                        HeaderText="Cajero"
+                        CellTextAlignment="Start"
+                        HeaderTextAlignment="Start"
+                        ColumnWidthMode="FitByHeader"/>
+
+                    <syncfusion:DataGridTemplateColumn HeaderText="Accion"
+                                                       ColumnWidthMode="LastColumnFill">
+                        <syncfusion:DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <HorizontalStackLayout Spacing="10"
+                                                       HorizontalOptions="Center">
+                                    <ImageButton
+                                        Source="view.png"
+                                        CornerRadius="10"
+                                        Padding="10"
+                                        WidthRequest="28"
+                                        HeightRequest="28"
+                                        BackgroundColor="#F3F3F3"
+                                        Clicked="OnDetailsClicked"
+                                        VerticalOptions="Center">
+                                        <VisualStateManager.VisualStateGroups>
+                                            <VisualStateGroupList>
+                                                <VisualStateGroup x:Name="CommonStates">
+                                                    <VisualState x:Name="Normal">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="BackgroundColor"
+                                                                    Value="Transparent"/>
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                    <VisualState x:Name="PointerOver">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="BackgroundColor"
+                                                                    Value="#FFD6D7DA"/>
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                </VisualStateGroup>
+                                            </VisualStateGroupList>
+                                        </VisualStateManager.VisualStateGroups>
+                                    </ImageButton>
+                                </HorizontalStackLayout>
+                            </DataTemplate>
+                        </syncfusion:DataGridTemplateColumn.CellTemplate>
+                    </syncfusion:DataGridTemplateColumn>
+                </syncfusion:SfDataGrid.Columns>
+            </syncfusion:SfDataGrid>
+        </Frame>
+    </Grid>
+</ContentView>
